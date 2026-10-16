@@ -1,0 +1,13 @@
+node_modules/
+dist/
+delivery/
+docs/backups/
+.env
+.env.*
+!.env.example
+*.log
+
+# 원본 이미지 (로컬 보존, 코드 미사용)
+image/
+samplepages/
+.claude/settings.local.json

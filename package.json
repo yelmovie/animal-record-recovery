@@ -1,0 +1,7 @@
+{
+  "name": "animal-record-recovery",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "preview": "node server.mjs dist", "build": "node scripts/build.mjs", "test": "node --test tests/*.test.mjs", "check": "node scripts/check.mjs" }
+}

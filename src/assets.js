@@ -1,0 +1,22 @@
+// Shared presentation boundary. Replace a raster with a model viewer here later;
+// learning IDs, recorded evidence and save data must remain independent of rendering.
+export const ASSETS = Object.freeze({
+  crab: {src:'crab', label:'게'},
+  frog: {src:'frog', label:'개구리'},
+  rabbit: {src:'rabbit', label:'토끼'},
+  marine: {src:'marine_fish', label:'바다 물고기'},
+  flipper: {src:'flipper', label:'넓은 면을 가진 수영 오리발'},
+  helmet: {src:'helmet', label:'머리를 감싸는 안전모'},
+  coat: {src:'coat', label:'두툼한 안감이 있는 방한 외투'},
+  pond: {src:'pond_base', label:'연못 지형'},
+  lotus: {src:'lotus_leaf', label:'연잎'},
+  reed: {src:'reed', label:'갈대'},
+  case: {src:'evidence_case', label:'조사할 동물 기록과 돋보기'},
+});
+export const assetURL = id => new URL(`../assets/generated/${ASSETS[id].src}.webp`, import.meta.url).href;
+export const sheetURL = sheet => new URL(`../assets/${sheet}.webp`, import.meta.url).href;
+export function assetImage(id, className='', decorative=false) {
+  const asset=ASSETS[id];
+  if(!asset) throw new Error(`Unknown presentation asset: ${id}`);
+  return `<img class="asset-image ${className}" src="${assetURL(id)}" alt="${decorative?'':asset.label}" width="1280" height="1280" decoding="async" draggable="false" data-asset="${id}" />`;
+}

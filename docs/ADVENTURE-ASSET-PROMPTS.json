@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-15",
+  "mode": "OpenAI built-in image generation",
+  "assets": [
+    {
+      "id": "trail-map",
+      "source": "assets/adventure/trail-map.png",
+      "runtime": "assets/adventure/trail-map.webp",
+      "prompt": "Generate a premium polished 16:9 landscape illustrated game world map for a Korean elementary science adventure game about observing animals. A lush miniature nature reserve with gorgeous cozy hand-painted 3D storybook quality, detailed natural materials, warm golden daylight, rounded believable architecture, rich moss green and cream with muted teal water and tiny amber lamps. Elevated three-quarter top-down isometric camera. This is a usable game map background, NOT a poster, NOT a UI mockup. No text, no letters, no numbers, no signs with writing, no interface, no humans and no raccoons. One continuous clearly visible pale sandy walking trail curves from entrance at normalized coordinate (10%,88%) through five destinations in this precise order: (20%,66%) a small forest observation treehouse with wooden binocular platform; (27%,32%) an outdoor garden sorting station with open wooden specimen shelves; (55%,22%) a pond-side field station with small wooden pier, reeds and lily pads, a hint of sea inlet beyond; (76%,40%) a welcoming animal field-guide hut with illustrated animal-shaped wooden carvings; (82%,75%) a cozy small inventor workshop with copper roof and outdoor workbench; trail finally curves toward a small central campsite around (56%,82%). Leave distinct open walking space directly in front of all five buildings and make the trail accurately join all destinations. Surround the areas with beautifully rendered varied trees, rocks, wildflowers, stream, one small timber bridge; picturesque mountains far at top. Keep important architecture away from outer 5% edges. Entire image filled with environment, no flat blank margins, no dark vignette. Eye-level details readable at tablet scale. Materials should look like a high-end children's adventure game, not crude vector art or CSS shapes. Balanced composition with separated landmarks and easily navigable trail. Crisp high-resolution fine details with subtle sunlight and atmospheric depth."
+    },
+    {
+      "id": "explorer",
+      "source": "assets/adventure/explorer-source.png",
+      "runtime": "assets/adventure/explorer.webp",
+      "prompt": "Create a single premium stylized 3D children's educational adventure game character asset on a genuinely transparent background. A fictional Korean elementary school explorer about 9 years old named Haru, an androgynous friendly child with short softly tousled dark brown hair, warm brown eyes, an expressive curious smile, natural child proportions with a slightly larger head for game readability (not a baby). Full body standing in a relaxed ready-to-walk pose facing three-quarter front toward the viewer's left, one hand holding a small field journal close to the torso, other hand relaxed and free. Outfit: cream safari vest over a muted teal short sleeve shirt, warm khaki shorts, ankle socks, sturdy small brown hiking boots, a compact burnt orange backpack visible over both shoulders, a small plain green leaf pin on the vest. Soft detailed fabric and leather materials, tasteful cozy nature explorer design matching a high-end 3D animated family film or polished educational game. Warm soft studio illumination, clean silhouette easy to read when small, anatomically correct hands and limbs, entire head and boots visible with generous safe padding. Single character only, no companion, no environment, no letters, no text, no logos, no ground plane, no opaque shadow, no glow, no grid, no surrounding frame. Centered full-body cutout, transparent alpha background. Portrait 2:3 composition if possible."
+    },
+    {
+      "id": "duck",
+      "prompt": "A single adult mallard duck, whole body in three-quarter side view facing left, realistic scientifically recognizable duck anatomy with broad flat bill, two webbed feet clearly visible, feather-covered body and two folded wings, green male head and brown chest. Premium softly stylized 3D natural history museum model for an elementary educational adventure game, beautiful believable feathers, warm studio illumination, neutral pleasant expression. Not anthropomorphic, no clothes, no extra limbs, correct eyes. Centered full-body cutout with generous transparent padding, no environment, no ground, no labels, no text, no shadow or halo. Genuinely transparent alpha background.",
+      "source": "assets/adventure/duck.png",
+      "runtime": "assets/adventure/duck.webp"
+    },
+    {
+      "id": "butterfly",
+      "prompt": "A single scientifically recognizable swallowtail butterfly natural history educational game asset. Full insect seen from above with two large yellow and black forewings and two smaller hindwings spread open, one body, six slender legs, two delicate antennae. Correct insect anatomy, no extra wings. Premium detailed softly stylized 3D museum specimen, gentle warm studio lighting, visually clear large wings and segmentation for children. Entire insect visible centered, isolated full-body cutout, no pins, no specimen frame, no decoration, no plants, no label or text, no environment, no ground shadow, no glow. Genuinely transparent alpha background.",
+      "source": "assets/adventure/butterfly.png",
+      "runtime": "assets/adventure/butterfly.webp"
+    },
+    {
+      "id": "field-kit",
+      "prompt": "A single cohesive treasure reward game prop: a small beautifully crafted open wooden nature-explorer equipment case filled with a brass magnifying glass, a teal pocket compass, a tiny cream field journal with a plain leaf embossing, and compact brass binoculars. The contents are neatly nestled in cream canvas lining, a warm amber discovery gem-shaped badge sits on the front of the case. Premium polished stylized 3D educational adventure game item, natural tactile wood, brass and linen, cozy storybook film quality, soft warm studio light. No coins, no money, no weapons. Single coherent prop viewed from three-quarter front elevated angle. Full object isolated with generous transparent padding, no text, no letters, no logo, no environment, no ground plane, no glow and no opaque shadow. Genuinely transparent alpha background.",
+      "source": "assets/adventure/field-kit.png",
+      "runtime": "assets/adventure/field-kit.webp"
+    },
+    {
+      "id": "field-desk",
+      "source": "assets/adventure/field-desk.png",
+      "runtime": "assets/adventure/field-desk.webp",
+      "prompt": "A premium illustrated environmental background plate for a children's 3D nature exploration game, landscape 3:2 composition. An outdoor field research table in a sunlit forest, camera slightly elevated looking down onto the work surface. A large clean softly textured warm cream canvas specimen mat occupies the central 75% of the image and is completely empty for interactive animal models to be placed by the game. Wooden table edges visible at bottom and sides. At extreme top left a folded small khaki field bag, at extreme bottom right a small brass magnifying glass and green leaf, at far back a hint of beautifully rendered forest, soft moss, fern foliage and warm morning sunlight. The center must remain visually quiet, bright, unobstructed and nearly planar. Tactile natural wood and linen, muted olive and warm cream colors, cinematic cozy polished game materials, sophisticated professional educational game feel. No animals, no insects, no humans, no text, no letters, no numbers, no UI, no interface, no journal writing, no strong spotlight or glare, no objects blocking the central mat. Crisp high resolution, gentle soft shadows, no dark vignette."
+    },
+    {
+      "id": "goldfish",
+      "source": "assets/adventure/goldfish.png",
+      "runtime": "assets/adventure/goldfish.webp",
+      "prompt": "A single whole goldfish seen in a three-quarter side view facing left, natural scientifically recognizable anatomy for a children's nature exploration game. Orange and golden scales, broad fan-like caudal tail, clearly visible dorsal fin on its back, paired pectoral and pelvic fins and small anal fin, two natural eyes and a small fish mouth, no human expression. Premium softly stylized 3D natural history museum model, realistic fin rays and translucent fins, gentle warm studio lighting, matching a polished cozy educational adventure game. It must have fins and NO legs, NO wings, NO eyelashes, NO clothing. Entire fish and all fins visible, centered horizontally with generous padding. Single isolated full-body cutout, no water tank, no water, no bubbles, no seaweed, no environment, no text, no label, no frame, no opaque shadow or glow. Genuinely transparent alpha background."
+    }
+  ]
+}
