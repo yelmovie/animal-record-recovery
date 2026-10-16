@@ -11,3 +11,5 @@ docs/backups/
 image/
 samplepages/
 .claude/settings.local.json
+
+.vercel
