@@ -13,3 +13,5 @@ samplepages/
 .claude/settings.local.json
 
 .vercel
+
+.wrangler/
