@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { ASSETS } from '../src/assets.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const files=['index.html',...['inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css'].map(f=>`src/${f}`),
+const files=['index.html',...['inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css','view3d.js','stage3d.js','scanner3d.js',...['three.module.min.js','three.core.min.js','LICENSE.txt'].map(f=>`vendor/three/${f}`)].map(f=>`src/${f}`),
   ...['raccoon','biomes','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),

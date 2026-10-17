@@ -7,13 +7,16 @@ import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
+import {can3d,mount3d,disable3d} from './view3d.js';
 
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 let s,storageOK=true;
 try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
-let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null;
+let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null;
+// Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
+const pinned=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({screen,stage,step,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,sketching,report,feedback,restoredFlash,picked,canGoBack:navigation.canGoBack});
+const view=()=>({screen,stage,step,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,sketching,report,feedback,restoredFlash,picked,use3d:can3d(),pinned:[...pinned],canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));storageOK=true;}catch{storageOK=false;}
@@ -31,6 +34,7 @@ function render(){
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   // Tablet landscape can clip the last choice inside the panel; show a cue while more is below.
   const ws=app.querySelector?.('.activity-workspace');if(ws){const cue=()=>ws.classList.toggle('more',ws.scrollHeight-ws.scrollTop-ws.clientHeight>8);ws.addEventListener('scroll',cue,{passive:true});cue();setTimeout(cue,600);}
+  sync3d();
   if(motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
   if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:[...s.completed],flash:flashed,onTalk:talk,onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;save();
@@ -39,6 +43,21 @@ function render(){
   if(screen==='map'&&!arrived){const m=map;if(flashed&&typeof setTimeout==='function')setTimeout(()=>{if(map===m)m.move(selectedStage);},2400);else m.move(selectedStage);}
   if(data)[...app.querySelectorAll('[data-action]')].find(el=>Object.entries(data).every(([k,v])=>el.dataset[k]===v))?.focus({preventScroll:true});
   save();
+}
+// The 3D viewer outlives re-renders: its canvas moves into the new host, so the camera stays where the learner left it.
+function sync3d(){
+  const host=app.querySelector?.('[data-3d]'),kind=host?.dataset['3d'];
+  if(!host){viewer?.destroy();viewer=null;return;}
+  if(viewer?.kind===kind)viewer.attach(host,opts3d(kind));else{viewer?.destroy();viewer=mount3d(kind,host,opts3d(kind));}
+}
+function fail3d(){disable3d();viewer?.destroy();viewer=null;render();document.querySelector('#announcer').textContent='3D 화면을 열 수 없어서 그림 화면으로 바꿨어.';}
+const tapAnchor=pt=>({getBoundingClientRect:()=>({left:pt.x,top:pt.y,width:0,height:0})});
+function opts3d(kind){
+  if(kind==='scanner'){const pair=OBSERVE_PAIRS[round()],id=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0],list=OBSERVATIONS[id],idx=f=>list.flatMap((o,i)=>f(o)?[i]:[]);
+    return {animal:id,parts:list.map(o=>o.label),found:idx(o=>s.observed.includes(o.id)),pinned:idx(o=>pinned.has(o.id)),focus:focusIndex,onFail:fail3d,
+      onPick(i){focusIndex=i;pinned.add(list[i].id);feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=`${list[i].label}에 관찰핀을 꽂았어.`;},
+      onMiss(hint,pt){playSound(s.soundEnabled,'retry');toast(hint,tapAnchor(pt));}};}
+  return {onFail:fail3d};
 }
 // FLIP: cards glide from their old group to the new one, so a changed criterion visibly regroups the same animals.
 function groupRects(){return new Map([...document.querySelectorAll('.group-animal[data-id]')].map(el=>[el.dataset.id,el.getBoundingClientRect()]));}
@@ -117,8 +136,9 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'nav-back':back();break;
     case 'inspect':focusIndex=Math.max(0,Math.min(2,Number(value)||0));render();break;
     case 'animal-tab':focusIndex=0;if(OBSERVE_PAIRS[round()].includes(id)){s.activeAnimal=id;zoom=false;feedback=null;render();}break;
-    case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;if(value&&value!=='right')return say(`렌즈로 ${o.label} 부분을 다시 살펴봐. 그림과 다른 설명이야.`,false,['observe:'+value]);if(!s.observed.includes(id))s.observed.push(id);feedback=null;render();document.querySelector('#announcer').textContent='특징을 기록했어.';break;}
+    case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;if(value&&value!=='right')return say(can3d()?`3D 표본에서 ${o.label} 부분을 다시 살펴봐. 본 모습과 다른 설명이야.`:`렌즈로 ${o.label} 부분을 다시 살펴봐. 그림과 다른 설명이야.`,false,['observe:'+value]);if(!s.observed.includes(id))s.observed.push(id);feedback=null;render();document.querySelector('#announcer').textContent='특징을 기록했어.';break;}
     case 'zoom':zoom=!zoom;render();break;
+    case 'scan-reset':viewer?.call('reset');break;
     case 'compare':{const c=s.compares[round()];for(const k of ['common','difference'])if(c[k]===value)delete c[k];if(['common','difference'].includes(key))c[key]=value;feedback=null;render();break;}
     case 'sort':if(!SORT_ANIMALS.includes(id))break;if(value==='pool')delete s.sorts[round()][id];else s.sorts[round()][id]=value;feedback=null;render();break;
     case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;

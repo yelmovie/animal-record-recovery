@@ -29,3 +29,8 @@
 ## 동물 그림 추가 (2026-10-17)
 
 `adventure/bee.webp`, `snail.webp`, `bat.webp`, `hen.webp`: Higgsfield의 GPT Image 2.5 모델로 이 프로젝트를 위해 생성했다. 기존 `generated/frog.png`를 화풍 참고 이미지로 넣었다. 흰 배경은 프로젝트 스크립트로 투명하게 바꾸고 WebP로 줄였다. 투명 PNG 원본은 `D:/iscreammedia_sc34/_scratch/hf-animals/`에 있다. 분류 게이트·미확인 기록 수사실의 후보 동물로 쓴다.
+
+## three.js (2026-10-17 추가)
+
+- `src/vendor/three/three.module.min.js`, `three.core.min.js`: three.js r181(0.181.1), MIT License, Copyright 2010-2025 three.js authors. 공식 npm 패키지 `three@0.181.1` 배포본을 수정 없이 넣었고 라이선스 원문은 같은 폴더 `LICENSE.txt`. 학교망에서 CDN이 막혀도 되도록 외부 요청 없이 프로젝트 안에서 불러온다.
+- 02 관찰 스캐너의 3D 동물(개구리·게·오리·토끼)은 외부 모델 없이 `src/scanner3d.js` 코드로 만든 도형 조합이고, 표면 무늬도 코드로 그린 캔버스 텍스처다.

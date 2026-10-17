@@ -229,3 +229,23 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .map-page .world-frame{aspect-ratio:16/9;min-height:0}.map-page .world-art{object-fit:cover}
 .map-page>.world-top{position:static;margin:0 0 12px}
 @media(prefers-reduced-motion:reduce){.village-restore.just-restored,.village-sprite.npc::after{animation:none}}
+
+/* Screen 02/06 in 3D: the canvas fills its host; pins and labels are DOM so Korean text stays crisp. */
+.scan-scene{padding:58px 16px 12px;gap:8px;justify-content:space-between}
+.scan3d{position:relative;width:100%;flex:1;min-height:260px;border-radius:20px;overflow:hidden;background:radial-gradient(ellipse at 50% 38%,#fbf8ec 0,#e4e8d2 70%,#d5dcc0 100%);border:1px solid #dfe3cf;touch-action:none}
+.scan-loading{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#6c7e52;font-size:16px}
+.stage3d{position:absolute;inset:0}
+.stage3d canvas{display:block;width:100%;height:100%;touch-action:none;outline:none;cursor:grab}
+.stage3d canvas:focus-visible{box-shadow:inset 0 0 0 4px #f1c95a}
+.pin-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.pin3d{position:absolute;left:0;top:0;display:flex;align-items:center;gap:5px;margin:-16px 0 0 -16px;transition:opacity .2s;will-change:transform}
+.pin3d b{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#355f43;color:#fffbe1;border:3px solid #fffcde;font-size:15px;box-shadow:0 2px 6px #23392b55}
+.pin3d span{background:#fffef2;color:#47553a;border:1px solid #d1d9b8;border-radius:8px;padding:2px 8px;font-size:15px;white-space:nowrap;box-shadow:0 1px 4px #23392b22}
+.pin3d.found b{background:#dcebaa;color:#3d5a31}
+.pin3d.focus b{box-shadow:0 0 0 5px #f1c95a99,0 2px 6px #23392b55}
+.pin3d.behind{opacity:.28}
+.scan-scene .part-buttons{justify-content:center}
+.scan-scene .part-buttons .btn .icon{width:18px;height:18px;margin-right:4px}
+@media (prefers-reduced-motion:no-preference){.pin3d.focus b{animation:pin-pop .45s ease-out}}
+@keyframes pin-pop{0%{transform:scale(.3)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.scan3d:has(.stage3d) .scan-loading{display:none}

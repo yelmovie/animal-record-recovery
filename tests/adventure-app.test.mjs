@@ -19,7 +19,7 @@ function appHarness({fail=false,motion=false}={}){
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{}}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},playSound(){},silence(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return false;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,status,announcer,slider,inputControl(target){listeners.get('input')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -53,4 +53,12 @@ test('drag cards and tap pick → place both fill gates, slots and the chain; wr
   a.run("act(dropData({id:'bat'},{dropAction:'sort',zone:'pool'}).action,{dataset:dropData({id:'bat'},{dropAction:'sort',zone:'pool'}).dataset})");assert.equal(a.run('s.sorts[0].bat'),undefined,'dragging back to the tray removes it');
   a.run("enter(1);step=1;act('compare',{dataset:{key:'common',value:'common-eyes'}});act('compare',{dataset:{key:'difference',value:'common-eyes'}})");assert.equal(a.run('s.compares[0].common'),undefined,'a card sits in one slot only');assert.equal(a.run('s.compares[0].difference'),'common-eyes');
   a.run("enter(3);act('link',{dataset:{id:'frog',key:'environment',value:'web',kind:'body'}})");assert.equal(a.run('s.links.frog.environment'),undefined);assert.match(a.run('feedback.text'),/사는 곳/);
+});
+test('a pin on the 3D specimen focuses that part without recording it; a wrong part only hints',()=>{
+  const a=appHarness();a.run("enter(1)");const o=a.run("opts3d('scanner')");
+  assert.equal(o.animal,'frog');assert.deepEqual(o.parts,['눈','뒷다리','몸 표면']);assert.deepEqual(o.pinned,[]);
+  o.onPick(1);assert.equal(a.run('focusIndex'),1);assert.equal(a.run("pinned.has('frog-leg')"),true);assert.deepEqual(a.run('s.observed'),[]);
+  assert.deepEqual(a.run("opts3d('scanner').pinned"),[1]);
+  a.run("act('observe',{dataset:{id:'frog-leg',value:'right'}})");assert.deepEqual(a.run('s.observed'),['frog-leg']);assert.deepEqual(a.run("opts3d('scanner').found"),[1]);
+  a.run("act('animal-tab',{dataset:{id:'crab'}})");assert.equal(a.run("opts3d('scanner').animal"),'crab');
 });
