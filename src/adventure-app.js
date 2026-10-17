@@ -1,6 +1,6 @@
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
 import {art,mori,icon,btn,esc} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent} from './shell-views.js';
 import {createVillage} from './village.js';
@@ -171,9 +171,11 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'clue-spend':{const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k||a.opened.includes(k.id))break;if(a.opened.length>=CLUE_ENERGY)return say('조사 에너지를 다 썼어. 연 단서로 판단하거나 ‘다시 조사’를 눌러 봐.');a.opened.push(k.id);feedback=null;save();render();break;}
     case 'case-habitat':s.cases[round()].habitat=value;feedback=null;render();break;
     case 'case-reason':s.cases[round()].reason=value;feedback=null;render();break;
-    case 'design-problem':{const d=s.designs[round()];if(!Object.hasOwn(PROBLEMS,value)||(round()&&value===s.designs[0].problem))return;if(d.problem!==value)d.experiment=normalizeExperiment();d.problem=value;if(!d.name||Object.values(PROBLEMS).some(p=>p.product===d.name))d.name=PROBLEMS[value].product;d.feature='';d.structure='';d.explanation='';report=null;feedback=null;render();break;}
+    case 'design-problem':{const d=s.designs[round()];if(!Object.hasOwn(PROBLEMS,value)||(round()&&value===s.designs[0].problem))return;if(d.problem!==value)d.experiment=normalizeExperiment();d.problem=value;if(!d.name||Object.values(PROBLEMS).some(p=>p.product===d.name))d.name=PROBLEMS[value].product;d.feature='';d.structure='';d.spot='';d.explanation='';report=null;feedback=null;render();break;}
     case 'source-seen':s.designs[round()].experiment.sourceSeen=true;feedback={good:true,text:'이 특징을 물건의 어느 부분에 쓸까?'};render();break;
     case 'design-choice':if(['feature','structure'].includes(key))s.designs[round()][key]=value;s.designs[round()].explanation='';report=null;feedback=null;render();break;
+    // A part dropped on a spot of the product (screen 09); dropped back on the tray it comes off.
+    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback=null;render();break;}
     case 'sketch-toggle':sketching=!sketching;render();break;
     case 'sketch-undo':s.designs[round()].strokes.pop();render();break;
     case 'test':report=recordTrial(s,round());feedback={good:report.passed,text:report.passed?'특징과 구조가 연결됐어! 이제 아래 설명 카드도 골라 봐.':'바꿀 부분을 찾은 거야! 설계를 고쳐 다시 시험해 봐.'};render();break;
@@ -196,7 +198,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'experiment-level':s.designs[round()].experiment.level=Math.max(1,Math.min(3,Number(value)||1));s.designs[round()].experiment.reflection='';render();break;
     case 'prediction':s.designs[round()].experiment.prediction=value;render();break;
     case 'reflection':s.designs[round()].experiment.reflection=value;render();break;
-    case 'experiment-run':{const d=s.designs[round()];report=recordTrial(s,round());if(!report.passed){say('고른 동물 특징과 물건의 부분이 어울리는지 다시 살펴봐. 아래의 이전 활동을 눌러 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();break;}
+    case 'experiment-run':{const d=s.designs[round()];report=recordTrial(s,round());if(!report.passed){say('시험해 보니 맞지 않는 조건이 있어. 점검표를 보고 설계를 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();break;}
     case 'lens-animal':modal('확대 관찰',lensTool(id,0));break;
     case 'lens-part':modal('확대 관찰',lensTool(id,Number(value)||0));break;
     case 'notebook':notebook();break;

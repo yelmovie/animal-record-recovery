@@ -4,7 +4,7 @@ import {normalizeExperiment,normalizeInquiry,addExperimentTrial,experimentReady,
 import {freshExpedition,restoreExpedition,taskReady,recordTrial,PROBLEMS,DISCOVERIES} from '../src/expedition.js';
 import {activityView} from '../src/mission-views.js';
 import {experimentDiagram,motionDiagram} from '../src/inquiry-views.js';
-function design(){return {...freshExpedition().designs[0],problem:'swim',feature:'web',structure:'wide',name:'물살 오리발'};}
+function design(){return {...freshExpedition().designs[0],problem:'swim',feature:'web',structure:'wide',spot:'toe',name:'물살 오리발'};}
 function finish(d){d.experiment.sourceSeen=true;d.experiment.prediction='less';addExperimentTrial(d);d.experiment.level=3;addExperimentTrial(d);d.experiment.reflection='surprised';d.experiment.note='넓게 바꾸니 물을 더 많이 밀었어.';}
 test('prediction and source observation are required before an experiment records a trial',()=>{const d=design();assert.equal(addExperimentTrial(d),false);d.experiment.sourceSeen=true;assert.equal(addExperimentTrial(d),false);d.experiment.prediction='same';assert.ok(addExperimentTrial(d));});
 test('repeating one setting cannot satisfy a comparison; a wrong prediction does not lose credit',()=>{const d=design();d.experiment.sourceSeen=true;d.experiment.prediction='less';addExperimentTrial(d);addExperimentTrial(d);d.experiment.reflection='surprised';d.experiment.note='예상과 달랐어';assert.equal(experimentReady(d),false);d.experiment.level=3;addExperimentTrial(d);assert.equal(experimentReady(d),false);d.experiment.reflection='surprised';assert.equal(experimentReady(d),true);});

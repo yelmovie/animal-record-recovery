@@ -13,7 +13,7 @@ function solve(s,stage,step){
   if(stage===2){if(r)s.criteria[1]='web';else s.criteria[0]='wings';const key=r?'web':'wings';if(step%2===0)for(const id of SORT_ANIMALS)s.sorts[r][id]=ANIMALS[id][key]?'yes':'no';else if(r){s.inquiry.verify[1].checked='web';s.inquiry.reclass[1]={prediction:'yes',revealed:true};}else s.inquiry.verify[0]={ran:true,cause:'opinion',fix:'wings',checked:'wings'};}
   if(stage===3){if(step%2===0){s.discovered.push(...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.id));for(const d of DISCOVERIES.slice(r*3,r*3+3))s.inquiry.motion[d.animal]=1;}else{const id=r?'crab':'frog';for(const [i,key]of ['environment','body','life'].entries())s.links[id][key]=LINKS[id].answer[i];}}
   if(stage===4){const c=CASES[r],g=r?['place','move']:['place','cover'];if(step%2===0)Object.assign(s.cases[r],{opened:[...g],grounds:[...g],candidate:c.animal});else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
-  if(stage===5){const id=r?'protect':'swim',p=PROBLEMS[id];if(step%2===0)Object.assign(s.designs[r],{problem:id,feature:p.feature,structure:p.structure,name:r?'단단모':'물갈퀴 추진기'});else{recordTrial(s,r);completeExperiment(s.designs[r]);s.designs[r].explanation='match';}s.designs[r].experiment.sourceSeen=true;}
+  if(stage===5){const id=r?'protect':'swim',p=PROBLEMS[id];if(step%2===0)Object.assign(s.designs[r],{problem:id,feature:p.feature,structure:p.structure,spot:{swim:'toe',protect:'top',warm:'body'}[id],name:r?'단단모':'물갈퀴 추진기'});else{recordTrial(s,r);completeExperiment(s.designs[r]);s.designs[r].explanation='match';}s.designs[r].experiment.sourceSeen=true;}
 }
 function completeExperiment(d){d.experiment.sourceSeen=true;d.experiment.prediction='more';d.experiment.level=1;addExperimentTrial(d);d.experiment.level=3;addExperimentTrial(d);d.experiment.reflection='changed';d.experiment.note='폭을 넓혀서 물을 더 많이 밀었어.';}
 function complete(s,stage){for(let step=0;step<4;step++){solve(s,stage,step);assert.equal(claimTask(s,stage,step).ok,true,`${stage}-${step}`);}}
@@ -72,4 +72,12 @@ test('criterion check room needs the check run, the opinion cause, and a re-chec
   const s=freshExpedition(),v=s.inquiry.verify[0];for(const id of SORT_ANIMALS)s.sorts[0][id]=ANIMALS[id].wings?'yes':'no';
   assert.equal(taskReady(s,2,1),false);v.ran=true;v.cause='few';assert.equal(taskReady(s,2,1),false);v.cause='opinion';v.fix='cute';v.checked='cute';assert.equal(taskReady(s,2,1),false,'an opinion question still disagrees');
   v.fix='legs';assert.equal(taskReady(s,2,1),false,'must re-check after fixing');v.checked='legs';assert.equal(taskReady(s,2,1),true);
+});
+test('screen 09: the right part only works at the right spot, and old saves keep their placed part',async()=>{
+  const {testDesign,PRODUCTS,revisions}=await import('../src/expedition.js');
+  for(const [problem,p] of Object.entries(PROBLEMS)){const d={problem,feature:p.feature,structure:p.structure,spot:PRODUCTS[problem].spot};assert.equal(testDesign(d).passed,true);
+    for(const [spot] of PRODUCTS[problem].spots.filter(x=>x[0]!==PRODUCTS[problem].spot)){const r=testDesign({...d,spot});assert.equal(r.passed,false);assert.equal(r.spot,false);assert.equal(r.structure,true);}}
+  const s=freshExpedition();s.designs[0]={...s.designs[0],problem:'swim',feature:'web',structure:'wide',trials:[{problem:'swim',feature:'web',structure:'wide',passed:true}]};delete s.designs[0].spot;
+  const out=restoreExpedition(JSON.stringify(s));assert.equal(out.designs[0].spot,'toe');assert.equal(out.designs[0].trials[0].passed,true);
+  out.designs[0].spot='ankle';recordTrial(out,0);assert.equal(revisions(out.designs[0]),1);
 });

@@ -255,3 +255,32 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .dome-scene .habitat-caption .btn .icon{width:18px;height:18px;margin-right:4px}
 .pin3d.zone{margin:0}
 .pin3d.zone span{transform:translate(-50%,-50%);background:#2f4f3be8;color:#fffbe1;border:0;font-size:15px;padding:3px 10px}
+/* Screen 09 part assembly / screen 10 function check */
+.assembly{position:relative;width:100%;max-width:420px;aspect-ratio:320/260;flex:0 1 auto;min-height:0}
+.assembly-art{position:absolute;inset:0;width:100%;height:100%;background:#fffdf3e6;border-radius:16px;border:1px solid #d5dfb9}
+.assembly-art:not(.drawing-enabled) #drawing-surface{pointer-events:none}
+.part-spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:76px;min-height:44px;padding:4px 6px;border-radius:12px;background:#fffbe8f0;z-index:1}
+.part-spot>small{font-size:13px;font-weight:700;color:#5d6d45;line-height:1.2}
+.part-spot.filled{border-style:solid;border-color:#8aa864;background:#f3f8e6}
+.assembly.sketching .part-spot{pointer-events:none;opacity:.45}
+.drag-card.part-card{display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 12px 6px 6px;border-radius:14px;border:2px solid #dfe3c9;background:#fffdf3;font-size:16px;font-weight:700;color:#3d5536;text-align:left}
+.drag-card.part-card svg{width:54px;height:44px;flex:none}
+.drag-card.part-card.placed{min-height:40px;padding:2px 8px 2px 2px;font-size:14px;gap:4px}
+.drag-card.part-card.placed svg{width:34px;height:28px}
+.part-tray{margin-top:4px}.part-pool{display:flex;flex-wrap:wrap;gap:8px;min-height:60px}
+.part-tip{font-size:15px;line-height:1.45;color:#66744e;margin-top:6px}
+.design-options .source-study{margin:0 0 8px}
+.design-bench .assembly{max-height:calc(100% - 150px)}
+.check-bench{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;background:#f4f2e2}
+.check-bench h2{font-size:23px;text-align:center}
+.part-spot.bad{border:3px solid #c8643a;background:#fdebe1}
+.part-spot>b{font-size:13px;color:#3d5536}
+.check-list{padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.check-list>h2{display:flex;align-items:center;gap:8px;font-size:22px;color:#8a3f1f}.check-list>h2 .icon{width:26px;height:26px}
+.check-list ul{list-style:none;display:flex;flex-direction:column;gap:8px;padding:0;margin:0}
+.check-list li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;border:2px solid #d5dfb9;background:#fbfaf3}
+.check-list li>.icon{width:28px;height:28px;flex:none;padding:3px;border-radius:50%;background:#e3efcf;color:#3f6b33}
+.check-list li.bad{border-color:#e7a37d;background:#fdf1e8}.check-list li.bad>.icon{background:#f6d2bd;color:#9c4220}
+.check-list li b{font-size:18px}.check-list li p{font-size:16px;line-height:1.45;margin-top:2px}
+.check-note{font-size:15px;color:#66744e}.check-list>.btn{align-self:flex-start;min-height:52px}
+@media(max-width:900px){.check-bench .assembly,.design-bench .assembly{max-width:360px}}

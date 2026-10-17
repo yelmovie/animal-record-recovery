@@ -1,7 +1,7 @@
 import {normalizeExperiment,normalizeInquiry,experimentReady,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 // Learning and progression are independent of the image / map presentation.
-import {restoreState as restoreLegacy, testDesign, PROBLEMS} from './model.js';
-export {testDesign, PROBLEMS};
+import {restoreState as restoreLegacy, testDesign as testChoices, PROBLEMS} from './model.js';
+export {PROBLEMS};
 export const STORAGE_KEY='animal-record-recovery:v1';
 export const VERSION=3;
 export const STAGES=[
@@ -98,8 +98,20 @@ export const proves=(c,ids)=>ids.length>=2&&ids.every(id=>clueOf(c,id))&&fitting
 const groundsReady=(c,a)=>a.candidate===c.animal&&a.grounds.every(id=>a.opened.includes(id))&&proves(c,a.grounds);
 export const FEATURES=[['shell','거북의 단단한 등딱지'],['web','오리의 물갈퀴'],['fur','북극곰의 촘촘한 털']];
 export const STRUCTURES=[['dome','머리를 감싸는 단단한 덮개'],['wide','물을 미는 넓고 납작한 면'],['layer','공기를 머금는 여러 겹']];
+// Screen 09: a plain product and three places a part can go. [id, label, what the test shows with the part there].
+// Anchor = where the part sits on the 320×260 drawing; chip = where its drop label sits (percent of the drawing).
+export const PRODUCTS={
+  swim:{base:'수영 신발',need:'물을 뒤로 많이 밀어 낼 부분이 필요해.',spot:'toe',spots:[['toe','발끝','발끝은 발을 찰 때 물을 가장 많이 미는 곳이야.',[262,196],[82,90]],['ankle','발목','발목은 발을 차도 물을 거의 밀지 않는 곳이야.',[118,92],[30,13]],['heel','발뒤꿈치','발뒤꿈치는 발을 찰 때 물을 밀지 못하는 곳이야.',[62,192],[14,90]]]},
+  protect:{base:'천 모자',need:'부딪혀도 머리를 감싸 줄 단단한 부분이 필요해.',spot:'top',spots:[['top','머리 위','머리 위는 부딪힐 때 가장 먼저 지켜야 하는 곳이야.',[160,62],[50,7]],['brim','챙','챙은 머리에서 떨어져 있어서 머리를 감싸지 못해.',[262,134],[86,32]],['strap','턱끈','턱끈은 모자를 고정할 뿐 머리를 감싸지 못해.',[112,204],[16,90]]]},
+  warm:{base:'얇은 외투',need:'몸의 열이 빠져나가지 않게 공기를 붙잡을 부분이 필요해.',spot:'body',spots:[['body','몸통 안쪽','몸통은 열이 가장 많이 빠져나가는 곳이야.',[196,120],[80,6]],['pocket','주머니','주머니만 두꺼우면 몸통의 열은 그대로 빠져나가.',[126,196],[42,94]],['cuff','소매 끝','소매 끝만 두꺼우면 몸통은 여전히 얇아.',[46,200],[13,93]]]},
+};
+const spotIds=problem=>PRODUCTS[problem]?.spots.map(x=>x[0])||[];
+// The part must suit the problem and sit where the product needs it.
+export function testDesign(d){const r=testChoices(d),spot=Boolean(PRODUCTS[d?.problem])&&d.spot===PRODUCTS[d.problem].spot;return {...r,spot,passed:r.passed&&spot};}
+// Failed tests are the times the learner had to go back and change the design.
+export const revisions=d=>d.trials.filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',habitat:'',reason:''});
-const blankDesign=()=>({problem:'',feature:'',structure:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
+const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
 export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],activeAnimal:'frog',compares:[{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],records:{cases:[null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
@@ -108,11 +120,14 @@ const normalizedChoices=(v,allowedKeys,allowedValues)=>Object.fromEntries(Object
 function normalizeDesign(raw){
   const d=record(raw),out=blankDesign();out.experiment=normalizeExperiment(d.experiment);
   out.problem=safeChoice(d.problem,Object.keys(PROBLEMS));out.feature=safeChoice(d.feature,FEATURES.map(x=>x[0]));out.structure=safeChoice(d.structure,STRUCTURES.map(x=>x[0]));
+  // Saves from before parts were placed only chose the part; it sat where the product needs it.
+  const placed=(x,problem)=>Object.hasOwn(x,'spot')?safeChoice(x.spot,spotIds(problem)):x.structure?PRODUCTS[problem]?.spot||'':'';
+  out.spot=placed(d,out.problem);
   out.name=typeof d.name==='string'?d.name.slice(0,24):'';
   out.explanation=safeChoice(d.explanation,['match','looks','magic']);
   if(Array.isArray(d.strokes))out.strokes=d.strokes.slice(0,30).filter(Array.isArray).map(line=>line.slice(0,250).filter(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)).map(([x,y])=>[Math.max(0,Math.min(320,x)),Math.max(0,Math.min(260,y))]));
   // Validate each saved trial from its choices; never trust a stored passed flag.
-  out.trials=Array.isArray(d.trials)?d.trials.slice(-30).filter(t=>t&&typeof t==='object'&&Object.hasOwn(PROBLEMS,t.problem)).map(t=>{const choices={problem:t.problem,feature:safeChoice(t.feature,FEATURES.map(x=>x[0])),structure:safeChoice(t.structure,STRUCTURES.map(x=>x[0]))};return {...choices,passed:testDesign(choices).passed};}):[];
+  out.trials=Array.isArray(d.trials)?d.trials.slice(-30).filter(t=>t&&typeof t==='object'&&Object.hasOwn(PROBLEMS,t.problem)).map(t=>{const choices={problem:t.problem,feature:safeChoice(t.feature,FEATURES.map(x=>x[0])),structure:safeChoice(t.structure,STRUCTURES.map(x=>x[0])),spot:placed(t,t.problem)};return {...choices,passed:testDesign(choices).passed};}):[];
   return out;
 }
 export function restoreExpedition(raw){
@@ -144,7 +159,7 @@ export function restoreExpedition(raw){
       const legacy=Array.isArray(c.traits)&&c.traits.length===2&&c.traits.every(t=>Object.hasOwn(expected.legacy,t)),grounds=legacy?c.traits.map(t=>expected.legacy[t]):uniqueStrings(c.grounds,expected.clues.map(k=>k.id));
       if(out.activities.includes(`4-${i*2+1}`)&&c.candidate===expected.animal&&(legacy||proves(expected,grounds))&&c.habitat===expected.habitat&&c.reason===expected.reason)out.records.cases[i]={opened:[...grounds],grounds,candidate:c.candidate,habitat:c.habitat,reason:c.reason};
       const d=normalizeDesign(input.records?.designs?.[i]||out.designs[i]);
-      if(out.activities.includes(`5-${i*2+1}`)&&testDesign(d).passed&&d.explanation==='match'&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.passed))out.records.designs[i]=d;
+      if(out.activities.includes(`5-${i*2+1}`)&&testDesign(d).passed&&d.explanation==='match'&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&t.passed))out.records.designs[i]=d;
     }
     out.toolUses=uniqueStrings(input.toolUses,STAGES.map(t=>String(t.id)));
     out.mapPosition=safeChoice(input.mapPosition,['entrance','1','2','3','4','5','camp'],'entrance');
@@ -171,7 +186,7 @@ export function taskReady(s,stage,step){
   if(stage===2){const key=round?s.criteria[1]:'wings',v=s.inquiry.verify[round];if(round&&!OWN_CRITERIA.includes(key))return false;if(step%2===0)return SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no'));return round?v.checked===key&&s.inquiry.reclass[1].revealed:v.ran&&v.cause==='opinion'&&OBSERVABLE.includes(v.fix)&&v.checked===v.fix;}
   if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
   if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
-  if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.experiment.sourceSeen);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&testDesign(t).passed)&&d.explanation==='match';}
+  if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot&&d.experiment.sourceSeen);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&testDesign(t).passed)&&d.explanation==='match';}
   return false;
 }
 export function claimTask(s,stage,step){
@@ -183,13 +198,13 @@ export function claimTask(s,stage,step){
   if(firstStage){s.completed.push(stage);s.completed.sort();}
   return {ok:true,fresh,stageComplete,firstStage};
 }
-export function recordTrial(s,round){const d=s.designs[round];if(!d)return null;const result=testDesign(d);d.trials.push({problem:d.problem,feature:d.feature,structure:d.structure,passed:result.passed});if(d.trials.length>30)d.trials.shift();return result;}
+export function recordTrial(s,round){const d=s.designs[round];if(!d)return null;const result=testDesign(d);d.trials.push({problem:d.problem,feature:d.feature,structure:d.structure,spot:d.spot,passed:result.passed});if(d.trials.length>30)d.trials.shift();return result;}
 export function taskHint(stage,step){
   if(stage===1)return step%2===0?'몸의 부분을 살펴보고 특징 기록을 눌러 줘. 동물마다 세 곳이야.':'직접 본 눈·다리·몸을 떠올려 같은 점과 다른 점을 다시 골라 봐.';
   if(stage===2)return step===2?'몸에서 누구나 확인할 수 있는 기준을 골라, 동물을 나눠 봐.':step%2===0?'지금의 기준을 한 번 더 읽고 동물의 몸을 살펴봐.':'예상을 고른 뒤 분류 바꾸기를 눌러 결과를 확인해 봐.';
   if(stage===3)return step%2===0?'세 장소에서 동물을 찾고, 몸이 힘을 쓰는 순간에 멈춰 기록해 줘.':'사는 곳 → 몸의 특징 → 움직이는 방법을 이어 봐.';
   if(stage===4)return step%2===0?'두 단서를 열어 기록한 뒤 알맞은 동물을 골라 줘.':'어느 곳에서, 어떤 몸의 부분으로 움직이는지 사진과 수첩을 다시 봐.';
-  return step%2===0?'먼저 특징 기록을 누르고, 동물의 특징과 물건의 부분을 골라 이름을 지어 줘. 두 번째는 다른 문제를 골라야 해.':'다른 모양 두 가지를 시험하고, 예상과 비교한 뒤 알게 된 점과 발명 이유를 남겨 줘.';
+  return step%2===0?'먼저 특징 기록을 누르고, 동물의 특징을 고른 뒤 부품을 제품의 알맞은 자리에 붙이고 이름을 지어 줘. 두 번째는 다른 문제를 골라야 해.':'다른 모양 두 가지를 시험하고, 예상과 비교한 뒤 알게 된 점과 발명 이유를 남겨 줘.';
 }
 // Names what is still missing or wrong so a retry needs a second look, not a guess.
 // wrong: keys the views mark on the matching card ('compare:common', 'sort:frog', 'link:body', 'case:habitat').
