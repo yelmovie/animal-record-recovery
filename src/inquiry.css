@@ -213,3 +213,19 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .link-activity{grid-column:1/-1}
 @media(max-width:900px){.compare-board{grid-template-columns:1fr}.compare-board .compare-photo{grid-row:auto}.link-chain{grid-template-columns:1fr}.link-chain>.icon{transform:rotate(90deg);justify-self:center}}
 @media(prefers-reduced-motion:reduce){.drag-card.picked{transform:none}}
+/* Screen 01 — pixel village: restored buildings, walking characters, NPCs. */
+.village-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
+.village-restore{position:absolute;pointer-events:none}
+.village-restore.just-restored{animation:village-restore 1.6s ease-out .6s both}
+@keyframes village-restore{0%{opacity:0;filter:brightness(2) saturate(.2)}60%{opacity:1;filter:brightness(1.4)}100%{opacity:1;filter:none}}
+.village-sprite{position:absolute;transform:translate(calc(var(--ax,50%)*-1),calc(var(--ay,92%)*-1));background-repeat:no-repeat;pointer-events:none;filter:drop-shadow(0 3px 2px #13261a66)}
+.village-sprite.flip{transform:translate(calc(var(--ax,50%)*-1),calc(var(--ay,92%)*-1)) scaleX(-1)}
+.village-sprite.npc,.village-sprite.mori-follow{pointer-events:auto;cursor:pointer}
+.village-sprite.npc::after{content:'…';position:absolute;left:50%;top:-14px;transform:translateX(-50%);padding:0 7px;border-radius:10px;background:#fffdf3;border:2px solid #5c4a2a;font-weight:800;font-size:14px;line-height:1.2;color:#5c4a2a;animation:float-y 1.4s ease-in-out infinite alternate}
+.village-sprite.npc:focus-visible{outline:3px solid #f6d36e;outline-offset:2px}
+.world-frame.travelling{cursor:progress}
+.world-frame .village-map{cursor:pointer}
+/* Keep the pixel map at its own 16:9 (no stretching) and lift the objective/stamps above it so they never cover the top-row buildings. */
+.map-page .world-frame{aspect-ratio:16/9;min-height:0}.map-page .world-art{object-fit:cover}
+.map-page>.world-top{position:static;margin:0 0 12px}
+@media(prefers-reduced-motion:reduce){.village-restore.just-restored,.village-sprite.npc::after{animation:none}}

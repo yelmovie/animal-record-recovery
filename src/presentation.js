@@ -1,6 +1,7 @@
 import {assetImage as originalImage, sheetURL} from './assets.js';
 export {sheetURL};
 export const artURL=id=>new URL(`../assets/adventure/${id}.webp`,import.meta.url).href;
+export const villageURL=file=>new URL(`../assets/village/${file}`,import.meta.url).href;
 const newImages={explorer:'하루 탐험가',duck:'오리',butterfly:'나비',goldfish:'금붕어',bee:'벌',snail:'달팽이',bat:'박쥐',hen:'닭','field-kit':'탐사 장비 상자'};
 export function art(id,cls='',decorative=false){return Object.hasOwn(newImages,id)?`<img class="art ${cls}" src="${artURL(id)}" alt="${decorative?'':newImages[id]}" decoding="async" draggable="false" data-image="${id}">`:originalImage(id,`art ${cls}`,decorative).replace('data-asset=','data-image=');}
 export const sprite=(sheet,col=0,row=0,cls='',label='')=>`<span class="sprite ${cls}" style="--sheet:url('${sheetURL(sheet)}');--col:${col};--row:${row}" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}></span>`;

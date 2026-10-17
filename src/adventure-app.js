@@ -3,7 +3,7 @@ import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-view
 import {STAGES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
 import {art,mori,icon,btn,esc} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent} from './shell-views.js';
-import {createTrailMap} from './trail-map.js';
+import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
@@ -28,14 +28,15 @@ function render(){
   const active=document.activeElement,data=active?.dataset?.action?{...active.dataset}:null;
   map?.destroy();map=null;
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
-  app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
+  const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   // Tablet landscape can clip the last choice inside the panel; show a cue while more is below.
   const ws=app.querySelector?.('.activity-workspace');if(ws){const cue=()=>ws.classList.toggle('more',ws.scrollHeight-ws.scrollTop-ws.clientHeight>8);ws.addEventListener('scroll',cue,{passive:true});cue();setTimeout(cue,600);}
   if(motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createTrailMap(document.querySelector('#trail-world'),{position:s.mapPosition,onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:[...s.completed],flash:flashed,onTalk:talk,onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;save();
   }});
-  if(screen==='map'&&!arrived)map.move(selectedStage);
+  // Right after a restore, stay by the building until it has lit up, then head to the next place.
+  if(screen==='map'&&!arrived){const m=map;if(flashed&&typeof setTimeout==='function')setTimeout(()=>{if(map===m)m.move(selectedStage);},2400);else m.move(selectedStage);}
   if(data)[...app.querySelectorAll('[data-action]')].find(el=>Object.entries(data).every(([k,v])=>el.dataset[k]===v))?.focus({preventScroll:true});
   save();
 }
@@ -53,6 +54,8 @@ function start(){
   if(s.introSeen){go('map');return;}
   modal('우리 탐험대에 온 걸 환영해!',`<div class="intro-team">${art('explorer','',true)}${mori(1)}</div><p class="dialog-lead"><b>하루</b>는 너와 함께 탐험하고,<br><b>모리</b>는 발견한 사실을 기록해.</p><p>다섯 장소의 뒤섞인 동물 기록을 되찾아 줘. 장소를 되찾을 때마다 탐사 도구를 하나씩 받아. 다섯 개를 모두 모아 보자!</p><div class="dialog-actions">${btn('함께 길 따라 출발! '+icon('arrow'),'intro-done','primary')}</div>`);
 }
+// Village NPCs (and Mori) speak in a bubble above them and in the tip line.
+function talk(npc,text,el){const next=STAGES.find(t=>!s.completed.includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${next.name}이야. 건물을 누르면 같이 갈게!`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;toast(line,el);}
 function selectMap(id){
   if(!Number.isInteger(id)||!STAGES[id-1])return;selectedStage=id;arrived=!isStageOpen(s,id);
   document.querySelectorAll('.map-marker').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});

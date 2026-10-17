@@ -4,11 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { ASSETS } from '../src/assets.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const files=['index.html',...['inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','mission-views.js','shell-views.js','trail-map.js','adventure.css'].map(f=>`src/${f}`),
+const files=['index.html',...['inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css'].map(f=>`src/${f}`),
   ...['raccoon','biomes','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),
   ...['tap','correct','retry','star','stamp','fanfare'].map(f=>`assets/sfx/${f}.mp3`),
+  ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
   ...['jua-korean-400.woff2','jua-latin-400.woff2','Jua-OFL.txt','Pretendard-Regular.subset.woff2','Pretendard-Bold.subset.woff2','Pretendard-OFL.txt'].map(f=>`assets/fonts/${f}`)];
 // Remove only previously generated files named in our own build manifest.
 // Authoring assets / unknown files are never recursively removed.
