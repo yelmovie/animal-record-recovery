@@ -284,3 +284,49 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .check-list li b{font-size:18px}.check-list li p{font-size:16px;line-height:1.45;margin-top:2px}
 .check-note{font-size:15px;color:#66744e}.check-list>.btn{align-self:flex-start;min-height:52px}
 @media(max-width:900px){.check-bench .assembly,.design-bench .assembly{max-width:360px}}
+/* Map fills the screen; objective, tools and the place card float over the village and fold away */
+main.map-page{max-width:none;margin:0;padding:8px;height:calc(var(--app-height,100dvh) - 64px);display:flex;align-items:center;justify-content:center;background:#2f4a36;overflow:hidden}
+.map-page .world-viewport{position:relative;display:block;width:min(100%,calc((var(--app-height,100dvh) - 80px)*1672/941));aspect-ratio:1672/941;margin:0;gap:0}
+.map-page .world-frame{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;min-height:0;border-radius:16px}
+.map-page .world-top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;z-index:9;pointer-events:none}
+.map-page .world-top>*{pointer-events:auto}
+.map-page .world-objective{max-width:46%;padding:8px 12px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.map-page .world-objective h1{font-size:clamp(15px,1.3vw,22px)}
+.map-page .world-tools{display:flex;align-items:center;gap:8px}
+.map-page .stamp-row{margin:0}
+.quest-toggle{min-height:48px;padding:8px 14px;border-radius:14px;background:#fffae9f2;border:1px solid #c8cfa8;font-weight:700;color:#284c39;box-shadow:0 4px 12px #17382533;display:inline-flex;align-items:center;gap:6px}
+.map-page .quest-panel{position:absolute;top:70px;right:10px;bottom:10px;width:min(330px,40%);z-index:10;overflow:auto;transform:translateX(calc(100% + 24px));opacity:0;visibility:hidden;transition:transform .25s ease,opacity .25s,visibility .25s;padding:18px;border-radius:18px;display:flex;flex-direction:column;gap:6px;grid-template-columns:none}
+.map-page.quest-open .quest-panel{transform:none;opacity:1;visibility:visible}
+.map-page .quest-panel .quest-art{max-height:120px}
+.map-page .quest-panel>.btn{grid-column:auto;margin-top:auto}
+.map-page .route-strip{display:none}
+@media(max-width:900px){main.map-page{height:auto;min-height:calc(var(--app-height,100dvh) - 64px);padding:6px}.map-page .world-viewport{width:100%}.map-page .world-objective{max-width:60%}.map-page .world-objective h1{font-size:14px}.map-page .world-top,.map-page .world-bottom{display:flex}}
+@media(prefers-reduced-motion:reduce){.map-page .quest-panel{transition:none}}
+/* Tablet readability floor (2026-10-18): no side gutters, body text ≥18px, small text ≥16px */
+.mission-page,.reward-screen,.ending{max-width:none!important}
+.mission-page{padding:8px 14px 0!important}
+.mission-heading h1{font-size:30px}.mission-heading p{font-size:19px}.mission-heading .overline{font-size:14px}
+.chapter-trail button{font-size:17px}
+.mission-page .activity-workspace :is(p,li,label,td,th,figcaption,summary){font-size:18px;line-height:1.5}
+.mission-page .activity-workspace :is(small,.slot-empty,.gesture-hint,.part-tip,.check-note,.pair-status,.notes-title){font-size:16px}
+.mission-page .activity-workspace h2{font-size:22px}
+.mission-page .activity-workspace h3{font-size:20px}
+.mission-page .activity-workspace .btn{font-size:18px}
+.mission-page .activity-workspace .drag-card{font-size:17px}
+.mission-page .activity-workspace .part-spot>small{font-size:15px}
+.buddy-strip p{font-size:18px!important}
+.map-marker>b{font-size:15px}
+.quest-panel>p,.quest-panel .reward-preview small{font-size:17px}
+.mission-page .drag-card.animal-card{width:116px;min-height:116px;font-size:18px}.mission-page .drag-card.animal-card .animal{width:96px;height:74px}
+/* Close-up photos open large */
+.detail-crop[data-action=photo-zoom]{cursor:zoom-in}
+.detail-crop[data-action=photo-zoom]::after{content:'';position:absolute;right:6px;bottom:6px;width:34px;height:34px;border-radius:50%;background:#284c39e6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fffbe8' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M20 20l-5-5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0M10 7v6M7 10h6'/%3E%3C/svg%3E") center/20px no-repeat}
+.photo-zoom{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:center}
+.photo-zoom .zoom-crop{width:100%;height:min(60vh,520px)}
+.photo-zoom .zoom-crop img{position:absolute;width:280%;height:auto;aspect-ratio:1;max-width:none;left:50%;top:50%;transform:translate(calc(var(--focus-x)*-1%),calc(var(--focus-y)*-1%));object-fit:contain}
+.zoom-whole{position:relative;margin:0}.zoom-whole img{width:100%;aspect-ratio:1;object-fit:contain;background:#f6f2df;border-radius:16px}
+.zoom-ring{position:absolute;width:22%;aspect-ratio:1;border:4px solid #e0a43a;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 3px #fffbe8}
+.zoom-whole figcaption{font-size:17px;margin-top:6px;color:#4d5d45}
+#dialog:has(.photo-zoom){width:min(1100px,94vw);max-width:none}
+@media(max-width:700px){.photo-zoom{grid-template-columns:1fr}}
+.lens-notes .detail-crop{width:min(100%,320px)!important;height:220px!important}

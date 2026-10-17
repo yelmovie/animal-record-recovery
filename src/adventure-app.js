@@ -12,11 +12,11 @@ import {can3d,mount3d,disable3d} from './view3d.js';
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 let s,storageOK=true;
 try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
-let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false;
+let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({screen,stage,step,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,sketching,report,feedback,restoredFlash,picked,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({screen,stage,step,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,sketching,report,feedback,restoredFlash,picked,questOpen,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));storageOK=true;}catch{storageOK=false;}
@@ -34,10 +34,14 @@ function render(){
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   // Tablet landscape can clip the last choice inside the panel; show a cue while more is below.
   const ws=app.querySelector?.('.activity-workspace');if(ws){const cue=()=>ws.classList.toggle('more',ws.scrollHeight-ws.scrollTop-ws.clientHeight>8);ws.addEventListener('scroll',cue,{passive:true});cue();setTimeout(cue,600);}
+  // Every close-up photo opens large on tap (all animals, every screen that shows one).
+  app.querySelectorAll?.('.detail-crop').forEach(el=>{el.dataset.action='photo-zoom';el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','사진 크게 보기');});
   sync3d();
   if(motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
   if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:[...s.completed],flash:flashed,onTalk:talk,onArrive(id){
-    if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;save();
+    if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
+    // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.
+    if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;save();
   }});
   // Right after a restore, stay by the building until it has lit up, then head to the next place.
   if(screen==='map'&&!arrived){const m=map;if(flashed&&typeof setTimeout==='function')setTimeout(()=>{if(map===m)m.move(selectedStage);},2400);else m.move(selectedStage);}
@@ -82,7 +86,7 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){labSummary=false;picked=null;stopMotion();screen=where;feedback=null;report=null;stroke=null;render();document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;feedback=null;report=null;stroke=null;render();document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 function say(text,good=false,wrong=[]){if(!good)playSound(s.soundEnabled,'retry');feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
 function modal(title,content){stopMotion();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();}
 function start(){
@@ -95,7 +99,7 @@ function selectMap(id){
   if(!Number.isInteger(id)||!STAGES[id-1])return;selectedStage=id;arrived=!isStageOpen(s,id);
   document.querySelectorAll('.map-marker').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});
   document.querySelector('#quest-panel').innerHTML=questPanel(s,view());
-  if(isStageOpen(s,id)){document.querySelector('#travel-text').textContent='모리: 길을 따라갈게. 조금만 기다려!';map.move(id);}
+  if(isStageOpen(s,id)){autoEnter=true;document.querySelector('#travel-text').textContent='모리: 길을 따라갈게. 문 앞에 닿으면 바로 들어가자!';map.move(id);}
   else document.querySelector('#travel-text').textContent=`모리: ${id-1}장 기록을 먼저 되찾으면 이 길이 열려.`;
 }
 function enter(id){
@@ -145,6 +149,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'intro-done':s.introSeen=true;dialog.close();go('map');break;
     case 'map':if(screen==='reward')restoredFlash=stage;selectedStage=STAGES.find(t=>!s.completed.includes(t.id)&&isStageOpen(s,t.id))?.id||5;arrived=true;go('map');break;
     case 'map-select':selectMap(Number(id));break;
+    case 'quest-toggle':{questOpen=!questOpen;const page=document.querySelector('.map-page');page?.classList.toggle('quest-open',questOpen);el.setAttribute('aria-expanded',String(questOpen));el.innerHTML=icon(questOpen?'close':'book')+'<span>'+(questOpen?'닫기':'장소 정보')+'</span>';return;}
     case 'map-prev':case 'map-next':selectMap(Math.max(1,Math.min(5,selectedStage+(action==='map-prev'?-1:1))));break;
     case 'enter':enter(Number(id));break;
     case 'advance':advance();break;
@@ -199,6 +204,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'prediction':s.designs[round()].experiment.prediction=value;render();break;
     case 'reflection':s.designs[round()].experiment.reflection=value;render();break;
     case 'experiment-run':{const d=s.designs[round()];report=recordTrial(s,round());if(!report.passed){say('시험해 보니 맞지 않는 조건이 있어. 점검표를 보고 설계를 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();break;}
+    case 'photo-zoom':{const img=el.querySelector('img');if(!img)break;const x=el.style.getPropertyValue('--focus-x')||50,y=el.style.getPropertyValue('--focus-y')||50;modal('사진 크게 보기',`<div class="photo-zoom"><div class="detail-crop zoom-crop" style="--focus-x:${Number(x)};--focus-y:${Number(y)}"><img src="${esc(img.src)}" alt="${esc(img.alt)} 확대"></div><figure class="zoom-whole"><img src="${esc(img.src)}" alt="${esc(img.alt)} 전체"><span class="zoom-ring" style="left:${Number(x)}%;top:${Number(y)}%"></span><figcaption>전체 모습에서 동그라미가 확대한 곳이야.</figcaption></figure></div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
     case 'lens-animal':modal('확대 관찰',lensTool(id,0));break;
     case 'lens-part':modal('확대 관찰',lensTool(id,Number(value)||0));break;
     case 'notebook':notebook();break;
