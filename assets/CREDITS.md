@@ -39,3 +39,4 @@
 ## 3D 동물 모델 (2026-10-17 추가)
 
 `models/*.glb` 6종(개구리·게·오리·토끼·나비·바다 물고기)은 Meshy API(image-to-3D, 모델 `latest`=Meshy 7.1, 2K 텍스처, 1개당 30크레딧, 합계 180크레딧)로 이 프로젝트를 위해 생성했다. 입력 이미지는 이 프로젝트의 기존 생성 그림이다: `generated/frog.png`, `generated/crab.png`, `generated/rabbit.png`, `adventure/duck.png`, `adventure/butterfly.png`, `generated/marine_fish.png`. 생성 원본(수십만 삼각형, 20~120MB)은 `D:\iscreammedia_sc34\_scratch\meshy\out`에 두고, Blender 5.2를 창 없이 돌려(`_scratch\meshy\tidy.py`) 메시를 하나로 합치고, 삼각형을 줄이고(관찰 동물 1만2천, 돔 전용 나비·물고기 6천), 텍스처를 1024/512 WebP로 줄여 GLB로 내보냈다. 압축(Draco 등)은 디코더 파일이 따로 필요해서 쓰지 않았다. 코드로 만든 도형 동물(`src/scanner3d.js`의 MODELS)은 GLB를 불러오는 동안과 불러오지 못했을 때만 보인다.
+- (추가) 낙타·펭귄(`models/camel.glb`, `penguin.glb`, 06 돔 전용)은 기존 그림이 없어서 Meshy text-to-image(`nano-banana-2`, 배경 제거, 1장 6크레딧)로 기존 그림과 같은 사실적 도감풍 그림을 먼저 만들고, 그 그림으로 image-to-3D(30크레딧)를 돌렸다. 블렌더로 6천 삼각형·512 텍스처로 줄였다. 입력 그림은 `D:\iscreammedia_sc34\_scratch\meshy\out\*-input.png`. 3D 동물 8종 전체 Meshy 사용량 252크레딧.
