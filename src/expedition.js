@@ -53,6 +53,8 @@ export const COMPARES=[
   [{key:'common',title:'같은 점은?',answer:'eyes',options:[['eyes','둘 다 눈과 다리가 있어'],['feathers','둘 다 깃털로 덮여 있어','개구리는 맨살, 게는 껍데기였어. 깃털은 못 봤어.'],['shell','둘 다 단단한 껍데기가 있어','단단한 껍데기는 게에게만 있었어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','게에게는 단단한 껍데기가 있어'],['eyes','개구리에게만 눈이 있어','게에게도 자루 끝에 달린 눈이 있었어.'],['legs','게에게는 다리가 없어','게에게는 집게다리와 걷는 다리가 있었어.']]}],
   [{key:'common',title:'같은 점은?',answer:'legs',options:[['legs','둘 다 다리로 땅을 디딜 수 있어'],['wings','둘 다 날개가 있어','토끼에게는 날개가 없었어.'],['fur','둘 다 털로 덮여 있어','오리는 털이 아니라 깃털로 덮여 있었어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','오리는 깃털, 토끼는 털로 덮여 있어'],['ears','오리에게만 긴 귀가 있어','길게 솟은 귀는 토끼에게 있었어.'],['feet','토끼에게만 물갈퀴가 있어','물갈퀴는 오리 발에 있었어.']]}],
 ];
+// Screen 03 statement cards: both questions' options in one pile; ref keeps the slot they were written for.
+export const compareCards=round=>{const all=COMPARES[round].flatMap(q=>q.options.map(([value,label,why])=>({ref:`${q.key}-${value}`,key:q.key,label,why})));return [0,3,1,4,2,5].map(i=>all[i]);};
 export const HABITATS={forest:{name:'숲과 들',subtitle:'풀과 나무가 자라는 땅',sheet:[0,0]},pond:{name:'연못과 물가',subtitle:'물과 땅이 만나는 곳',sheet:[1,0]},coast:{name:'바다와 갯벌',subtitle:'바닷물과 드러나는 바닷가',sheet:[0,1]}};
 export const DISCOVERIES=[
   {id:'forest-rabbit',animal:'rabbit',habitat:'forest',text:'풀과 나무 사이에서 토끼가 뒷다리로 뛰어다녔어.'},
@@ -120,7 +122,7 @@ export function restoreExpedition(raw){
     out.step=Object.fromEntries(Object.entries(record(input.step)).filter(([k,v])=>/^[1-5]$/.test(k)&&Number.isInteger(v)&&v>=0&&v<=3));
     out.observed=uniqueStrings(input.observed,Object.values(OBSERVATIONS).flat().map(o=>o.id));
     out.activeAnimal=safeChoice(input.activeAnimal,Object.keys(OBSERVATIONS),'frog');
-    out.compares=[0,1].map(i=>normalizedChoices(input.compares?.[i],['common','difference'],['eyes','cover','legs','feathers','shell','wings','fur','ears','feet']));
+    out.compares=[0,1].map(i=>normalizedChoices(input.compares?.[i],['common','difference'],compareCards(i).map(c=>c.ref)));
     out.sorts=[0,1].map(i=>normalizedChoices(input.sorts?.[i],SORT_ANIMALS,['yes','no']));
     out.criteria=[safeChoice(input.criteria?.[0],['cute','wings']),safeChoice(input.criteria?.[1],[...OWN_CRITERIA,...OPINION_CRITERIA])];
     out.discovered=uniqueStrings(input.discovered,DISCOVERIES.map(d=>d.id));
@@ -147,7 +149,7 @@ export function restoreExpedition(raw){
 }
 function migrateLegacy(raw){
   const previous=restoreLegacy(raw),out=freshExpedition();out.legacy=previous;out.soundEnabled=previous.soundEnabled;out.adminUnlocked=previous.adminUnlocked;out.introSeen=true;
-  out.observed=previous.observed;out.compares[0]=previous.compare;out.sorts[0]=previous.classification;out.criteria[0]=previous.criterion;
+  out.observed=previous.observed;out.compares[0]=Object.fromEntries(Object.entries(previous.compare).map(([k,v])=>[k,`${k}-${v}`]));out.sorts[0]=previous.classification;out.criteria[0]=previous.criterion;
   out.discovered=DISCOVERIES.slice(0,3).filter(d=>previous.found.includes(d.animal)).map(d=>d.id);out.links.frog=previous.chain;
   const oldReady=[previous.observed.length===6,previous.compare.common==='eyes'&&previous.compare.difference==='cover',['frog','duck','rabbit','crab','fish','butterfly'].every(id=>previous.classification[id]===(ANIMALS[id].wings?'yes':'no')),previous.criterion==='wings',out.discovered.length===3,['pond','web','swim'].every((v,i)=>previous.chain[['environment','body','life'][i]]===v)];
   for(let stage=1;stage<=3;stage++)for(let step=0;step<2;step++)if(oldReady[(stage-1)*2+step])out.activities.push(`${stage}-${step}`);
@@ -160,7 +162,7 @@ export const countStage=(s,id)=>[0,1,2,3].filter(n=>s.activities.includes(`${id}
 export function taskReady(s,stage,step){
   if(!Number.isInteger(stage)||stage<1||stage>5||!Number.isInteger(step)||step<0||step>3)return false;
   const round=Math.floor(step/2);
-  if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>OBSERVATIONS[id].every(o=>s.observed.includes(o.id))):COMPARES[round].every(q=>s.compares[round][q.key]===q.answer);
+  if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>OBSERVATIONS[id].every(o=>s.observed.includes(o.id))):COMPARES[round].every(q=>s.compares[round][q.key]===`${q.key}-${q.answer}`);
   if(stage===2){const key=round?s.criteria[1]:'wings',v=s.inquiry.verify[round];if(round&&!OWN_CRITERIA.includes(key))return false;if(step%2===0)return SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no'));return round?v.checked===key&&s.inquiry.reclass[1].revealed:v.ran&&v.cause==='opinion'&&OBSERVABLE.includes(v.fix)&&v.checked===v.fix;}
   if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
   if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
@@ -189,7 +191,9 @@ export function taskHint(stage,step){
 export function taskMistake(s,stage,step){
   const round=Math.floor(step/2),names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');
   if(stage===1&&step%2===0){const missing=OBSERVE_PAIRS[round].flatMap(id=>OBSERVATIONS[id].filter(o=>!s.observed.includes(o.id)).map(o=>`${ANIMALS[id].name} ${o.label}`));return missing.length?{text:`아직 기록하지 않은 부분: ${missing.join(', ')}`,wrong:[]}:null;}
-  if(stage===1){const out=[];for(const q of COMPARES[round]){const pick=s.compares[round][q.key];if(pick===q.answer)continue;const opt=q.options.find(o=>o[0]===pick);out.push({key:'compare:'+q.key,text:opt?`‘${q.title}’ 다시 봐. ${opt[2]}`:`‘${q.title}’에 아직 답하지 않았어.`});}return out.length?{text:out.map(x=>x.text).join(' '),wrong:out.map(x=>x.key)}:null;}
+  if(stage===1){const out=[],slot=k=>k==='common'?'같은 점':'다른 점';for(const q of COMPARES[round]){const pick=s.compares[round][q.key];if(pick===`${q.key}-${q.answer}`)continue;const card=compareCards(round).find(c=>c.ref===pick);
+    // A true statement in the other slot is about the slot; a false one gets the fact that disproves it.
+    out.push({key:'compare:'+q.key,text:!card?`‘${slot(q.key)}’ 칸이 비어 있어.`:card.why?`‘${card.label}’ 카드를 다시 봐. ${card.why}`:`‘${card.label}’는 ${slot(q.key)}이 아니라 ${slot(card.key)}이야.`});}return out.length?{text:out.map(x=>x.text).join(' '),wrong:out.map(x=>x.key)}:null;}
   if(stage===2&&round&&!OWN_CRITERIA.includes(s.criteria[1]))return {text:s.criteria[1]?`‘${CRITERIA[s.criteria[1]]}’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.`:'먼저 나눌 기준을 하나 골라 줘.',wrong:[]};
   if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.`,wrong:bad.map(id=>'sort:'+id)}:null;}
   if(stage===2){const v=s.inquiry.verify[round];

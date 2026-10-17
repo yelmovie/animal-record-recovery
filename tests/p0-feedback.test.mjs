@@ -29,7 +29,7 @@ test('a wrong answer names and marks the card to look at again',()=>{
   assert.deepEqual(m.wrong,['sort:butterfly']);
   assert.match(m.text,/나비/);
   assert.match(activityView(s,{stage:2,step:0,feedback:m}),/animal-card answered retry/);
-  s.compares[0]={common:'feathers',difference:'cover'};
+  s.compares[0]={common:'common-feathers',difference:'difference-cover'};
   const c=taskMistake(s,1,1);
   assert.deepEqual(c.wrong,['compare:common']);
   assert.match(c.text,/깃털은 못 봤어/);

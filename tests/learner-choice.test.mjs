@@ -27,7 +27,7 @@ test('own criterion: opinions are refused with a reason, observable ones regroup
   }
   s.criteria[1]='web';for(const id of SORT_ANIMALS)s.sorts[1][id]=ANIMALS[id].web?'yes':'no';
   assert.equal(taskReady(s,2,2),true);
-  assert.match(activityView(s,{stage:2,step:2}),/내 분류 기준/);
+  assert.match(activityView(s,{stage:2,step:2}),/내가 만든 분류 기준/);
 });
 
 test('stage 3 round two links the crab found that round, and old rabbit links are dropped on load',()=>{
