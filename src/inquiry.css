@@ -135,3 +135,24 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .stamp-row b{font-family:var(--font-display);font-weight:400;font-size:20px;color:#fcf8df;margin-left:4px}.stamp-row small{font-size:13px;color:#d9d3b0}
 @media(max-width:620px){.world-top{flex-wrap:wrap}.stamp{width:28px;height:28px;font-size:14px}.stamp .icon{width:16px;height:16px}.stamp-row{padding:6px 8px;gap:4px}}
 @media(prefers-reduced-motion:reduce){.reward-tool,.reward-actions,.stamp.just-earned,.buddy-strip>.mori,.reward-team>.art,.reward-team>.mori{animation:none}}
+/* Screen 08 — investigation: energy for three of five clues, then a pick and its grounds. */
+.investigation{justify-content:flex-start;gap:14px;color:#f6f2dd}
+.energy-bar{display:flex;align-items:center;gap:8px;align-self:stretch;padding:8px 14px;border-radius:12px;background:#0f281cb3;font-size:18px}
+.energy-bar b{font-family:var(--font-display);font-weight:400;margin-right:4px}
+.energy-bar i .icon{width:28px;height:28px;fill:none;color:#8c9a7c}.energy-bar i.full .icon{fill:#f6d36e;color:#ffe9a3}
+.energy-bar span{margin-left:auto;font-family:var(--font-display);font-size:20px}
+.clue-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;align-self:stretch}
+.clue-card{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:92px;padding:10px 4px;border-radius:12px;border:2px dashed #e8e0b866;background:#ffffff14;color:#f6f2dd;font-size:16px;line-height:1.25;word-break:keep-all;cursor:pointer}
+.clue-card .icon{width:26px;height:26px}.clue-card small{font-size:14px;color:#d8d3b4}
+.clue-card.opened{border:2px solid #f6d36e;background:#f6dc8529}.clue-card.focused{outline:3px solid #fff3c4;outline-offset:2px}
+.clue-detail{display:flex;flex-direction:column;align-items:center;gap:10px;align-self:stretch;padding:14px;border-radius:14px;background:#0f281cb3;min-height:230px;justify-content:center;text-align:center}
+.clue-detail p{font-size:20px;line-height:1.45;word-break:keep-all}.clue-detail p b{display:block;font-family:var(--font-display);font-weight:400;font-size:17px;color:#f6d36e}
+.clue-detail .detail-crop,.clue-detail .biome-photo{position:relative;inset:auto;flex-shrink:0;width:min(240px,100%);height:150px;border-radius:12px}
+.clue-glyph{display:grid;place-items:center;width:96px;height:96px;border-radius:50%;background:#f6dc85;color:#5c4314}.clue-glyph .icon{width:50px;height:50px}.clue-glyph.locked{background:#ffffff26;color:#e9e3c6}
+.case-activity .candidate-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.case-activity .candidate{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:14px;border:2px solid #dfe3c9;background:#fffdf3;min-height:120px;font-size:18px}
+.case-activity .candidate .art{width:100%;height:78px;object-fit:contain}.case-activity .candidate.selected{border-color:#5f7f3a;background:#eef5dc;box-shadow:0 0 0 3px #b9d38c}
+.grounds-pick p{font-size:17px;color:#6f7b5c;margin-bottom:8px}.grounds-pick h2 small{font-size:16px;margin-left:8px;color:#8a7a3c}
+.ground-chips{display:flex;flex-direction:column;gap:8px}.ground-chips .choice{min-height:52px;font-size:17px;text-align:left}
+.case-activity section.retry{border-radius:14px;box-shadow:0 0 0 3px #e9a46a;padding:6px}
+@media(max-height:760px){.clue-card{min-height:74px;padding:6px 3px}.clue-detail{min-height:180px}.clue-detail .detail-crop,.clue-detail .biome-photo{height:110px}.case-activity .candidate{min-height:100px}.case-activity .candidate .art{height:60px}}

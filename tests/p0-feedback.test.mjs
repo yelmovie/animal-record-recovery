@@ -33,6 +33,6 @@ test('a wrong answer names and marks the card to look at again',()=>{
   const c=taskMistake(s,1,1);
   assert.deepEqual(c.wrong,['compare:common']);
   assert.match(c.text,/깃털은 못 봤어/);
-  s.cases[1]={traits:['ears','fur'],candidate:'rabbit',habitat:'pond',reason:'jump'};s.inquiry.evidence[1]=['ears','fur'];
+  s.cases[1]={opened:['place','move'],grounds:['place','move'],candidate:'rabbit',habitat:'pond',reason:'jump'};
   assert.deepEqual(taskMistake(s,4,3).wrong,['case:habitat']);
 });

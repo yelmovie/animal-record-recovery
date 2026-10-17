@@ -28,4 +28,4 @@ export const MOTIONS={
  marine:{part:'지느러미와 꼬리',goal:'꼬리가 물을 옆으로 미는 순간',frames:['몸과 꼬리를 굽혀','몸과 꼬리를 반대로 움직여','물속에서 앞으로 나아가'],kind:'swim'}
 };
 export const frameAt=value=>Math.min(2,Math.floor(Math.max(0,Math.min(100,Number(value)||0))/34));
-export function normalizeInquiry(raw={}){const x=raw&&typeof raw==='object'?raw:{};return {motion:Object.fromEntries(Object.entries(x.motion||{}).filter(([id,f])=>Object.hasOwn(MOTIONS,id)&&f===MOTION_KEY_FRAME)),reclass:[0,1].map(i=>({prediction:['yes','no'].includes(x.reclass?.[i]?.prediction)?x.reclass[i].prediction:'',revealed:x.reclass?.[i]?.revealed===true})),evidence:[0,1].map(i=>Array.isArray(x.evidence?.[i])?[...new Set(x.evidence[i].filter(k=>(i===0?['web','feather']:['ears','fur']).includes(k)))]:[])};}
+export function normalizeInquiry(raw={}){const x=raw&&typeof raw==='object'?raw:{};return {motion:Object.fromEntries(Object.entries(x.motion||{}).filter(([id,f])=>Object.hasOwn(MOTIONS,id)&&f===MOTION_KEY_FRAME)),reclass:[0,1].map(i=>({prediction:['yes','no'].includes(x.reclass?.[i]?.prediction)?x.reclass[i].prediction:'',revealed:x.reclass?.[i]?.revealed===true}))};}

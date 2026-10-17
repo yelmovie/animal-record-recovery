@@ -1,6 +1,6 @@
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
+import {STAGES,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
 import {art,mori,icon,btn,esc} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent} from './shell-views.js';
 import {createTrailMap} from './trail-map.js';
@@ -121,9 +121,11 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id))activeHabitat=id;feedback=null;render();break;
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':if(['frog','crab'].includes(id)&&['environment','body','life'].includes(key))s.links[id][key]=value;feedback=null;render();break;
-    case 'case-trait':{const a=s.cases[round()];if(a.traits.includes(value))a.traits=a.traits.filter(v=>v!==value);else if(a.traits.length<2)a.traits.push(value);else return say('특징은 두 개야. 바꾸고 싶은 카드를 먼저 눌러 빼 줘.');feedback=null;render();break;}
     case 'case-animal':s.cases[round()].candidate=id;feedback=null;render();break;
-    case 'case-reset':s.inquiry.evidence[round()]=[];clueIndex=0;s.cases[round()].traits=[];s.cases[round()].candidate='';feedback=null;render();break;
+    case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:''});clueIndex=0;feedback=null;render();break;
+    case 'case-ground':{const a=s.cases[round()];if(!a.opened.includes(value))break;a.grounds=a.grounds.includes(value)?a.grounds.filter(g=>g!==value):[...a.grounds,value];feedback=null;render();break;}
+    // Spent energy stays spent even when the answer changes (screen 08); 'case-reset' starts a fresh investigation.
+    case 'clue-spend':{const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k||a.opened.includes(k.id))break;if(a.opened.length>=CLUE_ENERGY)return say('조사 에너지를 다 썼어. 연 단서로 판단하거나 ‘다시 조사’를 눌러 봐.');a.opened.push(k.id);feedback=null;save();render();break;}
     case 'case-habitat':s.cases[round()].habitat=value;feedback=null;render();break;
     case 'case-reason':s.cases[round()].reason=value;feedback=null;render();break;
     case 'design-problem':{const d=s.designs[round()];if(!Object.hasOwn(PROBLEMS,value)||(round()&&value===s.designs[0].problem))return;if(d.problem!==value)d.experiment=normalizeExperiment();d.problem=value;if(!d.name||Object.values(PROBLEMS).some(p=>p.product===d.name))d.name=PROBLEMS[value].product;d.feature='';d.structure='';d.explanation='';report=null;feedback=null;render();break;}
@@ -136,8 +138,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'sort-predict':s.inquiry.reclass[round()].prediction=value;s.inquiry.reclass[round()].revealed=false;render();break;
     case 'sort-reveal':{const before=groupRects();if(s.inquiry.reclass[round()].prediction)s.inquiry.reclass[round()].revealed=true;render();flipGroups(before);break;}
     case 'sort-before':{const before=groupRects();s.inquiry.reclass[round()].revealed=false;render();flipGroups(before);break;}
-    case 'clue-open':clueIndex=Number(value)===1?1:0;render();break;
-    case 'clue-save':{const c=CASES[round()],a=s.cases[round()];if(!c.correct.includes(value))break;if(!s.inquiry.evidence[round()].includes(value))s.inquiry.evidence[round()].push(value);a.traits=[...s.inquiry.evidence[round()]];feedback=null;render();break;}
+    case 'clue-open':clueIndex=Math.max(0,Math.min(4,Number(value)||0));render();break;
     case 'motion-play':motionPlaying=!motionPlaying;motionTime=0;render();break;
     case 'motion-slow':motionSlow=!motionSlow;render();break;
     case 'motion-frame':stopMotion();motionPhase=Number(value)||0;render();break;

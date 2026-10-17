@@ -13,13 +13,17 @@ export const STAGES=[
 ];
 
 export const ANIMALS={
-  frog:{name:'개구리',wings:false,four:true,web:true,fur:false,fin:false,six:false,cover:'맨살',habitat:'pond',fact:'긴 뒷다리와 물갈퀴가 있어. 물가에서 뛰거나 헤엄쳐.'},
-  crab:{name:'게',wings:false,four:false,web:false,fur:false,fin:false,six:false,cover:'껍데기',habitat:'coast',fact:'단단한 껍데기와 집게다리, 여러 걷는 다리가 있어.'},
-  duck:{name:'오리',wings:true,four:false,web:true,fur:false,fin:false,six:false,cover:'깃털',habitat:'pond',fact:'깃털로 덮인 몸, 넓적한 부리와 물갈퀴가 있어.'},
-  rabbit:{name:'토끼',wings:false,four:true,web:false,fur:true,fin:false,six:false,cover:'털',habitat:'forest',fact:'몸이 털로 덮여 있고 긴 귀와 긴 뒷다리가 있어.'},
-  fish:{name:'금붕어',wings:false,four:false,web:false,fur:false,fin:true,six:false,cover:'비늘',habitat:'pond',fact:'지느러미와 비늘이 있어. 물속에서 헤엄쳐.'},
-  butterfly:{name:'나비',wings:true,four:false,web:false,fur:false,fin:false,six:true,cover:'날개',habitat:'forest',fact:'다리가 여섯 개이고 더듬이와 두 쌍의 날개가 있어.'},
-  marine:{name:'바다 물고기',wings:false,four:false,cover:'비늘',habitat:'coast',fact:'지느러미로 바닷물 속을 헤엄쳐.'},
+  frog:{name:'개구리',legs:true,wings:false,four:true,web:true,fur:false,fin:false,six:false,cover:'맨살',habitat:'pond',fact:'긴 뒷다리와 물갈퀴가 있어. 물가에서 뛰거나 헤엄쳐.'},
+  crab:{name:'게',legs:true,wings:false,four:false,web:false,fur:false,fin:false,six:false,cover:'껍데기',habitat:'coast',fact:'단단한 껍데기와 집게다리, 여러 걷는 다리가 있어.'},
+  duck:{name:'오리',legs:true,wings:true,four:false,web:true,fur:false,fin:false,six:false,cover:'깃털',habitat:'pond',fact:'깃털로 덮인 몸, 넓적한 부리와 물갈퀴가 있어.'},
+  rabbit:{name:'토끼',legs:true,wings:false,four:true,web:false,fur:true,fin:false,six:false,cover:'털',habitat:'forest',fact:'몸이 털로 덮여 있고 긴 귀와 긴 뒷다리가 있어.'},
+  fish:{name:'금붕어',legs:false,wings:false,four:false,web:false,fur:false,fin:true,six:false,cover:'비늘',habitat:'pond',fact:'지느러미와 비늘이 있어. 물속에서 헤엄쳐.'},
+  butterfly:{name:'나비',legs:true,wings:true,four:false,web:false,fur:false,fin:false,six:true,cover:'날개',habitat:'forest',fact:'다리가 여섯 개이고 더듬이와 두 쌍의 날개가 있어.'},
+  hen:{name:'닭',legs:true,wings:true,four:false,web:false,fur:false,fin:false,six:false,cover:'깃털',habitat:'forest',fact:'깃털로 덮인 몸에 날개와 부리가 있고, 두 다리로 걸어 다녀.'},
+  bat:{name:'박쥐',legs:true,wings:true,four:false,web:false,fur:true,fin:false,six:false,cover:'털',habitat:'forest',fact:'털로 덮인 몸에 얇은 피부로 된 날개가 있어. 낮에는 동굴에 매달려 쉬어.'},
+  bee:{name:'벌',legs:true,wings:true,four:false,web:false,fur:true,fin:false,six:true,cover:'잔털',habitat:'forest',fact:'다리가 여섯 개이고 투명한 날개 두 쌍과 더듬이가 있어.'},
+  snail:{name:'달팽이',legs:false,wings:false,four:false,web:false,fur:false,fin:false,six:false,cover:'껍데기',habitat:'forest',fact:'나선 모양 껍데기를 지고, 다리 없이 넓은 배발로 기어가.'},
+  marine:{name:'바다 물고기',legs:false,wings:false,four:false,cover:'비늘',habitat:'coast',fact:'지느러미로 바닷물 속을 헤엄쳐.'},
 };
 // Sorting questions. Observable ones give everyone the same answer; the others are opinions.
 export const CRITERIA={wings:'날개가 있나요?',four:'다리가 네 개인가요?',web:'발가락 사이에 물갈퀴가 있나요?',fur:'몸이 털로 덮였나요?',fin:'지느러미가 있나요?',six:'다리가 여섯 개인가요?',cute:'귀엽나요?',scary:'무섭게 생겼나요?',fast:'빨리 달리나요?'};
@@ -50,14 +54,34 @@ export const LINKS={
   frog:{animal:'frog',environment:[['pond','연못과 물가'],['sea','짠 바닷물 속'],['desert','건조한 모래 사막']],body:[['web','뒷발의 물갈퀴'],['fin','지느러미와 꼬리'],['claw','단단한 집게다리']],life:[['swim','물을 밀며 헤엄쳐'],['wiggle','몸과 꼬리를 흔들며 헤엄쳐'],['side','옆으로 걸어 다녀']],answer:['pond','web','swim'],sentence:'개구리는 물가에서 살며 물갈퀴로 물을 밀어 헤엄쳐.'},
   crab:{animal:'crab',environment:[['coast','바다와 갯벌'],['forest','숲과 들'],['pond','연못과 물가']],body:[['legs','집게다리와 여러 개의 걷는 다리'],['web','발가락 사이 물갈퀴'],['fin','지느러미와 꼬리']],life:[['walk','여러 다리로 갯벌을 걸어 다녀'],['swim','물을 밀며 헤엄쳐'],['jump','땅을 박차고 뛰어']],answer:['coast','legs','walk'],sentence:'게는 바다와 갯벌에서 여러 개의 다리로 걸어 다녀.'},
 };
+// Screen 08: each clue fits two or three candidates, so one clue never decides; the learner picks clues worth the energy.
+export const CLUE_ENERGY=3;
 export const CASES=[
-  {id:'duck',animal:'duck',title:'물가에서 만난 친구',traits:[['feather','몸이 깃털로 덮였어'],['web','발가락 사이에 물갈퀴가 있어'],['fur','몸이 털로 덮였어'],['shell','단단한 껍데기가 있어']],correct:['feather','web'],habitat:'pond',reason:'paddle',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['burrow','긴 뒷다리로 땅을 박차고 뛰어'],['fly','지느러미로 물속을 헤엄쳐']],reasonTip:'기록한 단서 중 발에 있던 것을 떠올려 봐.',sentence:'오리는 연못과 물가에서 물갈퀴로 물을 밀며 헤엄쳐.'},
-  {id:'rabbit',animal:'rabbit',title:'풀밭에서 만난 친구',traits:[['ears','길게 솟은 귀가 있어'],['fur','몸이 털로 덮였어'],['feather','몸이 깃털로 덮였어'],['bill','넓적한 부리가 있어']],correct:['ears','fur'],habitat:'forest',reason:'jump',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['fin','지느러미로 바닷속을 헤엄쳐']],reasonTip:'사진에서 토끼의 뒷다리 모양을 살펴봐.',sentence:'토끼는 숲과 들의 땅에서 긴 뒷다리로 뛰어다녀.'},
+  {id:'duck',animal:'duck',title:'물가에서 만난 친구',candidates:['duck','frog','fish','hen'],clues:[
+    {id:'place',kind:'발견 장소',icon:'leaf',place:'pond',text:'연못 물 위와 물가에서 발견됐어.',fits:['duck','frog','fish']},
+    {id:'cover',kind:'몸의 모습',icon:'search',crop:[61,50],text:'몸이 깃털로 덮여 있어.',fits:['duck','hen']},
+    {id:'foot',kind:'발',icon:'search',crop:[50,86],text:'발가락 사이에 물갈퀴가 있어.',fits:['duck','frog']},
+    {id:'move',kind:'이동 모습',icon:'scan',text:'땅에서는 두 다리로 뒤뚱뒤뚱 걸어.',fits:['duck','hen']},
+    {id:'life',kind:'생활 장면',icon:'book',text:'부리로 먹이를 찾아 먹어.',fits:['duck','hen']}],
+   habitat:'pond',reason:'paddle',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['burrow','긴 뒷다리로 땅을 박차고 뛰어'],['fly','지느러미로 물속을 헤엄쳐']],reasonTip:'근거로 낸 단서 중 발에 있던 것을 떠올려 봐.',sentence:'오리는 연못과 물가에서 물갈퀴로 물을 밀며 헤엄쳐.',legacy:{feather:'cover',web:'foot'}},
+  {id:'rabbit',animal:'rabbit',title:'풀밭에서 만난 친구',candidates:['rabbit','frog','bat','hen'],clues:[
+    {id:'place',kind:'발견 장소',icon:'leaf',place:'forest',text:'풀과 나무가 자라는 들판의 땅 위에서 발견됐어.',fits:['rabbit','hen']},
+    {id:'fur',kind:'몸의 모습',icon:'search',crop:[51,48],text:'몸이 털로 덮여 있어.',fits:['rabbit','bat']},
+    {id:'ears',kind:'귀',icon:'search',crop:[46,18],text:'크고 길쭉한 귀가 있어.',fits:['rabbit','bat']},
+    {id:'move',kind:'이동 모습',icon:'scan',text:'긴 뒷다리로 땅을 박차고 뛰어.',fits:['rabbit','frog']},
+    {id:'life',kind:'생활 장면',icon:'book',text:'낮에는 굴이나 어두운 곳에 숨어 쉬어.',fits:['rabbit','bat']}],
+   habitat:'forest',reason:'jump',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['fin','지느러미로 바닷속을 헤엄쳐']],reasonTip:'사진에서 토끼의 뒷다리 모양을 살펴봐.',sentence:'토끼는 숲과 들의 땅에서 긴 뒷다리로 뛰어다녀.',legacy:{ears:'ears',fur:'fur'}},
 ];
+export const clueOf=(c,id)=>c.clues.find(x=>x.id===id);
+// Candidates every given clue is true for.
+export const fitting=(c,ids)=>c.candidates.filter(a=>ids.every(id=>clueOf(c,id)?.fits.includes(a)));
+export const proves=(c,ids)=>ids.length>=2&&ids.every(id=>clueOf(c,id))&&fitting(c,ids).join()===c.animal;
+const groundsReady=(c,a)=>a.candidate===c.animal&&a.grounds.every(id=>a.opened.includes(id))&&proves(c,a.grounds);
 export const FEATURES=[['shell','거북의 단단한 등딱지'],['web','오리의 물갈퀴'],['fur','북극곰의 촘촘한 털']];
 export const STRUCTURES=[['dome','머리를 감싸는 단단한 덮개'],['wide','물을 미는 넓고 납작한 면'],['layer','공기를 머금는 여러 겹']];
+const blankCase=()=>({opened:[],grounds:[],candidate:'',habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],activeAnimal:'frog',compares:[{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[{traits:[],candidate:'',habitat:'',reason:''},{traits:[],candidate:'',habitat:'',reason:''}],designs:[blankDesign(),blankDesign()],records:{cases:[null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
+export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],activeAnimal:'frog',compares:[{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],records:{cases:[null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -89,7 +113,7 @@ export function restoreExpedition(raw){
     out.criteria=[safeChoice(input.criteria?.[0],['cute','wings']),safeChoice(input.criteria?.[1],[...OWN_CRITERIA,...OPINION_CRITERIA])];
     out.discovered=uniqueStrings(input.discovered,DISCOVERIES.map(d=>d.id));
     for(const id of ['frog','crab'])out.links[id]=normalizedChoices(input.links?.[id],['environment','body','life'],Object.values(LINKS[id]).filter(Array.isArray).flat().flat().filter(x=>typeof x==='string'));
-    out.cases=CASES.map((c,i)=>({traits:uniqueStrings(input.cases?.[i]?.traits,c.traits.map(t=>t[0])).slice(0,2),candidate:safeChoice(input.cases?.[i]?.candidate,['duck','frog','rabbit','fish']),habitat:safeChoice(input.cases?.[i]?.habitat,Object.keys(HABITATS)),reason:safeChoice(input.cases?.[i]?.reason,c.reasons.map(r=>r[0]))}));
+    out.cases=CASES.map((c,i)=>{const x=input.cases?.[i],opened=uniqueStrings(x?.opened,c.clues.map(k=>k.id)).slice(0,CLUE_ENERGY);return {opened,grounds:uniqueStrings(x?.grounds,opened),candidate:safeChoice(x?.candidate,c.candidates),habitat:safeChoice(input.cases?.[i]?.habitat,Object.keys(HABITATS)),reason:safeChoice(x?.reason,c.reasons.map(r=>r[0]))};});
     out.designs=[0,1].map(i=>normalizeDesign(input.designs?.[i]));
     const allowed=STAGES.flatMap(t=>[0,1,2,3].map(n=>`${t.id}-${n}`));
     out.activities=uniqueStrings(input.activities,allowed);
@@ -97,7 +121,9 @@ export function restoreExpedition(raw){
     out.completed=STAGES.filter(t=>[0,1,2,3].every(n=>out.activities.includes(`${t.id}-${n}`))).map(t=>t.id);
     for(const i of [0,1]){
       const c=record(input.records?.cases?.[i]),expected=CASES[i];
-      if(out.activities.includes(`4-${i*2+1}`)&&c.candidate===expected.animal&&Array.isArray(c.traits)&&c.traits.length===2&&expected.correct.every(x=>c.traits.includes(x))&&c.habitat===expected.habitat&&c.reason===expected.reason)out.records.cases[i]={traits:[...expected.correct],candidate:c.candidate,habitat:c.habitat,reason:c.reason};
+      // A record saved before screen 08 used two trait ids; translate it for display.
+      const legacy=Array.isArray(c.traits)&&c.traits.length===2&&c.traits.every(t=>Object.hasOwn(expected.legacy,t)),grounds=legacy?c.traits.map(t=>expected.legacy[t]):uniqueStrings(c.grounds,expected.clues.map(k=>k.id));
+      if(out.activities.includes(`4-${i*2+1}`)&&c.candidate===expected.animal&&(legacy||proves(expected,grounds))&&c.habitat===expected.habitat&&c.reason===expected.reason)out.records.cases[i]={opened:[...grounds],grounds,candidate:c.candidate,habitat:c.habitat,reason:c.reason};
       const d=normalizeDesign(input.records?.designs?.[i]||out.designs[i]);
       if(out.activities.includes(`5-${i*2+1}`)&&testDesign(d).passed&&d.explanation==='match'&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.passed))out.records.designs[i]=d;
     }
@@ -125,7 +151,7 @@ export function taskReady(s,stage,step){
   if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>OBSERVATIONS[id].every(o=>s.observed.includes(o.id))):COMPARES[round].every(q=>s.compares[round][q.key]===q.answer);
   if(stage===2){const key=round?s.criteria[1]:'wings';if(round&&!OWN_CRITERIA.includes(key))return false;return step%2===0?SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no')):(round||s.criteria[0]==='wings')&&s.inquiry.reclass[round].revealed;}
   if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
-  if(stage===4){const c=CASES[round],a=s.cases[round],traitsReady=c.correct.every(id=>s.inquiry.evidence[round].includes(id))&&a.candidate===c.animal&&a.traits.length===2&&c.correct.every(x=>a.traits.includes(x));return traitsReady&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
+  if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
   if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.experiment.sourceSeen);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&testDesign(t).passed)&&d.explanation==='match';}
   return false;
 }
@@ -157,7 +183,15 @@ export function taskMistake(s,stage,step){
   if(stage===2){if(!round&&s.criteria[0]!=='wings')return {text:s.criteria[0]?'‘귀엽나요?’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.':'먼저 기준을 하나 골라 줘.',wrong:[]};if(!s.inquiry.reclass[round].revealed)return {text:'예상을 고른 뒤 ‘분류 바꾸기’를 눌러 결과를 확인해 봐.',wrong:[]};return null;}
   if(stage===3&&step%2===0){const list=DISCOVERIES.slice(round*3,round*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>`${ANIMALS[d.animal].name}: ${MOTIONS[d.animal].goal}을 찾아 기록해 봐.`).join(' '),wrong:[]}:null;}
   if(stage===3){const id=round?'crab':'frog',keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);return bad.length?{text:bad.map(({k,i})=>s.links[id][k]?`‘${cols[i]}’을 다시 봐. ${tips[i]}`:`‘${cols[i]}’을 아직 고르지 않았어.`).join(' '),wrong:bad.map(({k})=>'link:'+k)}:null;}
-  if(stage===4){const c=CASES[round],a=s.cases[round],clues=c.correct.filter(id=>!s.inquiry.evidence[round].includes(id));if(clues.length)return {text:`단서 ${s.inquiry.evidence[round].length}/2: 남은 단서 그림도 살펴보고 기록해 줘.`,wrong:[]};if(a.candidate!==c.animal)return {text:'두 단서를 모두 가진 동물을 골라 줘.',wrong:[]};if(step%2===0)return null;
+  if(stage===4){const c=CASES[round],a=s.cases[round],names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');
+    if(step%2===0||!groundsReady(c,a)){
+      if(!a.opened.length)return {text:`단서 카드를 눌러 조사해 봐. 조사 에너지는 ${CLUE_ENERGY}개야.`,wrong:[]};
+      const left=CLUE_ENERGY-a.opened.length,open=fitting(c,a.opened);
+      if(!a.candidate)return {text:'열어 본 단서와 맞는 동물을 골라 줘.',wrong:[]};
+      if(a.candidate!==c.animal){const k=a.opened.map(id=>clueOf(c,id)).find(x=>!x.fits.includes(a.candidate));return {text:k?`${ANIMALS[a.candidate].name}은(는) ‘${k.kind}: ${k.text}’ 단서와 맞지 않아.`:`지금 단서로는 ${names(open)} 중 누구인지 알 수 없어. ${left?'다른 단서를 더 조사해 봐.':'‘다시 조사’로 다른 단서를 골라 봐.'}`,wrong:['case:candidate']};}
+      if(a.grounds.length<2)return {text:'왜 그 동물인지 판단 근거 단서를 두 개 이상 골라 줘.',wrong:['case:grounds']};
+      if(!proves(c,a.grounds)){const also=fitting(c,a.grounds).filter(id=>id!==c.animal);return {text:open.length>1&&!left?`연 단서만으로는 ${names(open)}을(를) 구별할 수 없어. ‘다시 조사’로 다른 종류의 단서를 골라 봐.`:`고른 근거는 ${names(also)}에게도 맞아. 다른 동물과 구별되는 단서를 근거로 골라 봐.`,wrong:['case:grounds']};}
+      if(step%2===0)return null;}
     const out=[];if(a.habitat!==c.habitat)out.push({key:'case:habitat',text:a.habitat?'‘만난 곳’을 다시 봐. 사진 속 풍경에 무엇이 있는지 살펴봐.':'‘만난 곳’을 아직 고르지 않았어.'});if(a.reason!==c.reason)out.push({key:'case:reason',text:a.reason?`‘어떻게 움직일까’를 다시 봐. ${c.reasonTip}`:'‘어떻게 움직일까’를 아직 고르지 않았어.'});return out.length?{text:out.map(x=>x.text).join(' '),wrong:out.map(x=>x.key)}:null;}
   return null;
 }

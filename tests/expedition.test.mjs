@@ -12,7 +12,7 @@ function solve(s,stage,step){
   if(stage===1){if(step%2===0)s.observed.push(...OBSERVE_PAIRS[r].flatMap(id=>OBSERVATIONS[id].map(o=>o.id)));else for(const q of COMPARES[r])s.compares[r][q.key]=q.answer;}
   if(stage===2){if(r)s.criteria[1]='web';else s.criteria[0]='wings';const key=r?'web':'wings';if(step%2===0)for(const id of SORT_ANIMALS)s.sorts[r][id]=ANIMALS[id][key]?'yes':'no';else s.inquiry.reclass[r]={prediction:'yes',revealed:true};}
   if(stage===3){if(step%2===0){s.discovered.push(...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.id));for(const d of DISCOVERIES.slice(r*3,r*3+3))s.inquiry.motion[d.animal]=1;}else{const id=r?'crab':'frog';for(const [i,key]of ['environment','body','life'].entries())s.links[id][key]=LINKS[id].answer[i];}}
-  if(stage===4){const c=CASES[r];if(step%2===0){s.inquiry.evidence[r]=[...c.correct];s.cases[r].traits=[...c.correct];s.cases[r].candidate=c.animal;}else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
+  if(stage===4){const c=CASES[r],g=r?['place','move']:['place','cover'];if(step%2===0)Object.assign(s.cases[r],{opened:[...g],grounds:[...g],candidate:c.animal});else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
   if(stage===5){const id=r?'protect':'swim',p=PROBLEMS[id];if(step%2===0)Object.assign(s.designs[r],{problem:id,feature:p.feature,structure:p.structure,name:r?'단단모':'물갈퀴 추진기'});else{recordTrial(s,r);completeExperiment(s.designs[r]);s.designs[r].explanation='match';}s.designs[r].experiment.sourceSeen=true;}
 }
 function completeExperiment(d){d.experiment.sourceSeen=true;d.experiment.prediction='more';d.experiment.level=1;addExperimentTrial(d);d.experiment.level=3;addExperimentTrial(d);d.experiment.reflection='changed';d.experiment.note='폭을 넓혀서 물을 더 많이 밀었어.';}
@@ -37,8 +37,8 @@ test('the learner-made criterion must be observable and the animals sorted by it
 test('six habitat discoveries and two different animal relationships are required',()=>{
   const s=freshExpedition();solve(s,3,0);assert.equal(taskReady(s,3,2),false);solve(s,3,2);solve(s,3,1);assert.equal(taskReady(s,3,3),false);solve(s,3,3);assert.equal(taskReady(s,3,3),true);assert.equal(s.discovered.length,6);
 });
-test('stage four requires visible traits plus a name and then habitat plus movement',()=>{
-  const s=freshExpedition(),a=s.cases[0];a.candidate='duck';assert.equal(taskReady(s,4,0),false);a.traits=['feather','fur'];assert.equal(taskReady(s,4,0),false);a.traits=['feather','web'];s.inquiry.evidence[0]=['feather','web'];assert.equal(taskReady(s,4,0),true);a.habitat='pond';assert.equal(taskReady(s,4,1),false);a.reason='paddle';assert.equal(taskReady(s,4,1),true);solve(s,4,2);solve(s,4,3);assert.equal(taskReady(s,4,2),true);assert.equal(taskReady(s,4,3),true);
+test('stage four needs the right animal plus two opened clues that rule out every other candidate',()=>{
+  const s=freshExpedition(),a=s.cases[0];a.candidate='duck';assert.equal(taskReady(s,4,0),false);a.grounds=['place','cover'];assert.equal(taskReady(s,4,0),false,'grounds must be opened clues');a.opened=['cover','move','life'];a.grounds=['cover','move'];assert.equal(taskReady(s,4,0),false,'a hen fits feathers and walking too');a.opened=['place','cover','move'];a.grounds=['place','cover'];assert.equal(taskReady(s,4,0),true);a.candidate='hen';assert.equal(taskReady(s,4,0),false);a.candidate='duck';a.habitat='pond';assert.equal(taskReady(s,4,1),false);a.reason='paddle';assert.equal(taskReady(s,4,1),true);solve(s,4,2);solve(s,4,3);assert.equal(taskReady(s,4,2),true);assert.equal(taskReady(s,4,3),true);
 });
 test('two inventions must solve different problems and both need current trial and explanation',()=>{
   const s=freshExpedition();solve(s,5,0);recordTrial(s,0);assert.equal(taskReady(s,5,1),false);s.designs[0].explanation='match';completeExperiment(s.designs[0]);assert.equal(taskReady(s,5,1),true);s.designs[1]=structuredClone(s.designs[0]);assert.equal(taskReady(s,5,2),false);solve(s,5,2);assert.equal(taskReady(s,5,3),false);solve(s,5,3);assert.equal(taskReady(s,5,3),true);s.designs[1].structure='layer';assert.equal(taskReady(s,5,3),false);
@@ -63,7 +63,8 @@ test('new renderers escape learner text in design, result and collection markup'
 });
 test('revisiting a draft cannot replace passed invention and evidence records with untested edits',()=>{
   const s=freshExpedition();for(let stage=1;stage<=5;stage++)complete(s,stage);
-  s.designs[0].name='수정 중';s.designs[0].structure='layer';s.cases[0].traits=[];
-  assert.equal(reportDesigns(s)[0].name,'물갈퀴 추진기');assert.equal(reportDesigns(s)[0].structure,'wide');assert.deepEqual(s.records.cases[0].traits,['feather','web']);assert.equal(taskReady(s,4,1),false);
-  const restored=restoreExpedition(JSON.stringify(s));assert.equal(reportDesigns(restored)[0].structure,'wide');assert.deepEqual(restored.records.cases[0].traits,['feather','web']);
+  s.designs[0].name='수정 중';s.designs[0].structure='layer';s.cases[0].grounds=[];
+  assert.equal(reportDesigns(s)[0].name,'물갈퀴 추진기');assert.equal(reportDesigns(s)[0].structure,'wide');assert.deepEqual(s.records.cases[0].grounds,['place','cover']);assert.equal(taskReady(s,4,1),false);
+  const restored=restoreExpedition(JSON.stringify(s));assert.equal(reportDesigns(restored)[0].structure,'wide');assert.deepEqual(restored.records.cases[0].grounds,['place','cover']);
+  const legacy=JSON.parse(JSON.stringify(s));legacy.records.cases[0]={traits:['feather','web'],candidate:'duck',habitat:'pond',reason:'paddle'};assert.deepEqual(restoreExpedition(JSON.stringify(legacy)).records.cases[0].grounds,['cover','foot'],'a pre-08 record survives as grounds');
 });

@@ -25,3 +25,7 @@
 | sfx/star.mp3 | 별이 위쪽 별 칸에 도착 | https://pixabay.com/sound-effects/film-special-effects-collect-points-190037/ | Liecio | 2026-10-17 |
 | sfx/stamp.mp3 | 복구 완료 도장 | https://pixabay.com/sound-effects/film-special-effects-stamp-81635/ | freesound_community | 2026-10-17 |
 | sfx/fanfare.mp3 | 장소 복구 팡파르 | https://pixabay.com/sound-effects/musical-level-up-fanfare-151765/ | Universfield | 2026-10-17 |
+
+## 동물 그림 추가 (2026-10-17)
+
+`adventure/bee.webp`, `snail.webp`, `bat.webp`, `hen.webp`: Higgsfield의 GPT Image 2.5 모델로 이 프로젝트를 위해 생성했다. 기존 `generated/frog.png`를 화풍 참고 이미지로 넣었다. 흰 배경은 프로젝트 스크립트로 투명하게 바꾸고 WebP로 줄였다. 투명 PNG 원본은 `D:/iscreammedia_sc34/_scratch/hf-animals/`에 있다. 분류 게이트·미확인 기록 수사실의 후보 동물로 쓴다.
