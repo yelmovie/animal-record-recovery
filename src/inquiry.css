@@ -106,3 +106,32 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 /* While choosing, the magnified crop shrinks so all three descriptions fit beside the specimen at 1280x720. */
 .lens-notes:has(.observe-options){gap:6px}.lens-notes:has(.observe-options) .detail-crop{width:200px;height:112px}.lens-notes:has(.observe-options) h2{font-size:21px}.lens-notes:has(.observe-options) .observe-ask{font-size:15px;margin:0}
 .lens-notes:has(.observe-options) .observe-options .choice{min-height:44px;font-size:15px;padding:6px 10px;line-height:1.35}
+/* Reward loop: every win is shown right away, big, with as few words as possible. */
+.reward-badge{display:grid;place-items:center;flex-shrink:0;width:56px;height:56px;border-radius:50%;background:#fffdf3;border:2px solid #e3dcbc;color:#6f7b43}
+.reward-badge .icon{width:30px;height:30px}
+.reward-preview{align-items:center}.reward-preview small{font-size:15px}.reward-preview.owned .reward-badge{background:#f6dc85;border-color:#fff3c4;color:#5c4314}
+.buddy-strip>.mori{width:44px;height:66px;animation:mori-pop .4s var(--ease-pop)}
+@keyframes mori-pop{from{transform:scale(.6) translateY(8px)}}
+.star-fly{position:fixed;left:50%;top:50%;z-index:60;display:flex;flex-direction:column;align-items:center;pointer-events:none;transform:translate(-50%,-50%)}
+.star-fly .icon{width:120px;height:120px;fill:#f6d36e;color:#ae7d28;filter:drop-shadow(0 8px 14px #8e641d55)}
+.star-fly b{font-family:var(--font-display);font-size:42px;color:#8e641d;text-shadow:0 2px 0 #fff}
+.reward-content>h1{font-size:clamp(32px,3.6vw,52px)}.reward-content>p{font-size:20px}
+.reward-tool{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;animation:tool-pop .55s var(--ease-pop) 1.2s both}
+.reward-tool .reward-badge{width:120px;height:120px;background:#f6dc85;border:4px solid #fff3c4;color:#5c4314;box-shadow:0 10px 22px #8e641d33}
+.reward-tool .reward-badge .icon{width:64px;height:64px}
+.reward-tool small{font-size:16px;color:#7b8762}.reward-tool h2{font-size:34px;margin:0}
+@keyframes tool-pop{from{opacity:0;transform:scale(.3) rotate(-15deg)}}
+.reward-stars{gap:14px}.reward-stars i .icon{width:54px;height:54px}
+.reward-team>.art{width:150px;height:250px}.reward-team>.mori{width:100px}
+.reward-team>.art,.reward-team>.mori{animation:team-jump .5s ease-out 3s 2 alternate,float-y 1.8s ease-in-out 4s infinite alternate}
+@keyframes team-jump{to{transform:translateY(-34px)}}
+.reward-actions{display:flex;flex-direction:column;align-items:center;gap:6px;animation:fade-up .4s ease-out 3.1s both}
+@keyframes fade-up{from{opacity:0;transform:translateY(12px)}}
+.stamp-row{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#244734e8;border:1px solid #e8d8a4;border-radius:12px;flex-shrink:0}
+.stamp{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#ffffff1a;border:2px dashed #e8d8a477;color:#e9e3c6;font-family:var(--font-display);font-size:18px}
+.stamp .icon{width:22px;height:22px}.stamp.owned{background:#f6dc85;border:2px solid #fff3c4;color:#5c4314}
+.stamp.just-earned{animation:stamp-earn .6s var(--ease-pop) 1.6s both}
+@keyframes stamp-earn{from{opacity:0;transform:scale(2.4) rotate(-20deg)}}
+.stamp-row b{font-family:var(--font-display);font-weight:400;font-size:20px;color:#fcf8df;margin-left:4px}.stamp-row small{font-size:13px;color:#d9d3b0}
+@media(max-width:620px){.world-top{flex-wrap:wrap}.stamp{width:28px;height:28px;font-size:14px}.stamp .icon{width:16px;height:16px}.stamp-row{padding:6px 8px;gap:4px}}
+@media(prefers-reduced-motion:reduce){.reward-tool,.reward-actions,.stamp.just-earned,.buddy-strip>.mori,.reward-team>.art,.reward-team>.mori{animation:none}}
