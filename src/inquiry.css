@@ -156,3 +156,25 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .ground-chips{display:flex;flex-direction:column;gap:8px}.ground-chips .choice{min-height:52px;font-size:17px;text-align:left}
 .case-activity section.retry{border-radius:14px;box-shadow:0 0 0 3px #e9a46a;padding:6px}
 @media(max-height:760px){.clue-card{min-height:74px;padding:6px 3px}.clue-detail{min-height:180px}.clue-detail .detail-crop,.clue-detail .biome-photo{height:110px}.case-activity .candidate{min-height:100px}.case-activity .candidate .art{height:60px}}
+/* Screen 05 — criterion check room: researcher table on the left, the three steps on the right. */
+.verify-lab{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;padding:14px;min-height:100%}
+.verify-step.done .choices .choice:not(.selected){display:none}
+.verify-results,.verify-steps{display:flex;flex-direction:column;gap:10px;min-width:0}
+.verify-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border:2px dashed #d9dcc2;border-radius:16px;padding:20px;font-size:20px;line-height:1.5;word-break:keep-all}
+.verify-empty .icon{width:56px;height:56px;color:#7c884d}
+.verify-table{width:100%;border-collapse:separate;border-spacing:0 3px;font-size:17px}
+.verify-table caption{font-family:var(--font-display);font-size:22px;text-align:left;padding:2px 4px 6px}
+.verify-table thead th{font-size:15px;color:#6f7b5c;font-weight:700;padding:2px 4px}
+.verify-table tbody th{display:flex;align-items:center;gap:8px;text-align:left;font-weight:700;padding:2px 6px;white-space:nowrap}
+.verify-table tbody th .animal{width:34px;height:30px}
+.verify-table td{text-align:center;padding:4px 2px;border-radius:8px;font-weight:700}
+.verify-table td.yes{background:#e3efcd;color:#3f5d26}.verify-table td.no{background:#efece0;color:#6d6a58}
+.verify-table tr.differ th,.verify-table tr.differ td{box-shadow:inset 0 0 0 2px #e9a46a}.verify-table tr.differ th{background:#fbeadb;border-radius:8px}
+.verify-summary{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:700;padding:8px 12px;border-radius:12px}
+.verify-summary .icon{width:22px;height:22px}.verify-summary.bad{background:#fbeadb;color:#9a4a1d}.verify-summary.good{background:#e3efcd;color:#3f5d26}
+.verify-step{background:#f6f5ec;border:1px solid #e3e3cf;border-radius:14px;padding:12px}
+.verify-step h3{display:flex;align-items:center;gap:8px;font-size:20px;margin-bottom:8px}
+.verify-step h3 span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#365839;color:#fff;font-size:16px}
+.verify-step .criteria-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.verify-step .criteria-chips .choice{min-height:48px;font-size:16px}
+.verify-step.retry{box-shadow:0 0 0 3px #e9a46a}
+@media(max-width:900px){.verify-lab{grid-template-columns:1fr}}

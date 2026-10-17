@@ -10,7 +10,7 @@ import {activityView} from '../src/mission-views.js';
 function solve(s,stage,step){
   const r=Math.floor(step/2);
   if(stage===1){if(step%2===0)s.observed.push(...OBSERVE_PAIRS[r].flatMap(id=>OBSERVATIONS[id].map(o=>o.id)));else for(const q of COMPARES[r])s.compares[r][q.key]=q.answer;}
-  if(stage===2){if(r)s.criteria[1]='web';else s.criteria[0]='wings';const key=r?'web':'wings';if(step%2===0)for(const id of SORT_ANIMALS)s.sorts[r][id]=ANIMALS[id][key]?'yes':'no';else s.inquiry.reclass[r]={prediction:'yes',revealed:true};}
+  if(stage===2){if(r)s.criteria[1]='web';else s.criteria[0]='wings';const key=r?'web':'wings';if(step%2===0)for(const id of SORT_ANIMALS)s.sorts[r][id]=ANIMALS[id][key]?'yes':'no';else if(r){s.inquiry.verify[1].checked='web';s.inquiry.reclass[1]={prediction:'yes',revealed:true};}else s.inquiry.verify[0]={ran:true,cause:'opinion',fix:'wings',checked:'wings'};}
   if(stage===3){if(step%2===0){s.discovered.push(...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.id));for(const d of DISCOVERIES.slice(r*3,r*3+3))s.inquiry.motion[d.animal]=1;}else{const id=r?'crab':'frog';for(const [i,key]of ['environment','body','life'].entries())s.links[id][key]=LINKS[id].answer[i];}}
   if(stage===4){const c=CASES[r],g=r?['place','move']:['place','cover'];if(step%2===0)Object.assign(s.cases[r],{opened:[...g],grounds:[...g],candidate:c.animal});else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
   if(stage===5){const id=r?'protect':'swim',p=PROBLEMS[id];if(step%2===0)Object.assign(s.designs[r],{problem:id,feature:p.feature,structure:p.structure,name:r?'단단모':'물갈퀴 추진기'});else{recordTrial(s,r);completeExperiment(s.designs[r]);s.designs[r].explanation='match';}s.designs[r].experiment.sourceSeen=true;}
@@ -23,7 +23,7 @@ test('each stage has four distinct activities; a fresh expedition starts with on
 });
 test('twenty activities award exactly twenty stars and five usable tools, without repeat farming',()=>{
   const s=freshExpedition();for(let stage=1;stage<=5;stage++){complete(s,stage);assert.equal(s.activities.length,stage*4);assert.equal(availableTools(s).length,stage);assert.equal(claimTask(s,stage,3).fresh,false);assert.equal(s.activities.length,stage*4);}
-  assert.deepEqual(s.completed,[1,2,3,4,5]);assert.equal(collectedAnimals(s).length,7);
+  assert.deepEqual(s.completed,[1,2,3,4,5]);assert.equal(collectedAnimals(s).length,11);
 });
 test('incomplete / skipped tasks and administrator preview cannot grant completion',()=>{
   const s=freshExpedition();assert.equal(claimTask(s,1,0).ok,false);solve(s,1,3);assert.equal(claimTask(s,1,3).ok,false);s.adminUnlocked=true;assert.equal(isStageOpen(s,5),true);assert.equal(claimTask(s,5,3).ok,false);assert.deepEqual(s.completed,[]);assert.equal(taskReady(s,1,4),false);
@@ -67,4 +67,9 @@ test('revisiting a draft cannot replace passed invention and evidence records wi
   assert.equal(reportDesigns(s)[0].name,'물갈퀴 추진기');assert.equal(reportDesigns(s)[0].structure,'wide');assert.deepEqual(s.records.cases[0].grounds,['place','cover']);assert.equal(taskReady(s,4,1),false);
   const restored=restoreExpedition(JSON.stringify(s));assert.equal(reportDesigns(restored)[0].structure,'wide');assert.deepEqual(restored.records.cases[0].grounds,['place','cover']);
   const legacy=JSON.parse(JSON.stringify(s));legacy.records.cases[0]={traits:['feather','web'],candidate:'duck',habitat:'pond',reason:'paddle'};assert.deepEqual(restoreExpedition(JSON.stringify(legacy)).records.cases[0].grounds,['cover','foot'],'a pre-08 record survives as grounds');
+});
+test('criterion check room needs the check run, the opinion cause, and a re-checked observable question',()=>{
+  const s=freshExpedition(),v=s.inquiry.verify[0];for(const id of SORT_ANIMALS)s.sorts[0][id]=ANIMALS[id].wings?'yes':'no';
+  assert.equal(taskReady(s,2,1),false);v.ran=true;v.cause='few';assert.equal(taskReady(s,2,1),false);v.cause='opinion';v.fix='cute';v.checked='cute';assert.equal(taskReady(s,2,1),false,'an opinion question still disagrees');
+  v.fix='legs';assert.equal(taskReady(s,2,1),false,'must re-check after fixing');v.checked='legs';assert.equal(taskReady(s,2,1),true);
 });

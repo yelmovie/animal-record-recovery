@@ -26,9 +26,21 @@ export const ANIMALS={
   marine:{name:'바다 물고기',legs:false,wings:false,four:false,cover:'비늘',habitat:'coast',fact:'지느러미로 바닷물 속을 헤엄쳐.'},
 };
 // Sorting questions. Observable ones give everyone the same answer; the others are opinions.
-export const CRITERIA={wings:'날개가 있나요?',four:'다리가 네 개인가요?',web:'발가락 사이에 물갈퀴가 있나요?',fur:'몸이 털로 덮였나요?',fin:'지느러미가 있나요?',six:'다리가 여섯 개인가요?',cute:'귀엽나요?',scary:'무섭게 생겼나요?',fast:'빨리 달리나요?'};
-export const OWN_CRITERIA=['web','fur','fin','six'],OPINION_CRITERIA=['scary','fast'];
-export const SORT_ANIMALS=['frog','duck','rabbit','crab','fish','butterfly'];
+export const CRITERIA={wings:'날개가 있나요?',legs:'다리가 있나요?',four:'다리가 네 개인가요?',web:'발가락 사이에 물갈퀴가 있나요?',fur:'몸이 털로 덮였나요?',fin:'지느러미가 있나요?',six:'다리가 여섯 개인가요?',cute:'귀엽나요?',scary:'무섭게 생겼나요?',fast:'빨리 달리나요?'};
+export const OWN_CRITERIA=['legs','web','fin','six'],OPINION_CRITERIA=['scary','fast'];
+// Screen 05: questions anyone can check on the body; the rest depend on who answers.
+export const OBSERVABLE=['wings','legs','four','web','fin','six'];
+// Researchers A/B/C answer opinion questions differently (fixed data, y/n per researcher).
+export const OPINION_ANSWERS={
+ fast:{frog:'yny',duck:'nny',rabbit:'yyy',crab:'nyn',fish:'yny',butterfly:'yyn',hen:'nyn',bat:'yyy',bee:'yny',snail:'nnn'},
+ cute:{frog:'nyn',duck:'yyn',rabbit:'yyy',crab:'nny',fish:'yny',butterfly:'yyn',hen:'nyn',bat:'nny',bee:'ynn',snail:'nyy'},
+ scary:{frog:'nny',duck:'nnn',rabbit:'nnn',crab:'yny',fish:'nny',butterfly:'nny',hen:'nnn',bat:'yyn',bee:'yny',snail:'nyn'},
+};
+export const researcherAnswers=(key,id)=>OBSERVABLE.includes(key)?[0,1,2].map(()=>ANIMALS[id][key]?'yes':'no'):[...(OPINION_ANSWERS[key]?.[id]||'nnn')].map(c=>c==='y'?'yes':'no');
+export const disagreements=key=>SORT_ANIMALS.filter(id=>new Set(researcherAnswers(key,id)).size>1);
+export const VAGUE=['fast','scary'];
+export const CAUSES=[['opinion','‘빠르다’는 사람마다 생각하는 기준이 달라서'],['few','동물 수가 너무 적어서','동물 수를 늘려도 연구원마다 답이 달라.'],['mistake','한 연구원이 동물을 잘못 봐서','세 연구원 모두 같은 동물 그림을 봤어. 그림이 아니라 질문이 문제야.']];
+export const SORT_ANIMALS=['frog','duck','rabbit','crab','fish','butterfly','hen','bat','bee','snail'];
 export const OBSERVATIONS={
   frog:[{id:'frog-eye',label:'눈',text:'머리 위쪽에 튀어나온 눈이 있어.',wrong:['자루 끝에 달린 눈이 있어.','털 사이에 작은 눈이 숨어 있어.'],x:68,y:22},{id:'frog-leg',label:'뒷다리',text:'앞다리보다 긴 뒷다리가 있어.',wrong:['앞다리와 뒷다리 길이가 똑같아.','다리가 없고 지느러미가 있어.'],x:23,y:61},{id:'frog-skin',label:'몸 표면',text:'털이나 깃털 없이 맨살이 드러나 있어.',wrong:['단단한 껍데기가 몸을 감싸.','부드러운 털로 덮여 있어.'],x:47,y:40}],
   crab:[{id:'crab-eye',label:'눈',text:'자루 끝에 달린 눈이 있어.',wrong:['머리 위쪽에 튀어나온 눈이 있어.','눈이 없어.'],x:60,y:27},{id:'crab-leg',label:'다리',text:'집게다리와 여러 개의 걷는 다리가 있어.',wrong:['긴 뒷다리 두 개와 짧은 앞다리 두 개가 있어.','다리가 두 개뿐이야.'],x:16,y:58},{id:'crab-shell',label:'몸 표면',text:'단단한 껍데기가 몸을 감싸.',wrong:['털이나 깃털 없이 맨살이 드러나 있어.','깃털로 덮여 있어.'],x:50,y:40}],
@@ -137,7 +149,7 @@ function migrateLegacy(raw){
   const previous=restoreLegacy(raw),out=freshExpedition();out.legacy=previous;out.soundEnabled=previous.soundEnabled;out.adminUnlocked=previous.adminUnlocked;out.introSeen=true;
   out.observed=previous.observed;out.compares[0]=previous.compare;out.sorts[0]=previous.classification;out.criteria[0]=previous.criterion;
   out.discovered=DISCOVERIES.slice(0,3).filter(d=>previous.found.includes(d.animal)).map(d=>d.id);out.links.frog=previous.chain;
-  const oldReady=[previous.observed.length===6,previous.compare.common==='eyes'&&previous.compare.difference==='cover',SORT_ANIMALS.every(id=>previous.classification[id]===(ANIMALS[id].wings?'yes':'no')),previous.criterion==='wings',out.discovered.length===3,['pond','web','swim'].every((v,i)=>previous.chain[['environment','body','life'][i]]===v)];
+  const oldReady=[previous.observed.length===6,previous.compare.common==='eyes'&&previous.compare.difference==='cover',['frog','duck','rabbit','crab','fish','butterfly'].every(id=>previous.classification[id]===(ANIMALS[id].wings?'yes':'no')),previous.criterion==='wings',out.discovered.length===3,['pond','web','swim'].every((v,i)=>previous.chain[['environment','body','life'][i]]===v)];
   for(let stage=1;stage<=3;stage++)for(let step=0;step<2;step++)if(oldReady[(stage-1)*2+step])out.activities.push(`${stage}-${step}`);
   out.designs[0]=normalizeDesign({...previous.design,strokes:previous.sketches[previous.design.problem]||[],trials:previous.trials});
   // The old unidentified-animal activity has changed; its new tasks start fresh.
@@ -149,7 +161,7 @@ export function taskReady(s,stage,step){
   if(!Number.isInteger(stage)||stage<1||stage>5||!Number.isInteger(step)||step<0||step>3)return false;
   const round=Math.floor(step/2);
   if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>OBSERVATIONS[id].every(o=>s.observed.includes(o.id))):COMPARES[round].every(q=>s.compares[round][q.key]===q.answer);
-  if(stage===2){const key=round?s.criteria[1]:'wings';if(round&&!OWN_CRITERIA.includes(key))return false;return step%2===0?SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no')):(round||s.criteria[0]==='wings')&&s.inquiry.reclass[round].revealed;}
+  if(stage===2){const key=round?s.criteria[1]:'wings',v=s.inquiry.verify[round];if(round&&!OWN_CRITERIA.includes(key))return false;if(step%2===0)return SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no'));return round?v.checked===key&&s.inquiry.reclass[1].revealed:v.ran&&v.cause==='opinion'&&OBSERVABLE.includes(v.fix)&&v.checked===v.fix;}
   if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
   if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
   if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.experiment.sourceSeen);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&testDesign(t).passed)&&d.explanation==='match';}
@@ -180,7 +192,12 @@ export function taskMistake(s,stage,step){
   if(stage===1){const out=[];for(const q of COMPARES[round]){const pick=s.compares[round][q.key];if(pick===q.answer)continue;const opt=q.options.find(o=>o[0]===pick);out.push({key:'compare:'+q.key,text:opt?`‘${q.title}’ 다시 봐. ${opt[2]}`:`‘${q.title}’에 아직 답하지 않았어.`});}return out.length?{text:out.map(x=>x.text).join(' '),wrong:out.map(x=>x.key)}:null;}
   if(stage===2&&round&&!OWN_CRITERIA.includes(s.criteria[1]))return {text:s.criteria[1]?`‘${CRITERIA[s.criteria[1]]}’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.`:'먼저 나눌 기준을 하나 골라 줘.',wrong:[]};
   if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.`,wrong:bad.map(id=>'sort:'+id)}:null;}
-  if(stage===2){if(!round&&s.criteria[0]!=='wings')return {text:s.criteria[0]?'‘귀엽나요?’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.':'먼저 기준을 하나 골라 줘.',wrong:[]};if(!s.inquiry.reclass[round].revealed)return {text:'예상을 고른 뒤 ‘분류 바꾸기’를 눌러 결과를 확인해 봐.',wrong:[]};return null;}
+  if(stage===2){const v=s.inquiry.verify[round];
+    if(round){if(v.checked!==s.criteria[1])return {text:'‘내 기준 검증’을 눌러 세 연구원의 결과를 확인해 봐.',wrong:[]};if(!s.inquiry.reclass[1].revealed)return {text:'예상을 고른 뒤 ‘분류 바꾸기’를 눌러 결과를 확인해 봐.',wrong:[]};return null;}
+    if(!v.ran)return {text:'먼저 ‘검증 실행’을 눌러 세 연구원의 결과를 확인해 봐.',wrong:[]};
+    if(v.cause!=='opinion'){const c=CAUSES.find(x=>x[0]===v.cause);return {text:c?c[2]:'결과가 왜 달라졌는지 골라 줘.',wrong:['verify:cause']};}
+    if(!OBSERVABLE.includes(v.fix))return {text:v.fix?`‘${CRITERIA[v.fix]}’도 사람마다 답이 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`:'누가 봐도 같은 답이 나오는 기준으로 고쳐 줘.',wrong:['verify:fix']};
+    if(v.checked!==v.fix)return {text:'고친 기준으로 ‘다시 검증’을 눌러 세 결과가 같은지 확인해 봐.',wrong:[]};return null;}
   if(stage===3&&step%2===0){const list=DISCOVERIES.slice(round*3,round*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>`${ANIMALS[d.animal].name}: ${MOTIONS[d.animal].goal}을 찾아 기록해 봐.`).join(' '),wrong:[]}:null;}
   if(stage===3){const id=round?'crab':'frog',keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);return bad.length?{text:bad.map(({k,i})=>s.links[id][k]?`‘${cols[i]}’을 다시 봐. ${tips[i]}`:`‘${cols[i]}’을 아직 고르지 않았어.`).join(' '),wrong:bad.map(({k})=>'link:'+k)}:null;}
   if(stage===4){const c=CASES[round],a=s.cases[round],names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');

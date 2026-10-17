@@ -1,6 +1,6 @@
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
+import {STAGES,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
 import {art,mori,icon,btn,esc} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent} from './shell-views.js';
 import {createTrailMap} from './trail-map.js';
@@ -117,7 +117,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'zoom':zoom=!zoom;render();break;
     case 'compare':if(['common','difference'].includes(key))s.compares[round()][key]=value;feedback=null;render();break;
     case 'sort':s.sorts[round()][id]=value;feedback=null;render();break;
-    case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};}s.criteria[round()]=value;feedback=null;render();break;
+    case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;
     case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id))activeHabitat=id;feedback=null;render();break;
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':if(['frog','crab'].includes(id)&&['environment','body','life'].includes(key))s.links[id][key]=value;feedback=null;render();break;
@@ -135,6 +135,11 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'sketch-undo':s.designs[round()].strokes.pop();render();break;
     case 'test':report=recordTrial(s,round());feedback={good:report.passed,text:report.passed?'특징과 구조가 연결됐어! 이제 아래 설명 카드도 골라 봐.':'바꿀 부분을 찾은 거야! 설계를 고쳐 다시 시험해 봐.'};render();break;
     case 'explain':s.designs[round()].explanation=value;feedback=null;render();break;
+    case 'verify-run':s.inquiry.verify[0].ran=true;feedback=null;render();break;
+    case 'verify-cause':s.inquiry.verify[0].cause=value;feedback=null;render();break;
+    case 'verify-fix':s.inquiry.verify[0].fix=value;feedback=null;render();break;
+    case 'verify-recheck':{const x=s.inquiry.verify[0];if(!x.fix)break;x.checked=x.fix;feedback=null;render();if(!OBSERVABLE.includes(x.fix))say(`‘${CRITERIA[x.fix]}’로도 결과가 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`);break;}
+    case 'verify-own':if(OWN_CRITERIA.includes(s.criteria[1]))s.inquiry.verify[1].checked=s.criteria[1];feedback=null;render();break;
     case 'sort-predict':s.inquiry.reclass[round()].prediction=value;s.inquiry.reclass[round()].revealed=false;render();break;
     case 'sort-reveal':{const before=groupRects();if(s.inquiry.reclass[round()].prediction)s.inquiry.reclass[round()].revealed=true;render();flipGroups(before);break;}
     case 'sort-before':{const before=groupRects();s.inquiry.reclass[round()].revealed=false;render();flipGroups(before);break;}
