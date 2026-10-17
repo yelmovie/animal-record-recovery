@@ -8,6 +8,7 @@ const files=['index.html',...['inquiry.js','inquiry-views.js','inquiry.css','adv
   ...['raccoon','biomes','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['trail-map','explorer','duck','butterfly','goldfish','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),
+  ...['tap','correct','retry','star','stamp','fanfare'].map(f=>`assets/sfx/${f}.mp3`),
   ...['jua-korean-400.woff2','jua-latin-400.woff2','Jua-OFL.txt','Pretendard-Regular.subset.woff2','Pretendard-Bold.subset.woff2','Pretendard-OFL.txt'].map(f=>`assets/fonts/${f}`)];
 // Remove only previously generated files named in our own build manifest.
 // Authoring assets / unknown files are never recursively removed.

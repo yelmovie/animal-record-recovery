@@ -12,3 +12,16 @@
 - 효과음: `src/audio.js`의 Web Audio 사인파 합성. 외부 음원 없음.
 
 앱 화면에 생성형 AI 이미지 안내가 있다. 권리 귀속·표시 주체·배포 플랫폼은 납품 계약으로 확정해야 하며 이 문서는 새로운 이용 허락을 부여하지 않는다.
+
+## 효과음 (2026-10-17 추가)
+
+위의 "효과음: 사인파 합성, 외부 음원 없음" 항목은 이제 맞지 않는다. 아래 Pixabay 효과음 6종을 쓰고, `src/audio.js`의 합성음은 파일을 불러오지 못했을 때만 대신 나온다. 6종 모두 Pixabay Content License(출처 표기 불필요, 상업적 사용 가능)이며 원본을 수정하지 않았다.
+
+| 파일 | 쓰는 곳 | 출처 | 제작자 | 확보일 |
+|---|---|---|---|---|
+| sfx/tap.mp3 | 버튼 누를 때 | https://pixabay.com/sound-effects/film-special-effects-bubble-pop-06-351337/ | Universfield | 2026-10-17 |
+| sfx/correct.mp3 | 활동 완료 | https://pixabay.com/sound-effects/technology-puzzle-game-correct-answer-508718/ | cartoon_music | 2026-10-17 |
+| sfx/retry.mp3 | 다시 살펴보기(오답·힌트) | https://pixabay.com/sound-effects/technology-notification-wrong-answer-508690/ | cartoon_music | 2026-10-17 |
+| sfx/star.mp3 | 별이 위쪽 별 칸에 도착 | https://pixabay.com/sound-effects/film-special-effects-collect-points-190037/ | Liecio | 2026-10-17 |
+| sfx/stamp.mp3 | 복구 완료 도장 | https://pixabay.com/sound-effects/film-special-effects-stamp-81635/ | freesound_community | 2026-10-17 |
+| sfx/fanfare.mp3 | 장소 복구 팡파르 | https://pixabay.com/sound-effects/musical-level-up-fanfare-151765/ | Universfield | 2026-10-17 |
