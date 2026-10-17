@@ -1,6 +1,6 @@
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns} from './expedition.js';
 import {art,mori,icon,btn,esc} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent} from './shell-views.js';
 import {createVillage} from './village.js';
@@ -12,11 +12,11 @@ import {can3d,mount3d,disable3d} from './view3d.js';
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 let s,storageOK=true;
 try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
-let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null;
+let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
-const pinned=new Set();
+const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({screen,stage,step,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,sketching,report,feedback,restoredFlash,picked,use3d:can3d(),pinned:[...pinned],canGoBack:navigation.canGoBack});
+const view=()=>({screen,stage,step,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,sketching,report,feedback,restoredFlash,picked,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));storageOK=true;}catch{storageOK=false;}
@@ -57,7 +57,23 @@ function opts3d(kind){
     return {animal:id,parts:list.map(o=>o.label),found:idx(o=>s.observed.includes(o.id)),pinned:idx(o=>pinned.has(o.id)),focus:focusIndex,onFail:fail3d,
       onPick(i){focusIndex=i;pinned.add(list[i].id);feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=`${list[i].label}에 관찰핀을 꽂았어.`;},
       onMiss(hint,pt){playSound(s.soundEnabled,'retry');toast(hint,tapAnchor(pt));}};}
+  if(kind==='dome'){const list=DISCOVERIES.slice(round()*3,round()*3+3);
+    return {zones:[...Object.keys(HABITATS),...Object.keys(DOME_ZONES)],names:Object.fromEntries([...Object.entries(HABITATS),...Object.entries(DOME_ZONES)].map(([id,h])=>[id,h.name])),active:DOME_ZONES[activeHabitat]?activeHabitat:(list.find(d=>d.habitat===activeHabitat)||list[0]).habitat,onFail:fail3d,
+      extras:Object.entries(DOME_ZONES).map(([zone,z])=>({id:zone,animal:z.animal,habitat:zone,name:z.animalName,found:looked.has(zone)})),
+      onLook(zone){if(!DOME_ZONES[zone])return;stopMotion();looked.add(zone);activeHabitat=zone;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=DOME_ZONES[zone].text;},
+      targets:list.map(d=>({id:d.id,animal:d.animal,habitat:d.habitat,name:ANIMALS[d.animal].name,found:s.discovered.includes(d.id)})),
+      onFind(id){const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;stopMotion();activeHabitat=d.habitat;playSound(s.soundEnabled,s.discovered.includes(id)?undefined:'correct');act('discover',{dataset:{id}});document.querySelector('#announcer').textContent=`${ANIMALS[d.animal].name}를 찾았어! 움직임을 살펴봐.`;}};}
   return {onFail:fail3d};
+}
+// Optional tilt (screen 06): iOS asks permission inside the tap; no permission or no sensor leaves drag only.
+function toggleTilt(el){
+  if(tilt){tilt=false;viewer?.call('tilt',false);render();return;}
+  const off=text=>{tilt=false;viewer?.call('tilt',false);render();toast(text,el);};
+  const ask=window.DeviceOrientationEvent?.requestPermission;
+  Promise.resolve(ask?ask.call(DeviceOrientationEvent):'granted').then(r=>{
+    if(r!=='granted')return off('기울이기를 허락하지 않았어. 손가락으로 밀어서 둘러보면 돼.');
+    tilt=true;viewer?.call('tilt',true,()=>off('이 기기는 기울이기를 쓸 수 없어. 손가락으로 밀어서 둘러보면 돼.'));render();
+  }).catch(()=>off('기울이기를 쓸 수 없어. 손가락으로 밀어서 둘러보면 돼.'));
 }
 // FLIP: cards glide from their old group to the new one, so a changed criterion visibly regroups the same animals.
 function groupRects(){return new Map([...document.querySelectorAll('.group-animal[data-id]')].map(el=>[el.dataset.id,el.getBoundingClientRect()]));}
@@ -139,10 +155,11 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;if(value&&value!=='right')return say(can3d()?`3D 표본에서 ${o.label} 부분을 다시 살펴봐. 본 모습과 다른 설명이야.`:`렌즈로 ${o.label} 부분을 다시 살펴봐. 그림과 다른 설명이야.`,false,['observe:'+value]);if(!s.observed.includes(id))s.observed.push(id);feedback=null;render();document.querySelector('#announcer').textContent='특징을 기록했어.';break;}
     case 'zoom':zoom=!zoom;render();break;
     case 'scan-reset':viewer?.call('reset');break;
+    case 'dome-tilt':toggleTilt(el);break;
     case 'compare':{const c=s.compares[round()];for(const k of ['common','difference'])if(c[k]===value)delete c[k];if(['common','difference'].includes(key))c[key]=value;feedback=null;render();break;}
     case 'sort':if(!SORT_ANIMALS.includes(id))break;if(value==='pool')delete s.sorts[round()][id];else s.sorts[round()][id]=value;feedback=null;render();break;
     case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;
-    case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id))activeHabitat=id;feedback=null;render();break;
+    case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id)||(can3d()&&Object.hasOwn(DOME_ZONES,id)))activeHabitat=id;feedback=null;render();break;
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();break;}
     case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;

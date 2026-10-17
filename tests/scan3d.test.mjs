@@ -31,3 +31,12 @@ test('the 3D scanner keeps the same pass rule and save shape',()=>{
   const saved=JSON.parse(JSON.stringify(s)),restored=restoreExpedition(JSON.stringify(saved));
   assert.deepEqual(restored.observed,saved.observed);assert.ok(!('pinned' in restored),'pins are not saved');
 });
+test('screen 06 in 3D draws the dome host and keeps the motion notes and 2D fallback',()=>{
+  const s=freshExpedition(),v={stage:3,step:0,activeHabitat:'forest'};
+  const dome=activityView(s,{...v,use3d:true,tiltable:true});
+  assert.match(dome,/data-3d="dome"/);assert.ok(!dome.includes('data-action="discover"'),'animals are found in the dome, not on a 2D button');
+  assert.match(dome,/data-action="dome-tilt"/);assert.ok(!activityView(s,{...v,use3d:true}).includes('dome-tilt'),'no tilt button without a sensor API');
+  s.discovered.push('forest-rabbit');
+  assert.match(activityView(s,{...v,use3d:true}),/motion-observer/,'a found animal opens the same motion notes');
+  const flat=activityView(freshExpedition(),v);assert.match(flat,/data-action="discover"/);assert.ok(!flat.includes('data-3d'));
+});

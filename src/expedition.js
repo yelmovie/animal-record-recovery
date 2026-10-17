@@ -56,6 +56,11 @@ export const COMPARES=[
 // Screen 03 statement cards: both questions' options in one pile; ref keeps the slot they were written for.
 export const compareCards=round=>{const all=COMPARES[round].flatMap(q=>q.options.map(([value,label,why])=>({ref:`${q.key}-${value}`,key:q.key,label,why})));return [0,3,1,4,2,5].map(i=>all[i]);};
 export const HABITATS={forest:{name:'숲과 들',subtitle:'풀과 나무가 자라는 땅',sheet:[0,0]},pond:{name:'연못과 물가',subtitle:'물과 땅이 만나는 곳',sheet:[1,0]},coast:{name:'바다와 갯벌',subtitle:'바닷물과 드러나는 바닷가',sheet:[0,1]}};
+// Screen 06 dome only: two more environments to look round. Nothing here is recorded or needed to pass.
+export const DOME_ZONES={
+  dry:{name:'건조한 곳',animal:'camel',animalName:'낙타',text:'비가 거의 오지 않는 모래땅에서 낙타가 넓적한 발바닥으로 모래 위를 걸어 다녀.'},
+  cold:{name:'추운 곳',animal:'penguin',animalName:'펭귄',text:'얼음과 차가운 바다가 있는 곳에서 펭귄이 짧은 날개를 저어 바닷물 속을 헤엄쳐.'},
+};
 export const DISCOVERIES=[
   {id:'forest-rabbit',animal:'rabbit',habitat:'forest',text:'풀과 나무 사이에서 토끼가 뒷다리로 뛰어다녔어.'},
   {id:'pond-frog',animal:'frog',habitat:'pond',text:'개구리가 물가에서 쉬고 물갈퀴로 물을 밀며 헤엄쳤어.'},

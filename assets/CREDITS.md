@@ -34,3 +34,8 @@
 
 - `src/vendor/three/three.module.min.js`, `three.core.min.js`: three.js r181(0.181.1), MIT License, Copyright 2010-2025 three.js authors. 공식 npm 패키지 `three@0.181.1` 배포본을 수정 없이 넣었고 라이선스 원문은 같은 폴더 `LICENSE.txt`. 학교망에서 CDN이 막혀도 되도록 외부 요청 없이 프로젝트 안에서 불러온다.
 - 02 관찰 스캐너의 3D 동물(개구리·게·오리·토끼)은 외부 모델 없이 `src/scanner3d.js` 코드로 만든 도형 조합이고, 표면 무늬도 코드로 그린 캔버스 텍스처다.
+- (2026-10-17 추가) `src/vendor/three/GLTFLoader.js`, `BufferGeometryUtils.js`: 같은 three.js r181 배포본의 `examples/jsm`에서 가져와 `import` 경로만 프로젝트 안 파일로 바꿨다(MIT).
+
+## 3D 동물 모델 (2026-10-17 추가)
+
+`models/*.glb` 6종(개구리·게·오리·토끼·나비·바다 물고기)은 Meshy API(image-to-3D, 모델 `latest`=Meshy 7.1, 2K 텍스처, 1개당 30크레딧, 합계 180크레딧)로 이 프로젝트를 위해 생성했다. 입력 이미지는 이 프로젝트의 기존 생성 그림이다: `generated/frog.png`, `generated/crab.png`, `generated/rabbit.png`, `adventure/duck.png`, `adventure/butterfly.png`, `generated/marine_fish.png`. 생성 원본(수십만 삼각형, 20~120MB)은 `D:\iscreammedia_sc34\_scratch\meshy\out`에 두고, Blender 5.2를 창 없이 돌려(`_scratch\meshy\tidy.py`) 메시를 하나로 합치고, 삼각형을 줄이고(관찰 동물 1만2천, 돔 전용 나비·물고기 6천), 텍스처를 1024/512 WebP로 줄여 GLB로 내보냈다. 압축(Draco 등)은 디코더 파일이 따로 필요해서 쓰지 않았다. 코드로 만든 도형 동물(`src/scanner3d.js`의 MODELS)은 GLB를 불러오는 동안과 불러오지 못했을 때만 보인다.

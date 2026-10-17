@@ -249,3 +249,9 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 @media (prefers-reduced-motion:no-preference){.pin3d.focus b{animation:pin-pop .45s ease-out}}
 @keyframes pin-pop{0%{transform:scale(.3)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
 .scan3d:has(.stage3d) .scan-loading{display:none}
+.dome-scene .scan3d{background:radial-gradient(ellipse at 50% 30%,#f3f8fb 0,#dce9ee 60%,#c9dbe2 100%)}
+.dome-scene .habitat-caption{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}
+.dome-scene .habitat-caption .btn{flex-shrink:0;min-height:48px;font-size:16px}
+.dome-scene .habitat-caption .btn .icon{width:18px;height:18px;margin-right:4px}
+.pin3d.zone{margin:0}
+.pin3d.zone span{transform:translate(-50%,-50%);background:#2f4f3be8;color:#fffbe1;border:0;font-size:15px;padding:3px 10px}

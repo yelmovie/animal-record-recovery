@@ -1,10 +1,41 @@
 import {T,createStage,texture,blobShadow} from './stage3d.js';
-// Screen 02: procedural specimens built from primitives. Each mesh carries the index of the
-// observation it shows (OBSERVATIONS[id][part]); -1 meshes answer with a re-look hint instead.
+import {GLTFLoader} from './vendor/three/GLTFLoader.js';
+// Screen 02 specimens are Meshy-made GLB models (tidied in Blender). The procedural models below show
+// while a GLB loads and stay if it fails. A procedural mesh carries its observation index
+// (OBSERVATIONS[id][part], -1 = re-look hint); a GLB is one mesh, so REGIONS map a tap point to a part.
 
-const tag=(mesh,part,hint)=>{mesh.userData.part=part;if(hint)mesh.userData.hint=hint;return mesh;};
-function ball(m,pos,scale,part,hint,rot){const g=new T.Mesh(new T.SphereGeometry(1,22,14),m);g.position.set(...pos);g.scale.set(...scale);if(rot)g.rotation.set(...rot);return tag(g,part,hint);}
-function limb(m,a,b,r,part,hint){const A=new T.Vector3(...a),B=new T.Vector3(...b),g=new T.Mesh(new T.CapsuleGeometry(r,A.distanceTo(B),4,10),m);g.position.copy(A).add(B).multiplyScalar(.5);g.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),B.sub(A).normalize());return tag(g,part,hint);}
+// size: longest side after fitting; yaw turns the model to face +x like the procedural ones
+// (roll lays the butterfly, made upright from a front view, flat with its head forward).
+export const GLB={frog:{size:2.8,yaw:Math.PI/2-.15},crab:{size:3.6,yaw:Math.PI/2},duck:{size:2.8,yaw:Math.PI/2},rabbit:{size:2.8,yaw:Math.PI/2},camel:{size:3,yaw:Math.PI/2},penguin:{size:2.2,yaw:Math.PI/2},butterfly:{size:2.6,yaw:0,roll:-Math.PI/2},marine:{size:2.4,yaw:Math.PI/2}};
+const cache=new Map();
+export function loadAnimal(id){
+  if(!GLB[id])return Promise.reject(new Error('no model'));
+  if(!cache.has(id))cache.set(id,new GLTFLoader().loadAsync(new URL(`../assets/models/${id}.glb`,import.meta.url).href).then(g=>{
+    const root=g.scene,box=new T.Box3(),fit=GLB[id];root.rotation.set(0,fit.yaw,fit.roll||0);root.updateMatrixWorld(true);box.setFromObject(root);
+    const size=box.getSize(new T.Vector3()),c=box.getCenter(new T.Vector3()),k=fit.size/Math.max(size.x,size.y,size.z);
+    root.scale.setScalar(k);root.position.set(-c.x*k,-box.min.y*k,-c.z*k);
+    root.traverse(m=>{m.userData.shared=true;if(m.material){m.material.roughness=.7;m.material.metalness=0;}});
+    const wrap=new T.Group();wrap.add(root);return wrap;
+  }));
+  return cache.get(id).then(w=>w.clone());
+}
+// Spheres [x,y,z,r] in the fitted model space: parts first, then hint areas; anything else on the body is `body`.
+// center: a point on the body for the body part. Pins start where a ray from the part's view hits the model.
+export const REGIONS={
+  frog:{center:[0,1.4,.39],parts:[[[.81,1.49,.22,.22],[.81,1.49,-.28,.22]],[[-.56,.5,.87,.5],[-.56,.5,-.9,.5],[-.17,.11,.81,.36],[-.17,.11,-.9,.36]],[]],hints:[[.62,.34,.45,.27,'앞다리야. 뒷다리와 길이를 비교해 봐.'],[.67,.34,-.5,.27,'앞다리야. 뒷다리와 길이를 비교해 봐.']],body:2},
+  crab:{center:[-.3,1.1,0],parts:[[[-.2,1.2,.37,.2],[-.2,1.2,-.37,.2]],[[.85,.5,.75,.5],[.85,.5,-.75,.5],[-.2,.5,1.5,.6],[-.2,.5,-1.5,.6],[-.9,.4,1.45,.55],[-.9,.4,-1.45,.55],[.45,.4,1.45,.5],[.45,.4,-1.45,.5]],[]],hints:[],body:2},
+  duck:{center:[-.4,1,0],parts:[[[1.25,1.88,0,.24]],[],[[.4,.05,.3,.32],[.4,.05,-.3,.32],[.35,.3,.22,.18],[.35,.3,-.22,.18]]],hints:[[1,2.15,.2,.1,'눈이야. 이번에는 부리·몸 표면·발을 살펴봐.'],[1,2.15,-.2,.1,'눈이야. 이번에는 부리·몸 표면·발을 살펴봐.']],body:1},
+  rabbit:{center:[-.2,1.2,0],parts:[[[.6,2.2,.32,.3],[.6,2.2,-.36,.3],[.65,2.5,.4,.2],[.65,2.5,-.42,.2]],[],[[-.8,.35,.45,.45],[-.8,.35,-.45,.45],[-.6,.08,.4,.35],[-.6,.08,-.4,.35]]],hints:[[.65,.3,.25,.25,'앞다리야. 뒷다리와 길이를 비교해 봐.'],[.65,.3,-.25,.25,'앞다리야. 뒷다리와 길이를 비교해 봐.'],[1,1.55,.3,.13,'얼굴이야. 귀·몸 표면·뒷다리를 찾아봐.'],[1,1.55,-.3,.13,'얼굴이야. 귀·몸 표면·뒷다리를 찾아봐.'],[1.38,1.35,0,.13,'얼굴이야. 귀·몸 표면·뒷다리를 찾아봐.']],body:1},
+};
+function regionAt(id,p){
+  const r=REGIONS[id],inside=([x,y,z,rad])=>(p.x-x)**2+(p.y-y)**2+(p.z-z)**2<=rad*rad;
+  const part=r.parts.findIndex(list=>list.some(inside));if(part>=0)return {part};
+  const hint=r.hints.find(inside);return hint?{part:-1,hint:hint[4]}:{part:r.body};
+}
+
+export const tag=(mesh,part,hint)=>{mesh.userData.part=part;if(hint)mesh.userData.hint=hint;return mesh;};
+export function ball(m,pos,scale,part,hint,rot){const g=new T.Mesh(new T.SphereGeometry(1,22,14),m);g.position.set(...pos);g.scale.set(...scale);if(rot)g.rotation.set(...rot);return tag(g,part,hint);}
+export function limb(m,a,b,r,part,hint){const A=new T.Vector3(...a),B=new T.Vector3(...b),g=new T.Mesh(new T.CapsuleGeometry(r,A.distanceTo(B),4,10),m);g.position.copy(A).add(B).multiplyScalar(.5);g.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),B.sub(A).normalize());return tag(g,part,hint);}
 // A flat webbed fan pointing along +x (turned by `angle` around y), with toe ridges on top.
 function webFoot(m,toe,pos,radius,angle,part,spread=1){
   const g=new T.Group(),fan=new T.Mesh(new T.CircleGeometry(radius,12,-.5*spread,spread),m);
@@ -13,7 +44,7 @@ function webFoot(m,toe,pos,radius,angle,part,spread=1){
   g.position.set(...pos);g.rotation.y=angle;return g;
 }
 // A texture already carries the colour, so a textured material stays white (colour × map would darken it).
-const mat=(color,o={})=>new T.MeshStandardMaterial({color:o.map?'#ffffff':color,roughness:.75,...o});
+export const mat=(color,o={})=>new T.MeshStandardMaterial({color:o.map?'#ffffff':color,roughness:.75,...o});
 const both=f=>[1,-1].flatMap(f);
 const sprinkle=(colors,count,size)=>(g,s)=>{for(let i=0;i<count;i++){g.fillStyle=colors[i%colors.length];g.beginPath();g.arc(Math.random()*s,Math.random()*s,size*(.4+Math.random()),0,7);g.fill();}};
 const fill=c=>(g,s)=>{g.fillStyle=c;g.fillRect(0,0,s,s);};
@@ -21,7 +52,7 @@ const layers=(...fs)=>(g,s)=>fs.forEach(f=>f(g,s));
 const furLines=(base,tones,count)=>layers(fill(base),(g,s)=>{g.lineWidth=1.4;for(let i=0;i<count;i++){const x=Math.random()*s,y=Math.random()*s,a=1.2+Math.random()*.7;g.strokeStyle=tones[i%tones.length];g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.cos(a)*7,y+Math.sin(a)*7);g.stroke();}});
 const scallops=(base,edge)=>layers(fill(base),(g,s)=>{g.strokeStyle=edge;g.lineWidth=2;const step=s/8;for(let row=0;row<9;row++)for(let col=0;col<9;col++){g.beginPath();g.arc(col*step+(row%2)*step/2,row*step,step/2,.15*Math.PI,.85*Math.PI);g.stroke();}});
 
-const MODELS={
+export const MODELS={
   frog(){
     const skin=mat('#8aa24c',{map:texture(256,layers(fill('#8aa24c'),sprinkle(['#6f8a3a','#a4b862'],900,1.6),sprinkle(['#3e4a25'],26,9)),2),roughness:.38}),
       belly=mat('#e7dcbc',{roughness:.45}),gold=mat('#c9952f',{roughness:.2,metalness:.1}),black=mat('#141414',{roughness:.15}),webM=mat('#9a9a5e',{side:T.DoubleSide,roughness:.5});
@@ -75,7 +106,7 @@ const PARTS={
 
 // opts: {animal, parts:[label], found:[i], pinned:[i], focus, onPick(i), onMiss(hint,{x,y}), onFail}
 export function create(host,opts){
-  let model=null,id=null,focus=-1,picked=-1;const taps={};
+  let model=null,id=null,focus=-1,picked=-1,dead=false;const taps={};
   const stage=createStage(host,{target:[0,.85,0],theta:.8,phi:1.22,radius:5.4,minR:1.8,maxR:9,minPhi:.25,maxPhi:1.6,
     label:'3D 동물 표본. 한 손가락으로 돌리고 두 손가락으로 확대해. 부위를 누르면 관찰핀이 꽂혀.',
     pickables:()=>model?[model]:[],onTap,onKey:()=>{if(focus>=0)pick(focus);},onFail:e=>opts.onFail?.(e)});
@@ -85,27 +116,43 @@ export function create(host,opts){
   scene.add(new T.HemisphereLight('#fffbe8','#6b7a52',1.5),sun,fill,base,blobShadow(1.6));
 
   const home=()=>stage.goTo({theta:.8,phi:1.22,radius:PARTS[id].radius,tx:0,ty:.85,tz:0});
+  // Cached GLB clones share geometry with the cache, so only procedural models are disposed.
+  function show(next){
+    if(model){scene.remove(model);if(!model.userData.glb)model.traverse(x=>{x.geometry?.dispose();x.material?.map?.dispose();x.material?.dispose?.();});}
+    model=next;scene.add(model);if(location.search.includes('regions')&&next.userData.glb)showRegions();pins();stage.request();
+  }
+  // ?regions draws the tap spheres, for tuning REGIONS against a new model.
+  function showRegions(){const r=REGIONS[id],m=new T.MeshBasicMaterial({color:'#ff3b7f',wireframe:true});
+    [...r.parts.flat(),...r.hints].forEach(([x,y,z,rad])=>{const s=new T.Mesh(new T.SphereGeometry(rad,12,8),m);s.position.set(x,y,z);s.raycast=()=>{};model.add(s);});}
+  const ray=new T.Raycaster();
+  function anchor(i){
+    if(!model?.userData.glb)return new T.Vector3(...PARTS[id].anchors[i]);
+    const r=REGIONS[id],c=new T.Vector3(...(r.parts[i][0]||r.center)),dir=new T.Vector3(...PARTS[id].views[i]).normalize();
+    model.updateMatrixWorld(true);ray.set(c.clone().addScaledVector(dir,8),dir.negate());return ray.intersectObject(model,true)[0]?.point||c;
+  }
   function pick(i){picked=i;focus=i;pins();opts.onPick?.(i);}
   function onTap(hit,pt){
-    let o=hit?.object;while(o&&o.userData.part===undefined)o=o.parent;if(!o)return;
-    const p=o.userData.part;if(p<0){opts.onMiss?.(o.userData.hint,pt);return;}
+    let o=hit?.object;while(o&&o.userData.part===undefined&&!o.userData.glb)o=o.parent;if(!o)return;
+    const {part:p,hint}=o.userData.glb?regionAt(id,hit.point):o.userData;if(p<0){opts.onMiss?.(hint,pt);return;}
     taps[id+p]=hit.point.clone();pick(p);
   }
   function pins(){
     const part=PARTS[id];
     stage.setPins(opts.parts.map((label,i)=>({i,label})).filter(({i})=>opts.found.includes(i)||opts.pinned.includes(i)).map(({i,label})=>({
-      pos:taps[id+i]||new T.Vector3(...part.anchors[i]),occlude:true,
+      pos:taps[id+i]||anchor(i),occlude:true,
       cls:(opts.found.includes(i)?'found ':'')+(i===focus?'focus':''),html:`<b>${opts.found.includes(i)?'✓':i+1}</b><span>${label}</span>`})));
   }
   function apply(o){
     opts=o;
     if(o.animal!==id){
-      if(model){scene.remove(model);model.traverse(x=>{x.geometry?.dispose();x.material?.map?.dispose();x.material?.dispose?.();});}
-      id=o.animal;model=new T.Group();model.add(...MODELS[id]());scene.add(model);
+      id=o.animal;const g=new T.Group();g.add(...MODELS[id]());show(g);
+      loadAnimal(id).then(glb=>{if(id===o.animal&&!dead){glb.userData.glb=true;show(glb);}}).catch(()=>{});
       focus=o.focus;home();
-    }else if(o.focus!==focus){focus=o.focus;if(focus!==picked)stage.face(PARTS[id].views[focus],PARTS[id].radius*.6,PARTS[id].anchors[focus]);}
+    }else if(o.focus!==focus){focus=o.focus;if(focus!==picked)stage.face(PARTS[id].views[focus],PARTS[id].radius*.6,anchor(focus).toArray());}
     picked=-1;pins();
   }
   apply(opts);
-  return {attach(h,o){stage.attach(h);apply(o);},reset:home,destroy:stage.destroy};
+  // ?regions also exposes the viewer for tuning from the console.
+  if(location.search.includes('regions'))window.__scan={stage,model:()=>model,anchor};
+  return {attach(h,o){stage.attach(h);apply(o);},reset:home,destroy(){dead=true;stage.destroy();}};
 }

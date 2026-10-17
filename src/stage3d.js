@@ -16,7 +16,7 @@ export function createStage(host,o){
   box.append(canvas,pinLayer);
   const target=new T.Vector3(...o.target),home={theta:o.theta,phi:o.phi,radius:o.radius,tx:o.target[0],ty:o.target[1],tz:o.target[2]},orbit={...home},KEYS=Object.keys(home);
   let goal=null,raf=0,last=0,dead=false,pins=[];
-  const ray=new T.Raycaster(),ndc=new T.Vector2(),tmp=new T.Vector3();
+  const ray=new T.Raycaster(),ndc=new T.Vector2(),tmp=new T.Vector3(),eye=new T.Vector3();
 
   function place(){
     const s=Math.sin(orbit.phi);target.set(orbit.tx,orbit.ty,orbit.tz);
@@ -36,13 +36,13 @@ export function createStage(host,o){
     if(moving)request();
   }
   function request(){if(!raf&&!dead)raf=requestAnimationFrame(frame);}
-  // Pins hidden behind the model fade, so a pin on the far side never looks like it marks the near side.
+  // Pins hidden behind the model (occlude) or facing away (normal) fade, so a far-side pin never marks the near side.
   function drawPins(){
     const w=canvas.clientWidth,h=canvas.clientHeight;
     for(const p of pins){
       tmp.copy(p.pos).project(camera);
-      const behind=tmp.z>1;let hidden=behind;
-      if(!behind&&p.occlude){const d=camera.position.distanceTo(p.pos);ray.set(camera.position,p.pos.clone().sub(camera.position).normalize());const hit=ray.intersectObjects(o.pickables(),true)[0];hidden=!!hit&&hit.distance<d-.06;}
+      let hidden=tmp.z>1||(!!p.normal&&p.normal.dot(eye.copy(camera.position).sub(p.pos))<0);
+      if(!hidden&&p.occlude){const d=camera.position.distanceTo(p.pos);ray.set(camera.position,p.pos.clone().sub(camera.position).normalize());const hit=ray.intersectObjects(o.pickables(),true)[0];hidden=!!hit&&hit.distance<d-.06;}
       p.el.style.transform=`translate(${(tmp.x+1)/2*w}px,${(1-tmp.y)/2*h}px)`;
       p.el.classList.toggle('behind',hidden);
     }
@@ -92,7 +92,8 @@ export function createStage(host,o){
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();if(!dead)o.onFail?.(new Error('context lost'));});
   function tap(x,y){
     const r=canvas.getBoundingClientRect();ndc.set((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1);
-    ray.setFromCamera(ndc,camera);o.onTap?.(ray.intersectObjects(o.pickables(),true)[0]||null,{x,y});
+    // A tap can land before the next frame; bring camera and matrices up to date first.
+    place();scene.updateMatrixWorld();camera.updateMatrixWorld();ray.setFromCamera(ndc,camera);o.onTap?.(ray.intersectObjects(o.pickables(),true)[0]||null,{x,y});
   }
 
   // Glide to a view by the shortest way round.
@@ -109,7 +110,8 @@ export function createStage(host,o){
     attach(h){if(box.parentNode!==h)h.append(box);resize();},
     destroy(){
       dead=true;cancelAnimationFrame(raf);ro.disconnect();
-      scene.traverse(x=>{x.geometry?.dispose();for(const m of [].concat(x.material||[])){m.map?.dispose();m.dispose();}});
+      // Shared (cached GLB) resources stay for the next visit; the lost context frees their GPU copies.
+      scene.traverse(x=>{if(x.userData.shared)return;x.geometry?.dispose();for(const m of [].concat(x.material||[])){m.map?.dispose();m.dispose();}});
       renderer.dispose();renderer.forceContextLoss();box.remove();
     }};
 }
