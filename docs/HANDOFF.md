@@ -16,7 +16,7 @@
   - 구조: `src/view3d.js`(WebGL 확인·필요할 때만 불러오기, 가벼움) → `stage3d.js`(렌더러·궤도 카메라·한 손가락 회전/두 손가락 확대/탭·DOM 핀) → `scanner3d.js`(02) / `dome3d.js`(06). three.js r181과 GLTFLoader는 `src/vendor/three`에 들어 있음(CDN 없음).
   - 02: 3D 표본을 돌려 부위를 눌러 관찰핀을 꽂아야 설명 고르기가 나옴. 앞다리·눈·얼굴처럼 기록 부위가 아니면 다시 볼 곳 안내. 부위 버튼=카메라가 그 부위로, '처음 모습', 키보드(화살표·Enter).
   - 06: 돔 5구역. 라운드마다 기록 대상 3마리(1: 토끼·개구리·바다 물고기, 2: 나비·오리·게)는 누르면 발견(`s.discovered`) → 오른쪽 움직임 기록(그대로). 낙타·펭귄(`DOME_ZONES`)은 누르면 사는 모습 한 줄만, 저장 안 함. 구역 탭으로 이동, '기울여 보기'는 선택.
-  - 동물 8종 GLB `assets/models/`(Meshy image-to-3D → 블렌더 `D:\iscreammedia_sc34\_scratch\meshy	idy.py`로 정리). 용량: frog 651KB · crab 651KB · duck 667KB · rabbit 973KB(관찰용 1만2천 삼각형·1024 텍스처), butterfly 339KB · marine 297KB · camel 316KB · penguin 328KB(돔 전용 6천·512), 합계 4.8MB. Meshy 252크레딧 사용(2,656 → 2,404).
+  - 동물 8종 GLB `assets/models/`(Meshy image-to-3D → 블렌더 `D:\iscreammedia_sc34\_scratch\meshy\tidy.py`로 정리). 용량: frog 651KB · crab 651KB · duck 667KB · rabbit 973KB(관찰용 1만2천 삼각형·1024 텍스처), butterfly 339KB · marine 297KB · camel 316KB · penguin 328KB(돔 전용 6천·512), 합계 4.8MB. Meshy 252크레딧 사용(2,656 → 2,404).
   - GLB는 한 덩어리라 부위 판정은 `scanner3d.js`의 `REGIONS`(모델 좌표의 구). 주소에 `?regions`를 붙이면 판정 구가 보이고 콘솔에 `window.__scan`/`__dome`가 생김 — 모델을 바꾸면 이걸로 다시 맞출 것. `GLB` 표의 yaw/roll로 방향을 +x(머리)로 맞춤.
   - 대체: WebGL 없음·그래픽 연결 끊김·`?2d` → 기존 2D 화면. GLB를 못 불러오면 코드 도형 동물(`MODELS`)이 그대로 남음.
 
