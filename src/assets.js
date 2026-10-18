@@ -15,6 +15,13 @@ export const ASSETS = Object.freeze({
 });
 export const assetURL = id => new URL(`../assets/generated/${ASSETS[id].src}.webp`, import.meta.url).href;
 export const sheetURL = sheet => new URL(`../assets/${sheet}.webp`, import.meta.url).href;
+// A single transparent atlas keeps workshop objects consistent and shares one download.
+export function workshopSprite(kind,x=0,y=0,width=100,height=100){
+  const cells={swim:0,protect:1,warm:2,wide:3,dome:4,layer:5,web:6,shell:7,fur:8},cell=cells[kind];
+  if(cell===undefined)throw new Error(`Unknown workshop sprite: ${kind}`);
+  const regions=[[0,0,100,100],[100,0,100,100],[200,0,100,100],[0,100,100,90],[100,100,100,90],[200,100,100,90],[0,192,100,108],[100,194,100,106],[200,195,100,105]],r=regions[cell];
+  return `<svg class="workshop-sprite" x="${x}" y="${y}" width="${width}" height="${height}" style="width:${width}px;height:${height}px;mix-blend-mode:darken" viewBox="0 0 ${r[2]} ${r[3]}" aria-hidden="true"><svg width="${r[2]}" height="${r[3]}" style="width:${r[2]}px;height:${r[3]}px" viewBox="${r.join(' ')}" overflow="hidden"><image href="${new URL('../assets/adventure/workshop-atlas.webp',import.meta.url).href}" width="300" height="300"/></svg></svg>`;
+}
 export function assetImage(id, className='', decorative=false) {
   const asset=ASSETS[id];
   if(!asset) throw new Error(`Unknown presentation asset: ${id}`);

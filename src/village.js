@@ -22,7 +22,7 @@ export function villagePath(graph,from,to){
   return [];
 }
 export const nearestNode=(graph,[x,y])=>Object.entries(graph.nodes).reduce((best,[id,[nx,ny]])=>{const d=(nx-x)**2+(ny-y)**2;return d<best.d?{id,d}:best;},{id:null,d:Infinity}).id;
-// Stage building (not the core, whose square overlaps the ring path) under a map point.
+// Interactive building (not the core, whose square overlaps the ring path) under a map point.
 export const buildingAt=(buildings,[x,y])=>Object.entries(buildings).find(([id,{rect:r}={}])=>id!=='core'&&r&&x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3])?.[0]||null;
 // The village json may give nodes as an array or an object; edges as index or id pairs.
 function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
@@ -37,7 +37,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     const layer=doc.createElement('div');layer.className='village-layer';root.append(layer);
     // Restored buildings replace their withered look; the core lights up when all five are back.
     for(const [id,b] of Object.entries(j.buildings)){
-      const done=id==='core'?completed.length===5:completed.includes(Number(id));if(!done||!b.rect)continue;
+      const done=id==='gallery'||(id==='core'?completed.length===5:completed.includes(Number(id)));if(!done||!b.rect)continue;
       const img=doc.createElement('img');img.className='village-restore'+(String(flash)===id||(id==='core'&&flash&&completed.length===5)?' just-restored':'');img.alt='';img.decoding='async';img.src=BASE+`restore-${id}.webp`;
       Object.assign(img.style,{left:pct(b.rect[0],W),top:pct(b.rect[1],H),width:pct(b.rect[2],W),height:pct(b.rect[3],H)});layer.append(img);
     }
@@ -66,7 +66,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       if(e.target.closest?.('button,[data-action],.world-top,.world-bottom'))return;
       const r=layer.getBoundingClientRect();if(!r.width)return;
       const p=[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H];
-      // Tapping a stage building works like its marker: select it, then walk to its door.
+      // Building taps activate the matching marker: stage travel or gallery entry.
       const hit=buildingAt(j.buildings,p),marker=hit&&root.querySelector(`.map-marker[data-id="${hit}"]`);if(marker){marker.click();return;}
       walkTo(p,null);
     }

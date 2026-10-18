@@ -1,0 +1,56 @@
+[
+  {
+    "animal": "frog",
+    "original": "files/videos/source-20261018/gemini_generated_video_0ae9701f.mp4",
+    "sha256": "921dbbc9cdba5a607f1fcb231461a8833da8e5643e1cba1863eb79bc95e977a9",
+    "runtime": "assets/videos/motion/frog.mp4",
+    "duration": 5,
+    "bytes": 1828998,
+    "processing": "First observation sequence, H.264 CRF 20 / yuv420p / faststart, audio removed; original preserved"
+  },
+  {
+    "animal": "rabbit",
+    "original": "files/videos/source-20261018/gemini_generated_video_0f7962f4.mp4",
+    "sha256": "cefdeb0c264402722b60a182ad2f194fa0739554b89f8ee3c315e103f5510d90",
+    "runtime": "assets/videos/motion/rabbit.mp4",
+    "duration": 5,
+    "bytes": 1591998,
+    "processing": "First observation sequence, H.264 CRF 20 / yuv420p / faststart, audio removed; original preserved"
+  },
+  {
+    "animal": "marine",
+    "original": "files/videos/source-20261018/gemini_generated_video_156fddf9.mp4",
+    "sha256": "31bad3cb8137af8d36e13cd4c218072a1d7e4773996b03353328965215adc61b",
+    "runtime": "assets/videos/motion/marine.mp4",
+    "duration": 5,
+    "bytes": 1564902,
+    "processing": "First observation sequence, H.264 CRF 20 / yuv420p / faststart, audio removed; original preserved"
+  },
+  {
+    "animal": "butterfly",
+    "original": "files/videos/source-20261018/gemini_generated_video_48aa028b.mp4",
+    "sha256": "05cf253d02e29042d37b058f21084f58ce5e9773b6121ba94fa97d63591dcc93",
+    "runtime": "assets/videos/motion/butterfly.mp4",
+    "duration": 4.25,
+    "bytes": 1128404,
+    "processing": "First observation sequence, H.264 CRF 20 / yuv420p / faststart, audio removed; original preserved"
+  },
+  {
+    "animal": "crab",
+    "original": "files/videos/source-20261018/gemini_generated_video_648da125.mp4",
+    "sha256": "b539365735c41f3e4779a62bd988a6725a2c721fefff652461c3b185f7297d94",
+    "runtime": "assets/videos/motion/crab.mp4",
+    "duration": 5,
+    "bytes": 1294938,
+    "processing": "First observation sequence, H.264 CRF 20 / yuv420p / faststart, audio removed; original preserved"
+  },
+  {
+    "animal": "duck",
+    "original": "files/videos/source-20261018/gemini_generated_video_d17cc9fe.mp4",
+    "sha256": "dfcce4dccc82dc8f3ee16c1f8e0a98d9e63c353007f161903b836db0db0f7e6e",
+    "runtime": "assets/videos/motion/duck.mp4",
+    "duration": 5,
+    "bytes": 1295915,
+    "processing": "First observation sequence, H.264 CRF 20 / yuv420p / faststart, audio removed; original preserved"
+  }
+]

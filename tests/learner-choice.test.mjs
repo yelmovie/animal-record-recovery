@@ -18,16 +18,10 @@ test('comparison screen no longer prints the observed answers next to the questi
   assert.doesNotMatch(html,/자루 끝에 달린 눈이 있어/);
 });
 
-test('own criterion: opinions are refused with a reason, observable ones regroup the animals',()=>{
-  const s=freshExpedition();s.criteria[1]='scary';
-  assert.match(taskMistake(s,2,2).text,/사람마다 답이 달라/);
-  for(const key of OWN_CRITERIA){
-    assert.ok(CRITERIA[key]);
-    assert.ok(SORT_ANIMALS.some(id=>ANIMALS[id][key]!==ANIMALS[id].wings),key+' must move someone from the wings grouping');
-  }
-  s.criteria[1]='web';for(const id of SORT_ANIMALS)s.sorts[1][id]=ANIMALS[id].web?'yes':'no';
-  assert.equal(taskReady(s,2,2),true);
-  assert.match(activityView(s,{stage:2,step:2}),/내가 만든 분류 기준/);
+test('classification uses O/X and no longer repeats the second sorting round',()=>{
+ const s=freshExpedition(),html=activityView(s,{stage:2,step:0});
+ assert.match(html,/O 분류 칸/);assert.match(html,/X 분류 칸/);assert.doesNotMatch(html,/예 게이트|아니요 게이트/);
+ assert.equal(taskReady(s,2,2),false);assert.equal(taskReady(s,2,3),false);
 });
 
 test('stage 3 round two links the crab found that round, and old rabbit links are dropped on load',()=>{

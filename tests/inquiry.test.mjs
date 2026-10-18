@@ -20,3 +20,12 @@ test('all three learning models support comparison with no numeric physical perf
 test('motion timeline is bounded and every animal has a different explanation drawing',()=>{assert.equal(frameAt(-20),0);assert.equal(frameAt(1000),2);assert.equal(frameAt(NaN),0);const ids=['frog','duck','rabbit','marine','crab','butterfly'];assert.equal(new Set(ids.map(id=>motionDiagram(id,34))).size,6);});
 
 test('unknown clues, extra energy and unopened grounds are dropped during restore before rendering',()=>{const s=freshExpedition();s.cases[0].opened=['ears','place','cover','foot','move'];s.cases[0].grounds=['move','place'];s.cases[1].opened=['web','fur'];const restored=restoreExpedition(JSON.stringify(s));assert.deepEqual(restored.cases[0].opened,['place','cover','foot']);assert.deepEqual(restored.cases[0].grounds,['place']);assert.deepEqual(restored.cases[1].opened,['fur']);assert.doesNotThrow(()=>activityView(restored,{stage:4,step:0,clueIndex:0}));assert.doesNotThrow(()=>activityView(restored,{stage:4,step:2,clueIndex:0}));});
+
+test('optional camel and penguin motion records restore but do not replace required animals',()=>{
+ const s=freshExpedition();s.inquiry.motion.camel=1;s.inquiry.motion.penguin=1;
+ s.inquiry.motionPredictions.camel='other';s.inquiry.motionEvidence.camel={frame:1,phase:40,source:'video'};
+ const restored=restoreExpedition(JSON.stringify(s));assert.deepEqual(restored.inquiry,s.inquiry);
+ assert.equal(taskReady(restored,3,0),false);assert.equal(taskReady(restored,3,2),false);
+ const view=activityView(restored,{stage:3,step:0,round:0,use3d:true,activeHabitat:'dry',looked:[]});
+ assert.match(view,/data-motion="camel"/);assert.doesNotMatch(view,/data-motion="rabbit"/);
+});

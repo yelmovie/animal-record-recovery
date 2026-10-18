@@ -2,12 +2,13 @@ node_modules/
 dist/
 delivery/
 docs/backups/
+assets/models/source/
 .env
 .env.*
 !.env.example
 *.log
 
-# 원본 이미지 (로컬 보존, 코드 미사용)
+# 원본 이미지 재반입 시 제외 (2026-10-18 미사용 이미지 정리)
 image/
 samplepages/
 .claude/settings.local.json
@@ -15,3 +16,9 @@ samplepages/
 .vercel
 
 .wrangler/
+
+# User video originals and generated review contact sheets
+files/videos/source-20261018/
+files/videos/story-source-20261018/
+docs/reviews/story-video-frames/
+docs/reviews/motion-video-review/

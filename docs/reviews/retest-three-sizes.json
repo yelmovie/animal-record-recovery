@@ -1,0 +1,105 @@
+{
+  "actualViewport": [
+    1366,
+    768
+  ],
+  "note": "Only this actual viewport was verified. Requested viewport override did not affect the existing tab.",
+  "result": {
+    "buttons": [
+      {
+        "bottom": 114,
+        "h": 48,
+        "text": "1. 탐색 · 별 4개"
+      },
+      {
+        "bottom": 114,
+        "h": 48,
+        "text": "2. 본 미션 ✓"
+      },
+      {
+        "bottom": 114,
+        "h": 48,
+        "text": "3. 응용 미션 ✓"
+      },
+      {
+        "bottom": 114,
+        "h": 48,
+        "text": "선택 도전 ✓"
+      },
+      {
+        "bottom": 302.59375,
+        "h": 48,
+        "text": "모양 시험"
+      },
+      {
+        "bottom": 302.59375,
+        "h": 48,
+        "text": "결과·이유"
+      },
+      {
+        "bottom": 608.46875,
+        "h": 48,
+        "text": "좁은 면"
+      },
+      {
+        "bottom": 608.46875,
+        "h": 48,
+        "text": "중간 면"
+      },
+      {
+        "bottom": 608.46875,
+        "h": 48,
+        "text": "넓은 면"
+      },
+      {
+        "bottom": 398.59375,
+        "h": 48,
+        "text": "무조건 가장 큰 것이 좋아서"
+      },
+      {
+        "bottom": 454.59375,
+        "h": 48,
+        "text": "미는 물과 필요한 힘을 함께 비교했어."
+      },
+      {
+        "bottom": 510.59375,
+        "h": 48,
+        "text": "색깔이 마음에 들어서"
+      },
+      {
+        "bottom": 755,
+        "h": 52.34375,
+        "text": "응용 미션으로"
+      },
+      {
+        "bottom": 755,
+        "h": 52.34375,
+        "text": "다시 확인하기"
+      }
+    ],
+    "panels": [
+      {
+        "bottom": 760,
+        "class": "commission-work",
+        "height": 634,
+        "scroll": 634
+      },
+      {
+        "bottom": 652.765625,
+        "class": "request-lab",
+        "height": 480,
+        "scroll": 480
+      },
+      {
+        "bottom": 608.46875,
+        "class": "retest-results",
+        "height": 298,
+        "scroll": 298
+      }
+    ],
+    "size": [
+      1366,
+      768
+    ]
+  }
+}

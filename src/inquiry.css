@@ -264,9 +264,9 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .part-spot.filled{border-style:solid;border-color:#8aa864;background:#f3f8e6}
 .assembly.sketching .part-spot{pointer-events:none;opacity:.45}
 .drag-card.part-card{display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 12px 6px 6px;border-radius:14px;border:2px solid #dfe3c9;background:#fffdf3;font-size:16px;font-weight:700;color:#3d5536;text-align:left}
-.drag-card.part-card svg{width:54px;height:44px;flex:none}
+.drag-card.part-card>svg{width:54px;height:44px;flex:none}
 .drag-card.part-card.placed{min-height:40px;padding:2px 8px 2px 2px;font-size:14px;gap:4px}
-.drag-card.part-card.placed svg{width:34px;height:28px}
+.drag-card.part-card.placed>svg{width:34px;height:28px}
 .part-tray{margin-top:4px}.part-pool{display:flex;flex-wrap:wrap;gap:8px;min-height:60px}
 .part-tip{font-size:15px;line-height:1.45;color:#66744e;margin-top:6px}
 .design-options .source-study{margin:0 0 8px}

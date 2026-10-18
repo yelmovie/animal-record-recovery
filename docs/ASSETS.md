@@ -1,5 +1,7 @@
 # 참고 에셋 사용 기록
 
+2026-10-18: 사용자 요청으로 현재 실행·배포에 쓰이지 않는 이미지와 원본·백업 GLB 357개(924.16 MiB)를 삭제했다. 아래 PNG·검토 이미지 경로는 제작 당시 기록이며, 현재 실행용 WebP와 GLB는 유지했다. 삭제 목록과 유지 파일 SHA256은 `ASSET-CLEANUP-20261018.json`에 있다. 정리 후 92개 테스트와 빌드를 통과했다.
+
 ## 2026-10-15 탐험형 개편
 
 `assets/adventure/`에 새 이미지 7종을 생성하고 적용했다. 프롬프트는 `ADVENTURE-ASSET-PROMPTS.json`에 보관했다.
@@ -57,3 +59,31 @@
 WebP 변환: `scripts/prepare-assets.mjs`에 설치된 sharp 모듈 경로를 인수로 전달한다. 일반 실행과 빌드에는 sharp 설치가 필요 없다. 원본을 덮어쓰지 않는다.
 
 메인·학습 화면의 글자는 이미지에 구워 넣지 않고 HTML로 구현했다. 픽셀 지도와 아이콘은 Canvas/SVG 코드다. AI 그림은 실사 관찰 자료나 정확한 해부도가 아니므로 교사의 표본·사진 비교가 필요하다. 제공된 원본의 권리 및 납품 계약상 이용 범위는 발주 측 확인 사항이다. `assets/CREDITS.md` 참고.
+
+## 0.5 전시관 이미지
+
+메인과 전시관 배경: `assets/adventure/museum-opening.png` / `museum-opening.webp` (1672×941). OpenAI 기본 image_gen 도구로 생성, WebP quality 88 인코딩. 입력 프롬프트는 `MUSEUM-ASSET-PROMPT-20261018.json`에 보관했다. 글자는 이미지 위에 HTML로 표시한다. 기존 주민·동물·지도 이미지를 새 의뢰에 재사용한다.
+
+
+## 현재 태블릿 화면의 추가 자산
+
+- `adventure/museum-opening.webp`: 기존 남자아이 탐험가 외형으로 교체.
+- `adventure/terrain-atlas.webp`: 2열×3행 지형 표면. `dome3d.js`에서 재질로 사용.
+- `adventure/workshop-atlas.webp`: 3열×3행. 첫 행 신발·모자·외투, 둘째 행 넓은 면·덮개·여러 겹, 셋째 행 물갈퀴·등딱지·털. `assets.js`의 명시적 영역으로 잘라 표시하며 원본 전체를 화면에 노출하지 않는다.
+- 영상 시작 이미지/영상 프롬프트: `MOTION-VIDEO-PROMPTS.md`. 사용자가 제공한 6종 MP4를 `assets/videos/motion/`에 정리해 움직임 관찰에 연결했다.
+- `adventure/dome-ground.webp`: 생태돔의 연속된 바닥 이미지. 겹치는 부채꼴 지형을 하나의 표면으로 바꿔 틈과 깜빡임을 제거했다.
+- `adventure/nature-materials.webp`: 바위·얼음·선인장·흙의 2열×2행 표면. 연잎·갈대는 기존 투명 이미지를 입체 장면에 적용했다.
+- `village/map-base.webp`, `map-restored.webp`, `restore-5.webp`: 공방 왼쪽 지붕의 파란 얼룩을 주황 기와로 보정했다. 지붕 영역 밖 변경은 없다.
+
+## 영상·건물 역할 변경 (2026-10-18)
+
+- 동물 영상 6종: 1280×720 H.264, 첫 관찰 동작 5초(나비 4.25초), 무음·faststart. 첫 프레임 WebP를 로딩 포스터로 사용. 원본 10초 영상은 `files/videos/source-20261018/`에 보관.
+- 책 건물(오른쪽 위): 내 전시관, 항상 입장 가능. `restore-gallery.webp`는 기존 책 건물 복구 이미지 재사용.
+- 플라스크 건물(오른쪽 아래): 5장 발명의 공방. 기존 공방(왼쪽 아래): 4장 동물 찾기 안내소. 문 위치·기술자 위치·복구 이미지를 역할에 맞게 연결.
+- `INTRO-OUTRO-VIDEO-PROMPTS.md`: 기록의 수정 서사, 마지막 책 건물 개방 장면을 포함한 인트로·아웃트로 8컷. 8컷 생성 완료. 각 6초 컷 4개를 이어 인트로·아웃트로 각 24초로 적용했다.
+
+## 최종 영상 추가 (2026-10-18)
+
+- `assets/videos/story/{intro,outro}.mp4`: Kling 3.0 8컷을 각 24초로 편집. `STORY-VIDEO-JOBS-20261018.json`, `STORY-VIDEO-ENCODE-20261018.json`에 요청·변환 기록. 시작 이미지 8장은 `assets/story/`.
+- `assets/videos/motion/{camel,penguin}.{mp4,webp}`: Kling 3.0으로 생성한 5초 1080p·무음 영상과 포스터. `EXTRA-MOTION-VIDEO-JOBS-20261018.json`에 완료 작업과 프롬프트 기록. 기본 6종과 함께 선택 관찰에 연결.
+- 위쪽 초기 PNG 보관 설명은 당시 이력이다. 이후 사용자 요청에 따른 정리 내역은 `ASSET-CLEANUP-20261018.json`, 현재 배포 포함 여부는 `dist/build-manifest.json`이 기준이다.

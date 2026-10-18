@@ -20,7 +20,7 @@ export function enableDrag(root,onDrop){
     ghost.remove();card.classList.remove('dragging');zone?.classList.remove('drop-hover');
     // The click that follows a drag must not also count as a tap.
     suppress=true;setTimeout(()=>{suppress=false;},0);
-    if(zone)onDrop(card.dataset,zone.dataset);
+    if(zone&&e.type!=='pointercancel')onDrop(card.dataset,zone.dataset);
   };
   root.addEventListener('pointerup',end);root.addEventListener('pointercancel',end);
   root.addEventListener('click',e=>{if(suppress){e.stopPropagation();e.preventDefault();}},true);

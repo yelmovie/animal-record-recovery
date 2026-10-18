@@ -1,0 +1,146 @@
+[
+  {
+    "size": [
+      1024,
+      768
+    ],
+    "work": [
+      {
+        "bottom": 760,
+        "c": "commission-work",
+        "h": 634,
+        "s": 634,
+        "top": 124
+      },
+      {
+        "bottom": 652.765625,
+        "c": "request-lab",
+        "h": 480,
+        "s": 480,
+        "top": 173
+      },
+      {
+        "bottom": 628.265625,
+        "c": "retest-results",
+        "h": 320,
+        "s": 320,
+        "top": 308.59375
+      },
+      {
+        "bottom": 759,
+        "c": "commission-footer",
+        "h": 60,
+        "s": 60,
+        "top": 698.65625
+      }
+    ]
+  },
+  {
+    "size": [
+      1180,
+      757
+    ],
+    "work": [
+      {
+        "bottom": 749,
+        "c": "commission-work",
+        "h": 623,
+        "s": 623,
+        "top": 124
+      },
+      {
+        "bottom": 641.765625,
+        "c": "request-lab",
+        "h": 469,
+        "s": 469,
+        "top": 173
+      },
+      {
+        "bottom": 628.265625,
+        "c": "retest-results",
+        "h": 320,
+        "s": 320,
+        "top": 308.59375
+      },
+      {
+        "bottom": 748,
+        "c": "commission-footer",
+        "h": 60,
+        "s": 60,
+        "top": 687.65625
+      }
+    ]
+  },
+  {
+    "size": [
+      1280,
+      800
+    ],
+    "work": [
+      {
+        "bottom": 792,
+        "c": "commission-work",
+        "h": 666,
+        "s": 666,
+        "top": 124
+      },
+      {
+        "bottom": 684.765625,
+        "c": "request-lab",
+        "h": 512,
+        "s": 512,
+        "top": 173
+      },
+      {
+        "bottom": 628.265625,
+        "c": "retest-results",
+        "h": 320,
+        "s": 320,
+        "top": 308.59375
+      },
+      {
+        "bottom": 791,
+        "c": "commission-footer",
+        "h": 60,
+        "s": 60,
+        "top": 730.65625
+      }
+    ]
+  },
+  {
+    "size": [
+      1366,
+      768
+    ],
+    "work": [
+      {
+        "bottom": 760,
+        "c": "commission-work",
+        "h": 634,
+        "s": 634,
+        "top": 124
+      },
+      {
+        "bottom": 652.765625,
+        "c": "request-lab",
+        "h": 480,
+        "s": 480,
+        "top": 173
+      },
+      {
+        "bottom": 630.265625,
+        "c": "retest-results",
+        "h": 320,
+        "s": 320,
+        "top": 310.59375
+      },
+      {
+        "bottom": 759,
+        "c": "commission-footer",
+        "h": 60,
+        "s": 60,
+        "top": 698.65625
+      }
+    ]
+  }
+]

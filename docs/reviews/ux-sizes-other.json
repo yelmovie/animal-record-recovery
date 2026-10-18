@@ -1,0 +1,3212 @@
+[
+  {
+    "stage": 1,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "검증",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "이유 찾기",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "기준 고치기",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": "동물 선택",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": "근거 연결",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": "사는 곳",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": "움직이는 방법",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": "동물 선택",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": "근거 연결",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": "사는 곳",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": "움직이는 방법",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "문제 고르기",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "특징 관찰",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "부품 붙이기",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "card-pool part-pool",
+          "h": 212,
+          "s": 212
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "lab-controls",
+          "h": 611,
+          "s": 611
+        },
+        {
+          "c": "lab-results",
+          "h": 611,
+          "s": 611
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "문제 고르기",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "특징 관찰",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "부품 붙이기",
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "card-pool part-pool",
+          "h": 212,
+          "s": 212
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1180,
+        757
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 695,
+          "s": 695
+        },
+        {
+          "c": "activity-workspace",
+          "h": 635,
+          "s": 635
+        },
+        {
+          "c": "lab-controls",
+          "h": 611,
+          "s": 611
+        },
+        {
+          "c": "lab-results",
+          "h": 611,
+          "s": 611
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "검증",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "이유 찾기",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "기준 고치기",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": "동물 선택",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": "근거 연결",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": "사는 곳",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": "움직이는 방법",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": "동물 선택",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": "근거 연결",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": "사는 곳",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": "움직이는 방법",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "문제 고르기",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "특징 관찰",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "부품 붙이기",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "card-pool part-pool",
+          "h": 212,
+          "s": 212
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "lab-controls",
+          "h": 654,
+          "s": 654
+        },
+        {
+          "c": "lab-results",
+          "h": 654,
+          "s": 654
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "문제 고르기",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "특징 관찰",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "부품 붙이기",
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "card-pool part-pool",
+          "h": 212,
+          "s": 212
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1280,
+        800
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 738,
+          "s": 738
+        },
+        {
+          "c": "activity-workspace",
+          "h": 678,
+          "s": 678
+        },
+        {
+          "c": "lab-controls",
+          "h": 654,
+          "s": 654
+        },
+        {
+          "c": "lab-results",
+          "h": 654,
+          "s": 654
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 1,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "검증",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "이유 찾기",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "panel": "기준 고치기",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 3,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": "동물 선택",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "panel": "근거 연결",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": "사는 곳",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 1,
+    "panel": "움직이는 방법",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": "동물 선택",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 2,
+    "panel": "근거 연결",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": "사는 곳",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 4,
+    "step": 3,
+    "panel": "움직이는 방법",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "문제 고르기",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "특징 관찰",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "panel": "부품 붙이기",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "card-pool part-pool",
+          "h": 212,
+          "s": 212
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 1,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "lab-controls",
+          "h": 622,
+          "s": 622
+        },
+        {
+          "c": "lab-results",
+          "h": 622,
+          "s": 622
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "문제 고르기",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "특징 관찰",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "panel": "부품 붙이기",
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "card-pool part-pool",
+          "h": 212,
+          "s": 212
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  },
+  {
+    "stage": 5,
+    "step": 3,
+    "panel": null,
+    "result": {
+      "body": [
+        1366,
+        768
+      ],
+      "panels": [
+        {
+          "c": "mission-guide",
+          "h": 706,
+          "s": 706
+        },
+        {
+          "c": "activity-workspace",
+          "h": 646,
+          "s": 646
+        },
+        {
+          "c": "lab-controls",
+          "h": 622,
+          "s": 622
+        },
+        {
+          "c": "lab-results",
+          "h": 622,
+          "s": 622
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ],
+      "small": []
+    }
+  }
+]

@@ -11,9 +11,10 @@ export function createStage(host,o){
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
   renderer.outputColorSpace=T.SRGBColorSpace;
   const canvas=renderer.domElement,scene=new T.Scene(),camera=new T.PerspectiveCamera(o.fov||35,1,.1,200);
-  const box=document.createElement('div'),pinLayer=document.createElement('div');
+  const box=document.createElement('div'),pinLayer=document.createElement('div'),loadingLabel=document.createElement('p');
   box.className='stage3d';pinLayer.className='pin-layer';canvas.tabIndex=0;canvas.setAttribute('aria-label',o.label||'3D 화면');
-  box.append(canvas,pinLayer);
+  loadingLabel.className='model-loading';loadingLabel.setAttribute('role','status');loadingLabel.textContent='동물 모형을 불러오고 있어…';loadingLabel.hidden=true;
+  box.append(canvas,pinLayer,loadingLabel);
   const target=new T.Vector3(...o.target),home={theta:o.theta,phi:o.phi,radius:o.radius,tx:o.target[0],ty:o.target[1],tz:o.target[2]},orbit={...home},KEYS=Object.keys(home);
   let goal=null,raf=0,last=0,dead=false,pins=[];
   const ray=new T.Raycaster(),ndc=new T.Vector2(),tmp=new T.Vector3(),eye=new T.Vector3();
@@ -104,6 +105,11 @@ export function createStage(host,o){
   }
   host.append(box);resize();
   return {T,scene,camera,canvas,box,orbit,target,request,setPins,
+    setLoading(loading){
+      if(dead)return;
+      if(!loading){place();renderer.render(scene,camera);drawPins();}
+      box.classList.toggle('model-pending',loading);box.setAttribute('aria-busy',String(loading));loadingLabel.hidden=!loading;canvas.tabIndex=loading?-1:0;
+    },
     // Look at a point from a world direction (from the point toward the camera).
     face(dir,radius=orbit.radius,at){const d=new T.Vector3(...dir).normalize();goTo({theta:Math.atan2(d.x,d.z),phi:Math.acos(d.y),radius,...(at?{tx:at[0],ty:at[1],tz:at[2]}:{})});},
     goTo,reset(){goTo(home);},

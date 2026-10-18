@@ -1,0 +1,53 @@
+- link "본문으로 이동":
+  - /url: "#main"
+- banner:
+  - navigation "탐험 메뉴":
+    - button "홈":
+    - button "탐험 지도":
+    - button "내 전시관":
+    - button "탐험 가방":
+    - button "설정·소리":
+  - generic "탐험 별 4개":
+    - generic: "4"
+    - generic: /18
+  - status: 이 기기 브라우저에 저장됨
+- main [active]:
+  - navigation "이 장소의 탐험 순서":
+    - button "1. 탐색 · 별 4개"
+    - button "2. 본 미션"
+    - button "3. 응용 미션" [disabled]
+    - button "선택 도전" [disabled]
+  - complementary:
+    - img "기록 보조원 모리"
+    - generic: 기록 보조원 모리의 의뢰 1/2
+    - heading "물가의 기록 두 장" [level=1]
+    - paragraph: 이름표가 떨어진 기록이야. 몸의 특징과 생활 단서가 모두 맞는 동물을 찾아 줘.
+  - generic: 자연 기록 작업대
+  - generic: 0/4 기록 배치
+  - generic "+ 서식지 수첩 사용하기":
+    - text: +
+    - text: 서식지 수첩 사용하기
+  - navigation "내용 선택":
+    - button "1 맨살이 드러난 몸 + 긴 뒷다리" [pressed]
+    - button "2 첫 기록이 발견된 곳"
+    - button "3 단단한 껍데기 + 집게다리"
+    - button "4 두 번째 기록의 생활"
+  - article:
+    - generic: 이름표가 떨어진 기록
+    - group "1 맨살이 드러난 몸 + 긴 뒷다리":
+      - generic: "1"
+      - text: 맨살이 드러난 몸 + 긴 뒷다리
+      - button "오리"
+      - button "개구리"
+      - button "금붕어"
+    - img "오리"
+    - generic: 오리
+    - img "개구리"
+    - generic: 개구리
+    - img "금붕어"
+    - generic: 금붕어
+  - status:
+    - paragraph: 틀려도 괜찮아. 확인하고 고쳐서 다시 보내면 돼.
+  - button "기록 확인하고 보내기":
+    - text: 기록 확인하고 보내기
+- status

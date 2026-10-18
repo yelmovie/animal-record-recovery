@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-18",
+  "mode": "OpenAI built-in image_gen",
+  "purpose": "Natural record museum landing and exhibition header",
+  "source": "OpenAI image_gen output, revised boy explorer, 2026-10-18",
+  "runtime": "assets/adventure/museum-opening.webp",
+  "prompt": "Preserve the natural history museum setting, raccoon, forest lighting and quiet left-side title area. Replace the child with the existing boy explorer reference: short tousled brown hair, blue-gray shirt, beige vest and shorts, backpack, brown notebook. Full body, same storybook illustration style.",
+  "processing": "Current runtime image: WebP quality 88, Pillow format conversion only.",
+  "previous_prompt": "Create a premium 16:9 wide storybook 3D illustration for a Korean elementary science exploration game, NO TEXT OR LETTERS anywhere. A beautiful small natural history museum inside a forest nature reserve, warm morning sun, handcrafted timber and creamy plaster architecture, elegant mint green roof, broad open double doors showing wooden display cases of animal observation notebooks and botanical specimens, blank wooden entrance sign. Foreground curving stone path leading from bottom center to entrance on right half; on right foreground a friendly Korean child explorer with short dark brown bob haircut, teal shirt, beige safari vest, orange small backpack, holding field notebook; a small adorable raccoon assistant at their feet carrying papers. Rich realistic stylized clay/paint textures, dimensional diorama look, polished animated-film production quality. Lush trees, reeds and shallow pond glimpse to far right, gentle butterflies, dappled light. Composition: entire LEFT 40 percent is dark lush softly shaded forest foliage and quiet deep teal green negative space for HTML title overlay, focal museum at x65% and child at x78%, preserve full architecture within frame. Natural warm green/ochre/cream color palette. Avoid giant eyes, plastic gloss, UI, panels, collage, borders, watermarks, numbers, or distorted animal limbs. Clear beautiful cinematic scene, not isometric map.",
+  "reference": "assets/adventure/explorer.webp"
+}

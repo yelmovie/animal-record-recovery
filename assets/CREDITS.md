@@ -9,7 +9,7 @@
 - 지도·아이콘·연못 물 모양: 프로젝트 Canvas/SVG 코드로 제작.
 - 글꼴(본문): Pretendard 1.3.9 — Copyright (c) 2021 Kil Hyung-jin, SIL Open Font License 1.1, Reserved Font Name "Pretendard". 2026-10-16 공식 npm 패키지 `pretendard@1.3.9`(github.com/orioncactus/pretendard)의 배포본 `Pretendard-Regular/Bold.subset.woff2`(KS X 1001 한글 2,350자 서브셋, 수정 없음)를 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Pretendard-OFL.txt`를 함께 둔다. 서브셋에 없는 글자는 운영체제 기본 한글 글꼴로 표시된다.
 - 글꼴(제목·버튼): Jua — Copyright (c) 2017 Woowahan Brothers Corp., SIL Open Font License 1.1, Reserved Font Name "Jua". Google Fonts 배포본(korean/latin 서브셋, 수정 없음)을 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Jua-OFL.txt`를 함께 둔다. 외부 CDN 요청 없음. (배달의민족 주아체와는 다른 Google Fonts 배포본)
-- 효과음: `src/audio.js`의 Web Audio 사인파 합성. 외부 음원 없음.
+- 초기 효과음: Web Audio 합성. 현재는 아래 Pixabay 음원과 로딩 실패 시 합성 대체음을 사용한다.
 
 앱 화면에 생성형 AI 이미지 안내가 있다. 권리 귀속·표시 주체·배포 플랫폼은 납품 계약으로 확정해야 하며 이 문서는 새로운 이용 허락을 부여하지 않는다.
 
@@ -40,3 +40,37 @@
 
 `models/*.glb` 6종(개구리·게·오리·토끼·나비·바다 물고기)은 Meshy API(image-to-3D, 모델 `latest`=Meshy 7.1, 2K 텍스처, 1개당 30크레딧, 합계 180크레딧)로 이 프로젝트를 위해 생성했다. 입력 이미지는 이 프로젝트의 기존 생성 그림이다: `generated/frog.png`, `generated/crab.png`, `generated/rabbit.png`, `adventure/duck.png`, `adventure/butterfly.png`, `generated/marine_fish.png`. 생성 원본(수십만 삼각형, 20~120MB)은 `D:\iscreammedia_sc34\_scratch\meshy\out`에 두고, Blender 5.2를 창 없이 돌려(`_scratch\meshy\tidy.py`) 메시를 하나로 합치고, 삼각형을 줄이고(관찰 동물 1만2천, 돔 전용 나비·물고기 6천), 텍스처를 1024/512 WebP로 줄여 GLB로 내보냈다. 압축(Draco 등)은 디코더 파일이 따로 필요해서 쓰지 않았다. 코드로 만든 도형 동물(`src/scanner3d.js`의 MODELS)은 GLB를 불러오는 동안과 불러오지 못했을 때만 보인다.
 - (추가) 낙타·펭귄(`models/camel.glb`, `penguin.glb`, 06 돔 전용)은 기존 그림이 없어서 Meshy text-to-image(`nano-banana-2`, 배경 제거, 1장 6크레딧)로 기존 그림과 같은 사실적 도감풍 그림을 먼저 만들고, 그 그림으로 image-to-3D(30크레딧)를 돌렸다. 블렌더로 6천 삼각형·512 텍스처로 줄였다. 입력 그림은 `D:\iscreammedia_sc34\_scratch\meshy\out\*-input.png`. 3D 동물 8종 전체 Meshy 사용량 252크레딧.
+
+## 전시관 메인 이미지 · 2026-10-18
+
+`assets/adventure/museum-opening.png`는 OpenAI 기본 이미지 생성 도구(image_gen)로 생성했다. WebP 배포본은 같은 폴더의 `museum-opening.webp`이며, 기존 sharp를 사용해 quality 88로 인코딩했다. 원본은 유지했다. 메인 화면과 개인 전시관 헤더에 사용한다. 프롬프트와 경로는 `docs/MUSEUM-ASSET-PROMPT-20261018.json`에 보관했다. 주민 스프라이트·동물 도감·복구 지도는 기존 자산을 재사용했다.
+
+
+## 사용자 제공 교체 모델 · 2026-10-18
+
+개구리·게·토끼·물고기·오리·낙타·펭귄의 기존 GLB를 사용자가 새로 제공한 Meshy GLB로 교체했다. 원본은 `models/source/20261018/`, 이전 모델은 `docs/backups/models-before-20261018/`에 보관한다. 세부 변환 설정·출처 파일명·SHA256은 `docs/MODELS-20261018.json`과 안내 문서에 기록했다. 위 2026-10-17의 축소 수치는 이전 버전에 대한 기록이다. 새 밑그림 3종은 내장 image_gen으로 생성했으며 `assets/model-references-20261018/`에 저장했다.
+
+
+## 태블릿·발명 화면 보강 · 2026-10-18
+
+현재 `adventure/museum-opening.webp`는 기존 남자아이 탐험가를 참고해 image_gen으로 다시 그린 버전이다. `adventure/terrain-atlas.webp`는 숲·풀·모래·눈·물·나무껍질 6개 표면, `adventure/workshop-atlas.webp`는 바탕 제품·부품·동물 특징 9개를 위한 image_gen 생성 이미지다. 공방 이미지는 균일한 아이보리 바탕으로 재생성해 외곽 잔여색을 없앴다. WebP 변환은 Pillow로 색상 편집 없이 수행했다. UI의 부품 이동, 도해 화살표와 글자는 코드로 유지했다. 기존 3D 8종 교체 결과는 유지하며 새로운 Meshy 생성은 실행하지 않았다.
+
+2026-10-18 로딩 변경: 관찰·생태돔의 임시 도형 선표시를 제거했다. 실제 GLB가 준비되기 전에는 로딩 안내를 사용하고, 불러오기 실패 시 2D 학습 화면으로 전환한다.
+
+## 생태돔 자연물·공방 지붕 보정 · 2026-10-18
+
+`adventure/dome-ground.webp`(연속된 다섯 환경의 바닥), `adventure/nature-materials.webp`(바위·얼음·선인장·흙 2×2 표면)는 내장 image_gen으로 생성하고 sharp로 WebP 변환했다. 연잎과 갈대는 기존 `generated/lotus_leaf.webp`, `generated/reed.webp`를 재사용했다. 바위·얼음·선인장의 입체 형태는 코드로 만들었다.
+
+공방 지붕은 기존 지도에 대한 image_gen 편집 결과에서 지붕 영역만 합성했다. `village/map-base.webp`, `map-restored.webp`, `restore-5.webp`에 같은 지붕을 반영했으며 원본은 `docs/backups/roof-before-20261018/`에 보관했다. 지붕 밖 픽셀은 유지했다.
+
+## 사용자 제공 동물 움직임 영상 · 2026-10-18
+
+`videos/motion/*.mp4` 6종은 사용자가 제공한 생성 영상이다. 파일명은 `gemini_generated_video_*.mp4`이며 생성 모델·과금 내역은 확인하지 않았다. 원본은 `files/videos/source-20261018/`에 보관했다. 관찰 가능한 앞부분을 추출하여 H.264 CRF 20·720p·무음·faststart로 변환했고 원본의 표식은 유지했다. 나비가 화면 밖으로 사라지는 후반부는 배포본에서 제외했다. 원본 SHA256과 대응표는 `docs/MOTION-VIDEOS-20261018.json`에 있다. 위 사용자 제공 6종의 정리 과정에서는 생성 API를 호출하지 않았다. 이후 추가 생성한 낙타·펭귄·이야기 영상은 아래 별도 기록을 따른다.
+
+건물 역할 변경: 기존 책 건물 복구 이미지는 `village/restore-gallery.webp`, 기존 왼쪽 공방 복구 이미지는 `restore-4.webp`로 재사용했다. 새 5장 플라스크 건물 복구 이미지는 기존 `map-restored.webp`의 해당 영역에서 추출했다.
+
+- 낙타·펭귄 움직임 영상(`videos/motion/camel.*`, `penguin.*`): 2026-10-18 사용자의 추가 요청으로 Higgsfield Kling v3.0 Pro에서 각각 5초, 무음으로 생성. 기존 3D 동물의 외형을 확인해 텍스트에 반영했으며 원본 입력 이미지를 사용한 생성은 아님. 생성 요청 및 작업 ID: `docs/EXTRA-MOTION-VIDEO-JOBS-20261018.json`. 로컬 H.264/faststart 변환, 실제 프레임을 확인한 관찰 시점 적용. 과학 측정 영상이 아닌 AI 생성 관찰 자료.
+
+## 마을 인트로·아웃트로 · 2026-10-18
+
+`story/intro-01.webp`~`outro-04.webp` 초기 이미지 8장은 기존 하루·모리와 마을 건물을 참고해 image_gen으로 생성했다. 이후 사용자 요청으로 Higgsfield Kling v3.0 Pro에서 8컷을 생성해 인트로·아웃트로 각 24초로 편집했다. 전신·얼굴·의상과 건물 역할의 일관성을 프롬프트에 고정했고, 영상 내 UI·한글 글자는 생성하지 않았다. 자막은 앱 코드에서 표시한다. 원본은 `files/videos/story-source-20261018/`, 완료 작업 ID·결과 URL은 `docs/STORY-VIDEO-RESULTS-20261018.json`에 보관한다. 자세한 구성은 `docs/INTRO-OUTRO-VIDEO-PROMPTS.md`를 참고한다.

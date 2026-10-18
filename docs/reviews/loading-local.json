@@ -1,0 +1,4 @@
+{
+  "localReadyMs": 4290,
+  "method": "new local tab until first accessible screen returned; cache not cleared; includes automation overhead"
+}

@@ -4,6 +4,9 @@ export const EXPERIMENTS={
  protect:{control:'덮개가 감싸는 곳',levels:['위쪽','위와 옆','위·옆·뒤'],source:'등딱지',question:'덮개로 감싸는 곳을 늘리면 가려지는 곳은 어떻게 될까?',predictions:[['more','더 많아질 거야'],['same','비슷할 거야'],['less','더 적어질 거야']],result:'덮개가 감싸는 부분',reason:'단단한 덮개가 머리를 감싸.',condition:'같은 재료·두께, 덮개가 감싸는 곳만 바꾸기'},
  warm:{control:'공기를 머금는 겹',levels:['한 겹','두 겹','세 겹'],source:'촘촘한 털',question:'공기를 머금는 겹이 늘면 열은 어떻게 빠져나갈까?',predictions:[['less','더 적게 빠져나갈 거야'],['same','비슷할 거야'],['more','더 많이 빠져나갈 거야']],result:'밖으로 빠져나가는 열의 모습',reason:'겹 사이의 공기가 열이 빠져나가는 것을 줄여.',condition:'같은 재료, 같은 처음 온도와 바깥 조건'}
 };
+// Stored keys are retained for older saves; screen and export share the same labels.
+export const REFLECTIONS=[['changed','예상과 같았어'],['surprised','예상과 달랐어'],['same','다시 살펴보고 싶어']];
+export function experimentResult(problem,level){return ({swim:['물을 적게 미는 모습','물을 중간만큼 미는 모습','물을 많이 미는 모습'],warm:['열이 많이 빠져나가는 모습','열이 중간만큼 빠져나가는 모습','열이 적게 빠져나가는 모습'],protect:['위쪽을 감싸는 모습','위와 옆을 감싸는 모습','위·옆·뒤를 감싸는 모습']})[problem]?.[level-1]||'';}
 export const levelValue=v=>Number.isInteger(Number(v))?Math.max(1,Math.min(3,Number(v))):1;
 export function normalizeExperiment(raw={}){
  const e=raw&&typeof raw==='object'?raw:{};
@@ -20,12 +23,14 @@ export function experimentReady(d){return comparisonReady(d)&&Boolean(d.experime
 // goal: the frame where the body part does the work; only that scene can be recorded.
 export const MOTION_KEY_FRAME=1;
 export const MOTIONS={
- frog:{part:'뒷다리와 물갈퀴',goal:'뒷다리가 물을 뒤로 미는 순간',frames:['뒷다리를 접어','뒷다리를 펴서 물을 뒤로 밀어','몸이 앞으로 나아가'],kind:'swim'},
- duck:{part:'물갈퀴',goal:'물갈퀴가 물을 뒤로 미는 순간',frames:['발을 앞으로 가져와','물갈퀴로 물을 뒤로 밀어','몸이 앞으로 나아가'],kind:'swim'},
- rabbit:{part:'긴 뒷다리',goal:'뒷다리가 땅을 뒤로 미는 순간',frames:['뒷다리를 굽혀','땅을 뒤로 힘껏 밀어','몸이 앞으로 뛰어나가'],kind:'jump'},
- butterfly:{part:'날개',goal:'날개를 아래로 내리는 순간',frames:['날개를 들어','날개를 내려','공중에서 날아가'],kind:'fly'},
- crab:{part:'걷는 다리',goal:'다리가 땅을 미는 순간',frames:['다리를 들어','다리로 땅을 밀어','옆으로 걸어가'],kind:'walk'},
- marine:{part:'지느러미와 꼬리',goal:'꼬리가 물을 옆으로 미는 순간',frames:['몸과 꼬리를 굽혀','몸과 꼬리를 반대로 움직여','물속에서 앞으로 나아가'],kind:'swim'}
+ camel:{optional:true,target:1,guess:['넓적한 발바닥','혹'],part:'넓적한 발바닥',goal:'넓적한 발바닥이 모래를 딛는 순간',frames:['발을 들어 앞으로 옮겨','넓적한 발바닥으로 모래를 디뎌','몸이 앞으로 나아가'],kind:'walk'},
+ penguin:{optional:true,target:1,guess:['짧은 날개','부리'],part:'짧은 날개',goal:'짧은 날개로 물을 미는 순간',frames:['짧은 날개를 들어','짧은 날개로 물을 밀어','물속에서 앞으로 나아가'],kind:'swim'},
+ frog:{target:1,guess:['뒷다리와 물갈퀴','눈'],part:'뒷다리와 물갈퀴',goal:'뒷다리가 물을 뒤로 미는 순간',frames:['뒷다리를 접어','뒷다리를 펴서 물을 뒤로 밀어','몸이 앞으로 나아가'],kind:'swim'},
+ duck:{target:0,guess:['물갈퀴 달린 발','부리'],part:'물갈퀴',goal:'다음 젓기를 준비하며 발을 앞으로 가져오는 순간',frames:['발을 앞으로 가져와','물갈퀴로 물을 뒤로 밀어','몸이 앞으로 나아가'],kind:'swim'},
+ rabbit:{target:0,guess:['긴 뒷다리','귀'],part:'긴 뒷다리',goal:'뛰기 전에 뒷다리를 굽혀 준비하는 순간',frames:['뒷다리를 굽혀','땅을 뒤로 힘껏 밀어','몸이 앞으로 뛰어나가'],kind:'jump'},
+ butterfly:{target:2,guess:['날개','더듬이'],part:'날개',goal:'내렸던 날개를 다시 위로 올린 순간',frames:['날개를 들어','날개를 내려','날개를 다시 위로 올려'],kind:'fly'},
+ crab:{target:1,guess:['걷는 다리','눈'],part:'걷는 다리',goal:'다리가 땅을 미는 순간',frames:['다리를 들어','다리로 땅을 밀어','옆으로 걸어가'],kind:'walk'},
+ marine:{target:1,guess:['지느러미와 꼬리','입'],part:'지느러미와 꼬리',goal:'꼬리가 물을 옆으로 미는 순간',frames:['몸과 꼬리를 굽혀','몸과 꼬리를 반대로 움직여','물속에서 앞으로 나아가'],kind:'swim'}
 };
 export const frameAt=value=>Math.min(2,Math.floor(Math.max(0,Math.min(100,Number(value)||0))/34));
-export function normalizeInquiry(raw={}){const x=raw&&typeof raw==='object'?raw:{};return {motion:Object.fromEntries(Object.entries(x.motion||{}).filter(([id,f])=>Object.hasOwn(MOTIONS,id)&&f===MOTION_KEY_FRAME)),reclass:[0,1].map(i=>({prediction:['yes','no'].includes(x.reclass?.[i]?.prediction)?x.reclass[i].prediction:'',revealed:x.reclass?.[i]?.revealed===true})),verify:[0,1].map(i=>{const v=x.verify?.[i]||{},keys=['wings','legs','four','web','fin','six','cute','scary','fast'];return {ran:v.ran===true,cause:['opinion','few','mistake'].includes(v.cause)?v.cause:'',fix:keys.includes(v.fix)?v.fix:'',checked:keys.includes(v.checked)?v.checked:''};})};}
+export function normalizeInquiry(raw={}){const x=raw&&typeof raw==='object'?raw:{};return {motionPredictions:Object.fromEntries(Object.entries(x.motionPredictions||{}).filter(([id,p])=>Object.hasOwn(MOTIONS,id)&&['part','other'].includes(p))),motionEvidence:Object.fromEntries(Object.entries(x.motionEvidence||{}).filter(([id,e])=>Object.hasOwn(MOTIONS,id)&&e&&e.frame===MOTIONS[id].target&&Number.isFinite(e.phase)&&e.phase>=0&&e.phase<=100).map(([id,e])=>[id,{frame:e.frame,phase:e.phase,source:e.source==='video'?'video':'diagram'}])),motion:Object.fromEntries(Object.entries(x.motion||{}).filter(([id,f])=>Object.hasOwn(MOTIONS,id)&&f===MOTION_KEY_FRAME)),reclass:[0,1].map(i=>({prediction:['yes','no'].includes(x.reclass?.[i]?.prediction)?x.reclass[i].prediction:'',revealed:x.reclass?.[i]?.revealed===true})),verify:[0,1].map(i=>{const v=x.verify?.[i]||{},keys=['wings','legs','four','web','fin','six','cute','scary','fast'];return {ran:v.ran===true,cause:['opinion','few','mistake'].includes(v.cause)?v.cause:'',fix:keys.includes(v.fix)?v.fix:'',checked:keys.includes(v.checked)?v.checked:''};})};}

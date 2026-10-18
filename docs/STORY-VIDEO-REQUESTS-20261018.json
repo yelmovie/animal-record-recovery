@@ -1,0 +1,156 @@
+{
+  "shots": [
+    {
+      "id": "intro-01",
+      "index": 0,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Rear child-eye-level wide shot. One slow forward FOLLOW TRACK over 5 seconds behind the companions, maintaining their full bodies in lower frame. Move gently at walking pace across the bridge with foreground parallax. End just beyond the bridge, village plaza opening ahead, hold final 0.7 seconds.\n[SCENE] The boy and raccoon take a few relaxed grounded steps together into the village. The boy's backpack and raccoon's striped tail move subtly. Stream flows, leaves stir gently, distant villagers remain subtle. Buildings stay rigid and in place; no aerial camera or zoom.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "edd6f646-ea5a-4b52-bf04-71a16bf8551b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "intro-02",
+      "index": 1,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 4,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Eye-level medium close shot, LOCKED CAMERA for 4 seconds. Preserve entire crystal and top of pedestal within frame. End on the same composition with faint crystal glow, holding the last second.\n[SCENE] The already confused pale animal-record connections slowly fade away. Five delicate channels lose light gently, leaving a faint cyan spark in the intact blue crystal. No cracks or destruction. Flowers barely move. It is a quiet mystery, not a disaster.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "092835ca-dc12-4a26-aa87-50b2b30c5eb4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "intro-03",
+      "index": 2,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Eye-level medium-full two-shot, LOCKED CAMERA for 8 seconds. Keep both original faces clearly visible with unchanged sizes and framing. End with both gently looking toward the path to their left, hold 0.8 seconds.\n[SCENE] Mori makes one small explanatory paw gesture, Haru glances from his brown notebook to Mori and nods once with curiosity. Natural blinks, gentle breathing, small warm smiles. They remain in place; books stay solid in their hands; no talking audio and no exaggerated lip movements. Dim crystal remains behind.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "268caedc-3477-4984-84ef-a1324a948f70"
+          }
+        ]
+      }
+    },
+    {
+      "id": "intro-04",
+      "index": 3,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 7,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Rear child-eye-level full shot. One slow forward FOLLOW TRACK along the northwest path for 7 seconds at a child's walking pace. Keep both companions' full bodies visible and telescope cabin ahead left. End near the cabin's lower entrance, stopping with the doorway and telescope visible. Hold last 0.7 seconds.\n[SCENE] Haru and Mori walk a few small steps up the stone path together toward observation cabin. Natural planted footfalls, subtle tail and backpack sway. Ferns move softly. No teleporting, extra limbs, jumping or location changes. Cabin stays the same.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "6dbb0ddc-7270-49db-b6b1-410d4bf23589"
+          }
+        ]
+      }
+    },
+    {
+      "id": "outro-01",
+      "index": 4,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 4,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Eye-level medium close shot, LOCKED CAMERA for 4 seconds, same framing throughout. End with all five channels illuminated and the crystal softly bright, hold last second.\n[SCENE] The small incoming golden light travels along the fifth existing channel into the crystal. All five channels gently glow together. The three animal-record outlines become clearly arranged with tidy simple connections, no text. Light warms the nearby ferns and stone without overexposure. No spinning crystal, explosions or new monuments.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "4f77e47e-958a-481a-92e3-ba1676dd405f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "outro-02",
+      "index": 5,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 6,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Eye-level medium wide two-shot. One slow straight DOLLY OUT over 6 seconds to reveal a little more of the restored plaza. Keep boy, raccoon and crystal central and all feet visible. End at a wide plaza view with book exhibition hall visible uphill right, hold 0.7 seconds.\n[SCENE] Haru and Mori smile with quiet pride. Haru closes his brown notebook gently; Mori makes a small inviting gesture toward the book exhibition hall on the right. Gold record paths glow subtly and windows feel warm. No cheers, jumping crowd or large effects.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "b4124a8c-e57c-4dd4-8cef-33f691dc7169"
+          }
+        ]
+      }
+    },
+    {
+      "id": "outro-03",
+      "index": 6,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 6,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Rear child-eye-level wide shot. One slow forward FOLLOW TRACK over 6 seconds toward the book exhibition hall, keeping both companions full body in frame and the door ahead center-right. End near the top steps, two meters before the closed entrance. Hold last 0.7 seconds.\n[SCENE] Haru and Mori walk up the welcoming path and steps toward the book-emblem hall. Their strides are slow and grounded. Lanterns glow and blue leaf banners stir gently. The door stays closed with a warm thin seam until the next shot. Do not move the greenhouse or turn book emblem into flask.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "3fb38131-d424-475c-a000-064e85f762ec"
+          }
+        ]
+      }
+    },
+    {
+      "id": "outro-04",
+      "index": 7,
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "count": 1,
+        "prompt": "Preserve the exact character identities, faces, outfits, proportions, village architecture and illustrated cinematic style of the starting image. Exactly one boy and one small raccoon when present, no duplicates or new characters. Keep book exhibition hall northeast and flask invention workshop southeast. No generated text, subtitles, logos or UI. Single continuous shot, no cuts. \n[CAMERA] Child-eye-level entrance shot, one slow straight PUSH THROUGH over 8 seconds, centered on the doorway. Start two meters outside, pass smoothly between the opening doors, stop just inside the gallery looking into its warm interior. Hold final one second, no fade to black or white.\n[SCENE] During the first two seconds both oak doors gently swing inward. Haru and Mori take small steps through the entrance on either side, leaving the camera's center passage open. The camera follows into the cozy natural-history exhibition. Soft warm light reveals wooden display cases, simple animal specimens and notebooks without readable text. No transforming objects, no invented personal records, no cuts or duplicated companions.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "2d21e194-ecfe-4d15-aecf-f51438e62d45"
+          }
+        ]
+      }
+    }
+  ]
+}

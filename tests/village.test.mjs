@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {villagePath,nearestNode,npcLine,NPCS,buildingAt} from '../src/village.js';
 
 const graph={nodes:{a:[0,0],b:[100,0],c:[100,100],d:[300,300]},edges:[['a','b'],['b','c'],['c','d']]};
@@ -20,4 +21,10 @@ test('tapping a building picks that stage, but the core square and open paths do
   assert.equal(buildingAt(buildings,[50,90]),'1');
   assert.equal(buildingAt(buildings,[200,50]),null);
   assert.equal(buildingAt(buildings,[120,50]),null);
+});
+test('book building opens the gallery and the flask building opens invention stage five',()=>{
+  const {buildings}=JSON.parse(readFileSync(new URL('../assets/village/village.json',import.meta.url),'utf8'));
+  assert.equal(buildingAt(buildings,[1410,330]),'gallery');
+  assert.equal(buildingAt(buildings,[1400,670]),'5');
+  assert.equal(buildingAt(buildings,[300,630]),'4');
 });

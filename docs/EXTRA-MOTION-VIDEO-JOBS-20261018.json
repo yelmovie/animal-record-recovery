@@ -1,0 +1,36 @@
+{
+  "model": "kling3_0",
+  "estimatedCredits": 15,
+  "jobs": [
+    {
+      "animal": "camel",
+      "id": "249ea2d1-968e-4d90-846c-3557fc843fdd",
+      "status": "completed",
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "duration": 5,
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "prompt": "Keep exactly one light tan single-humped dromedary camel throughout, realistic natural-history illustration brought to life, soft textured tan fur, dark eyes, long curved neck, four anatomically correct legs and broad two-toed padded feet. No saddle or clothing. Maintain the same animal, proportions and anatomy in every frame.\n[CAMERA] Locked-off static camera, zero camera speed, low side angle at knee height, full-body wide framing. Animal occupies about 45 percent of the 16:9 frame, faces right with ample clear ground ahead. All four feet and the single hump remain visible throughout. No pan, zoom, cuts or camera shake. End on the same framing with the camel fully visible just right of center, final half-second settled.\n[SCENE] A dry sandy desert in soft warm daylight, low sand dunes and a few distant rocks, recognizably natural habitat with moderate depth of field, not a studio. Sand and near-side feet are sharply readable. 0-1 seconds: camel pauses with feet on the sand. 1-3 seconds: one slow natural forward walking stride, the near front foot lifts, swings forward, then its broad padded sole plants gently onto the sand, leaving a shallow footprint; coordinated natural four-legged gait without sliding. 3-4.5 seconds: finish the short stride and transfer weight onto the broad planted foot. 4.5-5 seconds: hold quietly, all feet visible. Educational focus is the wide foot contacting soft sand, not speed. No duplicated legs, hooves, sinking deeply, dust clouds, text, arrows, logos, people or sound."
+      },
+      "runtime": "assets/videos/motion/camel.mp4"
+    },
+    {
+      "animal": "penguin",
+      "id": "f3daa636-73b9-4cf5-b74c-99ed904fb64e",
+      "status": "completed",
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "duration": 5,
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "prompt": "Keep exactly one adult emperor penguin throughout, black head and back, white belly, pale yellow upper chest and warm yellow-orange ear patches, narrow dark beak with orange lower edge, two short stiff black flipper-like wings. Maintain this identity, anatomy and feather colors in every frame. Realistic natural-history illustration brought to life, not a cartoon or toy.\n[CAMERA] Locked-off static underwater camera, zero camera speed, slightly elevated three-quarter side angle. Wide full-body view with both short wings clearly readable, penguin occupies about 45 percent of the 16:9 frame facing right. No zoom, pan, cuts or camera shake. Keep the entire bird within frame. End with it fully visible slightly right of center gliding horizontally, hold the same composition in the last half-second.\n[SCENE] Clear blue polar seawater beneath a pale ice shelf near the upper background, sparse softly lit underwater rocks at the lower rear edge. Moderate depth of field, natural filtered daylight. Penguin remains fully submerged and nearly horizontal throughout. 0-1 seconds: wings slightly raised, brief glide. 1-2.5 seconds: both short stiff wings sweep downward and slightly backward in one clear slow swimming power stroke, propelling the bird gently forward. 2.5-4 seconds: wings recover upward in a smooth natural arc. 4-5 seconds: brief level glide with the same two wings readable. Tiny unobtrusive bubbles behind the body only. Keep anatomically correct two wings and two small feet trailing behind; no flying above water, walking upright underwater, fish tail, extra limbs, exaggerated bending, text, arrows, logos, other animals or sound."
+      },
+      "runtime": "assets/videos/motion/penguin.mp4"
+    }
+  ]
+}

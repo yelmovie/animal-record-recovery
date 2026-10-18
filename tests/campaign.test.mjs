@@ -1,0 +1,41 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {campaignFixture} from './fixtures/campaign-state.mjs';
+import {freshExpedition,restoreExpedition,isStageOpen,availableTools} from '../src/expedition.js';
+import {COMMISSIONS,RETEST,freshCampaign,ensureCampaign,campaignDraft,missionRows,chooseCommission,claimCommission,campaignReady,campaignOpen,campaignDone,restoredPlaces,commissionCount,runCommissionTrial,campaignReport} from '../src/campaign.js';
+import {commissionView,galleryView} from '../src/campaign-views.js';
+function solve(s,stage,index){
+ const d=campaignDraft(s,stage,index);if(stage===2&&index===1)chooseCommission(s,stage,index,'criterion','six');
+ if(stage===5&&index<2){for(const level of [1,RETEST[s.records.designs[index].problem].target]){d.level=level;d.prediction='more';runCommissionTrial(s,stage,index);}chooseCommission(s,stage,index,'choice',String(RETEST[s.records.designs[index].problem].target));chooseCommission(s,stage,index,'reason','fit');}
+ else for(const r of missionRows(s,stage,index))chooseCommission(s,stage,index,r.key,r.answer);
+}
+test('base completion keeps stars but does not restore the place or unlock the next one until both commissions pass',()=>{
+ const s=freshExpedition();ensureCampaign(s);s.activities=['1-0','1-1','1-2','1-3'];s.completed=[1];assert.equal(isStageOpen(s,2),false);assert.deepEqual(availableTools(s),[]);assert.equal(campaignOpen(s,1,1),false);assert.equal(claimCommission(s,1,1).ok,false);solve(s,1,0);assert.equal(claimCommission(s,1,0).ok,true);assert.deepEqual(restoredPlaces(s),[]);solve(s,1,1);assert.equal(claimCommission(s,1,1).ok,true);assert.deepEqual(restoredPlaces(s),[1]);assert.equal(isStageOpen(s,2),true);assert.equal(availableTools(s).length,1);assert.equal(s.activities.length,4);
+});
+test('all ten commissions and five optional challenges can be completed; replay never adds stars or duplicate records',()=>{
+ const s=campaignFixture();for(let stage=1;stage<=5;stage++)for(let index=0;index<=2;index++){solve(s,stage,index);assert.equal(claimCommission(s,stage,index).ok,true,`${stage}-${index}`);assert.equal(claimCommission(s,stage,index).fresh,false);}
+ assert.equal(commissionCount(s),10);assert.equal(Object.keys(s.campaign.records).length,15);assert.equal(s.activities.length,18);assert.deepEqual(restoredPlaces(s),[1,2,3,4,5]);assert.match(campaignReport(s).join('\n'),/중간 면/);
+});
+test('current saves retain drafts, validated awards, tool use and archived evidence after replay edits',()=>{
+ const s=campaignFixture();solve(s,1,0);campaignDraft(s,1,0).usedTool=true;claimCommission(s,1,0);chooseCommission(s,1,0,'frog-label','shell');chooseCommission(s,1,1,'duck','feather');
+ const out=restoreExpedition(JSON.stringify(s));assert.equal(out.campaign.drafts['1-0'].answers['frog-label'],'shell');assert.equal(out.campaign.records['1-0'].answers['frog-label'],'bare');assert.equal(out.campaign.records['1-0'].usedTool,true);assert.equal(out.campaign.drafts['1-1'].answers.duck,'feather');assert.equal(campaignDone(out,1,0),true);assert.equal(campaignDone(out,1,1),false);
+});
+test('old awarded places and tools stay available, while new commissions start unearned',()=>{
+ const s=campaignFixture();delete s.campaign;const old=restoreExpedition(JSON.stringify(s));ensureCampaign(old);assert.deepEqual(restoredPlaces(old),[1,2,3,4,5]);assert.equal(availableTools(old).length,5);assert.equal(commissionCount(old),0);assert.equal(campaignOpen(old,1,1),false);
+});
+test('malformed and forged commission saves cannot create a badge or bypass mission order',()=>{
+ const s=campaignFixture();s.campaign.records={'1-0':{answers:{'frog-label':'shell'}},'1-1':{answers:{duck:'feather',rabbit:'fur',same:'legs'}},'5-0':{answers:{choice:'2',reason:'fit'},trials:[{problem:'swim',level:2,prediction:'more'}]}};s.campaign.grandfathered=[7,'1'];
+ const out=restoreExpedition(JSON.stringify(s));assert.equal(commissionCount(out),0);assert.deepEqual(restoredPlaces(out),[]);
+});
+test('changing own classification criterion clears previous placements and truth follows the selected question',()=>{
+ const s=campaignFixture();solve(s,2,0);claimCommission(s,2,0);solve(s,2,1);assert.equal(campaignReady(s,2,1),true);chooseCommission(s,2,1,'criterion','legs');assert.deepEqual(campaignDraft(s,2,1).answers,{criterion:'legs'});assert.equal(campaignReady(s,2,1),false);for(const r of missionRows(s,2,1))chooseCommission(s,2,1,r.key,r.answer);assert.equal(campaignReady(s,2,1),true);assert.equal(chooseCommission(s,2,1,'criterion','cute'),false);
+});
+test('retest requires prediction, distinct trials including selected shape, and a reason tied to the customer',()=>{
+ const s=campaignFixture(),d=campaignDraft(s,5,0);assert.equal(runCommissionTrial(s,5,0),false);d.prediction='less';runCommissionTrial(s,5,0);runCommissionTrial(s,5,0);assert.equal(d.trials.length,1);d.level=3;runCommissionTrial(s,5,0);chooseCommission(s,5,0,'choice','2');chooseCommission(s,5,0,'reason','fit');assert.equal(campaignReady(s,5,0),false);d.level=2;runCommissionTrial(s,5,0);assert.equal(campaignReady(s,5,0),true);chooseCommission(s,5,0,'reason','big');assert.equal(campaignReady(s,5,0),false);
+});
+test('all three invention choices use their own conditions and survive a round trip',()=>{
+ const s=campaignFixture(['protect','warm']);for(const index of [0,1]){solve(s,5,index);assert.equal(claimCommission(s,5,index).ok,true);}const out=restoreExpedition(JSON.stringify(s));assert.equal(out.campaign.records['5-1'].answers.choice,'3');assert.match(campaignReport(out).join('\n'),/추운 곳/);
+});
+test('commission and gallery renderers escape learner names and expose keyboard tap fallbacks',()=>{
+ const s=campaignFixture();s.records.designs[0].name='<img src=x onerror=alert(1)>';solve(s,5,0);claimCommission(s,5,0);for(const html of [commissionView(s,{stage:5,commissionIndex:0}),galleryView(s)]){assert.ok(!html.includes('<img src=x'));assert.match(html,/&lt;img/);}const html=commissionView(s,{stage:2,commissionIndex:1});assert.match(html,/<button class="bin-place"/);assert.match(html,/data-drop-action="commission-sort"/);
+});
