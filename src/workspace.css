@@ -190,3 +190,42 @@ dialog:has(.settings-body)[open]{display:flex}
 .activity-workspace .studio-exhibit>.studio-heading{margin:0 auto 10px}
 .design-checklist{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:4px 0 6px;padding:0}.design-checklist li{display:flex;align-items:center;gap:6px;min-height:36px;padding:4px 12px;border-radius:999px;background:#f1ede0;border:2px solid #d8d1b8;color:#5b5a45;font-size:16px;font-weight:700}.design-checklist li b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:14px}.design-checklist li.done{background:#e3efd3;border-color:#9fbf7f;color:#2f5a2c}.design-checklist li .icon{width:18px;height:18px}.design-checklist li.retry,.design-options section.retry,.design-name.retry{box-shadow:0 0 0 3px #e9a46a;border-color:#e9a46a;border-radius:14px}.pick-status{color:#74500a;background:#fff3bc;padding:2px 8px;border-radius:8px}
 .motion-ready{flex-basis:100%;margin:0;font-size:16px;font-weight:700;color:#8a6420}.motion-ready.ready{color:#3f6b33}.motion-record-action .btn:disabled{opacity:.55;cursor:wait}
+/* Request deck: one card at a time, overall progress, jump list. Replaces the two side-by-side scrolling parts. */
+.unified-request .commission-work.request-deck{grid-template-rows:auto minmax(0,1fr) auto auto}
+.deck-nav{display:flex;align-items:center;gap:8px;min-width:0}
+.deck-count{flex:none;font-size:16px;color:#4f5f3f;padding:0 4px}.deck-count b{font-size:20px;color:#2f5a2c}
+.deck-chips{display:flex;gap:6px;list-style:none;margin:0;padding:2px;min-width:0;flex:1;overflow-x:auto;scrollbar-width:thin}
+.deck-chips li{flex:none}
+.deck-chip{min-height:46px;padding:4px 12px;gap:6px;border-radius:999px;background:#f3efe1;border:2px solid #d8d1b8;color:#4a4a36;font-size:16px;font-weight:700}
+.deck-chip i{font-style:normal;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fff;font-size:14px}
+.deck-chip small{font-weight:600;color:#6b6a52}
+.deck-chip.current{background:#fff7d6;border-color:#c99a3a;box-shadow:0 0 0 3px #f3dc9a}
+.deck-chip.done{background:#e3efd3;border-color:#9fbf7f;color:#2f5a2c}.deck-chip.done .icon{width:18px;height:18px}
+.deck-chip.retry{border-color:#e9a46a;box-shadow:0 0 0 3px #f5d3b4}
+.deck-nav>.btn{flex:none;min-height:46px}.deck-next{padding-inline:16px}
+.request-parts.single-part>.request-card{overflow:auto}
+.request-card .request-part-heading .part-tag{margin-left:0;padding:2px 10px;border-radius:999px;background:#ebe4cc;color:#5d5a3c;font-size:15px}
+.request-card .request-part-intro{font-size:16px}
+.card-body{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,1fr);gap:12px;align-items:start}
+.card-questions{display:grid;gap:8px;min-width:0}
+.request-card .record-row{margin:0;padding:8px 10px;border:2px solid #e2dcc4;border-radius:12px;background:#fffdf6}
+.request-card .record-row.filled{border-color:#b9cf9f}
+.request-card .record-row.retry{border-color:#e9a46a;box-shadow:0 0 0 3px #f5d3b4}
+.request-card .record-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.request-card .commission-choice{display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+.request-card .commission-choice .animal{width:52px;height:46px;object-fit:contain;flex:none}
+.card-result{position:sticky;top:0;display:grid;gap:8px;padding:12px;border-radius:14px;background:#fbf6e6;border:3px dashed #d6c79c;transition:border-color .2s,background .2s}
+.card-result h3{display:flex;align-items:center;gap:6px;margin:0;font-size:18px;color:#5b4a22}
+.card-result-animal{display:flex;align-items:center;gap:8px}.card-result-animal .animal{width:84px;height:70px;object-fit:contain}.card-result-animal b{font-size:19px}
+.card-result ol{display:grid;gap:6px;list-style:none;margin:0;padding:0}
+.card-result li{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid #e7dfc3}
+.card-result li small{flex-basis:100%;color:#7a6c45;font-size:15px}
+.card-result li b{font-size:17px;color:#2f4a2c}.card-result li b.blank{color:#b3a780;font-weight:600;letter-spacing:.1em}
+.card-result li .animal{width:44px;height:38px;object-fit:contain}
+.card-result li.filled{border-color:#b9cf9f;animation:card-fill .35s ease-out}
+.card-stamp{margin:0;font-size:15px;color:#8a7a4e;display:flex;align-items:center;gap:4px}
+.card-result.complete{border-style:solid;border-color:#8fb26c;background:#eef6e2}.card-result.complete .card-stamp{color:#2f5a2c;font-weight:800;font-size:17px}
+.card-result.kind-broadcast.complete h3{color:#a0331f}
+@keyframes card-fill{from{transform:scale(.97);background:#fff3bc}to{transform:none;background:#fff}}
+@media(prefers-reduced-motion:reduce){.card-result li.filled{animation:none}}
+@media(max-width:900px){.card-body{grid-template-columns:1fr}.card-result{position:static}}

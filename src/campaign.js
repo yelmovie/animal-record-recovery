@@ -130,3 +130,21 @@ export function normalizeCampaign(raw,s){
  return out;
 }
 export function campaignReport(s){return COMMISSIONS.flatMap(c=>[0,1,2].filter(i=>campaignDone(s,c.id,i)).flatMap(i=>{if(c.id===5&&i<2&&s.studioRecord)return i===0?['우리 생활 발명품 전시 · '+s.studioRecord.title,'자유 발명 그림과 작품 소개를 전시했어.','']:[];const d=s.campaign.records[missionKey(c.id,i)],m=commission(c.id,i);return [`${c.title} · ${m.title}`, ...(m.kind==='own-sort'?[`내 기준: ${SORT_KEYS[d.answers.criterion]}`]:m.kind==='sort'?[m.criterion]:[]), ...missionRows(s,c.id,i,d).map(r=>`${r.label}: ${r.options.find(o=>o[0]===d.answers[r.key])?.[1]||''}`),...(m.kind==='retest'?[`시험: ${d.trials.map(t=>RETEST[t.problem].levels[t.level-1]).join(' / ')}`,`선택 이유: ${RETEST[designProblem(s,i)]?.reason||''}`]:[]),''];}));}
+// A request is answered one card at a time: one animal's chain, one lost record, or a whole sort/test.
+export const requestParts=(stage,index)=>index===2?[2]:stage===5?[1,0]:[0,1];
+export function requestCards(s,stage,parts){return parts.flatMap(i=>{const m=commission(stage,i),rows=missionRows(s,stage,i);
+ if(!m)return [];if(!rows.length||m.kind==='own-sort'||m.kind==='retest')return [{part:i,kind:m.kind,rows,animal:''}];
+ const groups=new Map();for(const r of rows){const g=m.kind==='return'?r.key.split('-')[0]:r.animal||'common';if(!groups.has(g))groups.set(g,[]);groups.get(g).push(r);}
+ return [...groups.values()].map(list=>({part:i,kind:m.kind,rows:list,animal:m.kind==='return'?'':list[0].animal||''}));});}
+const answered=(d,r)=>Boolean(d.answers[r.key]);
+export function cardDone(s,stage,card){const d=campaignDraft(s,stage,card.part);if(card.kind==='retest')return campaignDone(s,stage,card.part)||campaignReady(s,stage,card.part,d);if(card.kind==='own-sort'&&!d.answers.criterion)return false;return card.rows.every(r=>answered(d,r));}
+export function cardProgress(s,stage,cards){let n=0,total=0;for(const c of cards){const d=campaignDraft(s,stage,c.part);if(c.kind==='retest'){total++;n+=cardDone(s,stage,c)?1:0;}else{total+=c.rows.length;n+=c.rows.filter(r=>answered(d,r)).length;}}return {answered:n,total};}
+// First blank answer in display order wins over a wrong one, so "submit" always says where to look next.
+export function requestGap(s,stage,parts){const pending=parts.filter(i=>!campaignDone(s,stage,i));
+ for(const i of pending){const d=campaignDraft(s,stage,i),m=commission(stage,i);
+  if(m.kind==='own-sort'&&!SORT_KEYS[d.answers.criterion])return {index:i,key:'criterion',missing:true,text:'먼저 몸에서 확인할 수 있는 분류 기준을 골라 줘.'};
+  const blank=missionRows(s,stage,i,d).find(r=>!answered(d,r));if(blank)return {index:i,key:blank.key,missing:true,text:`‘${blank.label}’ 칸이 아직 비어 있어. 그 카드로 옮겨 뒀어.`};}
+ const i=pending.find(i=>!campaignReady(s,stage,i));if(i===undefined)return null;
+ const d=campaignDraft(s,stage,i),bad=missionRows(s,stage,i,d).find(r=>d.answers[r.key]!==r.answer);
+ return {index:i,key:bad?.key||'',missing:false,text:campaignHint(s,stage,i)};}
+export function firstOpenCard(s,stage,parts){const k=requestCards(s,stage,parts).findIndex(c=>!cardDone(s,stage,c));return Math.max(0,k);}

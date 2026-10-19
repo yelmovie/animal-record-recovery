@@ -70,3 +70,18 @@ test('a draft cannot appear as a completed artwork, and legacy invention records
   assert.deepEqual(restored.records.designs,legacy.records.designs);
   assert.equal(taskReady(restored,5,3),true);
 });
+
+test('a drawing erased away counts as empty; partial erasing keeps it, and judging never looks at quality',async()=>{
+ const {studioDrawingReady,studioHint}=await import('../src/studio.js');
+ const pen={tool:'pen',color:'#294b3e',width:8,points:[{x:100,y:100},{x:160,y:100},{x:220,y:100}]};
+ const bigEraser={tool:'eraser',color:'#ffffff',width:60,points:[{x:80,y:100},{x:240,y:100}]};
+ const smallEraser={tool:'eraser',color:'#ffffff',width:20,points:[{x:100,y:100},{x:120,y:100}]};
+ const base={title:'날개 우산',strokes:[]};
+ assert.equal(studioDrawingReady({...base,strokes:[pen]}),true);
+ assert.equal(studioDrawingReady({...base,strokes:[pen,bigEraser]}),false);
+ assert.match(studioHint({...base,strokes:[pen,bigEraser]}),/빈 도화지/);
+ assert.equal(studioDrawingReady({...base,strokes:[pen,smallEraser]}),true);
+ // Ink drawn after the eraser stays visible.
+ assert.equal(studioDrawingReady({...base,strokes:[bigEraser,pen]}),true);
+ assert.equal(studioDrawingReady({...base,strokes:[{...pen,points:[{x:5,y:5}]}]}),true);
+});

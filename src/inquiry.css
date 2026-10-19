@@ -341,3 +341,4 @@ main.map-page{max-width:none;margin:0;padding:8px;height:calc(var(--app-height,1
 #dialog:has(.photo-zoom){width:min(1100px,94vw);max-width:none}
 @media(max-width:700px){.photo-zoom{grid-template-columns:1fr}}
 .lens-notes .detail-crop{width:min(100%,320px)!important;height:220px!important}
+.candidate-count{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.candidate-count .case-hint{min-height:44px;font-size:16px}

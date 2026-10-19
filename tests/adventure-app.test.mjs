@@ -162,3 +162,13 @@ test('reset keeps the teacher\'s sound settings; the teacher demo switch needs t
   const a=appHarness();a.run("s.soundEnabled=false;s.musicOn=false;s.musicVolume=.2;s.activities=['1-0'];act('reset',{dataset:{}})");
   assert.equal(a.run('s.activities.length'),0);assert.equal(a.run('s.soundEnabled'),false);assert.equal(a.run('s.musicOn'),false);assert.equal(a.run('s.musicVolume'),.2);
 });
+
+test('request cards move with the deck buttons and a blank reply jumps to the card holding the first blank',()=>{
+ const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';openCommission(3,0)');
+ assert.equal(a.run('requestCard'),0);assert.match(a.app.innerHTML,/data-row="rabbit-place"/);
+ a.run("act('request-card',{dataset:{value:'2'}})");assert.equal(a.run('requestCard'),2);assert.match(a.app.innerHTML,/data-row="duck-place"/);
+ a.run("act('request-card',{dataset:{value:'9'}})");assert.equal(a.run('requestCard'),2);
+ a.run("for(const r of missionRows(s,3,0))chooseCommission(s,3,0,r.key,r.answer);for(const r of missionRows(s,3,1))if(r.key!=='butterfly-life')chooseCommission(s,3,1,r.key,r.answer);requestCard=0;act('commission-submit',{dataset:{}})");
+ assert.equal(a.run('screen'),'commission');assert.equal(a.run('requestCard'),3);assert.match(a.app.innerHTML,/data-row="butterfly-life"/);assert.match(a.run('feedback.text'),/나비 · 움직임/);
+ assert.match(a.app.innerHTML,/record-row\s+retry" data-row="butterfly-life"|retry" data-row="butterfly-life"/);
+});

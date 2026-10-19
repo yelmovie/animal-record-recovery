@@ -14,6 +14,7 @@ export function mountStudio(root,{getStudio,onChange,onDownload}={}){
  const save=next=>{onChange(normalizeStudio(next));refresh();};
  const controls=()=>{
   host.querySelectorAll('[data-studio-tool]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.studioTool===settings.tool)));
+  host.querySelectorAll('[data-studio-action="swatch"]').forEach(el=>el.setAttribute('aria-pressed',String(settings.tool!=='eraser'&&el.dataset.color===settings.color)));
   host.querySelectorAll('[data-studio-current-color]').forEach(el=>el.style.background=settings.color);
   host.querySelectorAll('[data-studio-color-label]').forEach(el=>el.textContent=settings.color.toUpperCase());
   const custom=host.querySelector('[data-studio-custom-color]');if(custom)custom.value=settings.color;
@@ -32,7 +33,7 @@ export function mountStudio(root,{getStudio,onChange,onDownload}={}){
  const point=e=>{const box=surface.getBoundingClientRect();return {x:Math.round(clamp((e.clientX-box.left)/box.width*1000,1000)),y:Math.round(clamp((e.clientY-box.top)/box.height*650,650))};};
  const paint=()=>{if(current&&live)live.innerHTML=strokeMarkup(current);};
  const finish=e=>{if(pointer===null||e?.pointerId!==undefined&&e.pointerId!==pointer)return;const id=pointer;pointer=null;const stroke=current;current=null;if(surface.hasPointerCapture?.(id))surface.releasePointerCapture(id);if(live)live.innerHTML='';if(stroke?.points.length){const s=state();s.strokes.push(stroke);redo=[];save(s);status('그림을 보관했어. 계속 그려도 좋아.');}};
- const down=e=>{if(pointer!==null||e.button!==0||e.isPrimary===false)return;e.preventDefault();if(state().strokes.length>=160){status('도화지가 꽉 찼어. 작품을 저장하거나 마지막 선을 되돌려 봐.');return;}pointer=e.pointerId;current={...settings,color:settings.tool==='eraser'?'#ffffff':settings.color,points:[point(e)]};surface.setPointerCapture(pointer);host.querySelector('[data-studio-empty]')?.setAttribute('hidden','');paint();};
+ const down=e=>{if(pointer!==null||e.button!==0||e.isPrimary===false)return;e.preventDefault();if(state().strokes.length>=160){status('선은 160개까지 그릴 수 있어. 더 그리려면 되돌리기로 선을 줄여 줘.');return;}pointer=e.pointerId;current={...settings,color:settings.tool==='eraser'?'#ffffff':settings.color,points:[point(e)]};surface.setPointerCapture(pointer);host.querySelector('[data-studio-empty]')?.setAttribute('hidden','');paint();};
  const move=e=>{if(e.pointerId!==pointer||!current)return;e.preventDefault();const coalesced=e.getCoalescedEvents?.(),samples=coalesced?.length?coalesced:[e];for(const sample of samples){const p=point(sample),last=current.points.at(-1);if(Math.hypot(p.x-last.x,p.y-last.y)<1.5)continue;if(current.points.length>=248)current.points=current.points.filter((_,i)=>i%2===0);current.points.push(p);}paint();};
  const pickWheel=e=>{const r=wheel.getBoundingClientRect(),x=(e.clientX-r.left-r.width/2)/(r.width/2),y=(e.clientY-r.top-r.height/2)/(r.height/2);hsv.h=(Math.atan2(x,-y)*180/Math.PI+360)%360;hsv.s=Math.min(100,Math.hypot(x,y)*100);changeColor();};
  const wheelDown=e=>{if(e.button!==0||e.isPrimary===false||wheelPointer!==null)return;e.preventDefault();wheelPointer=e.pointerId;wheel.setPointerCapture(e.pointerId);pickWheel(e);};
@@ -43,6 +44,7 @@ export function mountStudio(root,{getStudio,onChange,onDownload}={}){
  const click=async e=>{const b=e.target.closest('[data-studio-action]');if(!b||!host.contains(b))return;const a=b.dataset.studioAction;finish();
   if(a==='palette'){const popup=host.querySelector('#studio-color-picker'),r=b.getBoundingClientRect();if(popup){popup.style.left=Math.max(8,Math.min(r.left,window.innerWidth-288))+'px';popup.style.top=Math.max(8,Math.min(r.bottom+8,window.innerHeight-440))+'px';}}
   else if(a==='tool'){settings.tool=b.dataset.studioTool;saveTools();}
+  else if(a==='swatch'&&/^#[0-9a-f]{6}$/i.test(b.dataset.color)){settings.color=b.dataset.color;hsv=hexToHsv(settings.color);if(settings.tool==='eraser')settings.tool='pen';saveTools();}
   else if(a==='undo')undo();else if(a==='redo')again();
   else if(a==='download'){b.disabled=true;status('그림과 소개를 한 장에 담고 있어…');try{await(onDownload||downloadStudioArtwork)(state());if(!disposed)status('작품 이미지 다운로드를 시작했어!');}catch(error){if(!disposed)status('이미지를 저장하지 못했어. 잠시 뒤 다시 눌러 줘.');console.error('Studio artwork download failed',error);}finally{if(!disposed)b.disabled=false;}}controls();
  };

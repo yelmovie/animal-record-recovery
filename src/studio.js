@@ -20,7 +20,12 @@ export function normalizeStudio(value){
   }).filter(stroke=>stroke.points.length);
   return out;
 }
-const hasDrawing=studio=>studio.strokes.some(stroke=>stroke.tool!=='eraser'&&stroke.color!=='#ffffff'&&stroke.points.length>0);
+// Judge the final picture, not the pen history: ink fully painted over by a later eraser stroke is gone.
+const segmentDistance=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/len)):0;return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);};
+const box=e=>{const r=e.width/2,xs=e.points.map(p=>p.x),ys=e.points.map(p=>p.y);return {...e,x0:Math.min(...xs)-r,x1:Math.max(...xs)+r,y0:Math.min(...ys)-r,y1:Math.max(...ys)+r};};
+const erasedAt=(p,width,erasers)=>erasers.some(e=>p.x>=e.x0&&p.x<=e.x1&&p.y>=e.y0&&p.y<=e.y1&&e.points.some((a,i)=>segmentDistance(p,a,e.points[i+1]||a)+width/2<=e.width/2));
+// ponytail: checks the sampled points of each line (≤1.5px apart), not every pixel; enough to tell "nothing left" from "something left".
+const hasDrawing=studio=>{const erasers=studio.strokes.map((s,index)=>s.tool==='eraser'?{...box(s),index}:null).filter(Boolean);return studio.strokes.some((stroke,i)=>stroke.tool!=='eraser'&&stroke.color!=='#ffffff'&&stroke.points.some(p=>!erasedAt(p,stroke.width,erasers.filter(e=>e.index>i))));};
 export function studioDrawingReady(value){const studio=normalizeStudio(value);return Boolean(studio.title.trim()&&hasDrawing(studio));}
 export function studioReady(value){const studio=normalizeStudio(value);return studioDrawingReady(studio)&&['audience','purpose','inspiration'].every(key=>studio[key].trim());}
 export function studioHint(value,step=2){

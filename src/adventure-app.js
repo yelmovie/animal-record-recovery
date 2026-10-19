@@ -14,19 +14,19 @@ import {playSound,silence,playMusic,setMusicVolume} from './audio.js';
 import {TEACHER_CODE} from './settings-content.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d} from './view3d.js';
-import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport} from './campaign.js';
+import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
 
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 let s,storageOK=true;
 try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
 ensureCampaign(s);
-let commissionIndex=0,evidenceOpen=false,motionPlayer=null,storyPlayer=null;
+let commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({screen,stage,step,commissionIndex,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));storageOK=true;}catch{storageOK=false;}
@@ -66,7 +66,9 @@ function syncMusic(){setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||
 function render(){
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
-  const route=[screen,stage,step,activeHabitat,s.activeAnimal].join(':');
+  // A request opens on its first unfinished card and then stays where the learner moves it.
+  if(screen==='commission'&&requestCard===null)requestCard=firstOpenCard(s,stage,requestParts(stage,commissionIndex));
+  const route=[screen,stage,step,activeHabitat,s.activeAnimal,screen==='commission'?requestCard:''].join(':');
   const scroll=route===renderedRoute?[...app.querySelectorAll('.request-part,.motion-observer,.lens-notes')].map(el=>el.scrollTop):[];
   const expanded=route===renderedRoute?[...app.querySelectorAll('.commission-evidence')].map(el=>el.open):[];
   renderedRoute=route;
@@ -138,7 +140,7 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 function say(text,good=false,wrong=[]){if(!good)playSound(s.soundEnabled,'retry');feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
 function modal(title,content){stopMotion();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
@@ -203,7 +205,7 @@ function flyStar(){
 function previous(){labSummary=false;stopMotion();if(step===0){go('map');return;}step--;report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
-  if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission')step=route.step;if(screen==='commission')commissionIndex=route.commissionIndex;feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
+  if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission')step=route.step;if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
 }
 // teacherTools: the demo switch shows only after the teacher code is typed on this open dialog.
 let teacherTools=false;
@@ -249,14 +251,18 @@ function requestCommission(id,index=0){
   playSound(s.soundEnabled,'star');
   document.querySelector('#announcer').textContent=`${COMMISSIONS[id-1].npc}에게서 편지가 도착했어.`;
 }
+// Jump to the card that holds the first blank (or else wrong) answer and mark that row.
+function showGap(){const parts=requestParts(stage,commissionIndex),gap=requestGap(s,stage,parts);picked=null;if(!gap)return say(campaignHint(s,stage,commissionIndex));
+  const cards=requestCards(s,stage,parts),k=cards.findIndex(c=>c.part===gap.index&&(c.kind==='own-sort'||c.kind==='retest'||c.rows.some(r=>r.key===gap.key)));
+  if(commissionIndex<2)commissionIndex=gap.index;if(k>=0)requestCard=k;say(gap.text,false,gap.key?['row:'+gap.key]:[]);}
 function submitCommission(){
   if(commissionIndex<2){
     const result=claimRequest(s,stage);
-    if(!result.ok){commissionIndex=result.index;picked=null;return say(campaignHint(s,stage,commissionIndex));}
+    if(!result.ok)return showGap();
     playSound(s.soundEnabled,result.fresh?'stamp':'correct');restoredFlash=stage;go('reward');return;
   }
   const result=claimCommission(s,stage,commissionIndex);
-  if(!result.ok)return say(campaignHint(s,stage,commissionIndex));
+  if(!result.ok)return showGap();
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
   if(commissionIndex===1){restoredFlash=stage;go('reward');return;}
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
@@ -286,7 +292,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'commission-open':dialog.close();requestCommission(Number(id),Number(value)||0);break;
     case 'commission-letter':if(campaignOpen(s,Number(id),0))modal('주민에게서 온 편지',commissionLetter(s,Number(id)));break;
     case 'commission-accept':if(isStageOpen(s,Number(id))&&campaignOpen(s,Number(id),0)){dialog.close();openCommission(Number(id),campaignDone(s,Number(id),0)&&!campaignDone(s,Number(id),1)?1:0);}break;
-    case 'commission-part':if(screen==='commission'&&[0,1].includes(Number(value))&&campaignOpen(s,stage,Number(value))){commissionIndex=Number(value);feedback=null;picked=null;render();}break;
+    case 'commission-part':if(screen==='commission'&&[0,1].includes(Number(value))&&campaignOpen(s,stage,Number(value))){commissionIndex=Number(value);requestCard=null;feedback=null;picked=null;render();}break;
+    case 'request-card':if(screen==='commission'){const n=requestCards(s,stage,requestParts(stage,commissionIndex)).length,k=Number(value);if(Number.isInteger(k)&&k>=0&&k<n){requestCard=k;feedback=null;picked=null;render();}}break;
     case 'commission-choice':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,key,value)){feedback=null;render();}break;
     case 'commission-sort':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,id,value)){picked=null;feedback=null;render();}break;
     case 'commission-submit':if(screen==='commission')submitCommission();break;
@@ -341,6 +348,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'sort-predict':s.inquiry.reclass[round()].prediction=value;s.inquiry.reclass[round()].revealed=false;render();break;
     case 'sort-reveal':{const before=groupRects();if(s.inquiry.reclass[round()].prediction)s.inquiry.reclass[round()].revealed=true;render();flipGroups(before);break;}
     case 'sort-before':{const before=groupRects();s.inquiry.reclass[round()].revealed=false;render();flipGroups(before);break;}
+    case 'case-hint':caseHint=!caseHint;render();break;
     case 'clue-open':clueIndex=Math.max(0,Math.min(4,Number(value)||0));render();break;
     case 'motion-play':motionPlaying=!motionPlaying;motionTime=0;if(motionPlayer){if(motionPlaying)motionPlayer.play();else motionPlayer.pause();paintMotion();}else render();break;
     case 'motion-slow':motionSlow=!motionSlow;if(motionPlayer){motionPlayer.setSlow(motionSlow);paintMotion();}else render();break;

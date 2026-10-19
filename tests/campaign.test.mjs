@@ -37,7 +37,7 @@ test('all three invention choices use their own conditions and survive a round t
  const s=campaignFixture(['protect','warm']);for(const index of [0,1]){solve(s,5,index);assert.equal(claimCommission(s,5,index).ok,true);}const out=restoreExpedition(JSON.stringify(s));assert.equal(out.campaign.records['5-1'].answers.choice,'3');assert.match(campaignReport(out).join('\n'),/추운 곳/);
 });
 test('commission and gallery renderers escape learner names and expose keyboard tap fallbacks',()=>{
- const s=campaignFixture();s.records.designs[0].name='<img src=x onerror=alert(1)>';solve(s,5,0);claimCommission(s,5,0);for(const html of [commissionView(s,{stage:5,commissionIndex:0}),galleryView(s)]){assert.ok(!html.includes('<img src=x'));assert.match(html,/&lt;img/);}const html=commissionView(s,{stage:2,commissionIndex:1});assert.match(html,/<button class="bin-place"/);assert.match(html,/data-drop-action="commission-sort"/);
+ const s=campaignFixture();s.records.designs[0].name='<img src=x onerror=alert(1)>';solve(s,5,0);claimCommission(s,5,0);for(const html of [commissionView(s,{stage:5,commissionIndex:0,requestCard:1}),galleryView(s)]){assert.ok(!html.includes('<img src=x'));assert.match(html,/&lt;img/);}const html=commissionView(s,{stage:2,commissionIndex:1,requestCard:1});assert.match(html,/<button class="bin-place"/);assert.match(html,/data-drop-action="commission-sort"/);
 });
 
 test('one reply validates both parts before awarding either, then survives reload without duplicate credit',()=>{
@@ -54,15 +54,15 @@ test('a partially completed old request keeps archived evidence while the remain
  chooseCommission(s,1,0,'frog-label','shell');solve(s,1,1);assert.equal(claimRequest(s,1).ok,true);
  assert.equal(JSON.stringify(s.campaign.records['1-0']),archive);assert.equal(requestCount(restoreExpedition(JSON.stringify(s))),1);
 });
-test('both request parts are available together with distinct action scopes and one reply',()=>{
- const html=commissionView(campaignFixture(),{stage:2,commissionIndex:0});
- assert.match(html,/data-request-part="0"/);assert.match(html,/data-request-part="1"/);
+test('both request parts are reachable as cards with distinct action scopes and one reply',()=>{
+ const s=campaignFixture(),first=commissionView(s,{stage:2,commissionIndex:0,requestCard:0}),html=commissionView(s,{stage:2,commissionIndex:0,requestCard:1});
+ assert.match(first,/data-request-part="0"/);assert.match(html,/data-request-part="1"/);assert.match(first,/data-action="request-card" data-value="1"/);
  assert.match(html,/data-commission-index="1" data-action="pick"/);
  assert.equal((html.match(/data-action="commission-submit"/g)||[]).length,1);
  assert.doesNotMatch(html,/본 미션|응용 미션/);
 });
 test('invention requests continue the latest finished product first and label both archived projects explicitly',()=>{
- for(const second of ['protect','warm']){const s=campaignFixture(['swim',second]),html=commissionView(s,{stage:5,commissionIndex:0}),letter=commissionLetter(s,5);
+ for(const second of ['protect','warm']){const s=campaignFixture(['swim',second]),html=[0,1].map(requestCard=>commissionView(s,{stage:5,commissionIndex:0,requestCard})).join(''),letter=commissionLetter(s,5);
   assert.ok(html.indexOf('data-request-part="1"')<html.indexOf('data-request-part="0"'));
   assert.match(requestMission(s,5,1).intro,/방금 완성한/);assert.match(requestMission(s,5,0).intro,/먼저 만들었던/);
   assert.ok(letter.includes(requestMission(s,5,1).title));assert.ok(html.includes(RETEST[second].request));assert.ok(html.includes(RETEST.swim.request));
