@@ -57,8 +57,9 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     // NPCs face the player by their building; tapping one opens a speech bubble.
     for(const npc of NPCS){const b=j.buildings[npc.near],d=b?.npc||(b?.door&&[b.door[0]+70,b.door[1]+10]);if(!d)continue;
       const el=doc.createElement('button');el.type='button';el.className='village-resident';el.dataset.npc=npc.id;el.setAttribute('aria-label',npc.name+'에게 말 걸기');
-      const img=doc.createElement('img');img.alt='';img.src=new URL('../assets/residents/'+npc.id+'-v2.webp',import.meta.url).href;img.draggable=false;el.append(img);
+      const img=doc.createElement('img');img.alt='';img.src=BASE+'npc-'+npc.id+'.webp';img.draggable=false;el.append(img);
       const name=doc.createElement('span');name.textContent=npc.name;el.append(name);
+      img.style.animationDelay=-(npc.near*.37)+'s';// staggered idle bob so the residents do not breathe in sync
       Object.assign(el.style,{left:pct(d[0],W),top:pct(d[1],H),zIndex:String(10+Math.round(d[1]))});layer.append(el);
     }
     root.addEventListener('click',onTap);

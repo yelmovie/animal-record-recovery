@@ -74,3 +74,7 @@
 ## 마을 인트로·아웃트로 · 2026-10-18
 
 `story/intro-01.webp`~`outro-04.webp` 초기 이미지 8장은 기존 하루·모리와 마을 건물을 참고해 image_gen으로 생성했다. 이후 사용자 요청으로 Higgsfield Kling v3.0 Pro에서 8컷을 생성해 인트로·아웃트로 각 24초로 편집했다. 전신·얼굴·의상과 건물 역할의 일관성을 프롬프트에 고정했고, 영상 내 UI·한글 글자는 생성하지 않았다. 자막은 앱 코드에서 표시한다. 원본은 `files/videos/story-source-20261018/`, 완료 작업 ID·결과 URL은 `docs/STORY-VIDEO-RESULTS-20261018.json`에 보관한다. 자세한 구성은 `docs/INTRO-OUTRO-VIDEO-PROMPTS.md`를 참고한다.
+
+## 마을 주민 픽셀 스프라이트 · 2026-10-19
+
+`village/npc-{researcher,curator,ranger,detective,engineer}.webp`: 마을 지도에서 3D 느낌 초상화가 픽셀 마을과 어울리지 않아 Higgsfield GPT Image 2.5(high, 투명 배경)로 다시 생성했다. 참고 이미지는 하루 스프라이트 시트(`village/haru.webp`, 화풍)와 기존 주민 초상화(`residents/*-v2.webp`, 인물 외형) 두 장. 생성 후 여백을 자르고 높이 220px 무손실 webp로 저장. 의뢰 화면의 큰 초상화는 기존 `residents/*-v2.webp`를 그대로 쓴다. 작업 ID: researcher 20412e09, curator fe7a3328, ranger 417ff23d, detective 03b97afb, engineer 6282499f. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/npc/`.
