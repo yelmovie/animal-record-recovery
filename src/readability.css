@@ -1,0 +1,32 @@
+/* Electronic-whiteboard floor: no visible text below 16px, key labels scale up on big screens.
+   Loaded last so it wins over the per-screen sheets; selectors come from a 1280×720 scan of every screen. */
+
+/* Map: building labels, their stage numbers and resident name plates */
+.map-markers .map-marker>b{font-size:clamp(16px,1.25vw,20px)}
+.map-markers .map-marker>b>small{font-size:16px}
+.village-layer .village-resident>span{font-size:16px}
+
+/* Home landing */
+.museum-landing .landing-kicker,.museum-landing .landing-tags>span,.museum-landing .landing-bottom>span,.landing-actions .btn.quiet>span{font-size:16px}
+
+/* Activity guide, labels inside activities */
+.mission-guide>.btn.quiet,.client-card>.btn.quiet{font-size:16px}
+.motion-checklist>b,.link-animal .overline,.criterion-sign>span,.link-slot h3>span,.part-spot>small,.pin3d>b,.pin3d>span{font-size:16px}
+.commission-evidence>summary,.record-row>legend>span,.record-candidates>span>b{font-size:16px}
+
+/* Invention studio */
+.studio-eyebrow,.studio-drawing-footer>span,.studio-width>span,.studio-width output,.studio-poster-tag,.studio-idea-animals b{font-size:16px}
+
+/* Reward, gallery, ending */
+.commission-thanks>div>b,.commission-thanks>div>small,.reward-actions .text-button{font-size:16px}
+.museum-heading>.overline,.museum-exhibit>blockquote,.final-record>header>span{font-size:16px}
+.final-record article>div>small,.final-record article>div>span,.final-record .trial-summary,article>div>p.trial-summary{font-size:16px}
+
+/* Dialogs: settings and explorer bag */
+.settings-rows .setting-row>strong,dialog details>small,.bag-summary>span{font-size:16px}
+.inventory-item>b,.inventory-item>small,.collection-grid>article>p{font-size:16px}
+
+/* Rules elsewhere use higher specificity or !important; match them here. */
+.pin-layer .pin3d.zone span,.mission-page .activity-workspace .part-spot>small{font-size:16px}
+.request-part .commission-evidence>summary,.studio-desk .studio-drawing-footer>span,main article>div>p.trial-summary{font-size:16px!important}
+dialog details>small.copyright{display:block;margin-top:4px}

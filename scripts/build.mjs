@@ -27,7 +27,7 @@ for(const item of previous){
   await unlink(target).catch(error=>{if(error.code!=='ENOENT')throw error;});
 }
 const manifest=[];
-files.push('src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css');
+files.push('src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
   await mkdir(path.dirname(dest),{recursive:true});

@@ -4,9 +4,20 @@
     {
       "name": "animal",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["server.mjs"],
+      "runtimeArgs": [
+        "server.mjs"
+      ],
       "port": 4173,
       "url": "http://127.0.0.1:4173"
+    },
+    {
+      "name": "tablet-review",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/preview-tablet.mjs"
+      ],
+      "port": 4187,
+      "url": "http://127.0.0.1:4187"
     }
   ]
 }
