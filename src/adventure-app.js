@@ -1,17 +1,19 @@
 import {researchLines} from './research-report.js';
+import {normalizeStudio} from './studio.js';
+import {mountStudio,downloadStudioArtwork} from './studio-runtime.js';
 import {createMotionPlayer,videoFrameAt} from './motion-video.js';
 import {createStoryPlayer} from './story-player.js';
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
 import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem} from './expedition.js';
-import {art,mori,icon,btn,esc,withParticle} from './presentation.js';
-import {header,page,questPanel,settingsContent,notebookContent,toolContent} from './shell-views.js';
+import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
+import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter} from './shell-views.js';
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d} from './view3d.js';
-import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,campaignHint,runCommissionTrial,restoredPlaces,campaignReport} from './campaign.js';
+import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport} from './campaign.js';
 
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 let s,storageOK=true;
@@ -46,12 +48,8 @@ function setupPanels(){
       host.prepend(nav);host.classList.add('paged-panel');update();
     });
   };
-  tabs('.repair-wall',':scope > .repair-board');
-  tabs('.broadcast-desk',':scope > .broadcast-strip');
-  tabs('.lost-records',':scope > .lost-paper');
   tabs('.museum-exhibits',':scope > .museum-exhibit');
   tabs('.final-inventions',':scope > article');
-  tabs('.request-lab-grid',':scope > section',['모양 시험','결과·이유']);
   tabs('.case-activity',':scope > section',step%2?['사는 곳','움직이는 방법']:['동물 선택','근거 연결']);
   tabs('.verify-steps',':scope > .verify-step',['검증','이유 찾기','기준 고치기']);
   tabs('.design-options',':scope > section',['문제 고르기','특징 관찰','부품 붙이기']);
@@ -61,7 +59,14 @@ function setupPanels(){
     tabs('.lab-summary',':scope > section',['결과 비교','내 생각']);
   }
 }
+let renderedRoute='',unmountStudio=null;
 function render(){
+  unmountStudio?.();unmountStudio=null;
+  if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
+  const route=[screen,stage,step,activeHabitat,s.activeAnimal].join(':');
+  const scroll=route===renderedRoute?[...app.querySelectorAll('.request-part,.motion-observer,.lens-notes')].map(el=>el.scrollTop):[];
+  const expanded=route===renderedRoute?[...app.querySelectorAll('.commission-evidence')].map(el=>el.open):[];
+  renderedRoute=route;
   storyPlayer?.destroy();storyPlayer=null;
   stopMotionFrame();
   motionPlayer?.destroy();motionPlayer=null;
@@ -71,6 +76,9 @@ function render(){
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   setupPanels();
+  if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{s.studio=next;save();}});
+  app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
+  app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   const storyHost=app.querySelector?.('[data-story]');
   if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory});
   // Every close-up photo opens large on tap (all animals, every screen that shows one).
@@ -159,7 +167,7 @@ function enter(id,replay=false){
   if(s.completed.includes(id)){reviewActivities(id);return;}
   if(replay)step=0;
   if(step>0&&!s.activities.includes(`${id}-${step-1}`))step=Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
-  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;clueIndex=0;sketching=false;if(stage===5){const d=s.designs[round()];if(!d.problem){d.problem=round()?(s.designs[0].problem==='protect'?'warm':'protect'):'swim';d.name=PROBLEMS[d.problem].product;}}go('mission');
+  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem){d.problem='swim';d.name=PROBLEMS.swim.product;}}go('mission');
 }
 function reviewActivities(id){
   if(!isStageOpen(s,id))return;const t=STAGES[id-1];
@@ -176,8 +184,8 @@ function advance(){
   stopMotion();
   const result=claimTask(s,stage,step);if(!result.ok){const m=isStageOpen(s,stage)?taskMistake(s,stage,step):null;return say(m?.text||taskHint(stage,step),false,m?.wrong);}
   playSound(s.soundEnabled,true);
-  if(step===STAGES[stage-1].tasks.length-1){save();openCommission(stage,campaignDone(s,stage,0)?1:0);return;}
-  labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;if(stage===5&&!s.designs[round()].problem){const d=s.designs[round()];d.problem=s.designs[0].problem==='protect'?'warm':'protect';d.name=PROBLEMS[d.problem].product;}feedback=null;
+  if(step===STAGES[stage-1].tasks.length-1){save();render();requestCommission(stage);return;}
+  labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
   report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어가자!':'다음 탐구로 이어가자!';if(result.fresh)flyStar();
 }
 // A new star pops in the middle of the screen, then flies into the top counter so the learner sees where it went.
@@ -195,7 +203,7 @@ function back(){labSummary=false;stopMotion();
 }
 function settings(){modal('설정과 탐험 안내',settingsContent(s));}
 function notebook(){modal('우리 탐험대의 가방',notebookContent(s));}
-function tool(id){const t=STAGES[id-1];if(!t||!restoredPlaces(s).includes(id))return;if(!s.toolUses.includes(String(id)))s.toolUses.push(String(id));save();modal(`${icon(t.rewardIcon)} ${t.reward}`,id===1?lensTool('duck',2):toolContent(s,id));}
+function tool(id){const t=STAGES[id-1];if(!t||!restoredPlaces(s).includes(id))return;if(!s.toolUses.includes(String(id)))s.toolUses.push(String(id));save();modal(`${toolArt(t.id)} ${t.reward}`,id===1?lensTool('duck',2):toolContent(s,id));}
 function lensTool(id,index){if(!Object.hasOwn(OBSERVATIONS,id))id='duck';const o=OBSERVATIONS[id][Math.max(0,Math.min(2,index))];return '<div class="inline-options">'+Object.keys(OBSERVATIONS).map(a=>btn(a==='frog'?'개구리':a==='crab'?'게':a==='duck'?'오리':'토끼','lens-animal',a===id?'selected':'quiet','data-id="'+a+'"')).join('')+'</div><div class="detail-crop tool-crop" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+art(id)+'</div><p>'+o.text+'</p><div class="inline-options">'+OBSERVATIONS[id].map((o,i)=>btn(o.label,'lens-part','quiet','data-id="'+id+'" data-value="'+i+'"')).join('')+'</div>';}
 function moveLens(e,surface){const label=document.querySelector('.lens-notes h2'),caption=document.querySelector('.lens-notes>p'),record=document.querySelector('.lens-notes [data-action=observe]');if(label)label.textContent='자유롭게 확대 중';if(caption)caption.textContent='관찰할 부분에서 손을 떼어 줘.';if(record)record.disabled=true;const box=surface.getBoundingClientRect(),x=Math.max(0,Math.min(100,(e.clientX-box.left)/box.width*100)),y=Math.max(0,Math.min(100,(e.clientY-box.top)/box.height*100));for(const el of [surface,document.querySelector('#lens-detail')]){if(el){el.style.setProperty('--focus-x',x);el.style.setProperty('--focus-y',y);}}}
 function stopMotionFrame(){if(motionRAF!==null){window.cancelAnimationFrame(motionRAF);motionRAF=null;}}
@@ -214,7 +222,7 @@ function paintMotion(){
  const play=host.querySelector('[data-action="motion-play"]');if(play){play.textContent=motionPlaying?'멈춤':'재생';play.classList?.toggle('selected',motionPlaying);}
  const slow=host.querySelector('[data-action="motion-slow"]');if(slow)slow.textContent=motionSlow?'보통 속도':'느리게';
  const slider=host.querySelector('#motion-phase');if(slider)slider.value=motionPhase;
- host.querySelectorAll('[data-action="motion-frame"]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.frame)===frame));
+ host.querySelectorAll('[data-action="motion-frame"]').forEach(b=>{b.classList.toggle('selected',Number(b.dataset.frame)===frame);b.setAttribute?.('aria-pressed',String(Number(b.dataset.frame)===frame));});
 }
 function startMotionFrame(){if(typeof window.requestAnimationFrame!=='function')return;motionRAF=window.requestAnimationFrame(time=>{if(!motionPlaying||screen!=='mission'||stage!==3)return;const delta=motionTime?time-motionTime:0;motionTime=time;const old=frameAt(motionPhase);motionPhase=(motionPhase+delta/(motionSlow?100:40))%101;const slider=document.querySelector('#motion-phase');if(slider)slider.value=motionPhase;if(frameAt(motionPhase)!==old)paintMotion();startMotionFrame();});}
 function download(){
@@ -225,7 +233,19 @@ function download(){
 function openCommission(id,index=0){
   if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;stage=id;commissionIndex=index;evidenceOpen=false;go('commission');
 }
+function requestCommission(id,index=0){
+  if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;
+  if(index===2||(campaignDone(s,id,0)&&campaignDone(s,id,1))){openCommission(id,index);return;}
+  modal('편지가 도착했어!',commissionLetter(s,id));
+  playSound(s.soundEnabled,'star');
+  document.querySelector('#announcer').textContent=`${COMMISSIONS[id-1].npc}에게서 편지가 도착했어.`;
+}
 function submitCommission(){
+  if(commissionIndex<2){
+    const result=claimRequest(s,stage);
+    if(!result.ok){commissionIndex=result.index;picked=null;return say(campaignHint(s,stage,commissionIndex));}
+    playSound(s.soundEnabled,result.fresh?'stamp':'correct');restoredFlash=stage;go('reward');return;
+  }
   const result=claimCommission(s,stage,commissionIndex);
   if(!result.ok)return say(campaignHint(s,stage,commissionIndex));
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
@@ -233,6 +253,10 @@ function submitCommission(){
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
 }
 function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dataset.key;
+  if(screen==='commission'&&el.dataset.commissionIndex!==undefined){
+    const part=Number(el.dataset.commissionIndex);if(![0,1,2].includes(part)||!campaignOpen(s,stage,part))return;
+    if(picked&&Number(picked.commissionIndex)!==part)picked=null;commissionIndex=part;
+  }
   switch(action){
     case 'home':go('home');break;
     case 'start':start();break;
@@ -250,12 +274,15 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'replay-stage':enter(Number(id),true);break;
     case 'review-activities':reviewActivities(Number(id)||stage);break;
     case 'review-open':reviewOpen(Number(id),Number(value));break;
-    case 'commission-open':dialog.close();openCommission(Number(id),Number(value)||0);break;
+    case 'commission-open':dialog.close();requestCommission(Number(id),Number(value)||0);break;
+    case 'commission-letter':if(campaignOpen(s,Number(id),0))modal('주민에게서 온 편지',commissionLetter(s,Number(id)));break;
+    case 'commission-accept':if(isStageOpen(s,Number(id))&&campaignOpen(s,Number(id),0)){dialog.close();openCommission(Number(id),campaignDone(s,Number(id),0)&&!campaignDone(s,Number(id),1)?1:0);}break;
+    case 'commission-part':if(screen==='commission'&&[0,1].includes(Number(value))&&campaignOpen(s,stage,Number(value))){commissionIndex=Number(value);feedback=null;picked=null;render();}break;
     case 'commission-choice':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,key,value)){feedback=null;render();}break;
     case 'commission-sort':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,id,value)){picked=null;feedback=null;render();}break;
     case 'commission-submit':if(screen==='commission')submitCommission();break;
-    case 'commission-next':if(screen==='commission'){if(commissionIndex===0)openCommission(stage,1);else if(commissionIndex===1)go('reward');else go('gallery');}break;
-    case 'commission-evidence':if(screen==='commission'){evidenceOpen=!evidenceOpen;campaignDraft(s,stage,commissionIndex).usedTool=true;const toolId=stage===2?1:stage-1;if(restoredPlaces(s).includes(toolId)&&!s.toolUses.includes(String(toolId)))s.toolUses.push(String(toolId));render();}break;
+    case 'commission-next':if(screen==='commission'){if(commissionIndex<2&&campaignDone(s,stage,0)&&campaignDone(s,stage,1))go('reward');else if(commissionIndex===2)go('gallery');}break;
+    case 'commission-evidence':if(screen==='commission'){evidenceOpen=!evidenceOpen;campaignDraft(s,stage,commissionIndex).usedTool=true;const toolId=stage===2?1:stage-1;if(restoredPlaces(s).includes(toolId)&&!s.toolUses.includes(String(toolId)))s.toolUses.push(String(toolId));save();}break;
     case 'commission-level':if(screen==='commission'&&[1,2,3].includes(Number(value))){const d=campaignDraft(s,stage,commissionIndex);d.level=Number(value);d.prediction='';feedback=null;render();}break;
     case 'commission-predict':if(screen==='commission'&&['more','same','less'].includes(value)){campaignDraft(s,stage,commissionIndex).prediction=value;feedback=null;render();}break;
     case 'commission-trial':if(screen==='commission'){if(!runCommissionTrial(s,stage,commissionIndex))say('시험 전에 결과를 예상해 줘. 예상은 틀려도 괜찮아.');else{feedback={good:true,text:'시험 결과를 표에 적었어. 두 항목을 함께 비교해 줘.'};render();}}break;
@@ -263,7 +290,10 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'advance':advance();break;
     case 'previous':previous();break;
     case 'nav-back':back();break;
-    case 'inspect':focusIndex=Math.max(0,Math.min(2,Number(value)||0));render();break;
+    case 'inspect':{
+      if(id){if(!OBSERVE_PAIRS[round()]?.includes(id))return;s.activeAnimal=id;zoom=false;}
+      focusIndex=Math.max(0,Math.min(2,Number(value)||0));feedback=null;render();break;
+    }
     case 'animal-tab':focusIndex=0;if(OBSERVE_PAIRS[round()].includes(id)){s.activeAnimal=id;zoom=false;feedback=null;render();}break;
     case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;if(value&&value!=='right')return say(can3d()?`3D 표본에서 ${o.label} 부분을 다시 살펴봐. 본 모습과 다른 설명이야.`:`렌즈로 ${o.label} 부분을 다시 살펴봐. 그림과 다른 설명이야.`,false,['observe:'+value]);if(!s.observed.includes(id))s.observed.push(id);feedback=null;render();document.querySelector('#announcer').textContent='특징을 기록했어.';break;}
     case 'zoom':zoom=!zoom;render();break;
@@ -288,7 +318,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'source-seen':s.designs[round()].experiment.sourceSeen=true;feedback={good:true,text:'이 특징을 물건의 어느 부분에 쓸까?'};render();break;
     case 'design-choice':if(['feature','structure'].includes(key))s.designs[round()][key]=value;s.designs[round()].explanation='';report=null;feedback=null;render();break;
     // A part dropped on a spot of the product (screen 09); dropped back on the tray it comes off.
-    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback=null;render();break;}
+    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback={good:true,text:key==='pool'?'부품을 상자로 돌려놓았어. 그린 선은 그대로야.':PRODUCTS[d.problem].spots.find(x=>x[0]===key)[1]+'에 부품을 붙였어. 시험해서 기능을 확인해 봐.'};render();break;}
+    case 'studio-download':if(s.studioRecord)downloadStudioArtwork(s.studioRecord).catch(()=>say('그림을 저장하지 못했어. 다시 눌러 줘.'));break;
     case 'sketch-toggle':sketching=!sketching;render();break;
     case 'sketch-undo':s.designs[round()].strokes.pop();render();break;
     case 'test':report=recordTrial(s,round());feedback={good:report.passed,text:report.passed?'특징과 구조가 연결됐어! 이제 아래 설명 카드도 골라 봐.':'바꿀 부분을 찾은 거야! 설계를 고쳐 다시 시험해 봐.'};render();break;
@@ -355,5 +386,5 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 dialog.addEventListener('close',()=>{if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
-enableDrag(app,(card,zone)=>{const {action,dataset}=dropData(card,zone);picked=null;playSound(s.soundEnabled);act(action,{dataset});});
+enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;picked=null;playSound(s.soundEnabled);act(action,{dataset});});
 render();

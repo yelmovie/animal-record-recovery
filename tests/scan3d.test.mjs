@@ -5,18 +5,18 @@ import {activityView} from '../src/mission-views.js';
 import {can3d} from '../src/view3d.js';
 
 const view=(extra={})=>({stage:1,step:0,focusIndex:0,...extra});
-test('screen 02 in 3D asks for a pin on the specimen before the descriptions appear',()=>{
+test('screen 02 offers all three descriptions without a pin and keeps optional pin focus',()=>{
   const s=freshExpedition();
   const before=activityView(s,view({use3d:true,pinned:[]}));
   assert.match(before,/data-3d="scanner"/);assert.match(before,/data-animal="frog"/);
   assert.ok(!before.includes('id="lens-surface"'),'the 2D lens surface is not drawn in 3D');
-  assert.ok(!before.includes('data-action="observe"'),'no description to pick before the pin');
-  assert.match(before,/<b>눈<\/b>을 찾아 눌러/);
+  assert.equal((before.match(/data-action="observe"/g)||[]).length,3);
+  assert.match(before,/부분 버튼으로 바로 살펴봐/);
   const pinned=activityView(s,view({use3d:true,pinned:['frog-eye']}));
   assert.equal((pinned.match(/data-action="observe"/g)||[]).length,3);
   s.observed.push('frog-eye');
   assert.match(activityView(s,view({use3d:true,pinned:[]})),/기록했어/,'a recorded part needs no new pin');
-  assert.match(activityView(s,view({use3d:true,focusIndex:1})),/<b>뒷다리<\/b>를 찾아/);
+  assert.match(activityView(s,view({use3d:true,focusIndex:1})),/<h2>뒷다리<\/h2>/);
 });
 test('without 3D the 2D lens screen is unchanged',()=>{
   const html=activityView(freshExpedition(),view());

@@ -109,7 +109,7 @@ const PARTS={
 export function create(host,opts){
   let model=null,id=null,focus=-1,picked=-1,dead=false;const taps={};
   const stage=createStage(host,{target:[0,.85,0],theta:.8,phi:1.22,radius:5.4,minR:1.8,maxR:9,minPhi:.25,maxPhi:1.6,
-    label:'3D 동물 표본. 한 손가락으로 돌리고 두 손가락으로 확대해. 부위를 누르면 관찰핀이 꽂혀.',
+    label:'3D 동물 표본. 한 손가락으로 돌리고 두 손가락으로 확대해. 아래 부분 버튼으로 살펴보거나 표본을 눌러 관찰핀을 꽂을 수 있어.',
     pickables:()=>model?[model]:[],onTap,onKey:()=>{if(focus>=0)pick(focus);},onFail:e=>opts.onFail?.(e)});
   const {scene}=stage,sun=new T.DirectionalLight('#fff6e0',2.4),fill=new T.DirectionalLight('#dfe9ff',.7);
   sun.position.set(3,6,4);fill.position.set(-4,2,-3);

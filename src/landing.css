@@ -1,0 +1,134 @@
+/* Title artwork and the opening scene share a single, responsive composition. */
+.museum-landing {
+  --landing-inset: clamp(24px, 4.5vw, 88px);
+  height: calc(100dvh - 56px);
+  min-height: 520px;
+  isolation: isolate;
+}
+.museum-landing .landing-world { object-position: center; }
+.museum-landing .landing-shade {
+  background: linear-gradient(90deg, #0b271ee0 0%, #0c291ec2 26%, #102e2266 45%, transparent 68%),
+    linear-gradient(0deg, #10271eb3, transparent 18%);
+}
+.museum-landing .landing-copy {
+  width: min(46%, 680px);
+  max-width: none;
+  height: 100%;
+  padding: 24px 0 64px var(--landing-inset);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(12px, 1.7dvh, 20px);
+}
+.landing-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ecedce;
+  font-size: clamp(14px, 1.1vw, 18px);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.landing-kicker .icon { width: 20px; height: 20px; color: #d9e9a0; }
+.museum-landing .landing-title {
+  width: min(100%, 60dvh);
+  margin: 0 0 0 -8px;
+  font-size: inherit;
+  line-height: 1;
+  letter-spacing: normal;
+  flex-shrink: 0;
+}
+.landing-title img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 12px #071d184d);
+}
+.museum-landing .landing-copy > .landing-description {
+  max-width: none;
+  margin: 0;
+  font-size: clamp(18px, 1.45vw, 25px);
+  line-height: 1.65;
+  color: #fff9e4;
+  word-break: keep-all;
+  text-shadow: 0 2px 8px #08251ecc;
+}
+.landing-description strong { font-weight: 700; }
+.museum-landing .landing-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  font-size: clamp(13px, .95vw, 16px);
+  color: #e4e9c9;
+}
+.museum-landing .landing-tags span { background: none; gap: 6px; white-space: nowrap; }
+.landing-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.museum-landing .landing-start {
+  min-height: 64px;
+  margin: 0;
+  padding: 10px 12px 10px 24px;
+  gap: 24px;
+  border: 1px solid #fff2b8;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #f4e5a3, #e3c56e) !important;
+  color: #293d28 !important;
+  font-size: clamp(18px, 1.2vw, 22px);
+  box-shadow: 0 4px 0 #947330, 0 12px 24px #061c1940 !important;
+  transition: transform .18s ease, filter .18s ease;
+}
+.landing-start-arrow { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #fff8db66; }
+.landing-start-arrow .icon { width: 22px; height: 22px; }
+.museum-landing .landing-start:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.museum-landing .landing-start:active { transform: translateY(2px); }
+.museum-landing .landing-replay {
+  min-height: 48px;
+  padding: 12px 8px;
+  border-color: transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #f2efd9;
+  font-size: 16px;
+  gap: 8px;
+}
+.museum-landing .landing-replay:hover { background: #f8f6d914; border-color: #e2e7cd55; }
+.museum-landing .landing-replay .icon { width: 18px; height: 18px; }
+.museum-landing .landing-actions .btn:focus-visible { outline: 3px solid #fff9cc; outline-offset: 5px; }
+.museum-landing .landing-bottom {
+  left: var(--landing-inset);
+  right: var(--landing-inset);
+  bottom: max(20px, env(safe-area-inset-bottom));
+  align-items: center;
+  font-size: clamp(12px, .9vw, 15px);
+  letter-spacing: .03em;
+}
+.landing-bottom i { margin-inline: 8px; font-style: normal; opacity: .6; }
+@media (min-width: 761px) and (max-height: 760px) {
+  .museum-landing .landing-copy { gap: 12px; padding-top: 16px; padding-bottom: 48px; }
+  .museum-landing .landing-title { width: min(100%, 56dvh); }
+  .museum-landing .landing-start { min-height: 56px; padding-block: 8px; }
+  .museum-landing .landing-description { font-size: 18px; }
+  .landing-actions { gap: 8px; margin-top: 4px; }
+  .museum-landing .landing-replay { font-size: 14px; }
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .museum-landing .landing-copy { width: 51%; }
+  .museum-landing .landing-start { gap: 12px; padding-left: 20px; }
+  .museum-landing .landing-replay { padding-inline: 4px; font-size: 14px; }
+}
+@media (max-width: 760px) {
+  .museum-landing { height: auto; min-height: max(820px, calc(100svh - 56px)); }
+  .museum-landing .landing-world { object-position: 66% center; }
+  .museum-landing .landing-shade { background: linear-gradient(180deg, #0b271ee0, #0c291ec9 40%, #0c291e22 72%, #0b271ec9); }
+  .museum-landing .landing-copy { width: 100%; height: auto; padding: 32px 24px 280px; align-items: center; gap: 16px; text-align: center; }
+  .museum-landing .landing-title { width: min(100%, 440px); margin: 0; }
+  .museum-landing .landing-copy > .landing-description { font-size: 18px; }
+  .museum-landing .landing-tags { justify-content: center; font-size: 13px; gap: 12px; }
+  .landing-actions { justify-content: center; gap: 12px; margin-top: 4px; }
+  .museum-landing .landing-start { min-height: 60px; }
+  .museum-landing .landing-bottom { flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 12px; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .museum-landing .landing-start { transition: none; }
+}

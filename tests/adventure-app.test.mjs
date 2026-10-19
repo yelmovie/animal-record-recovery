@@ -1,4 +1,6 @@
 import * as researchReport from '../src/research-report.js';
+import * as studioModel from '../src/studio.js';
+import * as studioRuntime from '../src/studio-runtime.js';
 import * as motionVideo from '../src/motion-video.js';
 import * as storyPlayer from '../src/story-player.js';
 import * as campaign from '../src/campaign.js';
@@ -24,7 +26,7 @@ function appHarness({fail=false,motion=false,three=false}={}){
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{}}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,status,announcer,slider,inputControl(target){listeners.get('input')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -86,17 +88,19 @@ test('extra dome animals open their own optional videos without changing the req
   a.run("opts3d('dome').onLook('dry')");assert.equal(a.run('activeHabitat'),'dry');assert.equal(a.run("looked.has('dry')"),true);
   assert.equal(a.run('JSON.stringify(s)'),before,'looking records nothing');assert.equal(a.run('claimTask(s,3,0).ok'),false);
   assert.match(a.app.innerHTML,/낙타가 넓적한 발바닥/);assert.match(a.app.innerHTML,/data-motion="camel"/);assert.doesNotMatch(a.app.innerHTML,/data-motion="rabbit"/);
-  a.run("act('habitat',{dataset:{id:'cold'}})");assert.equal(a.run('activeHabitat'),'cold');a.run("opts3d('dome').onLook('cold')");assert.match(a.app.innerHTML,/data-motion="penguin"/);assert.match(a.app.innerHTML,/선택 관찰/);
+  a.run("act('habitat',{dataset:{id:'cold'}})");assert.equal(a.run('activeHabitat'),'cold');a.run("opts3d('dome').onLook('cold')");assert.match(a.app.innerHTML,/data-motion="penguin"/);assert.match(a.app.innerHTML,/추가 관찰/);
   const flat=appHarness();flat.run("s.adminUnlocked=true;enter(3);act('habitat',{dataset:{id:'cold'}})");assert.equal(flat.run('activeHabitat'),'forest','without 3D the extra zones are not selectable');
 });
 
-test('last exploration routes into commissions; sending both restores the place, preserves eighteen stars and updates map targets',()=>{
- const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';stage=1;step=3;screen="mission";advance()');assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),0);assert.equal(a.run('restoredPlaces(s).length'),0);
- for(const [key,value]of Object.entries({'frog-label':'bare','frog-proof':'skin','crab-label':'claw','crab-proof':'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value})}})`);
- a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'commission');assert.equal(a.run('campaignDone(s,1,0)'),true);a.run("act('commission-next',{dataset:{}})");assert.equal(a.run('commissionIndex'),1);
- for(const [key,value]of Object.entries({duck:'feather',rabbit:'fur',same:'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value})}})`);
+test('exploration delivers a dismissible letter and one reply atomically restores both records',()=>{
+ const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';stage=1;step=3;screen="mission";advance()');assert.equal(a.run('screen'),'mission');assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/편지가 도착했어/);
+ a.run("act('close-dialog',{dataset:{}})");assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'mission');
+ a.run("act('commission-open',{dataset:{id:'1'}});act('commission-accept',{dataset:{id:'1'}})");assert.equal(a.run('screen'),'commission');assert.equal(a.dialog.open,false);
+ for(const [key,value]of Object.entries({'frog-label':'bare','frog-proof':'skin','crab-label':'claw','crab-proof':'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value,commissionIndex:'0'})}})`);
+ a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'commission');assert.equal(a.run('campaignDone(s,1,0)'),false);
+ for(const [key,value]of Object.entries({duck:'feather',rabbit:'fur',same:'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value,commissionIndex:'1'})}})`);
  a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'reward');assert.deepEqual([...a.run('restoredPlaces(s)')],[1]);assert.equal(a.run('s.activities.length'),18);assert.match(a.app.innerHTML,/연구원 소라의 답장/);
- a.run("act('map',{dataset:{}})");assert.equal(a.run('selectedStage'),2);a.run("act('gallery',{dataset:{}})");assert.match(a.app.innerHTML,/의뢰 2\/10/);assert.ok(!a.app.innerHTML.includes('발명과 탐험 인증서'));
+ a.run("act('map',{dataset:{}})");assert.equal(a.run('selectedStage'),2);a.run("act('gallery',{dataset:{}})");assert.match(a.app.innerHTML,/주민의 부탁 1\/5/);assert.ok(!a.app.innerHTML.includes('발명과 탐험 인증서'));
 });
 
 test('commission tap placement, evidence, reload, navigation and reset preserve their own state',()=>{
@@ -107,6 +111,20 @@ test('commission tap placement, evidence, reload, navigation and reset preserve 
  a.run("act('reset',{dataset:{}})");assert.equal(a.run('Object.keys(s.campaign.records).length'),0);assert.equal(a.run('Object.keys(s.campaign.drafts).length'),0);assert.equal(a.run('commissionIndex'),0);
 });
 
+test('combined request tap placements retain their part scope and cannot cross into another part',()=>{
+ const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+";openCommission(2,0);act('commission-choice',{dataset:{commissionIndex:'1',key:'criterion',value:'legs'}})");
+ a.run("act('pick',{dataset:{ref:'arrival-hen',id:'hen',commissionIndex:'1'}});act('place',{dataset:{commissionIndex:'1',dropAction:'commission-sort',zone:'yes'}})");
+ assert.equal(a.run("campaignDraft(s,2,1).answers.hen"),'yes');assert.equal(a.run("campaignDraft(s,2,0).answers.hen"),undefined);
+ a.run("toast=()=>{};act('pick',{dataset:{ref:'arrival-bat',id:'bat',commissionIndex:'1'}});act('place',{dataset:{commissionIndex:'0',dropAction:'commission-sort',zone:'yes'}})");
+ assert.equal(a.run("campaignDraft(s,2,1).answers.bat"),undefined);assert.equal(a.run('picked'),null);
+});
+test('body part buttons record correct observations without any pin, reject wrong choices, and move to the next animal',()=>{
+ const a=appHarness({three:true});a.run("enter(1);act('inspect',{dataset:{value:'1'}});act('observe',{dataset:{id:'frog-leg',value:'wrong-0'}})");
+ assert.equal(a.run('s.observed.length'),0);assert.equal(a.run('pinned.size'),0);
+ a.run("act('observe',{dataset:{id:'frog-leg',value:'right'}});act('observe',{dataset:{id:'frog-leg',value:'right'}})");
+ assert.deepEqual([...a.run('s.observed')],['frog-leg']);assert.equal(a.run('pinned.size'),0);
+ a.run("act('inspect',{dataset:{id:'crab',value:'2'}})");assert.equal(a.run('s.activeAnimal'),'crab');assert.equal(a.run('focusIndex'),2);
+});
 test('animal-specific video goals reject a repeated second-scene strategy; wrong predictions have no penalty',()=>{
  const a=appHarness();
  for(const id of ['rabbit','frog','duck','butterfly','crab','marine']){
@@ -121,8 +139,21 @@ test('animal-specific video goals reject a repeated second-scene strategy; wrong
 
 test('completed places open a review picker and any earned activity is reachable without overwriting works',()=>{
  const a=appHarness();a.run('s=restoreExpedition('+JSON.stringify(JSON.stringify(campaignFixture()))+');enter(5)');
- assert.match(a.dialog.innerHTML,/활동 선택/);assert.match(a.dialog.innerHTML,/새 발명 만들기/);
+ assert.match(a.dialog.innerHTML,/활동 선택/);assert.match(a.dialog.innerHTML,/내 발명 그리기/);
  const before=a.run('JSON.stringify(s.records)');a.run("act('review-open',{dataset:{id:'5',value:'2'}})");
  assert.equal(a.run('step'),2);assert.equal(a.run('screen'),'mission');assert.equal(a.dialog.open,false);assert.equal(a.run('JSON.stringify(s.records)'),before);
  const fresh=appHarness();fresh.run("enter(1);act('review-open',{dataset:{id:'1',value:'3'}})");assert.equal(fresh.run('step'),0);
+});
+
+test('guided invention leads to an empty creative studio, then preserves artwork through the exhibition letter',()=>{
+ const a=appHarness();a.run('s=restoreExpedition('+JSON.stringify(JSON.stringify(campaignFixture()))+');stage=5;step=1;screen="mission";advance()');
+ assert.equal(a.run('step'),2);assert.equal(a.run('s.studio.strokes.length'),0);assert.match(a.app.innerHTML,/data-studio="drawing"/);
+ a.run('advance()');assert.equal(a.run('step'),2);
+ a.run('s.studio={...normalizeStudio(null),title:"구름 신발",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:40,y:70}]}]};advance()');
+ assert.equal(a.run('step'),3);assert.match(a.app.innerHTML,/data-studio="showcase"/);assert.doesNotMatch(a.app.innerHTML,/data-action="lab-summary"/);
+ a.run('advance()');assert.equal(a.dialog.open,false);
+ a.run('s.studio.audience="산책하는 친구";s.studio.purpose="발을 따뜻하게 감싸 줘";s.studio.inspiration="토끼의 털";advance()');
+ assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/전시/);assert.equal(a.run('s.studioRecord.title'),'구름 신발');
+ a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'reward');
+ const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,18);
 });

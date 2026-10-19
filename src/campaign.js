@@ -1,5 +1,6 @@
 // Museum commissions extend the core investigations. Awarded evidence is
 // snapshotted separately from editable drafts, so replay cannot rewrite an exhibit.
+import {studioReady} from './studio.js';
 const row=(key,label,options,answer,hint,animal='')=>({key,label,options,answer,hint,animal});
 const yesNo=[['yes','O'],['no','X']];
 export const COMMISSIONS=[
@@ -14,7 +15,7 @@ export const COMMISSIONS=[
    row('rabbit','토끼의 몸을 덮은 것',[['scale','비늘'],['feather','깃털'],['fur','털']],'fur','토끼의 몸 표면 기록을 확인해 봐.','rabbit'),
    row('same','둘의 같은 점',[['web','둘 다 물갈퀴가 있어'],['legs','둘 다 다리로 땅을 디딜 수 있어'],['wing','둘 다 날개가 있어']],'legs','서로 다른 점만 보지 말고, 두 동물 모두에게 있는 부분도 찾아봐.')]},
  ],challenge:{title:'한 문장 바로잡기',intro:'안내 방송에 잘못 들어간 문장 하나를 고쳐 줘.',kind:'repair',rows:[row('fix','“개구리와 게는 둘 다 껍데기가 있다.”',[['both','둘 다 털이 있다'],['crab','게는 껍데기, 개구리는 맨살이 드러나 있다'],['frog','개구리에게만 껍데기가 있다']],'crab','몸 표면 두 기록을 나란히 비교해 봐.')]}},
- {id:2,npc:'연구원 소라',portrait:'researcher',title:'새 동물의 전시 자리를 정해 줘',exhibit:'내 기준 분류 정원',thanks:'네 기준을 따라 다른 연구원도 같은 자리에 카드를 놓았어!',badge:'공정한 분류가',tool:'관찰 렌즈',missions:[
+ {id:2,npc:'큐레이터 준',portrait:'curator',title:'새 동물의 전시 자리를 정해 줘',exhibit:'내 기준 분류 정원',thanks:'네 기준을 따라 다른 연구원도 같은 자리에 카드를 놓았어!',badge:'공정한 분류가',tool:'관찰 렌즈',missions:[
   {title:'분류 표지판 완성',intro:'닭과 박쥐는 둘 다 날개가 있는 칸에 들어갔어. 방문객에게 그 이유를 한 문장으로 알려 줘.',kind:'repair',rows:[
    row('reason','같은 칸에 놓은 까닭',[['fly','둘 다 멀리 잘 날아서'],['wings','둘 다 몸에 날개가 있어서'],['bird','둘 다 새라서']],'wings','얼마나 잘 나는지 대신, 몸에서 확인한 부분을 떠올려 봐.','bat')]},
   {title:'내 기준으로 자리 바꾸기',intro:'이번에는 네가 기준을 정해. 같은 네 동물도 기준이 바뀌면 자리가 달라져. 몸에서 확인할 수 있는 기준이어야 해.',kind:'own-sort',rows:[]},
@@ -35,7 +36,7 @@ export const COMMISSIONS=[
    row('butterfly-body','나비 · 날 때 쓰는 부분',[['wing','날개'],['fin','지느러미'],['web','물갈퀴']],'wing','나비가 위아래로 움직이는 넓은 부분은 무엇일까?','butterfly'),
    row('butterfly-life','나비 · 움직임',[['swim','물속에서 헤엄쳐'],['walk','집게로 걸어'],['fly','날개를 움직여 날아']],'fly','꽃 사이로 이동하는 장면을 떠올려 봐.','butterfly')]},
  ],challenge:{title:'다른 환경의 친구',intro:'관찰 돔에서 만난 낙타와 펭귄도 방송에 초대해 보자.',kind:'broadcast',rows:[row('camel','낙타의 넓적한 발바닥',[['sand','모래 위를 걸을 때 쓰여'],['swim','물고기처럼 헤엄칠 때 쓰여']],'sand','건조한 곳의 모래 바닥을 떠올려 봐.'),row('penguin','펭귄의 짧은 날개',[['swim','바닷물 속을 헤엄칠 때 쓰여'],['sky','하늘을 멀리 날 때 쓰여']],'swim','날개가 있다고 모두 하늘을 나는 것은 아니야.')]}},
- {id:4,npc:'기록 보조원 모리',portrait:'mori',title:'주인 잃은 기록을 돌려줘',exhibit:'동물 기록 안내소',thanks:'이름만 찍지 않고 서로 다른 근거를 함께 확인해 줬구나. 네 안내 카드라면 믿고 찾아갈 수 있어!',badge:'근거 탐정',tool:'서식지 수첩',missions:[
+ {id:4,npc:'기록 안내원 나라',portrait:'detective',title:'주인 잃은 기록을 돌려줘',exhibit:'동물 기록 안내소',thanks:'이름만 찍지 않고 서로 다른 근거를 함께 확인해 줬구나. 네 안내 카드라면 믿고 찾아갈 수 있어!',badge:'근거 탐정',tool:'서식지 수첩',missions:[
   {title:'물가의 기록 두 장',intro:'이름표가 떨어진 기록이야. 몸의 특징과 생활 단서가 모두 맞는 동물을 찾아 줘.',kind:'return',rows:[
    row('a','맨살이 드러난 몸 + 긴 뒷다리',[['duck','오리'],['frog','개구리'],['fish','금붕어']],'frog','깃털·비늘·맨살을 구별한 뒤 다리도 함께 봐.'),
    row('a-place','첫 기록이 발견된 곳',[['pond','연못과 물가'],['desert','건조한 사막'],['sea','깊은 바닷속']],'pond','개구리의 서식지 수첩을 펼쳐 봐.'),
@@ -47,7 +48,7 @@ export const COMMISSIONS=[
    row('b','나선 모양 껍데기 + 다리 없이 기어감',[['crab','게'],['snail','달팽이'],['fish','금붕어']],'snail','껍데기 모양과 이동할 때 쓰는 부분을 함께 살펴봐.'),
    row('b-proof','게와 구별하는 데 쓴 단서',[['shell','껍데기가 있다'],['legs','걷는 다리가 없다'],['small','작다']],'legs','게에게는 여러 걷는 다리가 있어.')]},
  ],challenge:{title:'단서가 모자라!',intro:'“날개가 있다”는 기록 한 줄만 남았어.',kind:'return',rows:[row('fix','지금 할 일',[['guess','바로 나비라고 정한다'],['more','다리 수나 날개 모습을 더 관찰한다'],['all','모두 같은 동물이라고 정한다']],'more','여러 동물이 같은 특징을 가질 수 있어. 하나만 남도록 더 확인해 보자.')]}},
- {id:5,npc:'기술자 도윤',portrait:'engineer',title:'손님에게 맞게 발명품을 고쳐 줘',exhibit:'우리 생활 발명품 전시',thanks:'같은 발명도 쓰는 사람과 조건에 맞게 바꿀 수 있구나. 두 시험의 근거가 붙은 네 발명품을 전시할게!',badge:'생활 발명가',tool:'특징 스캐너',missions:[
+ {id:5,npc:'기술자 도윤',portrait:'engineer',title:'네가 상상한 발명을 전시해 줘',exhibit:'우리 생활 발명품 전시',thanks:'같은 발명도 쓰는 사람과 조건에 맞게 바꿀 수 있구나. 두 시험의 근거가 붙은 네 발명품을 전시할게!',badge:'생활 발명가',tool:'특징 스캐너',missions:[
   {title:'첫 손님의 부탁',intro:'앞서 만든 첫 발명품을 다른 조건에서도 써 보자. 조건은 고정하고 모양만 바꿔 두 번 시험한 뒤 손님에게 맞는 것을 골라 줘.',kind:'retest',rows:[]},
   {title:'두 번째 손님의 부탁',intro:'다른 발명품에도 새 부탁이 왔어. 무조건 크게 만들기보다 손님의 필요와 시험 결과를 함께 생각해.',kind:'retest',rows:[]},
  ],challenge:{title:'전시회 안내 문장',intro:'관람객에게 발명의 원리를 설명해 줘.',kind:'repair',rows:[row('fix','동물 특징을 이용한 발명이란?',[['looks','동물과 똑같은 색으로 칠하는 것'],['use','몸의 특징이 하는 일을 물건의 구조에 이용하는 것'],['magic','동물이 물건을 대신 움직여 주는 것']],'use','물갈퀴의 넓은 면과 오리발의 넓은 면이 하는 일을 연결해 봐.')]}},
@@ -73,6 +74,7 @@ export function missionRows(s,stage,index,d=campaignDraft(s,stage,index)){
  return m.rows;
 }
 export function campaignReady(s,stage,index,d=campaignDraft(s,stage,index)){
+ if(stage===5&&index<2&&s.studioRecord)return studioReady(s.studioRecord);
  const m=commission(stage,index);if(!m)return false;
  if(m.kind==='own-sort'&&!Object.hasOwn(SORT_KEYS,d.answers.criterion))return false;
  if(m.kind==='retest'){
@@ -82,6 +84,7 @@ export function campaignReady(s,stage,index,d=campaignDraft(s,stage,index)){
  return missionRows(s,stage,index,d).every(r=>d.answers[r.key]===r.answer);
 }
 export function campaignHint(s,stage,index){const d=campaignDraft(s,stage,index),m=commission(stage,index);
+ if(stage===5&&index<2&&s.studioRecord)return '내 발명 그리기와 작품 소개를 완성해 줘.';
  if(m.kind==='own-sort'&&!Object.hasOwn(SORT_KEYS,d.answers.criterion))return '먼저 몸에서 확인할 수 있는 분류 기준을 골라 줘.';
  if(m.kind==='retest'){const p=designProblem(s,index),r=RETEST[p];if(!r)return '먼저 두 발명품을 완성해 줘.';const tried=new Set(d.trials.filter(t=>t.problem===p).map(t=>t.level));if(tried.size<2)return '서로 다른 모양을 두 가지 이상 시험해 줘. 시험 전에 예상도 골라 봐.';if(!tried.has(r.target)||d.answers.choice!==String(r.target))return '시험 표의 두 항목과 손님의 부탁을 함께 비교해 봐. 아직 안 해 본 모양도 시험할 수 있어.';return '그 모양을 고른 이유를 손님의 부탁과 연결해 줘.';}
  const bad=missionRows(s,stage,index,d).find(r=>d.answers[r.key]!==r.answer);return bad?(d.answers[bad.key]?`${bad.label}: ${bad.hint}`:`‘${bad.label}’에 아직 기록을 놓지 않았어.`):'';
@@ -89,9 +92,19 @@ export function campaignHint(s,stage,index){const d=campaignDraft(s,stage,index)
 export const campaignDone=(s,stage,index)=>!!s.campaign?.records?.[missionKey(stage,index)];
 export const restoredPlaces=s=>s.completed.filter(id=>!s.campaign||s.campaign.grandfathered.includes(id)||(campaignDone(s,id,0)&&campaignDone(s,id,1)));
 export const commissionCount=s=>Object.keys(s.campaign?.records||{}).filter(k=>!k.endsWith('-2')).length;
-export function campaignOpen(s,stage,index){return !!commission(stage,index)&&s.completed.includes(stage)&&(index===0||campaignDone(s,stage,index-1));}
+export const requestCount=s=>COMMISSIONS.filter(c=>campaignDone(s,c.id,0)&&campaignDone(s,c.id,1)).length;
+export function campaignOpen(s,stage,index){return !!commission(stage,index)&&s.completed.includes(stage)&&(index<2||(campaignDone(s,stage,0)&&campaignDone(s,stage,1)));}
+// Keep the two legacy evidence keys, but validate the whole letter before awarding anything.
+export function claimRequest(s,stage){
+ if(!campaignOpen(s,stage,0))return {ok:false,index:0};
+ const pending=[0,1].filter(i=>!campaignDone(s,stage,i));
+ const index=pending.find(i=>!campaignReady(s,stage,i));
+ if(index!==undefined)return {ok:false,index};
+ for(const i of pending)claimCommission(s,stage,i);
+ return {ok:true,fresh:pending.length>0,restored:true};
+}
 export function claimCommission(s,stage,index){
- if(!campaignOpen(s,stage,index)||!campaignReady(s,stage,index))return {ok:false};
+ if(!campaignOpen(s,stage,index)||(index===1&&!campaignDone(s,stage,0))||!campaignReady(s,stage,index))return {ok:false};
  const c=ensureCampaign(s),key=missionKey(stage,index),fresh=!c.records[key];if(fresh)c.records[key]=clone(campaignDraft(s,stage,index));return {ok:true,fresh,restored:restoredPlaces(s).includes(stage)};
 }
 export function chooseCommission(s,stage,index,key,value){
@@ -116,4 +129,4 @@ export function normalizeCampaign(raw,s){
  }
  return out;
 }
-export function campaignReport(s){return COMMISSIONS.flatMap(c=>[0,1,2].filter(i=>campaignDone(s,c.id,i)).flatMap(i=>{const d=s.campaign.records[missionKey(c.id,i)],m=commission(c.id,i);return [`${c.title} · ${m.title}`, ...(m.kind==='own-sort'?[`내 기준: ${SORT_KEYS[d.answers.criterion]}`]:m.kind==='sort'?[m.criterion]:[]), ...missionRows(s,c.id,i,d).map(r=>`${r.label}: ${r.options.find(o=>o[0]===d.answers[r.key])?.[1]||''}`),...(m.kind==='retest'?[`시험: ${d.trials.map(t=>RETEST[t.problem].levels[t.level-1]).join(' / ')}`,`선택 이유: ${RETEST[designProblem(s,i)]?.reason||''}`]:[]),''];}));}
+export function campaignReport(s){return COMMISSIONS.flatMap(c=>[0,1,2].filter(i=>campaignDone(s,c.id,i)).flatMap(i=>{if(c.id===5&&i<2&&s.studioRecord)return i===0?['우리 생활 발명품 전시 · '+s.studioRecord.title,'자유 발명 그림과 작품 소개를 전시했어.','']:[];const d=s.campaign.records[missionKey(c.id,i)],m=commission(c.id,i);return [`${c.title} · ${m.title}`, ...(m.kind==='own-sort'?[`내 기준: ${SORT_KEYS[d.answers.criterion]}`]:m.kind==='sort'?[m.criterion]:[]), ...missionRows(s,c.id,i,d).map(r=>`${r.label}: ${r.options.find(o=>o[0]===d.answers[r.key])?.[1]||''}`),...(m.kind==='retest'?[`시험: ${d.trials.map(t=>RETEST[t.problem].levels[t.level-1]).join(' / ')}`,`선택 이유: ${RETEST[designProblem(s,i)]?.reason||''}`]:[]),''];}));}

@@ -29,5 +29,7 @@ export function researchLines(s){
   '','[발견한 환경]',...DISCOVERIES.filter(d=>s.discovered.includes(d.id)).map(d=>`${ANIMALS[d.animal].name}: ${d.text}`),'','[더 살펴본 움직임]',...Object.values(DOME_ZONES).filter(d=>s.inquiry.motion[d.animal]!==undefined).map(d=>`${d.animalName} · ${MOTIONS[d.animal].part}: ${d.text}`),'','[동물 안내 카드]',...CASES.filter((_,i)=>s.records.cases[i]).map(c=>c.sentence),
   '','[완성해 보관한 발명]',...completed.flatMap(d=>workLines(d,'완성품')),
   ...(drafts.length?['[작업 중인 초안 — 완성품 인증에 포함되지 않음]',...drafts.flatMap(d=>workLines(d,'초안'))]:[]),
-  '[내 전시관 의뢰 기록]',...campaignReport(s),'[소개하기 — 선택 활동]','어떤 동물의 특징을 빌렸어?','첫 시험에서 무엇을 고쳤어?','친구의 발명과 내 발명은 어떻게 다를까?'];
+  ...studioLines(s),
+  '[내 전시관 의뢰 기록]',...campaignReport(s),'[친구와 나눠 볼 이야기]','어디에서 발명 아이디어를 얻었어?','누구를 도와주고 싶어?','친구의 발명과 내 발명은 어떻게 다를까?'];
 }
+function studioLines(s){const record=s.studioRecord||s.studio;if(!record)return [];return ['[내가 상상하고 그린 발명 — '+(s.studioRecord?'완성 작품':'작업 중')+']',`작품 이름: ${record.title||'아직 이름을 짓지 않았어'}`,`누구를 위한 발명: ${record.audience||'작성 전'}`,`쓰는 방법: ${record.purpose||'작성 전'}`,`아이디어를 얻은 곳: ${record.inspiration||'작성 전'}`,`내가 그린 선: ${record.strokes?.length||0}개`,'작품 그림과 소개는 공방 또는 전시관의 ‘작품 카드 저장’에서 PNG 파일로 저장할 수 있어.',''];}

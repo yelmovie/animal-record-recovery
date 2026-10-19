@@ -86,7 +86,8 @@ main.map-page{height:calc(100dvh - 56px);min-height:0}.map-page .world-viewport{
  .mission-page .lab-controls>p,.mission-page .lab-results>p,.mission-page .lab-controls>label{font-size:20px}
  .mission-page .trial-pair :is(b,p){font-size:18px}
 }
-.landing-replay{min-height:48px}
+.btn.landing-replay{min-height:48px;color:#fffdf2;background:#102b255c;border-color:#e2e7cd99}
+.btn.landing-replay:hover:not(:disabled){background:#102b25a6;border-color:#e2e7cd}
 
 /* Progress is persistent; the learning area does not carry the last task's success message. */
 .top-icons{justify-content:space-between;gap:12px}

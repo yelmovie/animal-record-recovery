@@ -1,3 +1,4 @@
+import {COMMISSIONS} from './campaign.js';
 // Main map: a top-down pixel village (screen 01). Same contract as createTrailMap: {move(id), destroy()}.
 // Layout (map size, building rects and doors, walk nodes/edges, sprite cells) comes from assets/village/village.json.
 const BASE=new URL('../assets/village/',import.meta.url).href;
@@ -6,11 +7,7 @@ const ready=typeof fetch==='function'?fetch(BASE+'village.json').then(r=>r.ok?r.
 export const villageReady=()=>ready;
 
 // Story NPCs stand by a building; their line changes once that place is restored.
-export const NPCS=[
-  {id:'researcher',name:'연구원 소라',near:'2',before:'박물관 표지판이 뒤죽박죽이야. 누가 봐도 같은 답이 나오는 기준이 필요해!',after:'표지판이 다시 정리됐어. 기준을 잘 세워 줘서 고마워!'},
-  {id:'ranger',name:'레인저 하늘',near:'3',before:'생태 돔에서 동물들이 사는 곳 기록이 사라졌어. 같이 찾아 줄래?',after:'돔에 동물들이 돌아왔어! 숲과 연못과 바다 기록이 다 모였어.'},
-  {id:'engineer',name:'기술자 도윤',near:'5',before:'동물의 몸에서 아이디어를 빌리면 멋진 물건을 만들 수 있어. 공방에서 기다릴게!',after:'네 발명품이 전시회에서 인기 최고야!'},
-];
+export const NPCS=COMMISSIONS.map(c=>({id:c.portrait,name:c.npc,near:String(c.id),before:c.title,after:c.thanks}));
 export const npcLine=(npc,completed)=>completed.length===5?'다섯 기록이 모두 돌아왔어! 크리스털이 다시 빛나.':completed.includes(Number(npc.near))?npc.after:npc.before;
 
 // Shortest walk between two nodes of the village graph.
@@ -58,7 +55,12 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     if(haru){haru.x=start[0];haru.y=start[1];draw(haru);}
     if(mori){mori.x=start[0]-40;mori.y=start[1]+6;draw(mori);mori.el.dataset.npc='mori';}
     // NPCs face the player by their building; tapping one opens a speech bubble.
-    for(const npc of NPCS){const b=j.buildings[npc.near],d=b?.npc||(b?.door&&[b.door[0]+70,b.door[1]+10]);const sp=sprite(npc.id,'npc',npc.name);if(!sp||!d)continue;sp.x=d[0];sp.y=d[1];draw(sp);sp.el.dataset.npc=npc.id;sp.el.tabIndex=0;sp.el.setAttribute('role','button');}
+    for(const npc of NPCS){const b=j.buildings[npc.near],d=b?.npc||(b?.door&&[b.door[0]+70,b.door[1]+10]);if(!d)continue;
+      const el=doc.createElement('button');el.type='button';el.className='village-resident';el.dataset.npc=npc.id;el.setAttribute('aria-label',npc.name+'에게 말 걸기');
+      const img=doc.createElement('img');img.alt='';img.src=new URL('../assets/residents/'+npc.id+'-v2.webp',import.meta.url).href;img.draggable=false;el.append(img);
+      const name=doc.createElement('span');name.textContent=npc.name;el.append(name);
+      Object.assign(el.style,{left:pct(d[0],W),top:pct(d[1],H),zIndex:String(10+Math.round(d[1]))});layer.append(el);
+    }
     root.addEventListener('click',onTap);
     function onTap(e){
       const npcEl=e.target.closest?.('[data-npc]');

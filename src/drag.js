@@ -1,4 +1,15 @@
-// Finger/mouse drag for [data-drag] cards onto [data-drop-action] zones (screens 03, 04, 07).
+// Prefer an explicit label; on the product itself snap to the nearest physical attachment point.
+export function nearestAttachment(point,spots){return spots.reduce((best,spot)=>{const d=(spot.x-point.x)**2+(spot.y-point.y)**2;return !best||d<best.distance?{...spot,distance:d}:best;},null);}
+function dropTarget(root,card,x,y){
+ const hit=root.ownerDocument.elementFromPoint(x,y),exact=hit?.closest('[data-drop-action]');
+ if(exact&&root.contains(exact))return exact;
+ if(!card.classList.contains('part-card'))return null;
+ const assembly=root.querySelector('.assembly'),box=assembly?.getBoundingClientRect();
+ if(!box||x<box.left-20||x>box.right+20||y<box.top-20||y>box.bottom+20)return null;
+ const points=[...assembly.querySelectorAll('.part-spot[data-anchor-x]')].map(el=>({el,x:box.left+Number(el.dataset.anchorX)/320*box.width,y:box.top+Number(el.dataset.anchorY)/260*box.height}));
+ return nearestAttachment({x,y},points)?.el||null;
+}
+// Finger/mouse drag, with tap → place as an equally valid fallback.
 // A tap without movement is left to the normal click, which runs the pick → place fallback.
 export function enableDrag(root,onDrop){
   if(typeof root?.addEventListener!=='function')return;
@@ -10,14 +21,15 @@ export function enableDrag(root,onDrop){
       if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<8)return;
       const r=d.card.getBoundingClientRect();d.ghost=d.card.cloneNode(true);d.ghost.classList.add('drag-ghost');d.ghost.removeAttribute('data-action');
       Object.assign(d.ghost.style,{width:r.width+'px',height:r.height+'px',left:r.left+'px',top:r.top+'px'});document.body.append(d.ghost);d.card.classList.add('dragging');
+      root.classList.toggle('part-dragging',d.card.classList.contains('part-card'));root.setPointerCapture?.(e.pointerId);
     }
     e.preventDefault();d.ghost.style.transform=`translate(${e.clientX-d.x}px,${e.clientY-d.y}px) rotate(-3deg)`;
-    const zone=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-drop-action]')||null;
+    const zone=dropTarget(root,d.card,e.clientX,e.clientY);
     if(zone!==d.zone){d.zone?.classList.remove('drop-hover');zone?.classList.add('drop-hover');d.zone=zone;}
   });
   const end=e=>{
     if(!d||e.pointerId!==d.id)return;const {card,ghost,zone}=d;d=null;if(!ghost)return;
-    ghost.remove();card.classList.remove('dragging');zone?.classList.remove('drop-hover');
+    ghost.remove();card.classList.remove('dragging');zone?.classList.remove('drop-hover');root.classList.remove('part-dragging');if(root.hasPointerCapture?.(e.pointerId))root.releasePointerCapture(e.pointerId);
     // The click that follows a drag must not also count as a tap.
     suppress=true;setTimeout(()=>{suppress=false;},0);
     if(zone&&e.type!=='pointercancel')onDrop(card.dataset,zone.dataset);
