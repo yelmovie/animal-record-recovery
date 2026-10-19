@@ -10,7 +10,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['dome-ground','nature-materials','workshop-atlas','terrain-atlas','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),
   ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page','drop'].map(f=>`assets/sfx/${f}.mp3`),
-  'assets/music/village-theme.mp3',
+  'assets/music/village-theme.mp3',...['compare','sorting','verify','link','experiment','showcase'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),

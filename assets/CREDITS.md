@@ -94,3 +94,7 @@
 | videos/story/outro.mp4 음성 트랙 | Laid-Back Groove (Suno, seoulmovie) 2:26~2:50 | 아웃트로(파이널) 음악. 조용한 구간이 끝나고 커지는 순간이 16초 "드디어 문이 열렸어!"에 오도록 잘라 영상에 합침. 무음 원본은 `files/videos/outro-silent-20261018.mp4` |
 
 설정 창의 배경음·효과음 슬라이더로 따로 조절하고, '소리' 스위치를 끄면 둘 다 멈춘다. 상업적 사용 가능 여부는 Suno 계정 요금제를 따른다(유료 요금제에서 만든 곡만 상업 이용 가능).
+
+## 활동 장면 배경 · 2026-10-19
+
+`scenes/{compare,sorting,verify,link,experiment,showcase}.webp`: 그림 없이 CSS 칸만 있던 활동 6개(1장 비교, 2장 분류·검증, 3장 생활 잇기, 5장 실험 비교·작품 소개)의 배경. Higgsfield GPT Image 2.5(high, 16:9)로 생성, 참고 이미지는 `investigation.webp`·`adventure/museum-opening.webp`(화풍). 1600px WebP(q80)로 줄임. 작업 ID: compare 2ab985e8, sorting c80aba04, verify cc9a7d40, link b49a89a3, experiment e207af88, showcase 1a34fd86. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/scenes/`.

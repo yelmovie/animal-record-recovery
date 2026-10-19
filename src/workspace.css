@@ -170,3 +170,21 @@ dialog:has(.settings-body)[open]{display:flex}
 .settings-card .copyright{font-weight:800;margin-top:14px}
 .btn.danger{background:#a4442e;color:#fffdf2;box-shadow:0 3px 0 #6e2a1b}.btn.danger:hover:not(:disabled){background:#8d3824}
 .settings-card p,.settings-card li,.settings-about dt,.settings-about dd{font-size:18px}.settings-card summary{font-size:19px}
+/* Scene art behind activities that used to be flat CSS boxes (assets/scenes, Higgsfield 2026-10-19).
+   The art sits on the activity container; the working panels become paper cards so text stays readable. */
+.compare-board{--scene:url('../assets/scenes/compare.webp')}
+.sorting-workspace{--scene:url('../assets/scenes/sorting.webp')}
+.verify-lab{--scene:url('../assets/scenes/verify.webp')}
+.link-activity{--scene:url('../assets/scenes/link.webp')}
+.experiment-lab{--scene:url('../assets/scenes/experiment.webp')}
+.studio-showcase{--scene:url('../assets/scenes/showcase.webp')}
+.mission-page .activity-workspace>:is(.compare-board,.sorting-workspace,.verify-lab,.link-activity,.experiment-lab,.studio-showcase){background:#e9e3cf var(--scene) center/cover no-repeat;padding:14px;gap:12px}
+/* Text panels stay near-opaque; big drop areas let the scene show through, the cards on them stay solid. */
+.activity-workspace :is(.compare-photo,.verify-results,.verify-steps,.lab-controls,.lab-results,.studio-introduction,.compare-slot,.link-slot){background-color:#fffcf0eb;border-radius:14px;box-shadow:0 8px 22px #2a3a2638}
+.activity-workspace :is(.compare-board>.card-tray,.sorting-workspace>.card-tray,.link-activity>.card-tray){background-color:#fffcf0b8;border-radius:14px;box-shadow:0 8px 22px #2a3a2630}
+.activity-workspace .gate.gate-yes{background-color:#eef7dcbf;border-radius:14px}.activity-workspace .gate.gate-no{background-color:#f6efdcbf;border-radius:14px}
+.activity-workspace :is(.verify-results,.verify-steps,.lab-controls,.lab-results){padding:12px 14px}
+.activity-workspace .studio-poster{background-color:#fffcf0f2;border-radius:14px;box-shadow:0 10px 26px #2a3a2640}
+.activity-workspace .sorting-workspace>.criterion-sign{background:#fffcf0eb;box-shadow:0 6px 16px #2a3a2630}
+.activity-workspace :is(.link-activity>.link-animal,.studio-exhibit>.studio-heading){width:fit-content;max-width:100%;margin-inline:auto;padding:6px 18px;border-radius:14px;background:#fffcf0eb;box-shadow:0 6px 16px #2a3a2630}
+.activity-workspace .studio-exhibit>.studio-heading{margin:0 auto 10px}
