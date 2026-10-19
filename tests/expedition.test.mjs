@@ -89,8 +89,9 @@ test('older classification progress and completed commissions survive the shorte
  s.campaign={version:1,grandfathered:[],drafts:{},records:{'2-0':{answers:{hen:'yes',bat:'yes',bee:'yes',snail:'no'}}}};
  const restored=restoreExpedition(JSON.stringify(s));assert.deepEqual(restored.activities,['2-0','2-1']);assert.ok(restored.completed.includes(2));assert.equal(restored.campaign.records['2-0'].answers.reason,'wings');assert.ok((restored.step[2]||0)<2);
 });
-test('music and effect volumes survive a reload and reject values outside 0–1',()=>{
-  const s=freshExpedition();s.musicVolume=.3;s.sfxVolume=0;
-  const out=restoreExpedition(JSON.stringify(s));assert.equal(out.musicVolume,.3);assert.equal(out.sfxVolume,0);
-  const bad=restoreExpedition(JSON.stringify({...s,musicVolume:4,sfxVolume:'loud'}));assert.equal(bad.musicVolume,.5);assert.equal(bad.sfxVolume,.8);
+test('music switch and volume survive a reload; older saves follow the old single sound switch',()=>{
+  const s=freshExpedition();s.musicVolume=.3;s.musicOn=false;
+  const out=restoreExpedition(JSON.stringify(s));assert.equal(out.musicVolume,.3);assert.equal(out.musicOn,false);assert.equal(out.soundEnabled,true);
+  assert.equal(restoreExpedition(JSON.stringify({...s,musicVolume:4})).musicVolume,.5);
+  const {musicOn,...old}=s;assert.equal(restoreExpedition(JSON.stringify({...old,soundEnabled:false})).musicOn,false);
 });

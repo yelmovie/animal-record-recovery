@@ -10,7 +10,8 @@ import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter} from './shell-views.js';
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
-import {playSound,silence,playMusic,setVolumes} from './audio.js';
+import {playSound,silence,playMusic,setMusicVolume} from './audio.js';
+import {TEACHER_CODE} from './settings-content.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport} from './campaign.js';
@@ -60,8 +61,8 @@ function setupPanels(){
   }
 }
 let renderedRoute='',unmountStudio=null;
-// One village theme everywhere; the outro video carries its own finale music, so the theme stops there.
-function syncMusic(){setVolumes({music:s.musicVolume,sfx:s.sfxVolume});playMusic(!s.soundEnabled||screen==='outro'?null:'village');}
+// One village theme everywhere; it keeps quiet while a story video plays (the outro carries its own finale music).
+function syncMusic(){setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'?null:'village');}
 function render(){
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
@@ -83,7 +84,7 @@ function render(){
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   const storyHost=app.querySelector?.('[data-story]');
-  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.soundEnabled?s.musicVolume??.5:0});
+  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.musicOn!==false?s.musicVolume??.5:0});
   // Every close-up photo opens large on tap (all animals, every screen that shows one).
   app.querySelectorAll?.('.detail-crop').forEach(el=>{el.dataset.action='photo-zoom';el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','사진 크게 보기');});
   sync3d();
@@ -139,7 +140,7 @@ function flipGroups(before){
 }
 function go(where){labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 function say(text,good=false,wrong=[]){if(!good)playSound(s.soundEnabled,'retry');feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
-function modal(title,content){stopMotion();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();}
+function modal(title,content){stopMotion();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   if(s.introSeen){go('map');return;}
   openStory('intro');
@@ -204,7 +205,9 @@ function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
   if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission')step=route.step;if(screen==='commission')commissionIndex=route.commissionIndex;feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
 }
-function settings(){modal('설정과 탐험 안내',settingsContent(s));}
+// teacherTools: the demo switch shows only after the teacher code is typed on this open dialog.
+let teacherTools=false;
+function settings(){modal('설정',settingsContent(s,{teacherTools}));}
 function notebook(){modal('우리 탐험대의 가방',notebookContent(s));}
 function tool(id){const t=STAGES[id-1];if(!t||!restoredPlaces(s).includes(id))return;if(!s.toolUses.includes(String(id)))s.toolUses.push(String(id));save();modal(`${toolArt(t.id)} ${t.reward}`,id===1?lensTool('duck',2):toolContent(s,id));}
 function lensTool(id,index){if(!Object.hasOwn(OBSERVATIONS,id))id='duck';const o=OBSERVATIONS[id][Math.max(0,Math.min(2,index))];return '<div class="inline-options">'+Object.keys(OBSERVATIONS).map(a=>btn(a==='frog'?'개구리':a==='crab'?'게':a==='duck'?'오리':'토끼','lens-animal',a===id?'selected':'quiet','data-id="'+a+'"')).join('')+'</div><div class="detail-crop tool-crop" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+art(id)+'</div><p>'+o.text+'</p><div class="inline-options">'+OBSERVATIONS[id].map((o,i)=>btn(o.label,'lens-part','quiet','data-id="'+id+'" data-value="'+i+'"')).join('')+'</div>';}
@@ -359,12 +362,14 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'lens-part':modal('확대 관찰',lensTool(id,Number(value)||0));break;
     case 'notebook':notebook();break;
     case 'tool':tool(Number(id));break;
-    case 'settings':settings();break;
-    case 'sound':s.soundEnabled=!s.soundEnabled;if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
+    case 'settings':teacherTools=false;settings();break;
+    case 'teacher-open':if(document.querySelector('#teacher-code')?.value.trim()===TEACHER_CODE){teacherTools=true;settings();}else toast('확인 코드가 맞지 않아요.',el);break;
+    case 'music-toggle':s.musicOn=s.musicOn===false;save();syncMusic();settings();break;
+    case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
     case 'admin':s.adminUnlocked=!s.adminUnlocked;if(screen==='mission'&&!isStageOpen(s,stage))go('map');else render();settings();break;
     case 'close-dialog':dialog.close();break;
-    case 'reset-confirm':modal('탐험 기록을 처음부터 시작할까?',`<p>이 브라우저의 관찰·탐험 별·발명·이전 기록이 지워져.</p><div class="dialog-actions">${btn('계속 탐험할래','close-dialog','secondary')}${btn('처음부터 시작','reset','primary')}</div>`);break;
-    case 'reset':stopMotion();focusIndex=0;clueIndex=0;s=freshExpedition();ensureCampaign(s);commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;
+    case 'reset-confirm':modal('탐험 기록을 초기화할까요?',`<p>관찰 기록·탐험 별·탐사 도구·주민 답장·발명 작품과 그림·이전 버전 기록이 이 기기에서 모두 지워져요. 소리 설정은 그대로 남아요.</p><div class="dialog-actions">${btn('취소','close-dialog','secondary','autofocus')}${btn('기록 지우기','reset','danger')}</div>`);break;
+    case 'reset':{const sound={soundEnabled:s.soundEnabled,musicOn:s.musicOn,musicVolume:s.musicVolume};stopMotion();focusIndex=0;clueIndex=0;s=Object.assign(freshExpedition(),sound);}ensureCampaign(s);commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;
     case 'ending':if(restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
     case 'retry-images':render();break;
@@ -379,12 +384,13 @@ const CLICK_SOUND={sound:null,enter:null,notebook:'page',settings:'page',tool:'p
 function toast(text,anchor,speaker){let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),speaker?4200:2600);}
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{
-  if(e.target.id==='music-volume'||e.target.id==='sfx-volume'){const v=Number(e.target.value)/100;s[e.target.id==='music-volume'?'musicVolume':'sfxVolume']=v;e.target.nextElementSibling.textContent=e.target.value;setVolumes({music:s.musicVolume,sfx:s.sfxVolume});if(e.target.id==='music-volume')syncMusic();save();return;}
+  if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value;setMusicVolume(s.musicVolume);syncMusic();save();return;}
   if(e.target.id==='experiment-note'||e.target.id==='peer-note'){s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();return;}
   if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();save();return;}
   if(e.target.id==='invention-name'){const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
-document.addEventListener('change',e=>{if(e.target.id==='sfx-volume')playSound(s.soundEnabled,'tap');if(['experiment-level','motion-phase'].includes(e.target.id))render();});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='teacher-code'){e.preventDefault();act('teacher-open',document.querySelector('[data-action=teacher-open]'));}});
+document.addEventListener('change',e=>{if(['experiment-level','motion-phase'].includes(e.target.id))render();});
 function sketchPoint(e,svg){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return [Math.round(Math.max(0,Math.min(320,p.x))),Math.round(Math.max(0,Math.min(260,p.y)))];}
 document.addEventListener('pointerdown',e=>{const surface=e.target.closest?.('#lens-surface');if(surface&&!e.target.closest('[data-action]')){e.preventDefault();lensPointer={surface,id:e.pointerId};surface.setPointerCapture(e.pointerId);moveLens(e,surface);return;}if(e.target.id==='motion-phase')stopMotion(false);if(e.target.id!=='drawing-surface'||!sketching||stage!==5||step%2!==0)return;e.preventDefault();const svg=e.target.closest('svg'),d=s.designs[round()];if(d.strokes.length>=30)return say('선은 30개까지야. 마지막 선을 지우고 다시 그려 줘.');const points=[sketchPoint(e,svg)],line=document.createElementNS('http://www.w3.org/2000/svg','polyline');d.strokes.push(points);line.setAttribute('points',points[0].join(','));svg.querySelector('#sketch-lines').append(line);svg.setPointerCapture(e.pointerId);stroke={svg,points,line,id:e.pointerId};});
 document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPointer.id){moveLens(e,lensPointer.surface);return;}if(!stroke||e.pointerId!==stroke.id)return;e.preventDefault();if(stroke.points.length<250){stroke.points.push(sketchPoint(e,stroke.svg));stroke.line.setAttribute('points',stroke.points.map(p=>p.join(',')).join(' '));}});

@@ -1,4 +1,4 @@
-let context,sfxVolume=.8;
+let context;const sfxVolume=.8;
 const active=new Set();
 // Pixabay sound files (see assets/CREDITS.md). Gains even out the sources' peaks (tap ≈.33, others ≈.5); tune by ear on the classroom tablet.
 const FILES={tap:.5,correct:.55,retry:.75,star:1.4,stamp:.7,fanfare:.8,talk:.45,step:.6,door:.45,page:.7,drop:.8};
@@ -48,8 +48,8 @@ function fade(el,to,done){
   requestAnimationFrame(tick);
 }
 const start=el=>el.play().then(()=>{if(el===music)fade(el,musicVolume);}).catch(()=>{ /* Waiting for a tap. */ });
-export function setVolumes({music:m,sfx}={}){
-  if(Number.isFinite(sfx))sfxVolume=Math.min(1,Math.max(0,sfx));
+// Only the music has a volume slider; effects stay at a fixed level so feedback is always heard.
+export function setMusicVolume(m){
   if(Number.isFinite(m)){musicVolume=Math.min(1,Math.max(0,m));if(music&&!music.paused)music.volume=musicVolume;}
 }
 export function stopMusic(){

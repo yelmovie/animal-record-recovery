@@ -132,7 +132,7 @@ img.restore-photo{display:block;width:100%;height:100%;object-fit:contain;backgr
 @media(max-width:1000px){.mission-guide{grid-template-columns:140px auto minmax(0,1fr)}.mission-guide .guide-help{display:none}.mission-guide .guide-buddy .mori{display:none}.mission-guide .guide-buddy p{font-size:15px!important}.mission-page .activity-workspace{grid-template-columns:minmax(0,1fr) minmax(320px,1fr)}.unified-request .client-card p{display:none}.request-part .repair-board{grid-template-columns:80px minmax(0,1fr)}.request-part{padding:8px}.request-part .commission-choice{font-size:16px!important}.motion-steps>li{font-size:13px}.motion-video{max-height:200px}}
 @media(max-width:700px){.mission-page{grid-template-rows:auto minmax(0,1fr) 56px}.mission-guide{grid-template-columns:1fr auto;padding:6px;min-height:0;gap:4px}.mission-guide .guide-buddy{grid-column:1/-1}.mission-guide h1{font-size:18px}.mission-guide .guide-buddy p{padding:0}.mission-page .activity-workspace{display:flex;flex-direction:column}.mission-page .habitat-scene{min-height:400px}.mission-page .scan-scene,.mission-page .inquiry-specimen{min-height:350px}.mission-page .habitat-notes{flex-shrink:0;overflow:visible}.unified-request.commission-page{height:auto;min-height:calc(100dvh - 56px);overflow:visible;display:block}.unified-request .commission-tabs{margin-bottom:6px}.unified-request .commission-tabs .btn{font-size:14px!important}.unified-request .client-card{padding:6px 10px;gap:8px}.unified-request .client-card h1{font-size:18px}.unified-request .client-card>.btn{display:none}.unified-request .commission-work{display:block;overflow:visible;max-height:none}.request-parts{grid-template-columns:1fr}.request-part{overflow:visible;min-height:0}.unified-request .commission-feedback{margin:8px 0}.unified-request .commission-footer{position:sticky;bottom:0;background:#fffbed;padding:6px;z-index:2}.reward-screen{padding:12px}.reward-display{grid-template-columns:1fr 140px;gap:12px}.restore-card{height:220px}.reward-tool h2{font-size:22px}.reward-tool .reward-badge{width:130px;height:130px}.reward-screen .commission-thanks .commission-npc{width:55px;height:90px}.reward-screen .commission-thanks{padding:8px;gap:10px}.village-resident>span{font-size:9px;padding:2px;bottom:-10px}.village-resident{min-width:30px;min-height:40px}.letter-postmark{display:none}}
 /* Settings: background music and sound effect volume sliders under the sound switch. */
-.volume-row{display:grid;grid-template-columns:5.5em minmax(0,1fr) 2.6em;align-items:center;gap:14px;min-height:60px;padding:10px 17px;border:1px solid #d9e2c7;border-radius:13px;background:#eff2e2}
+.volume-row{display:grid;grid-template-columns:max-content minmax(0,1fr) 2.6em;align-items:center;gap:14px;min-height:60px;padding:10px 17px;border:1px solid #d9e2c7;border-radius:13px;background:#eff2e2}
 .volume-row b{font-size:18px}
 .volume-row input{width:100%;height:44px;margin:0;accent-color:var(--green);cursor:pointer}
 .volume-row output{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
@@ -152,3 +152,21 @@ img.restore-photo{display:block;width:100%;height:100%;object-fit:contain;backgr
   .activity-workspace>.case-photo-panel:not(.evidence-panel)~.case-activity.paged-panel{position:absolute;top:12px;right:12px;width:var(--case-card);height:auto;max-height:calc(100% - 24px);overflow:auto;border:1px solid #d9e2c7;border-radius:16px;background:#fffdf3f2;box-shadow:0 12px 30px #1f3a2c2e;z-index:2}
 
 }
+/* Settings dialog (iscream layout): title and footer stay put, only the body scrolls. */
+dialog:has(.settings-body){display:flex;flex-direction:column;overflow:hidden}
+dialog:has(.settings-body)[open]{display:flex}
+.settings-body{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:2px 4px 8px;margin:0 -4px}
+.settings-footer{display:flex;justify-content:space-between;gap:12px;padding-top:14px;margin-top:4px;border-top:1px solid var(--line)}
+.settings-replays{display:flex;flex-wrap:wrap;gap:10px}.settings-replays>.btn.wide{flex-basis:100%}.settings-replays>.btn.quiet{flex:1 1 200px}
+.settings-lock{width:100%;margin:0;color:var(--muted)}
+.settings-card{border:1px solid #d9e2c7;border-radius:13px;background:#f6f8ee;padding:0 16px}
+.settings-card>summary{min-height:56px;display:flex;align-items:center;font-weight:800;font-size:18px;cursor:pointer}
+.settings-card[open]>summary{border-bottom:1px dashed #cdd7b7;margin-bottom:10px}
+.settings-card>p,.settings-card>small{display:block;margin:0 0 10px;line-height:1.65}
+.settings-card.inner{background:#fffdf5;margin:6px 0 12px}
+.settings-card h4{margin:12px 0 4px;font-size:17px}.settings-card ul{margin:0 0 8px;padding-left:20px;line-height:1.7}
+.settings-about{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:0 0 10px}.settings-about dt{font-weight:800}.settings-about dd{margin:0}
+.teacher-code{display:flex;gap:8px;margin:0 0 10px}.teacher-code input{flex:1;min-height:48px;padding:10px 14px;border:1px solid #c2cea7;border-radius:10px;background:#fffdf3;font-size:18px}
+.settings-card .copyright{font-weight:800;margin-top:14px}
+.btn.danger{background:#a4442e;color:#fffdf2;box-shadow:0 3px 0 #6e2a1b}.btn.danger:hover:not(:disabled){background:#8d3824}
+.settings-card p,.settings-card li,.settings-about dt,.settings-about dd{font-size:18px}.settings-card summary{font-size:19px}
