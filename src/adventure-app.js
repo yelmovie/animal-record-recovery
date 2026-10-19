@@ -10,7 +10,7 @@ import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter} from './shell-views.js';
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
-import {playSound,silence} from './audio.js';
+import {playSound,silence,playMusic,setVolumes} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport} from './campaign.js';
@@ -60,6 +60,8 @@ function setupPanels(){
   }
 }
 let renderedRoute='',unmountStudio=null;
+// Map and story screens get the curious village theme; focused activity screens get the calmer groove.
+function syncMusic(){setVolumes({music:s.musicVolume,sfx:s.sfxVolume});playMusic(!s.soundEnabled?null:['mission','commission'].includes(screen)?'workshop':'village');}
 function render(){
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
@@ -67,6 +69,7 @@ function render(){
   const scroll=route===renderedRoute?[...app.querySelectorAll('.request-part,.motion-observer,.lens-notes')].map(el=>el.scrollTop):[];
   const expanded=route===renderedRoute?[...app.querySelectorAll('.commission-evidence')].map(el=>el.open):[];
   renderedRoute=route;
+  syncMusic();
   storyPlayer?.destroy();storyPlayer=null;
   stopMotionFrame();
   motionPlayer?.destroy();motionPlayer=null;
@@ -86,7 +89,7 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,onTalk:talk,onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
     // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.
     if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;save();
@@ -154,7 +157,7 @@ function finishStory(){
   go(target);
 }
 // Village NPCs (and Mori) speak in a bubble above them and in the tip line.
-function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${next.name}이야. 건물을 누르면 같이 갈게!`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;toast(line,el,npc.name);}
+function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${next.name}이야. 건물을 누르면 같이 갈게!`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;playSound(s.soundEnabled,'talk');toast(line,el,npc.name);}
 function selectMap(id){
   if(!Number.isInteger(id)||!STAGES[id-1])return;selectedStage=id;arrived=!isStageOpen(s,id);
   document.querySelectorAll('.map-marker[data-action="map-select"]').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});
@@ -163,7 +166,7 @@ function selectMap(id){
   else document.querySelector('#travel-text').textContent=`모리: ${id-1}장 기록을 먼저 되찾으면 이 길이 열려.`;
 }
 function enter(id,replay=false){
-  if(!isStageOpen(s,id))return;stage=id;step=s.step[id]??Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
+  if(!isStageOpen(s,id))return;playSound(s.soundEnabled,'door');stage=id;step=s.step[id]??Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
   if(s.completed.includes(id)){reviewActivities(id);return;}
   if(replay)step=0;
   if(step>0&&!s.activities.includes(`${id}-${step-1}`))step=Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
@@ -371,14 +374,17 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
 let toastTimer=0;
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
+// Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
+const CLICK_SOUND={sound:null,enter:null,notebook:'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),speaker?4200:2600);}
-document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(el.dataset.action!=='sound')playSound(s.soundEnabled);act(el.dataset.action,el);});
+document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{
+  if(e.target.id==='music-volume'||e.target.id==='sfx-volume'){const v=Number(e.target.value)/100;s[e.target.id==='music-volume'?'musicVolume':'sfxVolume']=v;e.target.nextElementSibling.textContent=e.target.value;setVolumes({music:s.musicVolume,sfx:s.sfxVolume});if(e.target.id==='music-volume')syncMusic();save();return;}
   if(e.target.id==='experiment-note'||e.target.id==='peer-note'){s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();return;}
   if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();save();return;}
   if(e.target.id==='invention-name'){const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
-document.addEventListener('change',e=>{if(['experiment-level','motion-phase'].includes(e.target.id))render();});
+document.addEventListener('change',e=>{if(e.target.id==='sfx-volume')playSound(s.soundEnabled,'tap');if(['experiment-level','motion-phase'].includes(e.target.id))render();});
 function sketchPoint(e,svg){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return [Math.round(Math.max(0,Math.min(320,p.x))),Math.round(Math.max(0,Math.min(260,p.y)))];}
 document.addEventListener('pointerdown',e=>{const surface=e.target.closest?.('#lens-surface');if(surface&&!e.target.closest('[data-action]')){e.preventDefault();lensPointer={surface,id:e.pointerId};surface.setPointerCapture(e.pointerId);moveLens(e,surface);return;}if(e.target.id==='motion-phase')stopMotion(false);if(e.target.id!=='drawing-surface'||!sketching||stage!==5||step%2!==0)return;e.preventDefault();const svg=e.target.closest('svg'),d=s.designs[round()];if(d.strokes.length>=30)return say('선은 30개까지야. 마지막 선을 지우고 다시 그려 줘.');const points=[sketchPoint(e,svg)],line=document.createElementNS('http://www.w3.org/2000/svg','polyline');d.strokes.push(points);line.setAttribute('points',points[0].join(','));svg.querySelector('#sketch-lines').append(line);svg.setPointerCapture(e.pointerId);stroke={svg,points,line,id:e.pointerId};});
 document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPointer.id){moveLens(e,lensPointer.surface);return;}if(!stroke||e.pointerId!==stroke.id)return;e.preventDefault();if(stroke.points.length<250){stroke.points.push(sketchPoint(e,stroke.svg));stroke.line.setAttribute('points',stroke.points.map(p=>p.join(',')).join(' '));}});
@@ -387,5 +393,5 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 dialog.addEventListener('close',()=>{if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
-enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;picked=null;playSound(s.soundEnabled);act(action,{dataset});});
+enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;picked=null;playSound(s.soundEnabled,'drop');act(action,{dataset});});
 render();

@@ -25,6 +25,11 @@
 | sfx/star.mp3 | 별이 위쪽 별 칸에 도착 | https://pixabay.com/sound-effects/film-special-effects-collect-points-190037/ | Liecio | 2026-10-17 |
 | sfx/stamp.mp3 | 복구 완료 도장 | https://pixabay.com/sound-effects/film-special-effects-stamp-81635/ | freesound_community | 2026-10-17 |
 | sfx/fanfare.mp3 | 장소 복구 팡파르 | https://pixabay.com/sound-effects/musical-level-up-fanfare-151765/ | Universfield | 2026-10-17 |
+| sfx/talk.mp3 | 마을 주민에게 말 걸기 | https://pixabay.com/sound-effects/film-special-effects-retro-blip-236676/ | driken5482 | 2026-10-19 |
+| sfx/step.mp3 | 마을에서 하루가 걸을 때 발걸음 | https://pixabay.com/sound-effects/film-special-effects-walk-on-grass-1-291984/ | joentnt | 2026-10-19 |
+| sfx/door.mp3 | 건물(활동)에 들어갈 때 | https://pixabay.com/sound-effects/household-opening-door-411632/ | soundreality | 2026-10-19 |
+| sfx/page.mp3 | 가방·설정·도구 창 열기 | https://pixabay.com/sound-effects/film-special-effects-turn-a-page-336933/ | creatorshome | 2026-10-19 |
+| sfx/drop.mp3 | 카드를 끌어다 놓을 때 | https://pixabay.com/sound-effects/film-special-effects-ui-drop-success-521938/ | soundshelfstudio | 2026-10-19 |
 
 ## 동물 그림 추가 (2026-10-17)
 
@@ -78,3 +83,14 @@
 ## 마을 주민 픽셀 스프라이트 · 2026-10-19
 
 `village/npc-{researcher,curator,ranger,detective,engineer}.webp`: 마을 지도에서 3D 느낌 초상화가 픽셀 마을과 어울리지 않아 Higgsfield GPT Image 2.5(high, 투명 배경)로 다시 생성했다. 참고 이미지는 하루 스프라이트 시트(`village/haru.webp`, 화풍)와 기존 주민 초상화(`residents/*-v2.webp`, 인물 외형) 두 장. 생성 후 여백을 자르고 높이 220px 무손실 webp로 저장. 의뢰 화면의 큰 초상화는 기존 `residents/*-v2.webp`를 그대로 쓴다. 작업 ID: researcher 20412e09, curator fe7a3328, ranger 417ff23d, detective 03b97afb, engineer 6282499f. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/npc/`.
+
+## 배경음 · 2026-10-19
+
+사용자가 Suno로 만들어 프로젝트에 넣어 준 곡 2개. 원본은 `files/music-source-20261019/`(깃 제외), 웹용은 앞뒤 무음 제거·음량 맞춤(-20 LUFS)·112kbps로 다시 인코딩했다.
+
+| 파일 | 원래 제목 | 쓰는 곳 |
+|---|---|---|
+| music/village-theme.mp3 | Curious Little Step (Suno, seoulmovie) | 홈·마을 지도·보상·전시관·영상 화면 |
+| music/workshop-theme.mp3 | Laid-Back Groove (Suno, seoulmovie) | 탐색 활동·주민 의뢰 화면 |
+
+설정 창의 배경음·효과음 슬라이더로 따로 조절하고, '소리' 스위치를 끄면 둘 다 멈춘다. 상업적 사용 가능 여부는 Suno 계정 요금제를 따른다(유료 요금제에서 만든 곡만 상업 이용 가능).

@@ -116,7 +116,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],activeAnimal:'frog',compares:[{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
+export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,musicVolume:.5,sfxVolume:.8,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],activeAnimal:'frog',compares:[{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -156,6 +156,7 @@ export function restoreExpedition(raw){
     if(![3,VERSION].includes(input.version))return base;
     const out=base;out.inquiry=normalizeInquiry(input.inquiry);
     for(const key of ['soundEnabled','adminUnlocked','introSeen'])if(typeof input[key]==='boolean')out[key]=input[key];
+    for(const key of ['musicVolume','sfxVolume'])if(Number.isFinite(input[key])&&input[key]>=0&&input[key]<=1)out[key]=input[key];
     out.stage=Number.isInteger(input.stage)&&input.stage>=1&&input.stage<=5?input.stage:1;
     out.step=Object.fromEntries(Object.entries(record(input.step)).filter(([k,v])=>/^[1-5]$/.test(k)&&Number.isInteger(v)&&v>=0&&v<STAGES[Number(k)-1].tasks.length));
     out.observed=uniqueStrings(input.observed,Object.values(OBSERVATIONS).flat().map(o=>o.id));

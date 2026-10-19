@@ -24,7 +24,7 @@ export const buildingAt=(buildings,[x,y])=>Object.entries(buildings).find(([id,{
 // The village json may give nodes as an array or an object; edges as index or id pairs.
 function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
 
-export function createVillage(root,{position='entrance',completed=[],flash=null,onArrive,onTalk}={}){
+export function createVillage(root,{position='entrance',completed=[],flash=null,onArrive,onTalk,onStep}={}){
   let active=true,built=false,frame=null,api={move(){},destroy(){active=false;}};
   const pending=[];
   const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -80,7 +80,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}if(arriveId!=null)onArrive?.(arriveId);return;}
       cancelAnimationFrame(frame);let last=0;root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;
       const step=t=>{if(!active)return;const dt=Math.min(last?t-last:16,100);last=t;const p=pts[0],dx=p[0]-haru.x,dy=p[1]-haru.y,d=Math.hypot(dx,dy),v=dt*.24;
-        if(d<=v){haru.x=p[0];haru.y=p[1];pts.shift();}else{haru.x+=dx/d*v;haru.y+=dy/d*v;haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=v/14;}
+        if(d<=v){haru.x=p[0];haru.y=p[1];pts.shift();}else{const was=Math.floor(haru.f/3);haru.x+=dx/d*v;haru.y+=dy/d*v;haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=v/14;if(Math.floor(haru.f/3)>was)onStep?.();}
         trail.push([haru.x,haru.y,haru.dir]);if(trail.length>40)trail.shift();
         if(mori&&trail.length>14){const [mx,my,md]=trail[trail.length-14];const mdx=mx-mori.x,mdy=my-mori.y;if(Math.hypot(mdx,mdy)>.5){mori.f+=Math.hypot(mdx,mdy)/14;mori.dir=md;}mori.x=mx;mori.y=my;}
         draw(haru);draw(mori);
