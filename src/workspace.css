@@ -137,3 +137,18 @@ img.restore-photo{display:block;width:100%;height:100%;object-fit:contain;backgr
 .volume-row input{width:100%;height:44px;margin:0;accent-color:var(--green);cursor:pointer}
 .volume-row output{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
 .volume-row.muted{opacity:.55}.volume-row.muted input{cursor:not-allowed}
+/* Invention design (5장 부품 붙이기): the desk spans the whole workspace and the choices float on it as a card,
+   so the assembly grows with the screen instead of sharing half the width with a mostly empty panel. */
+@media(min-width:901px){
+  .activity-workspace:has(>.design-bench){--design-card:clamp(300px,28vw,420px);position:relative;display:block}
+  .activity-workspace>.design-bench{position:absolute;inset:0;container-type:size;padding:14px calc(var(--design-card) + 28px) 14px 18px;justify-content:center}
+  .mission-page .activity-workspace>.design-bench>.assembly{max-width:none;max-height:none;flex:0 0 auto;height:auto;width:min(100cqw,(100cqh - 160px)*1.2308)}
+  .design-options>.design-name{margin-top:14px;padding-top:12px;border-top:1px dashed #cdd7b7}
+  .design-name>label{display:block;font-weight:800;margin-bottom:6px}.design-name>input{width:100%;padding:12px 15px;border:1px solid #c2cea7;border-radius:10px;background:#fffdf3;color:#375138;font-size:18px;min-height:51px}
+  .activity-workspace>.design-options.paged-panel{position:absolute;top:12px;right:12px;width:var(--design-card);height:auto;max-height:calc(100% - 24px);overflow:auto;justify-content:flex-start;border:1px solid #d9e2c7;border-radius:16px;background:#fffdf3f2;box-shadow:0 12px 30px #1f3a2c2e;z-index:2}
+  /* 4장 생활 안내(사는 곳·움직이는 방법): the scene fills the workspace, the short question floats as a card. */
+  .activity-workspace:has(>.case-photo-panel:not(.evidence-panel)){--case-card:clamp(320px,30vw,440px);position:relative;display:block}
+  .activity-workspace>.case-photo-panel:not(.evidence-panel){position:absolute;inset:0;padding-right:calc(var(--case-card) + 28px)}
+  .activity-workspace>.case-photo-panel:not(.evidence-panel)~.case-activity.paged-panel{position:absolute;top:12px;right:12px;width:var(--case-card);height:auto;max-height:calc(100% - 24px);overflow:auto;border:1px solid #d9e2c7;border-radius:16px;background:#fffdf3f2;box-shadow:0 12px 30px #1f3a2c2e;z-index:2}
+
+}
