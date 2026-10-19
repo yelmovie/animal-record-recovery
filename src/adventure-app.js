@@ -60,8 +60,8 @@ function setupPanels(){
   }
 }
 let renderedRoute='',unmountStudio=null;
-// Map and story screens get the curious village theme; focused activity screens get the calmer groove.
-function syncMusic(){setVolumes({music:s.musicVolume,sfx:s.sfxVolume});playMusic(!s.soundEnabled?null:['mission','commission'].includes(screen)?'workshop':'village');}
+// One village theme everywhere; the outro video carries its own finale music, so the theme stops there.
+function syncMusic(){setVolumes({music:s.musicVolume,sfx:s.sfxVolume});playMusic(!s.soundEnabled||screen==='outro'?null:'village');}
 function render(){
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
@@ -83,7 +83,7 @@ function render(){
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   const storyHost=app.querySelector?.('[data-story]');
-  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory});
+  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.soundEnabled?s.musicVolume??.5:0});
   // Every close-up photo opens large on tap (all animals, every screen that shows one).
   app.querySelectorAll?.('.detail-crop').forEach(el=>{el.dataset.action='photo-zoom';el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','사진 크게 보기');});
   sync3d();

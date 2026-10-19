@@ -90,7 +90,7 @@
 
 | 파일 | 원래 제목 | 쓰는 곳 |
 |---|---|---|
-| music/village-theme.mp3 | Curious Little Step (Suno, seoulmovie) | 홈·마을 지도·보상·전시관·영상 화면 |
-| music/workshop-theme.mp3 | Laid-Back Groove (Suno, seoulmovie) | 탐색 활동·주민 의뢰 화면 |
+| music/village-theme.mp3 | Curious Little Step (Suno, seoulmovie) | 게임 전체 배경음(아웃트로 제외) |
+| videos/story/outro.mp4 음성 트랙 | Laid-Back Groove (Suno, seoulmovie) 2:26~2:50 | 아웃트로(파이널) 음악. 조용한 구간이 끝나고 커지는 순간이 16초 "드디어 문이 열렸어!"에 오도록 잘라 영상에 합침. 무음 원본은 `files/videos/outro-silent-20261018.mp4` |
 
 설정 창의 배경음·효과음 슬라이더로 따로 조절하고, '소리' 스위치를 끄면 둘 다 멈춘다. 상업적 사용 가능 여부는 Suno 계정 요금제를 따른다(유료 요금제에서 만든 곡만 상업 이용 가능).

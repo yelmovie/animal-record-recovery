@@ -18,3 +18,12 @@ test('story failure keeps a visible escape path and disposing prevents stale com
  const h=harness();h.video.emit('error');assert.match(h.status.textContent,/건너뛰기/);h.player.destroy();h.video.emit('ended');assert.equal(h.ended,0);assert.equal(h.listeners.size,0);assert.equal(h.video.paused,true);
  const completed=harness();completed.video.emit('ended');assert.equal(completed.ended,1);completed.player.destroy();
 });
+
+test('outro plays its finale music at the set volume and falls back to muted when the browser blocks sound',async()=>{
+ const node=()=>({textContent:'',hidden:false,setAttribute(){}}),caption={...node(),querySelector:()=>node()};
+ const make=blocked=>{const video={muted:true,volume:1,currentTime:0,duration:24,paused:true,tries:0,addEventListener(){},removeEventListener(){},play(){this.tries++;if(blocked&&!this.muted)return Promise.reject(new Error('NotAllowedError'));this.paused=false;return Promise.resolve();},pause(){},removeAttribute(){},querySelectorAll(){return[];},load(){}};
+  const host={dataset:{story:'outro'},querySelector:s=>s==='video'?video:s==='.story-caption'?caption:node()};return {video,host};};
+ const ok=make(false);createStoryPlayer(ok.host,{volume:.4});assert.equal(ok.video.muted,false);assert.equal(ok.video.volume,.4);
+ const blocked=make(true);createStoryPlayer(blocked.host,{volume:.4});await new Promise(r=>setTimeout(r));assert.equal(blocked.video.muted,true);assert.equal(blocked.video.paused,false,'video still plays muted');
+ const quiet=make(false);createStoryPlayer(quiet.host,{volume:0});assert.equal(quiet.video.muted,true);
+});

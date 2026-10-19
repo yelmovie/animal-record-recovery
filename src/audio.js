@@ -40,7 +40,7 @@ export function playSound(enabled,kind='tap'){
 
 // Background music (Suno tracks, see assets/CREDITS.md): one looping <audio>, faded in and out.
 // Browsers block audio before the first tap, so a blocked start is retried on the next pointerdown.
-const MUSIC={village:'village-theme',workshop:'workshop-theme'};
+const MUSIC={village:'village-theme'};
 let music=null,musicKey=null,musicVolume=.5;
 function fade(el,to,done){
   const from=el.volume,start=performance.now();
@@ -56,7 +56,7 @@ export function stopMusic(){
   const el=music;music=null;musicKey=null;
   if(el)fade(el,0,()=>{el.pause();el.removeAttribute('src');el.load();});
 }
-// key: 'village' | 'workshop' | null (silence).
+// key: 'village' | null (silence).
 export function playMusic(key){
   if(!key||!MUSIC[key]||!musicVolume||typeof Audio!=='function'){stopMusic();return;}
   if(key===musicKey&&music){if(music.paused)start(music);return;}
