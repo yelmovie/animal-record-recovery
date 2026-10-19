@@ -229,3 +229,58 @@ dialog:has(.settings-body)[open]{display:flex}
 @keyframes card-fill{from{transform:scale(.97);background:#fff3bc}to{transform:none;background:#fff}}
 @media(prefers-reduced-motion:reduce){.card-result li.filled{animation:none}}
 @media(max-width:900px){.card-body{grid-template-columns:1fr}.card-result{position:static}}
+/* Deck compaction: the evidence notebook folds into the card corner, the result board stays beside the questions. */
+.request-card{position:relative;gap:6px;padding:10px 12px}
+.request-card .request-part-heading{padding-right:230px;min-height:40px}.request-card .request-part-heading h2{font-size:19px}
+.request-card>.commission-evidence{position:absolute;top:8px;right:10px;width:220px;z-index:4;background:#eff3e3}
+.request-card>.commission-evidence[open]{position:absolute;width:min(460px,70%);max-height:70%;overflow:auto;box-shadow:0 12px 30px #34482b33}
+.request-card>.commission-evidence summary{min-height:44px;padding:8px 12px}
+.request-card .request-part-intro{font-size:16px;line-height:1.45;margin:0}
+.request-card .record-row legend{font-size:17px!important;margin-bottom:4px}
+.card-result{gap:6px;padding:10px}
+.card-result-animal{position:absolute;top:6px;right:8px}.card-result{position:relative}.card-result-animal b{display:none}.card-result-animal .animal{width:64px;height:52px}
+.card-result h3{min-height:52px;padding-right:70px;font-size:17px}
+.card-result li{padding:4px 8px}.card-result li small{font-size:15px}
+@media(max-height:650px) and (min-width:701px){
+ .unified-request .client-card{min-height:0;padding:4px 12px}.unified-request .client-card>p,.unified-request .client-card small{display:none}.unified-request .client-card .commission-npc{width:40px;height:40px}.unified-request .client-card h1{font-size:18px}
+ .unified-request .commission-work.request-deck{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto}
+ .request-deck>.deck-nav,.request-deck>.request-parts{grid-column:1/-1}
+ .request-deck>.commission-feedback{grid-column:1;min-height:0}.request-deck>.commission-footer{grid-column:2;padding:0}
+ .request-deck>.commission-feedback .mori{display:none}
+ .request-card .request-part-intro{display:none}
+}
+@media(min-width:901px){
+ .request-card .card-questions .record-row{display:flow-root;padding:6px 10px}
+ .request-card .card-questions .record-row legend{float:left;width:150px;margin:10px 10px 0 0;padding:0}
+ .request-card .card-questions .record-options{margin-left:160px}
+}
+.card-result ol{gap:4px}.card-result li{gap:2px 8px}.card-stamp{min-height:22px}
+.card-result li{flex-wrap:nowrap}.card-result li small{flex:0 0 112px;flex-basis:112px}.card-result li b{min-width:0}
+.request-card .card-questions .record-options{grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}
+@media(min-width:901px) and (max-width:1100px){.card-body{grid-template-columns:minmax(0,1fr) minmax(200px,.62fr)}.request-card .card-questions .record-row legend{width:112px}.request-card .card-questions .record-options{margin-left:120px}.request-card .commission-choice{font-size:16px!important;padding:6px 8px}.card-result li small{flex-basis:96px}}
+@media(max-height:650px) and (min-width:701px){
+ .unified-request .client-card{min-height:44px;padding:2px 10px;gap:8px}.unified-request .client-card .commission-npc{width:36px;height:36px}.unified-request .client-card .btn{min-height:44px;padding:4px 10px}
+ .card-result-animal{display:none}.card-result h3{min-height:0;padding-right:0}.card-result{padding:8px}.card-stamp{min-height:0;font-size:14px}
+ .request-card .request-part-heading{min-height:36px}
+}
+/* Own-sort card: pool and O/X bins side by side so the whole sort fits one card. */
+.request-card .arrival-sort{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.request-card .arrival-sort>.criterion-chooser,.request-card .arrival-sort>.interaction-note,.request-card .arrival-sort>.sort-question{grid-column:1/-1;margin:0}
+.request-card .criterion-chooser>div{display:flex;flex-wrap:wrap;gap:6px}.request-card .criterion-chooser legend{margin:0 0 4px}
+.request-card .arrival-pool{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0;padding:6px;align-content:start}
+.request-card .arrival-bins{display:contents}
+.request-card .arrival-bin{min-height:0;padding:6px;display:flex;flex-direction:column;gap:4px}
+.request-card .arrival-bin>div{display:grid;grid-template-columns:1fr 1fr;gap:4px;align-content:start}
+.request-card .arrival-card,.request-card .arrival-bin .arrival-card{width:auto;min-height:0;padding:4px}
+.request-card .arrival-card .animal{height:58px}
+.request-card .arrival-card small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px!important;line-height:1.35}
+@media(max-height:650px){.request-card .arrival-card small{display:none}.request-card .arrival-card .animal{height:48px}}
+.request-card .criterion-chooser{display:flow-root;padding:4px 8px}.request-card .criterion-chooser legend{float:left;margin:10px 10px 0 0;padding:0}
+.request-card .criterion-chooser .btn{min-height:44px}
+@media(max-height:650px){.request-card .arrival-card .animal{height:40px}.request-card .arrival-card b{font-size:16px}.request-card .bin-place{min-height:44px}}
+.request-card .arrival-sort>.interaction-note{display:block;font-size:15px!important;line-height:1.3}
+.request-card .arrival-card{display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:6px;text-align:left;min-height:48px}.request-card .arrival-card .animal{grid-row:1/3;height:44px;width:48px}.request-card .arrival-card b{align-self:end}.request-card .arrival-card small{align-self:start}
+@media(max-height:700px){.request-card .arrival-card small{display:none}.request-card .arrival-card b{grid-row:1/3;align-self:center}.request-card .criterion-chooser .btn{padding:6px 10px}.request-card{padding-bottom:6px}}
+.request-card .arrival-bin .arrival-card small{display:none}.request-card .arrival-bin .arrival-card b{grid-row:1/3;align-self:center}
+.request-card .arrival-bin h3{margin:0}.request-card .arrival-bin>div{grid-template-columns:repeat(auto-fill,minmax(108px,1fr))}.request-card .criterion-chooser{padding-block:2px}
+.bench-status{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:2px 0 4px}.bench-status .design-checklist{margin:0}.bench-status .work-status{margin:0;font-size:15px;color:#6b6a52}.design-checklist li{min-height:34px;padding:2px 10px}
