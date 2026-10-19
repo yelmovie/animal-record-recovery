@@ -47,3 +47,12 @@ test('ending counts resident letters, not internal mission keys',()=>{
  const s=finishAll(campaignFixture());const shown=text(page(s,{screen:'ending'}));
  assert.match(shown,/주민 부탁 5통/);assert.doesNotMatch(shown,/전시물 10개/);
 });
+
+test('workshop names the single missing step in order: feature, feature record, part placement',async()=>{
+ const {freshExpedition,taskMistake,claimTask,STAGES}=await import('../src/expedition.js');
+ const s=freshExpedition();s.adminUnlocked=true;const d=s.designs[0];Object.assign(d,{problem:'swim',name:'오리발'});
+ const gap=()=>taskMistake(s,5,0)?.wrong?.[0];
+ assert.equal(gap(),'design:feature');d.feature='web';assert.equal(gap(),'design:source');assert.match(taskMistake(s,5,0).text,/특징 기록/);
+ d.experiment.sourceSeen=true;assert.equal(gap(),'design:part');d.structure='wide';d.spot='toe';assert.equal(taskMistake(s,5,0),null);
+ assert.equal(claimTask(s,5,0).ok,true);assert.ok(STAGES[4].tasks.length===4);
+});

@@ -37,7 +37,7 @@ export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpda
  }
  video.muted=true;video.playbackRate=slow?.45:1;
  listen('loadedmetadata',()=>{if(!alive)return;seek(pendingPhase);if(playing)play();});
- for(const name of ['timeupdate','play','pause','seeked','ended'])listen(name,update);
+ for(const name of ['timeupdate','play','pause','seeking','seeked','ended','loadeddata','canplay','waiting'])listen(name,update);
  listen('error',()=>{if(alive)onError();});
  if(video.readyState>=1){seek(pendingPhase);if(playing)play();}
  return {

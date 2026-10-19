@@ -104,9 +104,9 @@ export const STRUCTURES=[['dome','머리를 감싸는 단단한 덮개'],['wide'
 // Screen 09: a plain product and three places a part can go. [id, label, what the test shows with the part there].
 // Anchor = where the part sits on the 320×260 drawing; chip = where its drop label sits (percent of the drawing).
 export const PRODUCTS={
-  swim:{base:'수영 신발',need:'물을 뒤로 많이 밀어 낼 부분이 필요해.',spot:'toe',spots:[['toe','발끝','발끝은 발을 찰 때 물을 가장 많이 미는 곳이야.',[262,196],[82,90]],['ankle','발목','발목은 발을 차도 물을 거의 밀지 않는 곳이야.',[118,92],[30,13]],['heel','발뒤꿈치','발뒤꿈치는 발을 찰 때 물을 밀지 못하는 곳이야.',[62,192],[14,90]]]},
-  protect:{base:'천 모자',need:'부딪혀도 머리를 감싸 줄 단단한 부분이 필요해.',spot:'top',spots:[['top','머리 위','머리 위는 부딪힐 때 가장 먼저 지켜야 하는 곳이야.',[160,62],[50,7]],['brim','챙','챙은 머리에서 떨어져 있어서 머리를 감싸지 못해.',[262,134],[86,32]],['strap','턱끈','턱끈은 모자를 고정할 뿐 머리를 감싸지 못해.',[112,204],[16,90]]]},
-  warm:{base:'얇은 외투',need:'몸의 열이 빠져나가지 않게 공기를 붙잡을 부분이 필요해.',spot:'body',spots:[['body','몸통 안쪽','몸통은 열이 가장 많이 빠져나가는 곳이야.',[196,120],[80,6]],['pocket','주머니','주머니만 두꺼우면 몸통의 열은 그대로 빠져나가.',[126,196],[42,94]],['cuff','소매 끝','소매 끝만 두꺼우면 몸통은 여전히 얇아.',[46,200],[13,93]]]},
+  swim:{base:'수영 신발',need:'물을 뒤로 많이 밀어 낼 부분이 필요해.',spot:'toe',spots:[['toe','발끝','이 신발 모형에서는 발끝에 붙인 면이 물을 가장 많이 밀어.',[262,196],[82,90]],['ankle','발목','이 모형에서 발목에 붙이면 발을 차도 물을 거의 밀지 못해.',[118,92],[30,13]],['heel','발뒤꿈치','이 모형에서 발뒤꿈치에 붙이면 발을 찰 때 물을 거의 밀지 못해.',[62,192],[14,90]]]},
+  protect:{base:'천 모자',need:'부딪혀도 머리를 감싸 줄 단단한 부분이 필요해.',spot:'top',spots:[['top','머리 위','이 모자 모형에서는 머리 위를 감싸야 덮개가 머리를 지켜.',[160,62],[50,7]],['brim','챙','이 모형에서 챙에 붙이면 머리에서 떨어져 있어 머리를 감싸지 못해.',[262,134],[86,32]],['strap','턱끈','이 모형에서 턱끈에 붙이면 모자를 고정할 뿐 머리를 감싸지 못해.',[112,204],[16,90]]]},
+  warm:{base:'얇은 외투',need:'몸의 열이 빠져나가지 않게 공기를 붙잡을 부분이 필요해.',spot:'body',spots:[['body','몸통 안쪽','이 외투 모형에서는 몸통 안쪽이 가장 넓게 몸을 감싸서, 여기에 겹을 대야 따뜻함이 오래가.',[196,120],[80,6]],['pocket','주머니','이 모형에서 주머니만 두꺼우면 몸통 쪽은 그대로 얇아.',[126,196],[42,94]],['cuff','소매 끝','이 모형에서 소매 끝만 두꺼우면 몸통 쪽은 여전히 얇아.',[46,200],[13,93]]]},
 };
 const spotIds=problem=>PRODUCTS[problem]?.spots.map(x=>x[0])||[];
 // The part must suit the problem and sit where the product needs it.
@@ -278,6 +278,7 @@ export function taskMistake(s,stage,step){
       if(!proves(c,a.grounds)){const also=fitting(c,a.grounds).filter(id=>id!==c.animal);return {text:open.length>1&&!left?`연 단서만으로는 ${withParticle(names(open))} 구별할 수 없어. ‘다시 조사’로 다른 종류의 단서를 골라 봐.`:`고른 근거는 ${names(also)}에게도 맞아. 다른 동물과 구별되는 단서를 근거로 골라 봐.`,wrong:['case:grounds']};}
       if(step%2===0)return null;}
     const out=[];if(a.habitat!==c.habitat)out.push({key:'case:habitat',text:a.habitat?'‘만난 곳’을 다시 봐. 사진 속 풍경에 무엇이 있는지 살펴봐.':'‘만난 곳’을 아직 고르지 않았어.'});if(a.reason!==c.reason)out.push({key:'case:reason',text:a.reason?`‘어떻게 움직일까’를 다시 봐. ${c.reasonTip}`:'‘어떻게 움직일까’를 아직 고르지 않았어.'});return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
+  if(stage===5&&step%2===0){const d=s.designs[round],base=PRODUCTS[d.problem]?.base||'물건',gap=[[!Object.hasOwn(PROBLEMS,d.problem),'design:problem','① 해결할 문제를 먼저 골라 줘.'],[!d.feature,'design:feature','② 빌릴 동물의 특징을 하나 골라 줘.'],[!d.experiment.sourceSeen,'design:source','② 동물 그림 옆의 ‘특징 기록’ 버튼을 눌러 관찰한 것을 기록해 줘.'],[!d.structure||!d.spot,'design:part',`③ 부품 하나를 ${base}의 자리에 붙여 줘. 부품을 누르고 자리 이름을 눌러도 돼.`],[!d.name.trim(),'design:name','발명품 이름을 적어 줘.']].find(g=>g[0]);return gap?{text:gap[2],wrong:[gap[1]]}:null;}
   return null;
 }
 export function availableTools(s){return STAGES.filter(t=>restoredPlaces(s).includes(t.id));}

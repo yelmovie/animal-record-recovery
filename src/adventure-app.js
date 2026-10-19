@@ -217,8 +217,9 @@ function mountMotionPlayer(){
  const host=document.querySelector('.motion-observer');
  motionPlayer=createMotionPlayer(host,{phase:motionPhase,playing:motionPlaying,slow:motionSlow,
   onUpdate(state){motionPhase=state.phase;motionPlaying=state.playing;paintMotion();},
-  onError(){failedMotionVideos.add(host.dataset.motion);motionPlaying=false;motionPhase=0;render();document.querySelector('#announcer').textContent=MOTIONS[host.dataset.motion]?.optional?'영상을 불러오지 못했어. 새로고침한 뒤 다시 살펴봐 줘.':'영상을 열 수 없어 움직임 설명 그림으로 바꿨어.';}
+  onError(){failedMotionVideos.add(host.dataset.motion);motionPlaying=false;motionPhase=0;render();document.querySelector('#announcer').textContent=MOTIONS[host.dataset.motion]?.optional?'영상을 불러오지 못했어. 새로고침한 뒤 다시 살펴봐 줘.':'영상을 열 수 없어 움직임 설명 그림으로 바꿨어. 그림에서 장면을 골라 기록해 줘.';}
  });
+ paintMotion();
 }
 function stopMotion(reset=true){stopMotionFrame();motionPlayer?.pause();motionPlaying=false;motionTime=0;if(reset){motionPhase=0;motionPlayer?.seek(0);}paintMotion();}
 function paintMotion(){
@@ -228,6 +229,8 @@ function paintMotion(){
  const play=host.querySelector('[data-action="motion-play"]');if(play){play.textContent=motionPlaying?'멈춤':'재생';play.classList?.toggle('selected',motionPlaying);}
  const slow=host.querySelector('[data-action="motion-slow"]');if(slow)slow.textContent=motionSlow?'보통 속도':'느리게';
  const slider=host.querySelector('#motion-phase');if(slider)slider.value=motionPhase;
+ // A video scene can be recorded only once its frame is decoded; the diagram fallback is always ready.
+ if(motionPlayer){const ready=motionPlayer.ready,capture=host.querySelector('[data-action="motion-capture"]'),note=host.querySelector('[data-motion-ready]');if(capture)capture.disabled=!ready;if(note){note.textContent=ready?'영상 준비 완료 · 장면을 골라 기록해 봐':'영상 장면 준비 중…';note.classList.toggle('ready',ready);}}
  host.querySelectorAll('[data-action="motion-frame"]').forEach(b=>{b.classList.toggle('selected',Number(b.dataset.frame)===frame);b.setAttribute?.('aria-pressed',String(Number(b.dataset.frame)===frame));});
 }
 function startMotionFrame(){if(typeof window.requestAnimationFrame!=='function')return;motionRAF=window.requestAnimationFrame(time=>{if(!motionPlaying||screen!=='mission'||stage!==3)return;const delta=motionTime?time-motionTime:0;motionTime=time;const old=frameAt(motionPhase);motionPhase=(motionPhase+delta/(motionSlow?100:40))%101;const slider=document.querySelector('#motion-phase');if(slider)slider.value=motionPhase;if(frameAt(motionPhase)!==old)paintMotion();startMotionFrame();});}
