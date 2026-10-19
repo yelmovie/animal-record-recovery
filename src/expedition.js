@@ -1,6 +1,6 @@
 import {withParticle} from './korean.js';
 import {normalizeExperiment,normalizeInquiry,experimentReady,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
-import {normalizeCampaign,restoredPlaces} from './campaign.js';
+import {normalizeCampaign,restoredPlaces,missionRows} from './campaign.js';
 import {normalizeStudio,studioDrawingReady,studioReady,studioHint} from './studio.js';
 // Learning and progression are independent of the image / map presentation.
 import {restoreState as restoreLegacy, testDesign as testChoices, PROBLEMS} from './model.js';
@@ -283,4 +283,7 @@ export function taskMistake(s,stage,step){
 export function availableTools(s){return STAGES.filter(t=>restoredPlaces(s).includes(t.id));}
 // Only completed snapshots appear on certificates. New drafts keep their own completion state.
 export const reportDesigns=s=>[0,1].flatMap(i=>{const records=Object.values(s.designArchive?.[i]||{});return records.length?records:s.records.designs[i]?[s.records.designs[i]]:[];});
-export function collectedAnimals(s){return Object.keys(ANIMALS).filter(id=>s.observed.some(o=>o.startsWith(id+'-'))||DISCOVERIES.some(d=>d.animal===id&&s.discovered.includes(d.id))||s.sorts.some(set=>['yes','no'].includes(set[id])));}
+// "Met" = an animal the learner looked at and recorded in finished work: observations, dome finds,
+// sort placements, solved case records and awarded resident requests. Drafts and wrong options never count.
+function confirmedInRequests(s){return Object.entries(s.campaign?.records||{}).flatMap(([key,d])=>{const [stage,index]=key.split('-').map(Number);return missionRows(s,stage,index,d).flatMap(r=>[r.animal,d.answers[r.key]===r.answer&&ANIMALS[r.answer]?r.answer:'']).filter(Boolean);});}
+export function collectedAnimals(s){const requests=new Set(confirmedInRequests(s)),cases=CASES.filter((c,i)=>s.records.cases[i]).map(c=>c.animal);return Object.keys(ANIMALS).filter(id=>s.observed.some(o=>o.startsWith(id+'-'))||DISCOVERIES.some(d=>d.animal===id&&s.discovered.includes(d.id))||s.sorts.some(set=>['yes','no'].includes(set[id]))||cases.includes(id)||requests.has(id));}

@@ -7,6 +7,11 @@ import {studioArtwork} from './studio-views.js';
 export const npcPortrait=(c,cls='')=>`<img class="commission-npc ${cls}" data-npc="${c.portrait}" src="${new URL('../assets/residents/'+c.portrait+'-v2.webp',import.meta.url).href}" alt="${c.npc}" decoding="async" draggable="false">`;
 const choiceButton=(r,o,d)=>btn(esc(o[1]),'commission-choice',`commission-choice ${d.answers[r.key]===o[0]?'selected':''}`,`data-key="${r.key}" data-value="${o[0]}" aria-pressed="${d.answers[r.key]===o[0]}"`);
 const labels=(rows,d)=>rows.map(r=>`${r.label}: ${r.options.find(o=>o[0]===d.answers[r.key])?.[1]||'아직 비어 있어'}`);
+// The learner's own sorting rule lives in request 2-1; saves from the older four-step garden kept it in sorts[1].
+export function ownSortSummary(s){const d=s.campaign?.records?.['2-1'],split=(ids,pick)=>({yes:ids.filter(id=>pick(id)==='yes'),no:ids.filter(id=>pick(id)==='no')});
+ if(d&&SORT_KEYS[d.answers.criterion])return {label:SORT_KEYS[d.answers.criterion],...split(missionRows(s,2,1,d).map(r=>r.key),id=>d.answers[id])};
+ if(CRITERIA[s.criteria?.[1]]&&Object.keys(s.sorts?.[1]||{}).length)return {label:CRITERIA[s.criteria[1]],...split(Object.keys(s.sorts[1]),id=>s.sorts[1][id])};
+ return null;}
 export function commissionTabs(s,stage,index){return `<nav class="commission-tabs" aria-label="이 장소의 탐험 순서">${btn(`탐험 · 별 ${STAGES[stage-1].tasks.length}개`,'replay-stage','quiet',`data-id="${stage}"`)}${btn('주민의 부탁'+(campaignDone(s,stage,0)&&campaignDone(s,stage,1)?' ✓':''),'commission-part',index<2?'selected':'quiet',`data-value="0" aria-current="${index<2?'step':'false'}"`)}${btn('선택 도전'+(campaignDone(s,stage,2)?' ✓':''),'commission-open',index===2?'selected':'quiet',`data-id="${stage}" data-value="2" ${!campaignOpen(s,stage,2)?'disabled':''} aria-current="${index===2?'step':'false'}"`)}</nav>`;}
 export function commissionLetter(s,id){if(id===5&&s.studioRecord)return studioLetter(s);const c=COMMISSIONS[id-1],order=id===5?[1,0]:[0,1];return `<article class="resident-letter">
   <div class="letter-envelope" aria-hidden="true"><span>${icon('leaf')}</span></div>
