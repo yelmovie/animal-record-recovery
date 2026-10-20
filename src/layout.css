@@ -295,3 +295,662 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .mission-page .activity-workspace>:is(.specimen-scene,.habitat-scene){padding-bottom:92px!important}
 /* Ending certificate: content starts below the corner icons. */
 #app main.ending{height:var(--app-height,100dvh)!important;padding-top:calc(var(--hud-top) + 4px)!important}
+/* Mori's bubble opens on tap (and by itself only for feedback); the '…' cue pulses so learners know Mori can help. */
+#app .mission-page .buddy-toggle::after{animation:choice-invite 2.2s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){#app .mission-page .buddy-toggle::after{animation:none}}
+
+/* ── Screen polish pass (2026-10-20, four parallel reviews at 1920/1280/1024) ── */
+/* 1·2장: observation, compare, O·X sorting, verify */
+/* Agent A: stage 1 (3D observation, compare) + stage 2 (O·X sorting, verify) polish. */
+
+/* ---------- 3D observation (1-1, 1-3) ---------- */
+/* Shortcut hint sat as dark-green text on the dark wood: give it a light pill so it reads. */
+#app .mission-page .observation-controls{gap:8px}
+#app #main.mission-page .observation-shortcut{display:inline-flex;align-items:center;gap:6px;margin:0;padding:4px 14px 5px;border-radius:999px;background:#fff9e9e6;color:#3f5a3a;font-size:clamp(16px,1.9vh,22px)!important;box-shadow:0 2px 0 #4a3a2255}
+/* Part buttons grow with the screen and the chosen part is clearly green. */
+#app .mission-page .scan-scene .part-buttons{gap:8px}
+#app #main.mission-page .scan-scene .part-buttons .btn{min-height:clamp(48px,6vh,66px);padding:6px clamp(12px,1.2vw,22px);border:3px solid #c9b98a;border-radius:14px;background:#fffdf5;color:#2f3a2a;font-size:clamp(18px,2.3vh,27px)!important;box-shadow:0 4px 0 #c9b98a}
+#app #main.mission-page .scan-scene .part-buttons .btn.selected{background:#365c43;border-color:#22372a;color:#fffbed;box-shadow:0 4px 0 #22372a}
+#app .mission-page .scan-scene .part-buttons .btn .icon{width:clamp(18px,2.2vh,26px);height:clamp(18px,2.2vh,26px)}
+/* Notes panel: progress labels scale too. */
+#app #main.mission-page .lens-notes>.notes-title{font-size:clamp(16px,2vh,24px)!important}
+#app #main.mission-page .lens-notes>.notes-title b{font-size:inherit!important}
+#app #main.mission-page .lens-notes>.pair-status{font-size:clamp(18px,2.2vh,26px)!important}
+#app #main.mission-page .lens-notes .observe-options:not(:has(>.choice.selected))::before{font-size:clamp(16px,1.9vh,22px)}
+/* Short screens (1024×600): the notes panel must fit above the floating next button without scrolling. */
+@media(max-height:650px){
+  #app .mission-page .scan-scene .observation-controls{padding-left:0}
+  #app .mission-page .activity-workspace>.field-notes.lens-notes{gap:6px;padding-left:12px;padding-right:12px}
+  #app #main.mission-page .lens-notes>.notes-title{display:none}
+  #app .mission-page .lens-notes>.detail-crop{height:84px!important}
+  #app #main.mission-page .lens-notes>h2{font-size:24px!important;margin:0}
+  #app #main.mission-page .lens-notes>.observe-ask{font-size:18px!important;line-height:1.35}
+  #app .mission-page .lens-notes .observe-options{gap:6px}
+  #app .mission-page .lens-notes .observe-options>.choice{min-height:46px;padding-top:6px;padding-bottom:6px}
+  #app #main.mission-page .lens-notes>.pair-status{margin:0!important;font-size:17px!important}
+}
+
+/* ---------- Compare (1-2, 1-4) ---------- */
+/* Drop slots take all the height that is left, so there is no empty strip under the deck. */
+#app .mission-page .compare-board{grid-template-rows:minmax(0,1fr) auto;align-content:stretch}
+#app .compare-board>.compare-slots{min-height:0}
+#app .compare-board .compare-slot{display:flex;flex-direction:column;min-height:110px;overflow:auto}
+#app #main .compare-board .compare-slot>.slot-empty{flex:1;display:grid;place-items:center;margin:0;font-size:clamp(19px,2.4vh,28px)!important}
+#app #main .compare-board>.card-tray>h3{font-size:clamp(22px,2.6vh,32px)!important}
+#app #main .compare-board>.card-tray>h3::after{font-size:clamp(16px,2vh,24px)}
+/* Left animal panel: pictures a bit smaller so the tip never spills out of the panel. */
+#app .compare-photo>div>div>.animal{height:clamp(80px,19vh,230px)}
+#app #main .compare-photo>div>div>b{font-size:clamp(20px,2.4vh,30px)!important}
+#app #main .compare-photo>.compare-tip{font-size:clamp(16px,1.9vh,22px)!important}
+@media(max-height:650px){#app #main .compare-photo>.compare-tip{display:none!important}}
+
+/* ---------- O·X sorting (2-1) ---------- */
+/* Narrower deck of 4:5 cards so the O and X zones get more room. */
+#app .sorting-workspace>.card-tray{justify-content:center}
+#app .sorting-workspace>.card-tray>.card-pool{flex:none;grid-auto-rows:auto;width:min(40vw,calc((100dvh - var(--hud-top) - 280px)/.85))}
+#app .sorting-workspace .card-pool .animal-card{height:auto;aspect-ratio:4/5}
+#app #main .sorting-workspace>.card-tray>h3{font-size:clamp(22px,2.6vh,32px)!important}
+#app #main .sorting-workspace .gate>h3>small{font-size:clamp(20px,2.4vh,30px)!important}
+/* Once every card is sorted the empty deck shrinks so the O and X zones get the room. */
+#app .sorting-workspace>.card-tray:not(:has(.animal-card)){justify-content:flex-start}
+#app .sorting-workspace>.card-tray:not(:has(.animal-card))>.card-pool{width:clamp(120px,12vw,220px)}
+/* Sorted cards inside O/X scale with the screen and never overflow a short zone. */
+#app .sorting-workspace .gate-cards{grid-template-columns:repeat(auto-fill,minmax(clamp(92px,8vw,150px),1fr))}
+#app .sorting-workspace .gate-cards .animal-card>.animal{height:clamp(56px,9vh,110px);max-width:100%}
+#app #main .sorting-workspace .gate-cards .animal-card>b{font-size:clamp(17px,2vh,24px)!important}
+/* Empty O/X zone says what it is for. */
+#app .sorting-workspace .gate-cards:empty{flex:1;grid-template-columns:1fr;place-items:center;align-content:center}
+#app .sorting-workspace .gate-cards:empty::after{content:'카드를 여기에 놓아';padding:6px 16px 8px;border-radius:999px;background:#fff9e9cc;color:#5b5a45;font:400 clamp(18px,2.2vh,26px)/1.3 var(--font-display)}
+
+/* ---------- Verify (2-2) ---------- */
+/* Result table scales with the screen so the whiteboard can read it. */
+#app #main .verify-lab .verify-table caption{font-size:clamp(20px,2.6vh,30px)!important}
+#app #main .verify-lab .verify-table :is(th,td){height:clamp(34px,5vh,58px);font-size:clamp(17px,2.2vh,26px)!important}
+#app .verify-lab .verify-table th .animal{width:auto;height:clamp(26px,3.8vh,44px)}
+#app #main .verify-lab .verify-summary{font-size:clamp(20px,2.6vh,30px)!important}
+#app .verify-step .btn.primary[data-action=verify-run]{font-size:clamp(22px,2.6vh,30px)}
+/* After the run, step ② is what to do next: mark ① done and make ② pulse like the other "next" tabs. */
+@media(prefers-reduced-motion:reduce){#app .verify-steps>.panel-tabs>.btn{animation:none}}
+
+/* 3·4장: habitat dome, life chain, clue investigation, life guide */
+/* b.css — stage 3 (habitat dome 3-0/3-2, link board 3-1/3-3) and stage 4 (clue investigation 4-0/4-2, life guide 4-1/4-3). */
+
+/* ── 3-0 / 3-2 habitat dome ───────────────────────────────────────────── */
+#app #main .habitat-scene>.scene-tabs .btn{font-size:clamp(18px,2.1vh,24px)!important}
+#app #main .habitat-caption p{font-size:clamp(18px,2.3vh,26px)!important;line-height:1.35}
+#app #main .habitat-caption b{font-size:clamp(17px,2vh,22px)!important}
+/* Field notes: checklist chips stay on one line; the notes fill the column instead of floating in its middle. */
+#app .mission-page .activity-workspace>.field-notes.habitat-notes{justify-content:flex-start;gap:8px;background:#fff9e98c}
+#app .habitat-notes .motion-checklist{background:#f3f1e2;border:2px solid #d2dcbf}
+#app .habitat-notes>.empty-experiment{background:#fffdf5;border:3px dashed #c9b98a}
+#app .habitat-notes .motion-checklist{flex:none;gap:10px;padding:8px 10px;border-radius:14px}
+#app #main .habitat-notes .motion-checklist>b{max-width:7.5em;font-size:clamp(14px,1.8vh,19px)!important;line-height:1.3}
+#app .habitat-notes .motion-checklist>div{gap:6px}
+#app #main .habitat-notes .motion-checklist .btn{min-width:0;min-height:clamp(44px,5.6vh,62px);padding:4px 8px;white-space:nowrap;font-size:clamp(17px,2.2vh,26px)!important}
+#app .habitat-notes>.empty-experiment{flex:none;margin-block:auto;display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,2vh,24px);padding:clamp(14px,3vh,40px) 24px;border-radius:18px}
+#app #main .habitat-notes>.empty-experiment b{font-size:clamp(22px,3vh,34px)!important;line-height:1.3}
+#app #main .habitat-notes>.empty-experiment p{margin:0;font-size:clamp(20px,2.6vh,30px)!important;line-height:1.45}
+/* Motion record: one grid that fits without an inner scroll; caption + player controls share a row
+   and the video takes whatever height is left. */
+#app .habitat-notes .motion-observer{flex:1 1 auto;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(80px,1fr) auto auto auto;grid-template-areas:"steps steps" "title title" "goal goal" "pred pred" "video video" "cap ctrl" "dock dock" "done done";column-gap:12px;row-gap:0;min-height:0;padding:10px 12px 8px;border-radius:16px;background:#fffdf5;box-shadow:0 3px 0 #d8cba3}
+#app .habitat-notes .motion-observer>*{margin:0 0 6px}
+#app .habitat-notes .motion-observer>.motion-steps{grid-area:steps}
+#app .habitat-notes .motion-observer>.motion-title{grid-area:title}
+#app .habitat-notes .motion-observer>.motion-goal{grid-area:goal}
+#app .habitat-notes .motion-observer>.motion-prediction-details{grid-area:pred}
+#app .habitat-notes .motion-observer>.motion-video{grid-area:video;justify-self:center;width:100%;height:100%;min-height:0;max-height:none;object-fit:contain}
+#app .habitat-notes .motion-observer>.motion-caption{grid-area:cap;align-self:center;white-space:nowrap}
+#app .habitat-notes .motion-observer>.motion-controls{grid-area:ctrl;display:flex;align-items:center;gap:8px}
+#app .habitat-notes .motion-observer>.motion-controls>input{flex:1;min-width:0}
+#app .habitat-notes .motion-observer>.motion-action-dock{grid-area:dock}
+#app .habitat-notes .motion-observer>.captured-frame{grid-area:done;margin:0;padding:6px 10px}
+#app .habitat-notes .motion-action-dock{position:static;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 0 0;box-shadow:none;background:none}
+#app .habitat-notes .motion-action-dock>.motion-instruction{flex:1 0 100%;margin:0}
+#app .habitat-notes .motion-action-dock>.motion-frames{display:flex;gap:6px;margin:0}
+#app .habitat-notes .motion-action-dock>.motion-record-action{display:flex;flex:1;flex-wrap:nowrap;margin:0;justify-content:flex-end}
+#app .habitat-notes .motion-action-dock .motion-ready.ready{display:none}
+#app .habitat-notes>.motion-next{flex:none;margin:0}
+@media(max-height:850px){#app .habitat-notes .motion-observer>.motion-title{display:none}}
+@media(max-height:650px){
+ #app .habitat-notes .motion-observer>:is(.motion-title,.motion-goal){display:none}
+ #app #main .habitat-notes .motion-checklist>b{display:none}
+ #app .habitat-notes .motion-observer>.captured-frame{display:none}
+ #app .habitat-notes .motion-observer{padding:6px 8px 4px}
+}
+
+/* ── 3-1 / 3-3 link board ─────────────────────────────────────────────── */
+#app .mission-page .activity-workspace>.link-activity{display:flex;flex-direction:column;gap:12px;height:100%;padding:calc(var(--hud-top) + 4px) 14px 84px;overflow:hidden}
+#app .link-activity>.link-animal{flex:none;margin:0 auto;padding:6px 22px}
+#app .link-activity>.link-chain{flex:1 1 auto;min-height:0;margin:0;gap:8px;align-items:stretch}
+/* Drop slots: big, see-through dashed zones on the cork board. */
+#app .link-activity .link-slot{display:flex;flex-direction:column;min-height:0;padding:10px 14px;border:4px dashed #fff9e9;border-radius:22px;background-color:#fffcf0a6!important;box-shadow:0 6px 18px #2a3a2633}
+#app #main .link-activity .link-slot>h3{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:clamp(22px,2.8vh,34px)!important;color:#2f3a2a}
+#app #main .link-activity .link-slot>h3>span{width:clamp(28px,3.2vh,38px);height:clamp(28px,3.2vh,38px);font-size:clamp(16px,2vh,22px)!important}
+#app #main .link-activity .link-slot>.slot-empty{flex:1;display:grid;place-items:center;margin:0;padding:6px;font-size:clamp(19px,2.4vh,28px)!important;color:#6b5a32}
+#app .link-activity .link-slot>.statement-card{margin:auto 0}
+/* Card tray: see-through, cards opaque, 3 columns. */
+#app .link-activity>.card-tray{flex:none;margin:0;padding:10px 14px 14px;border:3px solid #4a3a22;border-radius:22px;background-color:#fff9e9b3!important;box-shadow:0 6px 0 #4a3a2266}
+#app #main .link-activity>.card-tray>h3{margin:0 0 8px;font-size:clamp(22px,2.6vh,32px)!important}
+#app #main .link-activity>.card-tray>h3::after{content:'  ·  카드를 눌러 위 칸으로 옮겨 봐';font:400 clamp(16px,1.9vh,22px)/1 var(--font-body);color:#7a6a48}
+#app .link-activity .card-pool{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px}
+/* Evidence card: kind tag on top, statement below, grip dots on the right so it reads as "pick me up". */
+#app .link-activity .statement-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;width:100%;min-height:clamp(56px,9vh,104px);padding:6px 40px 8px 14px;border:3px solid #c9b98a;border-radius:14px;background:#fffdf5;box-shadow:0 4px 0 #c9b98a;cursor:grab}
+#app .link-activity .statement-card::after{content:'';position:absolute;right:12px;top:50%;width:12px;height:22px;transform:translateY(-50%);background:radial-gradient(circle,#b59342 2px,transparent 2.5px) 0 0/6px 7.3px;opacity:.8}
+#app #main .link-activity .statement-card>small{margin:0;padding:1px 8px;border-radius:999px;background:#f1e7c6;color:#6b5226;white-space:nowrap;font-size:clamp(14px,1.7vh,19px)!important;line-height:1.35}
+#app .link-activity .statement-card.kind-environment>small{background:#e1efd3;color:#3f6b33}
+#app .link-activity .statement-card.kind-body>small{background:#f7e2c4;color:#7a4f12}
+#app .link-activity .statement-card.kind-life>small{background:#dbe9f2;color:#2f5a73}
+#app #main .link-activity .statement-card>span{font-size:clamp(20px,2.7vh,30px)!important;line-height:1.3}
+@media(max-height:650px){
+ #app .mission-page .activity-workspace>.link-activity{gap:8px}
+ #app .link-activity .statement-card{min-height:52px;padding-top:4px;padding-bottom:5px}
+ #app #main .link-activity .link-slot>h3{margin:0 0 2px}
+}
+
+/* ── 4-0 / 4-2 clue investigation ─────────────────────────────────────── */
+#app .mission-page .activity-workspace>.case-photo-panel.evidence-panel{justify-content:flex-start;gap:10px;padding:calc(var(--hud-top) + 4px) 14px 84px}
+#app #main .evidence-panel .energy-bar{flex:none;font-size:clamp(18px,2.2vh,26px)!important}
+#app #main .evidence-panel .energy-bar>span{font-size:clamp(20px,2.4vh,28px)!important}
+#app .evidence-panel .energy-bar i .icon{width:clamp(28px,3.4vh,40px);height:clamp(28px,3.4vh,40px)}
+#app .evidence-panel .clue-board{flex:none}
+#app .evidence-panel .clue-card{min-height:clamp(74px,12vh,140px);justify-content:center}
+#app .evidence-panel .clue-card .icon{width:clamp(24px,3vh,36px);height:clamp(24px,3vh,36px)}
+#app #main .evidence-panel .clue-card>b{font-size:clamp(17px,2.3vh,28px)!important;line-height:1.2}
+#app #main .evidence-panel .clue-card>small{font-size:clamp(14px,1.8vh,20px)!important}
+#app .evidence-panel .clue-detail{flex:1 1 auto;min-height:0;gap:clamp(8px,1.6vh,18px)}
+#app .evidence-panel .clue-detail :is(.detail-crop,.biome-photo){width:min(calc(clamp(110px,30vh,360px) * 1.6),100%);height:clamp(110px,30vh,360px)}
+#app .evidence-panel .clue-glyph{width:clamp(80px,13vh,150px);height:clamp(80px,13vh,150px)}
+#app .evidence-panel .clue-glyph .icon{width:45%;height:45%}
+#app #main .evidence-panel .clue-detail p{font-size:clamp(20px,2.7vh,32px)!important}
+#app #main .evidence-panel .clue-detail p b{font-size:clamp(17px,2.2vh,24px)!important}
+#app #main .evidence-panel .clue-detail .btn{min-height:clamp(52px,6.4vh,72px);font-size:clamp(19px,2.4vh,28px)!important}
+/* Right side: the question sits on a cream card over the desk photo (heading no longer on the busy photo). */
+#app .mission-page .activity-workspace>.case-photo-panel.evidence-panel~.case-activity{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:calc(var(--hud-top) + 4px) 14px 84px;overflow:auto}
+#app .evidence-panel~.case-activity>.panel-tabs{flex:none;margin:0;padding-right:150px;min-height:56px}
+#app .evidence-panel~.case-activity>section{flex:none;margin:0!important;padding:12px 16px 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9f0;box-shadow:0 6px 0 #4a3a2266}
+#app #main .evidence-panel~.case-activity>section>h2{margin:0 0 8px;font-size:clamp(24px,3.2vh,36px)!important;color:#2f3a2a}
+#app #main .evidence-panel~.case-activity .candidate-count{margin:0 0 10px;color:#5b4a2a;font-size:clamp(18px,2.3vh,26px)!important}
+#app .evidence-panel~.case-activity .candidate-grid{margin:0;gap:10px}
+#app .evidence-panel~.case-activity .candidate{min-height:0;padding:8px;border:3px solid #c9b98a;border-radius:16px;background:#fffdf5;box-shadow:0 4px 0 #c9b98a}
+#app .evidence-panel~.case-activity .candidate.selected{border-color:#4f7a45;background:#eaf3d6;box-shadow:0 0 0 4px #f6d36e,0 4px 0 #4f7a45}
+#app .evidence-panel~.case-activity .candidate .art{width:100%;height:clamp(62px,14vh,170px);object-fit:contain}
+@media(max-height:650px){#app .evidence-panel~.case-activity .candidate .art{height:58px}#app .evidence-panel~.case-activity .candidate{padding:4px 6px}}
+
+#app #main .evidence-panel~.case-activity .candidate>b{font-size:clamp(19px,2.5vh,30px)!important}
+#app #main .evidence-panel~.case-activity .choice>span{font-size:clamp(19px,2.5vh,28px)!important}
+#app .evidence-panel~.case-activity .choice{min-height:clamp(52px,7vh,80px)}
+#app .mission-page .activity-workspace>.evidence-panel~.case-activity{position:relative}
+#app .evidence-panel~.case-activity>.btn[data-action=case-reset]{position:absolute;top:calc(var(--hud-top) + 4px);right:14px;margin:0;min-height:52px;padding:8px 20px;border:2px solid #4a3a22;border-radius:14px;background:#fff9e9;color:#2f3a2a;box-shadow:0 3px 0 #4a3a2299}
+
+/* ── 4-1 / 4-3 life guide (photo + floating question card) ────────────── */
+#app .mission-page .activity-workspace:has(>.case-photo-panel:not(.evidence-panel)){--case-card:clamp(360px,36vw,640px)}
+#app .mission-page .activity-workspace>.case-photo-panel:not(.evidence-panel){gap:clamp(6px,1.4vh,16px);padding:calc(var(--hud-top) + 4px) calc(var(--case-card) + 28px) 84px 14px}
+#app .mission-page .activity-workspace>.case-photo-panel:not(.evidence-panel)>.animal{width:auto;height:clamp(90px,20vh,240px)}
+#app #main .case-photo-panel:not(.evidence-panel)>h2{margin:0;font-size:clamp(24px,3.4vh,40px)!important;text-shadow:0 2px 0 #0d1f16}
+#app .case-photo-panel:not(.evidence-panel) .case-place{width:clamp(220px,24vw,440px);max-width:none}
+#app #main .case-photo-panel:not(.evidence-panel) .case-place figcaption{font-size:clamp(15px,1.9vh,22px)!important}
+#app #main .case-photo-panel:not(.evidence-panel)>.photo-caption{max-width:100%;margin:0;padding:6px 16px;border-radius:14px;background:#0f281cd0;font-size:clamp(19px,2.5vh,28px)!important;line-height:1.4}
+/* The card centers vertically between the corner icons and the bottom buttons; no inherited top padding inside. */
+#app .mission-page .activity-workspace>.case-photo-panel:not(.evidence-panel)~.case-activity.paged-panel{bottom:84px;height:fit-content;margin:auto 0;padding:14px 16px 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9f2;box-shadow:0 6px 0 #4a3a2266}
+#app .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs{flex-wrap:nowrap;margin:0 0 10px}
+#app .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs>.btn{white-space:nowrap}
+#app #main .case-photo-panel:not(.evidence-panel)~.case-activity section>h2{margin:0 0 8px;font-size:clamp(24px,3.2vh,36px)!important}
+#app #main .case-photo-panel:not(.evidence-panel)~.case-activity .choice>span{font-size:clamp(19px,2.6vh,30px)!important}
+#app .case-photo-panel:not(.evidence-panel)~.case-activity .choice{min-height:clamp(52px,7.4vh,84px)}
+#app .case-photo-panel:not(.evidence-panel)~.case-activity .choices{gap:8px}
+@media(max-width:1100px){
+ #app #main .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs>.btn{padding:4px 12px 4px 6px;font-size:18px!important}
+ #app .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs>.btn+.btn{margin-left:18px}
+ #app .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs>.btn+.btn::before{left:-19px}
+}
+/* Small motion labels scale up a little on a whiteboard. */
+#app #main .habitat-notes :is(.motion-steps>li,.motion-instruction,.motion-caption,.captured-frame,.motion-prediction-details>summary){font-size:clamp(16px,2vh,22px)!important}
+
+/* 5장 · reward · ending · home */
+/* Agent C — stage 5 (invention), reward, ending, home. Loaded after src/layout.css; every rule starts with #app. */
+#app{--c-body:clamp(18px,2.5vh,28px);--c-small:clamp(16px,2vh,22px);--c-title:clamp(22px,3.1vh,36px)}
+
+/* ── 5-0 Invention design bench ─────────────────────────────────────────
+   The field-desk art shows through; the sketch fills the free space left of the floating card;
+   the card starts below the corner icons and stops above the next button. */
+#app .mission-page .activity-workspace:has(>.design-bench){--design-card:clamp(420px,36vw,640px)}
+#app .mission-page .activity-workspace>.design-bench{background:none;box-shadow:none;border:0;padding:calc(var(--hud-top) + 4px) calc(var(--design-card) + 30px) 90px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,1.2vh,14px)}
+#app .mission-page .design-bench>h2{flex:none;margin:0;padding:4px 20px;border:2px solid #4a3a22;border-radius:14px;background:#fff9e9;color:#2f3a2a;box-shadow:0 3px 0 #4a3a2266;font-size:var(--c-title)!important;line-height:1.25}
+#app .mission-page .design-bench>.bench-status{flex:none;justify-content:center;margin:0;padding:6px 12px;border-radius:14px;background:#fff9e9f2;box-shadow:0 3px 10px #2a3a2626}
+#app .mission-page .design-bench .design-checklist li{font-size:var(--c-small)}
+#app .mission-page .design-bench .bench-status .work-status{font-size:var(--c-small);color:#5b4a2a}
+/* Fresh bench: the draft is the drawing surface, so it takes all the free height. */
+#app .mission-page .design-bench>.product-art{flex:1 1 0;min-height:120px;width:100%;height:auto;max-width:none;max-height:none;margin:0;padding:10px;border:3px dashed #c9b98a;border-radius:22px;background:#fffdf5e6;box-shadow:0 6px 18px #2a3a2633}
+#app .mission-page .design-bench>.sketch-actions{flex:none;display:flex;gap:10px;justify-content:center;margin:0}
+#app .mission-page .design-bench>.sketch-actions .btn{min-height:52px;padding:8px 18px;font-size:var(--c-body);background:#fff9e9;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+/* The step card */
+#app .mission-page .activity-workspace>.design-options.paged-panel{top:calc(var(--hud-top) + 4px);right:14px;width:var(--design-card);max-height:calc(100% - var(--hud-top) - 94px);padding:18px 16px 14px;gap:clamp(6px,1vh,12px);border:3px solid #4a3a22;border-radius:22px;background:#fff9e9;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .design-options .panel-tabs{flex-wrap:nowrap;margin:0 0 2px}
+#app .mission-page .design-options .panel-tabs>.btn{flex:1 1 0;min-width:0;justify-content:center;padding:6px 12px 6px 6px;font-size:clamp(17px,2.2vh,24px);white-space:nowrap}
+#app .mission-page .design-options .panel-tabs .tab-num{flex:none}
+#app .mission-page .design-options h2{margin:0;font-size:var(--c-title)!important}
+#app .mission-page .design-options .choice{font-size:var(--c-body);min-height:clamp(50px,6.6vh,72px)}
+#app .mission-page .design-options .design-choices .choice{justify-content:flex-start;text-align:left;padding-left:12px}
+#app .mission-page .design-options .source-study :is(b,p){font-size:var(--c-small)}
+#app .mission-page .design-options .part-tip{font-size:var(--c-small);line-height:1.4;color:#5b4a2a}
+#app .mission-page .design-options .part-pool{grid-template-columns:1fr;gap:8px}
+#app .mission-page .design-options .part-pool .part-card{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;min-height:0;padding:6px 12px;text-align:left}
+#app .mission-page .design-options .part-pool .part-card>svg{width:clamp(64px,8vh,96px);height:clamp(48px,6vh,72px)}
+#app .mission-page .design-options .part-pool .part-card>span{width:auto;font-size:var(--c-body);line-height:1.3}
+#app .mission-page .design-options .design-name>label{font-size:var(--c-small)}
+#app .mission-page .design-options .design-name>input{font-size:var(--c-body);min-height:clamp(46px,5.6vh,60px)}
+@media(max-width:1500px){
+  #app .mission-page .design-options .panel-tabs>.btn{flex:1 1 auto;border-radius:16px;padding:4px 8px 4px 6px;gap:5px;font-size:17px;line-height:1.1;white-space:normal;word-break:keep-all;text-align:left}
+  #app .mission-page .design-options .panel-tabs>.btn+.btn{margin-left:16px}
+  #app .mission-page .design-options .panel-tabs>.btn+.btn::before{left:-15px;font-size:16px}
+  #app .mission-page .design-options .panel-tabs .tab-num{width:24px;height:24px}
+  #app .mission-page .design-options .panel-tabs>.btn:not(.tab-done) .tab-num{font-size:14px}
+}
+@media(max-height:650px){
+  #app .mission-page .activity-workspace>.design-options.paged-panel{padding-top:14px;gap:5px}
+  #app .mission-page .design-options .panel-tabs>.btn{min-height:44px}
+  #app .mission-page .design-options .source-study{padding:4px}
+  #app .mission-page .design-options :is(.source-art,.anatomy){width:80px;height:70px;min-width:80px}
+  #app .mission-page .design-options .design-choices .choice{min-height:44px;padding-block:2px}
+  #app .mission-page .design-options .design-choices{gap:5px}
+  #app .mission-page .design-options>.design-name{padding-top:4px}
+  #app .mission-page .design-options .design-name>label{margin-bottom:2px}
+  #app .mission-page .design-options>.design-name{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px}
+  #app .mission-page .design-options .design-name>label{margin:0}
+  #app .mission-page .design-options .design-name>input{min-height:44px;height:44px}
+  #app .mission-page .design-options .source-study .btn{min-height:40px;padding:2px 10px}
+}
+
+/* ── 5-1 Shape-comparison lab ───────────────────────────────────────────
+   Two cards that clear the corner buttons; the models grow to fill each card instead of leaving a blank tail. */
+#app .mission-page .activity-workspace>.experiment-lab{height:100%;padding:calc(var(--hud-top) + 4px) 14px 90px;gap:14px;align-items:start}
+#app .mission-page .experiment-lab>:is(.lab-controls,.lab-results){display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);min-height:0;overflow:auto;padding:clamp(10px,1.6vh,18px) 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9f5;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .experiment-lab>.lab-controls>.current-model{flex:none;height:clamp(90px,24vh,300px);display:flex;align-items:center;justify-content:center;margin:0}
+#app .mission-page .experiment-lab>.lab-controls>.current-model>svg{width:100%;height:100%;max-height:none}
+#app .mission-page .experiment-lab :is(.lab-controls,.lab-results) :is(p,label){margin:0;font-size:var(--c-body)!important;line-height:1.4}
+#app .mission-page .experiment-lab .condition small{font-size:var(--c-small)!important}
+#app .mission-page .experiment-lab .level-buttons .btn,#app .mission-page .experiment-lab .prediction-options .choice{min-height:clamp(48px,6.4vh,70px);font-size:var(--c-body)}
+#app .mission-page .experiment-lab .lab-controls>.btn.primary{flex:none;min-height:clamp(52px,6.6vh,72px);font-size:var(--c-body)}
+#app .mission-page .experiment-lab .lab-results>h2{margin:0;font-size:var(--c-title)!important}
+#app .mission-page .experiment-lab .trial-pair{flex:none;margin:0}
+#app .mission-page .experiment-lab .trial-pair>article{display:flex;flex-direction:column;min-height:0}
+#app .mission-page .experiment-lab .trial-pair>article>svg{flex:none;width:100%;height:clamp(90px,22vh,280px)!important;max-height:none}
+#app .mission-page .experiment-lab .trial-pair>article>b{font-size:var(--c-small)!important}
+@media(max-height:650px){
+  #app .mission-page .experiment-lab>.lab-controls>.current-model{display:none}
+  #app .mission-page .activity-workspace>.experiment-lab.paged-panel{display:flex;flex-direction:column;gap:8px}
+  #app .mission-page .experiment-lab.paged-panel>.panel-tabs{flex:none;margin:0}
+  #app .mission-page .experiment-lab.paged-panel>section{align-self:stretch}
+  #app .mission-page .experiment-lab .trial-pair>article>svg{height:90px!important}
+}
+
+/* ── 5-2 Free drawing studio ────────────────────────────────────────────
+   Paper on the field-desk art (no flat grey sheet), a wider notebook so its lines do not stack word by word. */
+#app .mission-page .activity-workspace>.creative-studio.studio-drawing{background:none;border:0;grid-template-columns:minmax(0,1fr) clamp(270px,24vw,440px)!important;padding:calc(var(--hud-top) + 4px) 14px 84px!important;gap:10px 14px}
+#app .mission-page .studio-drawing .studio-toolbar{border:3px solid #4a3a22;border-radius:18px;background:#fff9e9;box-shadow:0 4px 0 #4a3a2266}
+#app .mission-page .studio-drawing .studio-paper{border:3px solid #4a3a22;border-radius:10px;box-shadow:0 10px 26px #1f2a1a55}
+#app .mission-page .studio-drawing .studio-empty>b{font-size:clamp(26px,3.6vh,42px)}
+#app .mission-page .studio-drawing .studio-empty>span{font-size:var(--c-small)}
+#app .mission-page .studio-drawing .studio-toolbar .studio-button{min-height:clamp(48px,5.6vh,62px);font-size:clamp(18px,2.2vh,24px)}
+#app .mission-page .studio-drawing .studio-toolbar .studio-swatch{width:clamp(42px,5vh,54px);height:clamp(42px,5vh,54px);min-width:0;min-height:0}
+#app .mission-page .studio-drawing .studio-width>span{font-size:clamp(16px,2vh,22px)}
+#app .mission-page .studio-drawing .studio-notebook{align-self:start;max-height:100%;padding:12px 14px;gap:8px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9;box-shadow:0 4px 0 #4a3a2266;overflow:auto}
+#app .mission-page .studio-drawing .studio-notebook :is(.studio-field>span,.studio-note p,.studio-next-hint,.studio-inspiration p){font-size:var(--c-body);line-height:1.4}
+#app .mission-page .studio-drawing .studio-notebook :is(.studio-eyebrow,.studio-note b,summary){font-size:var(--c-small)}
+#app .mission-page .studio-drawing .studio-notebook input{min-height:clamp(46px,5.6vh,60px);font-size:var(--c-body)}
+#app .mission-page .studio-drawing .studio-drawing-footer{padding:6px 8px;border-radius:14px;background:#fff9e9f2}
+#app .mission-page .studio-drawing .studio-drawing-footer>span{font-size:var(--c-small)!important;color:#5b4a2a}
+@media(max-height:650px){
+  #app .mission-page .studio-drawing .studio-notebook>.studio-eyebrow,#app .mission-page .studio-drawing .studio-note>b,#app .mission-page .studio-drawing .studio-drawing-footer>span{display:none}
+  #app .mission-page .studio-drawing .studio-notebook{gap:6px;padding:8px 10px}
+  #app .mission-page .studio-drawing .studio-note{padding:6px 8px}
+}
+
+/* ── 5-3 Showcase form ─────────────────────────────────────────────────
+   The poster artwork fills its card; the two long answers stretch so the form has no blank tail. */
+#app .mission-page .activity-workspace>.creative-studio.studio-showcase{height:100%;min-height:0;overflow:hidden;padding:calc(var(--hud-top) + 4px) 14px 88px!important;gap:14px;align-items:stretch;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr)}
+#app .mission-page .studio-showcase .studio-exhibit{display:flex;flex-direction:column;min-height:0;gap:10px}
+#app .mission-page .studio-showcase .studio-exhibit>.studio-heading{flex:none;margin:0 auto!important;padding:6px 20px;border:2px solid #4a3a22;border-radius:14px;background:#fff9e9;box-shadow:0 3px 0 #4a3a2266;text-align:center}
+#app .mission-page .studio-showcase .studio-heading h2{font-size:var(--c-title)}
+#app .mission-page .studio-showcase .studio-heading p{font-size:var(--c-small)}
+#app .mission-page .studio-showcase .studio-poster{flex:1 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:12px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .studio-showcase .studio-poster>div{flex:1 1 0;min-height:0;width:100%;display:flex;justify-content:center}
+#app .mission-page .studio-showcase .studio-poster>div>.studio-artwork{width:auto;height:100%;max-width:100%;border:2px solid #e2d6b2}
+#app .mission-page .studio-showcase .studio-poster>h3{margin:2px 0 0;font-size:var(--c-title)}
+#app .mission-page .studio-showcase .studio-poster>p{margin:0;font-size:var(--c-body)}
+#app .mission-page .studio-showcase .studio-poster-tag{margin:0;font-size:var(--c-small)}
+#app .mission-page .studio-showcase .studio-introduction{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);min-height:0;overflow:auto;padding:clamp(10px,1.6vh,18px) 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .studio-showcase .studio-field{gap:4px;font-size:var(--c-body)}
+#app .mission-page .studio-showcase .studio-field>span{font-size:var(--c-body)}
+#app .mission-page .studio-showcase .studio-field:has(textarea){flex:1 1 0;min-height:0}
+#app .mission-page .studio-showcase .studio-field input{height:auto;min-height:clamp(44px,5.6vh,60px);font-size:var(--c-body)}
+#app .mission-page .studio-showcase .studio-field textarea{flex:1 1 0;height:auto;min-height:52px;font-size:var(--c-body);resize:none}
+#app .mission-page .studio-showcase .studio-introduction>.btn{flex:none;min-height:clamp(50px,6.4vh,70px);font-size:var(--c-body)}
+#app .mission-page .studio-showcase .studio-download-note{margin:0;font-size:var(--c-small)!important}
+@media(max-height:650px){#app .mission-page .studio-showcase .studio-download-note,#app .mission-page .studio-showcase .studio-heading p{display:none}}
+
+/* ── Reward (장소 복구 완료) ────────────────────────────────────────────
+   Lighter veil so the trail-map art reads, the block sits in the middle of the screen,
+   lines that sit on the art get a cream chip, and the two action buttons stay centred together. */
+#app .reward-screen::before{background:#f4f1e6b8}
+#app main.reward-screen{display:flex;flex-direction:column;justify-content:safe center;padding:calc(var(--hud-top) * .5) 24px 16px}
+#app .reward-screen .reward-content{margin:0 auto;padding:0}
+#app .reward-screen .reward-content>h1{width:fit-content;max-width:calc(100% - 2 * var(--hud-right));margin:0 auto 6px;padding:4px 24px 6px;border-radius:16px;background:#fff9e9f2;box-shadow:0 3px 12px #2a3a2626;font-size:clamp(28px,4.2vh,48px)}
+#app .reward-screen .reward-content>p{width:fit-content;margin:0 auto;padding:2px 16px;border-radius:12px;background:#fff9e9e6;color:#5b4a2a;font-size:var(--c-body)}
+#app .reward-screen .reward-display{grid-template-columns:auto auto;justify-content:center;gap:clamp(20px,3vw,56px)}
+#app .reward-screen .restore-card{width:fit-content;max-width:100%;height:clamp(170px,34dvh,420px);justify-self:center}
+#app .reward-screen img.restore-photo{width:auto;max-width:100%;height:100%}
+#app .reward-screen .reward-tool>:is(small,h2){width:fit-content;margin-inline:auto;padding:2px 14px;border-radius:12px;background:#fff9e9e6}
+#app .reward-screen .reward-tool>small{font-size:var(--c-small)}
+#app .reward-screen .reward-tool>h2{font-size:clamp(26px,3.6vh,40px)}
+#app .reward-screen .commission-thanks{border:3px solid #4a3a22;border-radius:18px;background:#fff9e9;box-shadow:0 5px 0 #4a3a2266}
+#app .reward-screen .commission-thanks p{font-size:var(--c-body)!important}
+#app .reward-screen .commission-thanks>div>:is(small,b){font-size:var(--c-small)}
+#app .reward-screen .commission-reward-links .btn{min-height:clamp(50px,6vh,64px);font-size:var(--c-body);background:#fff9e9;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+#app .reward-screen .reward-actions{flex-direction:row;justify-content:center;align-items:center;gap:18px}
+#app .reward-screen .reward-actions>*{margin:0}
+#app .reward-screen .reward-actions>.btn{min-height:clamp(54px,6.6vh,72px);padding-inline:28px;font-size:clamp(20px,2.6vh,28px)}
+#app .reward-screen .reward-actions>.text-button{padding:6px 14px;border-radius:12px;background:#fff9e9e6;font-size:var(--c-small)}
+
+/* ── Ending certificate ────────────────────────────────────────────────
+   Text grows with the screen, the certificate fits one screen down to 1024×600. */
+#app main.ending{grid-template-columns:clamp(220px,21vw,400px) minmax(0,1fr);gap:12px 14px;padding:calc(var(--hud-top) + 4px) 14px 12px!important}
+#app main.ending .ending-banner{grid-row:1;padding:clamp(14px,2.4vh,30px) clamp(14px,1.4vw,26px)}
+#app main.ending .ending-banner .overline{font-size:var(--c-small)}
+#app main.ending .ending-banner h1{font-size:clamp(24px,3.6vh,44px);line-height:1.25}
+#app main.ending .ending-banner p{font-size:var(--c-body);line-height:1.5}
+#app main.ending .ending-banner>.art{width:auto;height:clamp(110px,24vh,300px);max-height:none}
+#app main.ending .final-record{display:flex;flex-direction:column;gap:clamp(6px,1.4vh,16px);padding:clamp(10px,2vh,26px) clamp(14px,1.6vw,30px)}
+#app main.ending .final-record>header>span{font-size:var(--c-small)}
+#app main.ending .final-record>header h2{margin:2px 0;font-size:clamp(24px,3.8vh,44px)}
+#app main.ending .final-record>header p{margin:2px 0 0;font-size:var(--c-body)}
+#app main.ending .final-stages{margin:0;flex-wrap:nowrap}
+#app main.ending .final-stages>span{padding:clamp(4px,1vh,12px) clamp(8px,1vw,18px);font-size:var(--c-small)}
+#app main.ending .final-stages>span>img{width:clamp(32px,5vh,60px);height:clamp(32px,5vh,60px)}
+#app main.ending .final-stages>span>b{font-size:var(--c-body)}
+#app main.ending .final-inventions{flex:1 1 auto;min-height:0;display:flex!important;flex-direction:column;gap:8px}
+#app main.ending .final-inventions>.panel-tabs{margin:0}
+#app main.ending .final-inventions article{flex:1 1 auto;min-height:auto;padding:clamp(8px,1.4vh,18px) 16px;gap:clamp(12px,1.6vw,28px)}
+#app main.ending .final-inventions .product-art{width:clamp(96px,22vh,300px);height:clamp(96px,22vh,300px)}
+#app main.ending .final-inventions h3{margin:2px 0;font-size:clamp(22px,3.4vh,40px)}
+#app main.ending .final-inventions p{margin:2px 0;font-size:var(--c-body)!important}
+#app main.ending .final-inventions article>div>:is(small,span){font-size:var(--c-small)!important}
+#app main.ending .sharing-question{margin:0;padding:clamp(8px,1.4vh,18px) 18px}
+#app main.ending .sharing-question b{font-size:var(--c-body)}
+#app main.ending .sharing-question p{margin:2px 0 0;font-size:var(--c-body);line-height:1.45}
+#app main.ending .ending-actions{grid-column:1/-1;flex-wrap:nowrap;gap:10px}
+#app main.ending .ending-actions .btn{min-height:clamp(48px,6vh,66px);padding:8px 18px;font-size:clamp(17px,2.3vh,26px)}
+@media(max-height:650px){
+  #app main.ending .final-record>header>span,#app main.ending .ending-banner>.art{display:none}
+  #app main.ending .final-inventions>.panel-tabs>.btn{min-height:40px}
+  #app main.ending .final-inventions article>div>small{display:none}
+  #app main.ending .final-inventions .product-art{width:96px;height:96px}
+  #app main.ending .final-inventions article{padding-block:4px}
+  #app main.ending .final-inventions h3{font-size:22px}
+}
+
+/* ── Home: title art and the start buttons only; the small labels grow on big screens. */
+#app .landing .landing-kicker{font-size:clamp(16px,2vh,24px)}
+#app .landing .landing-replay>span{font-size:clamp(17px,2.1vh,24px)}
+@media(max-height:650px){
+  /* The "pick one" pill rides on the corner of the study card instead of taking its own row. */
+  #app .mission-page .design-options .design-choices{position:relative}
+  #app .mission-page .design-options .design-choices:has(>.choice):not(:has(>.choice.selected))::before{position:absolute;right:6px;top:-32px;z-index:1}
+}
+
+/* Resident requests · letter · museum rooms · map */
+/* ===== D: commission pages, resident letter, museum rooms, map (overrides on top of src/layout.css) ===== */
+
+/* ── Commission: question card ───────────────────────────────────────────── */
+/* Choices fill the row (the grid kept 4 tracks because the pill spans 1/-1, leaving narrow 3-line boxes). */
+#app .commission-page .request-card .card-questions .record-options{display:flex!important;flex-wrap:wrap;gap:8px;margin:0!important}
+#app .commission-page .request-card .card-questions .record-options>.choice{flex:1 1 auto;width:auto;max-width:none;min-width:0;min-height:clamp(50px,6.4vh,72px);padding:8px 14px 8px 10px}
+#app .commission-page .request-card .choice-mark{width:clamp(24px,2.6vh,30px);height:clamp(24px,2.6vh,30px)}
+#app #main.commission-page .commission-choice>span{font-size:clamp(20px,2.5vh,28px)!important;line-height:1.3}
+/* "하나를 골라 눌러 봐" sits on the question's own line instead of taking a row of its own. */
+#app .commission-page .request-card .record-row{position:relative;padding:6px 12px 12px}
+#app .commission-page .request-card .card-questions .record-options:has(>.choice):not(:has(>.choice.selected))::before{position:absolute;top:0;right:12px;transform:translateY(calc(-100% - 3px));font-size:clamp(16px,1.9vh,21px)}
+#app .commission-page .request-card .card-questions .record-row>legend{padding-right:8px;max-width:calc(100% - clamp(190px,13vw,250px))}
+#app #main.commission-page .record-row>legend{font-size:clamp(20px,2.4vh,27px)!important}
+#app .commission-page .record-row>legend>span{width:clamp(28px,3vh,34px);height:clamp(28px,3vh,34px);font-size:clamp(16px,1.9vh,20px)}
+#app .commission-page .card-questions{gap:12px}
+#app .commission-page .card-body{grid-template-columns:minmax(0,1fr) minmax(260px,44%);align-items:center;gap:18px}
+#app .commission-page .request-part{gap:10px}
+#app #main.commission-page .request-part-heading h2{font-size:clamp(24px,3vh,36px)!important}
+#app .commission-page .request-part-heading{padding-right:clamp(220px,20vw,300px)}
+#app #main.commission-page .part-tag{font-size:clamp(15px,1.7vh,19px)!important}
+#app .commission-page .request-card>.commission-evidence{top:10px;right:12px;width:auto;max-width:clamp(220px,20vw,300px)}
+#app #main.commission-page .request-card>.commission-evidence>summary{font-size:clamp(16px,1.8vh,20px)!important}
+/* Request card is only as tall as what is on it; the hall art shows underneath. */
+#app .commission-page .request-parts{flex:0 1 auto;max-height:100%}
+#app .commission-page .request-part{flex:1 1 auto;max-height:100%}
+#app .commission-page .request-card .card-body{flex:1 1 auto}
+
+/* Deck chips and NPC card: readable labels. */
+#app #main.commission-page .deck-chip{font-size:clamp(17px,2vh,24px)!important}
+#app #main.commission-page .deck-count{font-size:clamp(15px,1.8vh,20px)!important}
+#app #main.commission-page .client-card .commission-tabs .btn{font-size:clamp(16px,1.8vh,20px)!important;min-height:44px}
+#app #main.commission-page .client-card>p{font-size:clamp(16px,1.8vh,20px)!important}
+
+/* Mori bubble: bigger line. */
+#app #main.commission-page .commission-feedback>p{font-size:clamp(18px,2vh,24px)!important}
+#app .commission-page .commission-feedback .mori{width:clamp(44px,5vh,56px);height:clamp(52px,6vh,66px)}
+
+/* ── Commission: the oak exhibit plaque ──────────────────────────────────── */
+#app .commission-page .card-result{container-type:inline-size;padding:24% 13% 15.5%!important;gap:.4cqw 3cqw;align-content:center}
+/* No animal (return / compare cards): the lines use the whole cream card. */
+#app #main.commission-page .card-result:not(:has(>.card-result-animal)){grid-template-columns:minmax(0,1fr)}
+#app #main.commission-page .card-result:not(:has(>.card-result-animal))>.card-stamp{grid-column:1;text-align:center}
+#app #main.commission-page .card-result:not(:has(>.card-result-animal))>ol>li>b{font-size:clamp(16px,6.6cqw,34px)!important}
+#app #main.commission-page .card-result:not(:has(>.card-result-animal))>ol>li>small{font-size:clamp(13px,4.4cqw,22px)!important}
+#app .commission-page .card-result-animal>.animal{width:clamp(56px,31cqw,190px);max-height:none}
+#app #main.commission-page .card-result-animal>b{font-size:clamp(15px,5.6cqw,30px)!important}
+#app .commission-page .card-result>ol{gap:.8cqw}
+#app #main.commission-page .card-result>ol>li>small,#app #main.commission-page .card-result li small{font-size:clamp(13px,4.1cqw,21px)!important;line-height:1.25;color:#7a6a48}
+#app #main.commission-page .card-result>ol>li>b,#app #main.commission-page .card-result li b{font-size:clamp(15px,5.8cqw,30px)!important;line-height:1.25}
+#app #main.commission-page .card-result>ol>li>b.blank{letter-spacing:.05em}
+#app .commission-page .card-result li{padding:.5cqw 0 1cqw!important}
+#app .commission-page .card-result li:has(>.animal){display:grid!important;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center}
+#app .commission-page .card-result li:has(>.animal)>small{grid-column:1/-1}
+#app .commission-page .card-result>ol>li>.animal{width:clamp(28px,10cqw,60px);height:clamp(28px,10cqw,60px)}
+#app #main.commission-page .card-result>.card-stamp{font-size:clamp(13px,3.9cqw,20px)!important;line-height:1.3}
+#app #main.commission-page .card-result.complete>.card-stamp{font-size:clamp(14px,4.6cqw,24px)!important;top:15%}
+/* Brass strip: title only (the icon overlapped the letters), engraved look. */
+#app #main.commission-page .card-result>h3{left:32%;right:32%;top:87.8%;bottom:5%;font-size:clamp(13px,4.5cqw,26px)!important;letter-spacing:.02em;overflow:hidden}
+#app .commission-page .card-result>h3 .icon{display:none}
+
+/* ── Commission: own-sort / sort card ────────────────────────────────────── */
+#app #main.commission-page .arrival-sort .criterion-chooser>legend,#app #main.commission-page .arrival-sort .sort-question{font-size:clamp(20px,2.4vh,27px)!important}
+#app #main.commission-page .arrival-sort .criterion-chooser .btn{font-size:clamp(18px,2.2vh,25px)!important;min-height:clamp(48px,6vh,64px)}
+#app #main.commission-page .arrival-sort .interaction-note{font-size:clamp(17px,2vh,22px)!important}
+#app .commission-page .arrival-sort .arrival-card{max-width:none}
+#app #main.commission-page .arrival-sort .arrival-card>b{font-size:clamp(18px,2.2vh,25px)!important}
+#app #main.commission-page .arrival-sort .arrival-card>small{font-size:clamp(15px,1.7vh,19px)!important;line-height:1.35}
+#app .commission-page .arrival-sort .arrival-card>.animal{width:clamp(48px,6vh,80px);height:clamp(48px,6vh,80px)}
+#app #main.commission-page .arrival-bin .sort-symbol{font-size:clamp(26px,3.4vh,40px)!important}
+#app #main.commission-page .arrival-bin :is(small,span){font-size:clamp(16px,1.8vh,20px)!important}
+
+/* ── Commission: retest card (stage 5) — controls left, results right ───── */
+#app .commission-page .request-card:has(.request-lab) .request-part-heading{padding-right:0}
+#app .commission-page .request-card:has(.request-lab)>.commission-evidence{position:absolute;top:10px;right:12px}
+#app .commission-page .request-lab>blockquote{margin:0 0 8px;padding:8px 14px}
+#app #main.commission-page .request-lab>blockquote :is(b,p){font-size:clamp(18px,2.2vh,24px)!important;line-height:1.35}
+#app .commission-page .request-lab .request-lab-grid{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
+#app .commission-page .request-lab .retest-controls{display:flex!important;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid #e2d6b2;border-radius:16px;background:#fffdf5}
+#app .commission-page .request-lab .retest-controls>h2{display:none}
+#app .commission-page .request-lab .retest-model{max-height:clamp(90px,16vh,200px);margin:0;border-radius:12px}
+#app .commission-page .request-lab .retest-model svg{display:block;width:100%;height:clamp(90px,16vh,200px)}
+#app .commission-page .request-lab :is(.retest-controls,.retest-results) fieldset{margin:0;padding:0;border:0;min-width:0}
+#app #main.commission-page .request-lab :is(.retest-controls,.retest-results) legend{margin:0 0 6px;font-size:clamp(19px,2.3vh,26px)!important;font-weight:700}
+#app .commission-page .request-lab .inline-options{display:flex;flex-wrap:wrap;gap:8px}
+#app .commission-page .request-lab .inline-options>.btn{flex:1 1 0;min-width:0;min-height:clamp(48px,6vh,64px);padding:6px 10px;border:2px solid #c9b98a;border-radius:14px;box-shadow:0 3px 0 #c9b98a}
+#app #main.commission-page .request-lab .inline-options>.btn{font-size:clamp(18px,2.2vh,25px)!important}
+#app .commission-page .request-lab .inline-options>.btn.quiet{background:#fffdf5;color:#2f3a2a}
+#app .commission-page .request-lab .inline-options>.btn.selected:not(.choice){background:#eaf3d6;border-color:#4f7a45;box-shadow:0 3px 0 #4f7a45;color:#22372a}
+#app .commission-page .request-lab .retest-controls>.btn.primary{align-self:center;min-height:clamp(52px,6.5vh,68px);padding:8px 26px}
+#app #main.commission-page .request-lab .retest-controls>.btn.primary{font-size:clamp(20px,2.5vh,28px)!important}
+#app .commission-page .request-lab .retest-results{display:flex!important;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid #e2d6b2;border-radius:16px;background:#fffdf5}
+#app #main.commission-page .request-lab .retest-results>h3{margin:0;font-size:clamp(20px,2.4vh,27px)!important}
+#app #main.commission-page .request-lab .retest-results>p{margin:0;font-size:clamp(16px,1.9vh,21px)!important;line-height:1.4;color:#5b4a2a}
+#app .commission-page .request-lab .retest-results>table{width:100%;margin:0;border-collapse:collapse}
+#app #main.commission-page .request-lab .retest-results caption{font-size:clamp(14px,1.6vh,18px)!important;text-align:left;color:#7a6a48;padding-bottom:2px}
+#app #main.commission-page .request-lab .retest-results :is(td,th){padding:4px 8px;font-size:clamp(17px,2vh,22px)!important;line-height:1.3}
+#app #main.commission-page .request-lab .retest-results th small{font-size:clamp(14px,1.6vh,18px)!important}
+#app .commission-page .request-lab .retest-results .record-row{margin:0;padding:0;border:0;background:none}
+#app .commission-page .request-lab .retest-results .record-options{display:flex!important;flex-wrap:wrap;gap:8px}
+#app .commission-page .request-lab .retest-results .record-options>.choice{flex:1 1 30%;min-width:0;min-height:clamp(48px,6vh,64px)}
+#app .commission-page .request-lab .retest-results .record-options:has(>.choice):not(:has(>.choice.selected))::before{display:none}
+
+/* Choices that show an animal photo: small photo so the name never clips. */
+#app .commission-page .request-card .commission-choice .animal{width:clamp(34px,4.4vh,52px);height:clamp(30px,4vh,46px)}
+/* Three-question cards (broadcast): a slimmer plaque so all three rows fit. */
+#app .commission-page .card-body:has(.record-row:nth-child(3)){grid-template-columns:minmax(0,1fr) minmax(240px,38%)}
+#app .commission-page .card-body:has(.record-row:nth-child(3)) .card-questions{gap:8px}
+#app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row{padding-bottom:8px}
+#app .commission-page .card-body:has(.record-row:nth-child(3)) .record-options>.choice{min-height:clamp(44px,5.6vh,66px);padding-top:4px;padding-bottom:4px}
+/* Retest on screens under 900px tall: the deck chip already names the card, so the heading row and intro step aside for the customer's request. */
+@media(max-height:900px){
+ #app .commission-page .request-card:has(.request-lab)>:is(.request-part-heading,.request-part-intro){display:none}
+ #app .commission-page .request-card:has(.request-lab) .request-lab>blockquote{padding-right:clamp(230px,22vw,300px)}
+ #app #main.commission-page .request-lab .retest-results>p{display:none}
+}
+#app .commission-page .request-lab .retest-results .record-options>.choice,#app .commission-page .request-lab .inline-options>.btn{flex:1 1 auto;width:auto;max-width:none}
+
+/* ── Short screens (1024x600) ────────────────────────────────────────────── */
+@media(max-height:650px){
+ #app main.commission-page{padding-bottom:78px!important}
+ #app .commission-page .commission-work{gap:6px}
+ #app .commission-page .deck-nav{padding:3px 8px;gap:6px}
+ #app .commission-page .deck-chip{min-height:38px;padding:2px 10px}
+ #app .commission-page .deck-nav>.btn{min-height:40px}
+ #app .commission-page .request-part{padding:8px 12px!important;gap:6px;border-radius:18px}
+ #app #main.commission-page .request-part-heading h2{font-size:22px!important}
+ #app #main.commission-page .request-part-intro{padding:4px 10px;font-size:17px!important;line-height:1.35}
+ #app .commission-page .request-card>.commission-evidence{top:6px}
+ #app .commission-page .request-card>.commission-evidence>summary{min-height:40px;padding:4px 10px}
+ #app .commission-page .request-card .record-row{padding:2px 8px 8px}
+ #app .commission-page .card-questions{gap:6px}
+ #app #main.commission-page .record-row>legend{font-size:18px!important}
+ #app .commission-page .request-card .card-questions .record-options>.choice{flex-basis:120px;min-height:44px;padding:4px 10px 4px 8px;gap:8px}
+ #app #main.commission-page .commission-choice>span{font-size:17px!important}
+ #app .commission-page .request-card .card-questions .record-options:has(>.choice):not(:has(>.choice.selected))::before{font-size:14px;padding:1px 10px 2px}
+ #app .commission-page .card-body{grid-template-columns:minmax(0,1fr) minmax(220px,40%);gap:10px}
+ #app .commission-page .card-result{grid-template-columns:auto minmax(0,1fr)}
+ #app .commission-page .card-result-animal{display:flex!important}
+ #app .commission-page .card-result-animal>b{display:none!important}
+ #app .commission-page .card-result-animal>.animal{width:26cqw}
+ #app #main.commission-page .card-result>.card-stamp{display:none}
+ #app #main.commission-page .commission-feedback>p{font-size:16px!important}
+ #app .commission-page .commission-feedback{max-width:calc(100vw - 420px)}
+ #app .commission-page .commission-footer>.btn{min-height:50px;padding:6px 16px;font-size:18px}
+ #app .commission-page .request-card:has(.request-lab)>.request-part-intro{display:none}
+ #app .commission-page .request-lab>blockquote{padding:4px 230px 4px 10px;margin-bottom:6px}
+ #app #main.commission-page .request-lab>blockquote :is(b,p){font-size:16px!important}
+ #app .commission-page .request-lab .retest-model{display:none}
+ #app #main.commission-page .request-lab .retest-results>p{display:none}
+ #app .commission-page .request-lab .inline-options>.btn,#app .commission-page .request-lab .retest-results .record-options>.choice{min-height:42px}
+ #app #main.commission-page .request-lab .inline-options>.btn,#app #main.commission-page .request-lab .retest-results .commission-choice>span{font-size:16px!important}
+ #app #main.commission-page .request-lab :is(.retest-controls,.retest-results) legend{font-size:17px!important;margin-bottom:4px}
+ #app .commission-page .request-lab :is(.retest-controls,.retest-results){padding:6px 8px;gap:6px}
+ #app .commission-page .request-lab .retest-results>h3,#app .commission-page .request-lab .retest-results caption{display:none}
+ #app #main.commission-page .request-lab .retest-results :is(td,th){padding:2px 6px;font-size:15px!important}
+ #app .commission-page .request-lab .retest-controls>.btn.primary{min-height:46px}
+ #app .commission-page .request-lab .request-lab-grid{gap:8px}
+ #app .commission-page .request-lab .retest-results :is(.record-options,.inline-options){flex-wrap:nowrap}
+ #app .commission-page .request-lab .retest-results :is(.record-options,.inline-options)>.choice{flex:1 1 0;padding:4px 6px;gap:6px;line-height:1.25}
+ #app .commission-page .request-lab .retest-results .choice-mark{width:22px;height:22px}
+ #app #main.commission-page .request-lab .retest-results .record-row .commission-choice>span{font-size:15px!important;line-height:1.2}
+ #app .commission-page .request-lab .retest-results{gap:4px}
+}
+@media(max-width:1100px){
+ #app .commission-page .deck-nav>.deck-count{display:none}
+ #app .commission-page .deck-chips{gap:4px}
+ #app .commission-page .deck-chip{padding:2px 8px;gap:4px}
+ #app #main.commission-page .deck-chip{font-size:16px!important}
+}
+
+/* ── Resident letter: bigger real letter, text scaled to the paper, buttons on the desk below the seal ── */
+dialog:has(.resident-letter){width:min(94vw,800px,calc((100dvh - 24px)*900/1194));max-width:none;max-height:none}
+dialog:has(.resident-letter) .resident-letter{container-type:inline-size;width:100%;max-height:none;padding:12% 20% 28% 20%;gap:1.4cqw;min-height:0;overflow:hidden}
+dialog:has(.resident-letter) .resident-letter .letter-sender{gap:3cqw;padding-bottom:1.4cqw}
+dialog:has(.resident-letter) .resident-letter .letter-sender .commission-npc{height:clamp(56px,20cqw,130px)}
+dialog:has(.resident-letter) .resident-letter .letter-sender small{font-size:clamp(13px,3.8cqw,20px)}
+dialog:has(.resident-letter) .resident-letter .letter-sender b{font-size:clamp(18px,6cqw,32px)}
+dialog:has(.resident-letter) .resident-letter>h3{font-size:clamp(20px,7.2cqw,40px)}
+dialog:has(.resident-letter) .resident-letter>p{font-size:clamp(15px,5.1cqw,27px);line-height:1.45}
+dialog:has(.resident-letter) .resident-letter .letter-tasks{gap:2cqw}
+dialog:has(.resident-letter) .resident-letter .letter-tasks>li{gap:2.6cqw;padding:2cqw 2.6cqw;background:#fff8e2e6;border-color:#d9c58a;box-shadow:0 2px 0 #d9c58a99}
+dialog:has(.resident-letter) .resident-letter .letter-tasks>li>i{width:clamp(26px,8cqw,42px);height:clamp(26px,8cqw,42px);font-size:clamp(16px,5cqw,26px)}
+dialog:has(.resident-letter) .resident-letter .letter-tasks b{font-size:clamp(16px,5.5cqw,29px)}
+dialog:has(.resident-letter) .resident-letter .letter-tasks span{font-size:clamp(15px,5.1cqw,27px);line-height:1.4}
+/* Signature sits right of the wax seal; the buttons sit on the wooden desk under the paper. */
+dialog:has(.resident-letter) .resident-letter .letter-signature{margin:auto 0 0;font-size:clamp(14px,4.8cqw,24px);line-height:1.35;text-align:right}
+dialog:has(.resident-letter) .resident-letter .dialog-actions{position:absolute!important;left:0;right:0;bottom:1.2%;margin:0;gap:12px;justify-content:center}
+dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{min-height:clamp(46px,8cqw,60px);font-size:clamp(17px,5cqw,24px);padding:6px 22px}
+dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{background:#fff9e9;color:#3f3420;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+@media(max-height:650px){
+ dialog:has(.resident-letter){width:min(94vw,calc((100dvh - 16px)*900/1010))}
+ dialog:has(.resident-letter) .resident-letter{aspect-ratio:900/1010;padding:11% 19% 26% 19%;gap:1.2cqw}
+ dialog:has(.resident-letter) .resident-letter .letter-sender .commission-npc{height:56px}
+ dialog:has(.resident-letter) .resident-letter>h3{font-size:22px}
+ dialog:has(.resident-letter) .resident-letter>p{font-size:16px}
+ dialog:has(.resident-letter) .resident-letter .letter-tasks b{font-size:17px}
+ dialog:has(.resident-letter) .resident-letter .letter-tasks span{font-size:16px;line-height:1.35}
+ dialog:has(.resident-letter) .resident-letter .letter-tasks>li{padding:1.4cqw 2cqw}
+ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{min-height:44px;font-size:17px}
+}
+
+/* ── Museum rooms: plaques take the wall, Mori-style quote and the challenge button float in the bottom row ── */
+#app .museum-page .museum-exhibit{grid-template-rows:auto minmax(0,1fr);gap:10px 22px}
+#app .museum-page .museum-exhibit>header{padding:4px 18px 4px 6px;gap:10px}
+#app .museum-page .museum-exhibit>header .commission-npc{height:clamp(44px,5.4vh,64px)}
+#app .museum-page .museum-exhibit>header>div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+#app #main.museum-page .museum-exhibit>header h2{font-size:clamp(20px,2.6vh,30px)!important}
+#app #main.museum-page .museum-exhibit>header :is(small,span){font-size:clamp(15px,1.7vh,19px)!important}
+/* Quote: a speech bubble centered in the bottom row (between the challenge button and the save button). */
+#app .museum-page .museum-exhibit>blockquote{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:3900;width:max-content;max-width:min(760px,calc(100vw - 2 * clamp(200px,18vw,300px)));padding:8px 16px;font-size:clamp(16px,1.9vh,22px);line-height:1.35}
+#app #main.museum-page .museum-exhibit>blockquote{font-size:clamp(17px,2.1vh,24px)!important}
+#app .museum-page .museum-exhibit>.btn{position:fixed;left:12px;bottom:12px;z-index:3900;min-height:56px;padding:8px 20px}
+#app #main.museum-page .museum-exhibit>.btn{font-size:clamp(18px,2vh,22px)!important}
+#app #main.museum-page>footer>.btn{font-size:clamp(18px,2vh,22px)!important}
+/* Plaques: contents sized to the plaque (size container), centered on the cream card. */
+#app .museum-page .museum-exhibit>section{grid-row:2;container-type:size;--pt:clamp(56px,11.5vh,124px);--pb:clamp(42px,7.5vh,78px);border-left-width:clamp(22px,3vw,48px);border-right-width:clamp(22px,3vw,48px);border-image-width:var(--pt) clamp(22px,3vw,48px) var(--pb);padding:clamp(2px,1vh,12px) clamp(14px,2.4vw,40px);gap:1.4cqh;overflow:visible;justify-content:center}
+#app .museum-page .museum-specimens{gap:5cqw;flex:none}
+#app .museum-page .museum-specimens .animal{height:clamp(40px,30cqh,240px);max-width:40cqw}
+#app #main.museum-page .museum-specimens figcaption{font-size:clamp(14px,min(4.2cqw,6cqh),32px)!important;line-height:1.2}
+#app .museum-page .museum-exhibit>section>ul{flex:none}
+#app #main.museum-page .museum-exhibit>section>ul>li{padding:.6cqh 2px .9cqh;font-size:clamp(14px,min(4.3cqw,6.4cqh),34px)!important;line-height:1.3}
+#app #main.museum-page .museum-exhibit>section>p{font-size:clamp(14px,min(3.9cqw,6.4cqh),30px)!important;line-height:1.35;text-align:center}
+#app #main.museum-page .museum-exhibit>section:has(.exhibit-criterion)>ul{columns:2;column-gap:5cqw}
+#app #main.museum-page .museum-exhibit>section:has(.exhibit-criterion)>ul>li{break-inside:avoid}
+#app #main.museum-page .museum-exhibit>section>.exhibit-criterion{padding:2px 12px;border-radius:999px;background:#e9f1d8;color:#2f4a2c;font-weight:700}
+#app .museum-page .museum-model{max-width:min(70cqw,420px);max-height:34cqh;overflow:hidden}
+#app .museum-page .museum-model svg{max-height:34cqh;width:100%}
+/* Brass strip: title sized to the strip (the strip is the bottom border of the 9-slice). */
+#app #main.museum-page .museum-exhibit>section>h3{left:30%;right:30%;font-size:clamp(13px,min(3.6cqw,calc(var(--pb) * .34)),26px)!important;text-overflow:ellipsis}
+#app .museum-page .museum-exhibit>.empty-exhibit{font-size:clamp(20px,2.4vh,28px)}
+@media(max-height:650px){
+ #app .museum-page .museum-exhibit>section{--pt:46px;--pb:38px;border-left-width:20px;border-right-width:20px;border-image-width:46px 20px 38px}
+ #app .museum-page .museum-exhibit>blockquote{max-width:calc(100vw - 2 * 210px);padding:5px 10px}
+ #app #main.museum-page .museum-exhibit>blockquote{font-size:15px!important}
+ #app .museum-page .museum-exhibit>.btn{min-height:50px}
+ #app #main.museum-page .museum-specimens .animal{height:clamp(30px,24cqh,90px)}
+}
+#app #main.museum-page>.museum-heading>h1{font-size:clamp(20px,2.4vh,28px)!important}
+#app #main.museum-page>.museum-heading>.btn{font-size:clamp(17px,2vh,22px)!important;min-height:clamp(46px,5vh,56px)}
+#app #main.museum-page .museum-exhibits>.panel-tabs>.btn{font-size:clamp(17px,2vh,23px)!important}
+
+/* ── Map: place labels and resident names grow on big screens (1920) so they read from the back of the class ── */
+@media(min-width:1500px) and (min-height:850px){
+ #app .map-page .map-marker{min-width:140px}
+ #app .map-page .map-marker>span{width:42px;height:42px}
+ #app .map-page .map-marker>span>.icon{width:24px;height:24px}
+ #app .map-page .map-marker>b{font-size:20px;padding:8px 12px}
+ #app .map-page .map-marker>b>small{font-size:15px}
+ #app .map-page .map-marker .node-state{font-size:15px;padding:4px 10px 6px}
+ #app .map-page .node-progress .icon{width:18px;height:18px}
+ #app .map-page .village-resident>span{font-size:18px;bottom:-22px}
+}
+#app .museum-page .museum-specimens:has(>figure:nth-child(3)) .animal{max-width:21cqw}
+#app #main.museum-page .museum-exhibit>.empty-exhibit{font-size:clamp(20px,2.4vh,28px)!important;color:#3b2a1a;opacity:1}
+#app .mission-page .buddy-toggle .mori{display:block!important;width:64px!important;height:72px!important}

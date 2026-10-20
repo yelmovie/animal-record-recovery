@@ -75,7 +75,7 @@ function render(){
   const route=[screen,stage,step,activeHabitat,s.activeAnimal,screen==='commission'?requestCard:''].join(':');
   const scroll=route===renderedRoute?[...app.querySelectorAll('.request-part,.motion-observer,.lens-notes')].map(el=>el.scrollTop):[];
   const expanded=route===renderedRoute?[...app.querySelectorAll('.commission-evidence')].map(el=>el.open):[];
-  const freshRoute=route!==renderedRoute;renderedRoute=route;
+  renderedRoute=route;
   syncMusic();
   storyPlayer?.destroy();storyPlayer=null;
   stopMotionFrame();
@@ -86,8 +86,6 @@ function render(){
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   setupPanels();
-  // A new activity opens with Mori saying what to do, then the bubble tucks away (tap Mori to see it again).
-  if(freshRoute&&screen==='mission'&&typeof setTimeout==='function'){const b=app.querySelector?.('.guide-buddy');if(b&&!feedback){b.classList.add('open');setTimeout(()=>b.classList.remove('open'),5000);}}
   if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{s.studio=next;save();}});
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
