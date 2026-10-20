@@ -160,3 +160,19 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 
 - `adventure/title-logo-v1.webp`: Codex 내장 image_gen(OpenAI 이미지 생성)으로 만든 '동물기록 복구작전' 제목 글자 그림. 원본 `output/imagegen/animal-record-title-concept-v1.png`, 프롬프트 `output/imagegen/animal-record-title-concept-v1.prompt.txt`(`output/`은 깃 제외). 1200×800, 투명 배경 WebP. 자세한 기록은 `docs/landing-title.md`.
 - 상업 이용: 가능(위 검토표의 OpenAI 이미지 생성 항목).
+
+### 개념 영상 5편 (2026-10-21)
+
+| 파일 | 만든 방법 |
+|---|---|
+| `concepts/warm-fur.{webm,mp4,webp}` (12초) | 자체 SVG 렌더러(`tools/concept-clips/`: SVG 프레임 → sharp → FFmpeg)로 직접 그림. 털 없는 몸·털 있는 몸에서 열이 빠져나가는 정도 비교 |
+| `concepts/webbed-foot.{webm,mp4,webp}` (10초) | 같은 렌더러. 오리 물갈퀴·발가락만 있는 발·사람 발의 오리발이 물을 미는 모습 |
+| `concepts/shell-helmet.{webm,mp4,webp}` (10초) | 같은 렌더러. 거북 등딱지와 안전모가 부딪힘을 막는 모습 |
+| `concepts/sort-criteria.{webm,mp4,webp}` (12초) | 같은 렌더러. 생각 질문·관찰 질문으로 나눈 결과 비교(O·X 는 도형으로 그림) |
+| `concepts/habitat-life.{webm,mp4,webp}` (12.9초) | 이미 출처가 적힌 `videos/motion/camel.mp4`·`penguin.mp4`·`duck.mp4` 에서 4.3초씩 잘라 FFmpeg 로 이어 붙임(1280×720, 소리 없음). 새로 생성한 장면 없음 |
+
+- 그림 안에 글자·숫자가 없고 소리가 없다. 설명 자막은 앱이 화면 위에 따로 얹는다.
+- `.webp` 는 각 영상의 마지막 장면(포스터).
+- SVG 4편은 외부 소재·생성형 AI·Remotion 을 쓰지 않았다. sharp(Apache-2.0)와 FFmpeg(LGPL/GPL 빌드, 도구로만 사용·배포물에 포함하지 않음)만 썼다.
+- `habitat-life` 는 잘라 쓴 움직임 영상의 출처(위 기록: 오리는 사용자 제공 생성 영상, 낙타·펭귄은 Higgsfield Kling 생성)를 그대로 따른다. AI 생성 관찰 자료다.
+- 같은 날 `videos/motion/camel.mp4`·`penguin.mp4` 를 1920×1080 → 1280×720 으로 다시 인코딩했다(길이·파일명 그대로, 소리 없음). 원본 백업은 `D:/iscreammedia_sc34/_scratch/concept-clips-20261021/backup/`.

@@ -9,6 +9,8 @@ export const SETTINGS_TEXT={
   replayIntro:'이 탐험을 하는 이유 다시 보기',
   replayOutro:'엔딩 다시 보기',
   certificate:'나의 탐험 기록 보기',
+  replayVideos:'움직임·개념 영상 다시 보기',
+  replayVideosNote:'마친 활동의 영상만 열려요. 영상은 소리 없이 자막과 함께 나와요.',
   lockedAfterFinish:'다섯 장소를 모두 되찾으면 볼 수 있어요.',
   about:[
     ['탐험 목적','사라진 동물 기록을 되찾으며 관찰하고, 분류하고, 근거를 찾고, 발명하는 힘을 연습해요.'],
@@ -57,6 +59,7 @@ export const SETTINGS_TEXT={
       '동물 3D 모형 · Meshy · 프로젝트 자체 생성',
       '낙타·펭귄·인트로·아웃트로 영상 · Higgsfield(Kling 3.0) · 프로젝트 자체 생성',
       '그 밖의 동물 움직임 영상 6종 · 프로젝트 제공 AI 생성 영상',
+      '개념 영상 5종 · 자체 SVG 렌더러 + FFmpeg · 프로젝트 자체 제작',
     ]],
     ['배경 음악',[
       'Curious Little Step · Suno · 프로젝트 자체 생성',

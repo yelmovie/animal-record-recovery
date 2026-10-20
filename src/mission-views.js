@@ -4,6 +4,8 @@ import {ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,HABITATS,DOME_Z
 import {art,animal,icon,sprite,btn,choice,esc,off,withParticle} from './presentation.js';
 import {assetURL,workshopSprite} from './assets.js';
 import {studioView} from './studio-views.js';
+import {conceptButton} from './concept-video.js';
+import {activityUnlocked} from './concepts.js';
 
 export const INSTRUCTIONS={
   1:['아래에서 몸의 부분을 고르고, 본 모습에 맞는 설명을 골라 기록해 봐.','맞는 카드 2장만 같은 점·다른 점에 놓고, 그림과 다른 설명은 남겨 둬.','부분 버튼으로 새 동물을 살펴보고, 맞는 설명을 골라 기록해 봐.','오리와 토끼의 맞는 카드 2장만 같은 점·다른 점에 놓고, 그림과 다른 설명은 남겨 둬.'],
@@ -54,7 +56,7 @@ const KEYWORDS=[['legs','다리'],['web','물갈퀴'],['fin','지느러미'],['s
 // Screen 05: one table of researcher A/B/C answers; rows that differ are marked so the cause is visible.
 function verifyTable(key){const bad=disagreements(key);return '<table class="verify-table"><caption>'+CRITERIA[key]+'</caption><thead><tr><th>동물</th><th>연구원 A</th><th>연구원 B</th><th>연구원 C</th></tr></thead><tbody>'+SORT_ANIMALS.map(id=>'<tr class="'+(bad.includes(id)?'differ':'')+'"><th>'+animal(id)+ANIMALS[id].name+'</th>'+researcherAnswers(key,id).map(a=>'<td class="'+a+'">'+(a==='yes'?'O':'X')+'</td>').join('')+'</tr>').join('')+'</tbody></table><p class="verify-summary '+(bad.length?'bad':'good')+'">'+(bad.length?icon('close')+' '+SORT_ANIMALS.length+'마리 중 '+bad.length+'마리에서 결과가 달라.':icon('check')+' 세 연구원의 결과가 모두 같아!')+'</p>';}
 function verifyLab(s,v){const x=s.inquiry.verify[0],shown=x.checked||(x.ran?'fast':'');
-  return '<div class="verify-lab"><section class="verify-results">'+(shown?verifyTable(shown):'<div class="verify-empty">'+icon('layers')+'<p>모리가 가져온 기준 <b>‘'+CRITERIA.fast+'’</b>로<br>연구원 세 명이 동물을 나눴어.</p></div>')+'</section><section class="verify-steps"><div class="verify-step '+(x.ran?'done':'')+'"><h3><span>1</span>기준 검증하기</h3>'+btn(x.ran?'검증 완료 ✓':'검증 실행','verify-run',x.ran?'quiet':'primary')+'</div>'
+  return '<div class="verify-lab"><section class="verify-results">'+(shown?verifyTable(shown):'<div class="verify-empty">'+icon('layers')+'<p>모리가 가져온 기준 <b>‘'+CRITERIA.fast+'’</b>로<br>연구원 세 명이 동물을 나눴어.</p></div>')+(activityUnlocked(s,'sort-criteria')?conceptButton('sort-criteria','정리 영상 보기'):'')+'</section><section class="verify-steps"><div class="verify-step '+(x.ran?'done':'')+'"><h3><span>1</span>기준 검증하기</h3>'+btn(x.ran?'검증 완료 ✓':'검증 실행','verify-run',x.ran?'quiet':'primary')+'</div>'
    +(x.ran?'<div class="verify-step '+(x.cause==='opinion'?'done ':'')+miss(v,'verify:cause')+'"><h3><span>2</span>왜 결과가 달라졌을까?</h3><div class="choices">'+CAUSES.map(([value,label])=>choice(label,'verify-cause',value,x.cause===value)).join('')+'</div></div>':'')
    +(x.cause==='opinion'?'<div class="verify-step '+miss(v,'verify:fix')+'"><h3><span>3</span>기준 고치기</h3><div class="criteria-chips">'+[...OBSERVABLE.slice(0,3),'cute','scary',...OBSERVABLE.slice(3)].map(k=>choice(CRITERIA[k],'verify-fix',k,x.fix===k)).join('')+'</div>'+btn('다시 검증','verify-recheck','primary',x.fix?'':off('먼저 고칠 기준을 골라 줘.'))+'</div>':'')+'</section></div>';}
 function sortView(s,v){const r=v.round,own=s.criteria[1];

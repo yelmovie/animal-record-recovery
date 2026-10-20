@@ -16,19 +16,21 @@ import * as presentation from '../src/presentation.js';
 import * as shell from '../src/shell-views.js';
 import {createNavigation} from '../src/navigation.js';
 import * as drag from '../src/drag.js';
+import * as conceptVideo from '../src/concept-video.js';
+import * as concepts from '../src/concepts.js';
 
 const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
 function appHarness({fail=false,motion=false,three=false}={}){
-  let stored=null,warning=null,writeFailure=fail,exported=null;
+  let stored=null,warning=null,writeFailure=fail,exported=null;const music=[];
   const listeners=new Map(),heading={textContent:''},status={textContent:''},announcer={textContent:''},link={href:''},quest={innerHTML:'',inert:true},travel={textContent:''};
   const app={_html:'',get innerHTML(){return this._html;},set innerHTML(v){this._html=v;warning=null;},querySelectorAll(){return [];},insertAdjacentHTML(_,text){warning={text,remove(){warning=null;}};}};
   const dialog={open:false,innerHTML:'',showModal(){this.open=true;},close(){this.open=false;},addEventListener(){}};
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(){},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
-  return {run,app,dialog,status,announcer,slider,inputControl(target){listeners.get('input')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
+  return {run,app,dialog,music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
 test('current controller reports storage failure immediately and recovers without losing progress',()=>{
   const a=appHarness({fail:true});assert.equal(a.run('storageOK'),false);assert.match(a.warning.text,/role="alert"/);assert.match(a.status.textContent,/저장/);a.run("s.observed.push('frog-eye');render()");assert.ok(a.warning);a.setFail(false);a.run('save()');assert.equal(a.warning,null);assert.deepEqual(JSON.parse(a.saved).observed,['frog-eye']);
@@ -202,4 +204,13 @@ test('effect volume input persists independently and survives record reset',()=>
  assert.equal(JSON.parse(a.saved).musicVolume,.5);
  a.run("act('reset',{dataset:{}})");
  assert.equal(a.run('s.soundVolume'),.35);
+});
+
+test('concept clips open only when unlocked, stop the village music, and settings returns to the replay list',()=>{
+ const a=appHarness();a.run("act('concept-open',{dataset:{id:'warm-fur',value:'settings'}})");assert.equal(a.dialog.open,false);
+ a.run("s.designs[0].problem='warm';s.designs[0].experiment.sourceSeen=true;s.designs[0].experiment.level=2;s.designs[0].experiment.trials=[{problem:'warm',level:1,prediction:'less'},{problem:'warm',level:2,prediction:'less'}];conceptPlayer=null;act('concept-open',{dataset:{id:'warm-fur',value:'settings'}})");
+ assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/concept-player/);assert.match(a.dialog.innerHTML,/털이 몸의 열을 지키는 방법/);assert.match(a.dialog.innerHTML,/concept-back/);
+ a.run("act('concept-back',{dataset:{}})");assert.match(a.dialog.innerHTML,/settings-card concept-replays" open/);
+ // While a player is open the village theme is asked to stop.
+ a.run("conceptPlayer={destroy(){}};syncMusic()");assert.equal(a.music.at(-1),null);a.run("conceptPlayer=null;syncMusic()");assert.equal(a.music.at(-1),'village');
 });

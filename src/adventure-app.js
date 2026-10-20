@@ -3,6 +3,8 @@ import {normalizeStudio} from './studio.js';
 import {mountStudio,downloadStudioArtwork} from './studio-runtime.js';
 import {createMotionPlayer,videoFrameAt} from './motion-video.js';
 import {createStoryPlayer} from './story-player.js';
+import {conceptView,createConceptPlayer} from './concept-video.js';
+import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
 import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem} from './expedition.js';
@@ -21,7 +23,7 @@ try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedit
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
 let studentSnapshot=null,mapWalkVersion=0;
-let commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null;
+let commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
@@ -67,8 +69,8 @@ function setupPanels(){
   }
 }
 let renderedRoute='',unmountStudio=null;
-// One village theme everywhere; it keeps quiet while a story video plays (the outro carries its own finale music).
-function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'?null:'village');}
+// One village theme everywhere; it keeps quiet while a story or concept video is open (the outro carries its own finale music).
+function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:'village');}
 function render(){
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
@@ -152,7 +154,7 @@ function go(where){requestCard=null;caseHint=false;labSummary=false;autoEnter=fa
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
 function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
-function modal(title,content){stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
+function modal(title,content){conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   if(s.introSeen){go('map');return;}
   openStory('intro');
@@ -222,7 +224,9 @@ function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
   if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission')step=route.step;if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
 }
-function settings(){modal('설정',settingsContent(s));}
+function settings(replaysOpen=false){modal('설정',settingsContent(s,{replaysOpen}));if(replaysOpen)dialog.querySelector?.('.concept-replays')?.scrollIntoView?.({block:'start'});}
+// Silent clip with DOM captions; the village music stops while it is open and returns when the dialog closes.
+function openConcept(id,back){if(!replayUnlocked(s,id))return;const item=replayItem(id);modal(item.title,conceptView(id,back==='settings'?'settings':''));conceptPlayer=createConceptPlayer(dialog.querySelector?.('.concept-player'));syncMusic();}
 function togglePreview(){
   if(studentSnapshot){s=studentSnapshot;studentSnapshot=null;stage=s.stage;step=s.step[stage]||0;selectedStage=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||STAGES.at(-1).id;navigation.reset();dialog.close();go('map');}
   else{save();studentSnapshot=JSON.parse(JSON.stringify(s));s=JSON.parse(JSON.stringify(s));s.adminUnlocked=true;render();}
@@ -397,6 +401,10 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'notebook':notebook();break;
     case 'tool':tool(Number(id));break;
     case 'settings':settings();break;
+    case 'concept-open':openConcept(id,value);break;
+    case 'concept-play':conceptPlayer?.play();break;
+    case 'concept-replay':conceptPlayer?.replay();break;
+    case 'concept-back':settings(true);break;
     case 'music-toggle':s.musicOn=s.musicOn===false;save();syncMusic();settings();break;
     case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
     case 'admin':togglePreview();settings();break;
@@ -433,7 +441,7 @@ document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPo
 for(const name of ['pointerup','pointercancel'])document.addEventListener(name,e=>{if(lensPointer&&e.pointerId===lensPointer.id){const animalId=lensPointer.surface.dataset.animal,list=OBSERVATIONS[animalId],x=Number(lensPointer.surface.style.getPropertyValue('--focus-x')),y=Number(lensPointer.surface.style.getPropertyValue('--focus-y'));focusIndex=list.reduce((best,o,i)=>(o.x-x)**2+(o.y-y)**2<(list[best].x-x)**2+(list[best].y-y)**2?i:best,0);lensPointer=null;render();}if(stroke&&e.pointerId===stroke.id){stroke=null;save();}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;const direction={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down'}[e.key];if(direction){e.preventDefault();autoEnter=false;map?.walk?.(direction);}else if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
-dialog.addEventListener('close',()=>{if(!questOpen)map?.resume?.();if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}});
+dialog.addEventListener('close',()=>{conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
 enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;dropCard(action,dataset);});
 render();

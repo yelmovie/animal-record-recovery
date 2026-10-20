@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ASSETS } from '../src/assets.js';
 import { STORIES } from '../src/story-player.js';
+import { CONCEPTS } from '../src/concepts.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const files=['index.html',...['korean.js','research-report.js','motion-video.js','tablet.css','campaign.js','campaign-views.js','campaign.css','inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','settings-content.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css','view3d.js','stage3d.js','scanner3d.js','dome3d.js',...['three.module.min.js','three.core.min.js','GLTFLoader.js','BufferGeometryUtils.js','LICENSE.txt'].map(f=>`vendor/three/${f}`)].map(f=>`src/${f}`),
@@ -27,6 +28,8 @@ for(const item of previous){
   await unlink(target).catch(error=>{if(error.code!=='ENOENT')throw error;});
 }
 const manifest=[];
+// Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
+files.push('src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
 files.push('src/stage-map.css','src/layout.css','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
