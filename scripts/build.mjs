@@ -34,11 +34,14 @@ for(const file of files){
   await copyFile(source,dest);
   manifest.push({file,bytes:(await stat(source)).size});
 }
-for(const css of ['src/adventure.css','src/inquiry.css','src/campaign.css','src/tablet.css','src/layout.css']){
+// Check image paths in every stylesheet index.html links, so a newly added sheet can't ship a missing asset.
+const sheets=[...(await readFile(path.join(root,'index.html'),'utf8')).matchAll(/<link[^>]+rel="stylesheet"[^>]+href="\.\/(src\/[^"]+\.css)"/g)].map(m=>m[1]);
+for(const css of sheets){
+  if(!files.includes(css))throw new Error(`Missing build stylesheet: ${css}`);
   for(const match of (await readFile(path.join(root,css),'utf8')).matchAll(/url\(['"]?(\.\.\/assets\/[^'"\)]+)['"]?\)/g)){
     const asset=path.posix.normalize(path.posix.join('src',match[1]));
     if(!files.includes(asset))throw new Error(`Missing build asset: ${asset}`);
   }
 }
-await writeFile(path.join(root,'dist','build-manifest.json'),JSON.stringify({version:'0.5.0',files:manifest},null,2));
+await writeFile(path.join(root,'dist','build-manifest.json'),JSON.stringify({version:JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version,files:manifest},null,2));
 console.log(`Built ${files.length} runtime files, ${(manifest.reduce((n,f)=>n+f.bytes,0)/1024/1024).toFixed(2)} MiB → dist/`);

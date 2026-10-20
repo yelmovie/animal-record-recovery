@@ -146,7 +146,10 @@ function flipGroups(before){
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
 function go(where){requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
-function say(text,good=false,wrong=[]){if(!good)playSound(s.soundEnabled,'retry');feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
+// One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
+let retried=false;
+function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
+function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
 function modal(title,content){stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   if(s.introSeen){go('map');return;}
@@ -165,17 +168,17 @@ function finishStory(){
   go(target);
 }
 // Village NPCs (and Mori) speak in a bubble above them and in the tip line.
-function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${next.name}이야. 건물이나 길을 누르면 같이 걸어갈게! 방향키로 걸어도 돼.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;playSound(s.soundEnabled,'talk');toast(line,el,npc.name);}
+function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 건물이나 길을 누르면 같이 걸어갈게! 방향키로 걸어도 돼.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;playSound(s.soundEnabled,'talk');toast(line,el,npc.name);}
 function selectMap(id){
   if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;mapWalkVersion++;map?.stop?.();autoEnter=false;selectedStage=id;arrived=false;
   document.querySelectorAll('.map-marker[data-action="map-select"]').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});
   document.querySelector('#quest-panel').innerHTML=questPanel(s,view());
-  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}으로 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
+  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
   else explainLocked(id);
 }
 function explainLocked(id){
   const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))||STAGES[id-2];
-  modal('아직 들어갈 수 없어요 · '+STAGES[id-1].name,`<div class="map-lock-guide">${mori(2)}<div><h3>먼저 ${next.name}을 복구해 줘!</h3><p>탐구 활동과 주민의 부탁을 마치면 다음 장소가 열려.</p></div></div><div class="dialog-actions">${btn('지도 둘러보기','close-dialog','quiet')}${btn(next.name+'으로 가기','locked-next','primary',`data-id="${next.id}"`)}</div>`);
+  modal('아직 들어갈 수 없어요 · '+STAGES[id-1].name,`<div class="map-lock-guide">${mori(2)}<div><h3>먼저 ${withParticle(next.name)} 복구해 줘!</h3><p>탐구 활동과 주민의 부탁을 마치면 다음 장소가 열려.</p></div></div><div class="dialog-actions">${btn('지도 둘러보기','close-dialog','quiet')}${btn(next.name+'으로 가기','locked-next','primary',`data-id="${next.id}"`)}</div>`);
 }
 function setQuestOpen(open){questOpen=open;const page=document.querySelector('.map-page'),panel=document.querySelector('#quest-panel');page?.classList?.toggle('quest-open',open);if(panel)panel.inert=!open;document.querySelectorAll('[data-action="quest-toggle"]').forEach(el=>el.setAttribute('aria-expanded',String(open)));if(open){autoEnter=false;map?.pause?.();panel?.querySelector?.('button')?.focus({preventScroll:true});}else map?.resume?.();document.querySelector('.map-scene')?.scrollTo?.({left:0,top:0});}
 function enter(id,replay=false){
@@ -203,13 +206,14 @@ function advance(){
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
   report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어가자!':'다음 탐구로 이어가자!';if(result.fresh)flyStar();
 }
-// A new star pops in the middle of the screen, then flies into the top counter so the learner sees where it went.
+// A new star pops in the middle of the screen, then flies into the activity title, which shows "+1 ★" for a moment.
 function flyStar(){
   if(typeof document.createElement!=='function')return;
-  const el=document.createElement('div'),target=document.querySelector('.star-count .icon')?.getBoundingClientRect();el.className='star-fly';el.setAttribute('aria-hidden','true');el.innerHTML=icon('star')+'<b>+1</b>';document.body.append(el);
-  if(!el.animate||!target?.width||matchMedia('(prefers-reduced-motion: reduce)').matches){playSound(s.soundEnabled,'star');setTimeout(()=>el.remove(),900);return;}
+  const chip=document.querySelector('.mission-guide h1'),target=chip?.getBoundingClientRect(),still=matchMedia('(prefers-reduced-motion: reduce)').matches,el=document.createElement('div');el.className='star-fly';el.setAttribute('aria-hidden','true');el.innerHTML=icon('star')+'<b>+1</b>';document.body.append(el);
+  const land=()=>{el.remove();playSound(s.soundEnabled,'star');if(!chip?.isConnected)return;const tag=document.createElement('span');tag.className='star-pop-tag';tag.setAttribute('aria-hidden','true');tag.textContent=' +1 ★';chip.classList.add('star-pop');chip.append(tag);setTimeout(()=>{tag.remove();chip.classList.remove('star-pop');},1000);if(!still)chip.animate?.([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:380,easing:'ease-out'});};
+  if(!el.animate||!target?.width||still){setTimeout(land,900);return;}
   const dx=target.left+target.width/2-innerWidth/2,dy=target.top+target.height/2-innerHeight/2;
-  el.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:0},{transform:'translate(-50%,-50%) scale(1.2)',opacity:1,offset:.25},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.55},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.2)`,opacity:.8}],{duration:1100,easing:'cubic-bezier(.5,0,.3,1)'}).onfinish=()=>{el.remove();playSound(s.soundEnabled,'star');document.querySelector('.star-count')?.animate?.([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:380,easing:'ease-out'});};
+  el.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:0},{transform:'translate(-50%,-50%) scale(1.2)',opacity:1,offset:.25},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.55},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.2)`,opacity:.8}],{duration:1100,easing:'cubic-bezier(.5,0,.3,1)'}).onfinish=land;
 }
 function previous(){labSummary=false;stopMotion();if(step===0){go('map');return;}step--;report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
@@ -336,7 +340,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();break;}
     case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;
-    case 'place':{if(!picked){toast('먼저 옮길 카드를 눌러 줘.',el);break;}const {action,dataset}=dropData(picked,el.dataset);picked=null;playSound(s.soundEnabled,'drop');act(action,{dataset});return;}
+    case 'place':{if(!picked){playSound(s.soundEnabled);toast('먼저 옮길 카드를 눌러 줘.',el);break;}const {action,dataset}=dropData(picked,el.dataset);dropCard(action,dataset);return;}
     case 'case-animal':s.cases[round()].candidate=id;feedback=null;render();break;
     case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:''});clueIndex=0;feedback=null;render();break;
     case 'case-ground':{const a=s.cases[round()];if(!a.opened.includes(value))break;a.grounds=a.grounds.includes(value)?a.grounds.filter(g=>g!==value):[...a.grounds,value];feedback=null;render();break;}
@@ -405,7 +409,7 @@ let toastTimer=0;
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
-const CLICK_SOUND={sound:null,enter:null,notebook:'page',settings:'page',tool:'page'};
+const CLICK_SOUND={sound:null,enter:null,place:null,notebook:'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),speaker?4200:2600);}
 // Mori's bubble (activity instruction) opens on tap and closes when the learner taps anywhere else.
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback');}else if(!buddy.contains(e.target))buddy.classList.remove('open');});
@@ -426,5 +430,5 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 dialog.addEventListener('close',()=>{if(!questOpen)map?.resume?.();if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
-enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;picked=null;playSound(s.soundEnabled,'drop');act(action,{dataset});});
+enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;dropCard(action,dataset);});
 render();

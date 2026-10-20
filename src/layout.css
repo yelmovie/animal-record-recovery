@@ -1,6 +1,8 @@
 /* Last override layer (loaded after every other sheet; wins with one #app prefix).
    iscream screen frame: no top bar, no bottom bar. Corner icons float (stage-map.css .screen-hud),
    the page's own back/next buttons float in the bottom corners, and the activity takes the whole page. */
+/* Design tokens for the iscream frame (prefixed --ui- because --ink/--paper/--green already mean other colours in adventure.css). */
+#app,dialog{--ui-frame:#4a3a22;--ui-paper:#fff9e9;--ui-paper-strong:#fffdf5;--ui-ink:#2f3a2a;--ui-accent:#f6d36e;--ui-wood:#3b2a1a;--ui-bubble:#fff7df;--ui-line:#c9b98a;--ui-brass:#b59342;--ui-green:#365c43;--ui-ok:#4f7a45;--ui-edge:#22372a;--ui-brown:#5b4a2a;--ui-muted:#7a6a48}
 #app{--hud-left:132px;--hud-right:132px;--hud-top:76px}
 @media(max-height:620px),(max-width:820px){#app{--hud-left:116px;--hud-right:116px;--hud-top:64px}}
 @media(min-width:1500px) and (min-height:850px){#app{--hud-left:152px;--hud-right:152px;--hud-top:88px}}
@@ -13,7 +15,7 @@
 #app .mission-page .activity-workspace>*{min-height:0;border-radius:0;margin:0;padding-top:calc(var(--hud-top) + 4px)}
 #app .mission-page .mission-guide{position:fixed;top:12px;left:var(--hud-left);right:auto;z-index:3950;display:flex!important;align-items:center;gap:8px;min-height:0;padding:0!important;margin:0;background:none;border:0;border-radius:0;box-shadow:none;pointer-events:none}
 #app .mission-page .mission-guide>*{pointer-events:auto}
-#app #main.mission-page .mission-guide h1{margin:0;padding:8px 16px;font-size:22px!important;line-height:1.2;white-space:nowrap;color:#2f3a2a;background:#fff9e9f0;border:2px solid #4a3a22;border-radius:12px;box-shadow:0 3px 0 #4a3a2299}
+#app #main.mission-page .mission-guide h1{margin:0;padding:8px 16px;font-size:22px!important;line-height:1.2;white-space:nowrap;color:var(--ui-ink);background:#fff9e9f0;border:2px solid var(--ui-frame);border-radius:12px;box-shadow:0 3px 0 #4a3a2299}
 #app .mission-page .mission-guide :is(.guide-progress,.guide-help){display:none!important}
 #app .mission-page .mission-guide .tool-belt{display:flex;gap:6px;margin:0}
 /* Mori sits in the bottom-left corner beside the back button; tap for "what do I do?".
@@ -21,11 +23,11 @@
 #app .mission-page .guide-buddy{position:fixed;left:150px;bottom:10px;z-index:3960;display:block!important;width:auto;margin:0;padding:0;background:none;border:0;box-shadow:none}
 #app .mission-page .buddy-toggle{display:block;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 3px 0 #22372a66)}
 #app .mission-page .buddy-toggle .mori{width:64px;height:72px}
-#app .mission-page .buddy-toggle::after{content:'…';position:absolute;right:-6px;top:-6px;padding:0 6px 3px;border:2px solid #3b2a1a;border-radius:8px;background:#fff7df;color:#3b2a1a;font:400 14px/1 var(--font-display)}
-#app .mission-page .buddy-toggle:focus-visible{outline:4px solid #f6d36e;outline-offset:2px;border-radius:10px}
-#app #main.mission-page .guide-buddy>p{display:none;position:absolute;left:8px;bottom:calc(100% + 10px);width:max-content;max-width:min(560px,calc(100vw - 180px));margin:0;padding:12px 16px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;color:#3b2a1a;font-size:20px!important;line-height:1.45;box-shadow:0 4px 0 #3b2a1a55;animation:bubble-pop .22s ease-out}
+#app .mission-page .buddy-toggle::after{content:'…';position:absolute;right:-6px;top:-6px;padding:0 6px 3px;border:2px solid var(--ui-wood);border-radius:8px;background:var(--ui-bubble);color:var(--ui-wood);font:400 14px/1 var(--font-display)}
+#app .mission-page .buddy-toggle:focus-visible{outline:4px solid var(--ui-accent);outline-offset:2px;border-radius:10px}
+#app #main.mission-page .guide-buddy>p{display:none;position:absolute;left:8px;bottom:calc(100% + 10px);width:max-content;max-width:min(560px,calc(100vw - 180px));margin:0;padding:12px 16px;border:3px solid var(--ui-wood);border-radius:14px;background:var(--ui-bubble);color:var(--ui-wood);font-size:20px!important;line-height:1.45;box-shadow:0 4px 0 #3b2a1a55;animation:bubble-pop .22s ease-out}
 #app #main.mission-page .guide-buddy.open>p{display:block}
-#app #main.mission-page .guide-buddy>p::after{content:'';position:absolute;left:24px;top:100%;width:16px;height:10px;background:#3b2a1a;clip-path:polygon(0 0,100% 0,0 100%)}
+#app #main.mission-page .guide-buddy>p::after{content:'';position:absolute;left:24px;top:100%;width:16px;height:10px;background:var(--ui-wood);clip-path:polygon(0 0,100% 0,0 100%)}
 #app #main.mission-page .guide-buddy.good>p{border-color:#3f6b45;background:#effae0}
 @keyframes bubble-pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){#app #main.mission-page .guide-buddy>p{animation:none}}
@@ -33,43 +35,43 @@
 #app .mission-footer>*{pointer-events:auto;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
 
 /* Page back/next buttons float in the bottom corners: solid so they read on any background. */
-#app .mission-footer>.btn{min-height:56px;padding:10px 22px;font-size:20px;border:2px solid #22372a;border-radius:14px}
-#app .mission-footer>.btn.quiet{background:#fff9e9;color:#2f3a2a}
+#app .mission-footer>.btn{min-height:56px;padding:10px 22px;font-size:20px;border:2px solid var(--ui-edge);border-radius:14px}
+#app .mission-footer>.btn.quiet{background:var(--ui-paper);color:var(--ui-ink)}
 
 /* Answer choices (every activity): pressable card + radio circle, a "pick one" cue and a soft pulse until something is chosen. */
-#app .choice{position:relative;align-items:center;gap:12px;min-height:56px;padding:10px 16px 10px 12px;border:2px solid #c9b98a;border-radius:14px;background:#fffdf5;color:#2f3a2a;font-size:20px;line-height:1.35;box-shadow:0 3px 0 #c9b98a;transition:transform .12s,box-shadow .12s,background-color .12s}
-#app .choice:hover{background:#fff6d8;border-color:#b59342;transform:translateY(-2px);box-shadow:0 5px 0 #b59342}
-#app .choice:active{transform:translateY(2px);box-shadow:0 1px 0 #b59342}
-#app .choice:focus-visible{outline:4px solid #f6d36e;outline-offset:2px}
-#app .choice-mark{flex:none;display:grid;place-items:center;width:26px;height:26px;border:3px solid #b59342;border-radius:50%;background:#fff;color:#fff;font-style:normal}
+#app .choice{position:relative;align-items:center;gap:12px;min-height:56px;padding:10px 16px 10px 12px;border:2px solid var(--ui-line);border-radius:14px;background:var(--ui-paper-strong);color:var(--ui-ink);font-size:20px;line-height:1.35;box-shadow:0 3px 0 var(--ui-line);transition:transform .12s,box-shadow .12s,background-color .12s}
+#app .choice:hover{background:#fff6d8;border-color:var(--ui-brass);transform:translateY(-2px);box-shadow:0 5px 0 var(--ui-brass)}
+#app .choice:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ui-brass)}
+#app .choice:focus-visible{outline:4px solid var(--ui-accent);outline-offset:2px}
+#app .choice-mark{flex:none;display:grid;place-items:center;width:26px;height:26px;border:3px solid var(--ui-brass);border-radius:50%;background:#fff;color:#fff;font-style:normal}
 #app .choice-mark .icon{display:block;width:16px;height:16px;stroke-width:3.2}
-#app .choice.selected{background:#eaf3d6;border-color:#4f7a45;box-shadow:0 3px 0 #4f7a45}
-#app .choice.selected .choice-mark{background:#4f7a45;border-color:#4f7a45}
-#app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options):has(>.choice):not(:has(>.choice.selected))::before{content:'하나를 골라 눌러 봐';grid-column:1/-1;flex-basis:100%;align-self:flex-start;justify-self:start;width:max-content;padding:3px 12px 4px;border-radius:999px;background:#f6d36e;color:#3f3420;font:400 16px/1.3 var(--font-display);box-shadow:0 2px 0 #b59342}
+#app .choice.selected{background:#eaf3d6;border-color:var(--ui-ok);box-shadow:0 3px 0 var(--ui-ok)}
+#app .choice.selected .choice-mark{background:var(--ui-ok);border-color:var(--ui-ok)}
+#app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options):has(>.choice):not(:has(>.choice.selected))::before{content:'하나를 골라 눌러 봐';grid-column:1/-1;flex-basis:100%;align-self:flex-start;justify-self:start;width:max-content;padding:3px 12px 4px;border-radius:999px;background:var(--ui-accent);color:#3f3420;font:400 16px/1.3 var(--font-display);box-shadow:0 2px 0 var(--ui-brass)}
 #app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options):not(:has(>.choice.selected))>.choice{animation:choice-invite 2.6s ease-in-out infinite}
 #app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options)>.choice:nth-child(3){animation-delay:.25s}
 #app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options)>.choice:nth-child(4){animation-delay:.5s}
-@keyframes choice-invite{0%,60%,100%{box-shadow:0 3px 0 #c9b98a}30%{box-shadow:0 3px 0 #c9b98a,0 0 0 5px #f6d36e99}}
+@keyframes choice-invite{0%,60%,100%{box-shadow:0 3px 0 var(--ui-line)}30%{box-shadow:0 3px 0 var(--ui-line),0 0 0 5px #f6d36e99}}
 @media(prefers-reduced-motion:reduce){#app .choice{animation:none!important;transition:none}}
-#app .observe-ask{font-size:20px;color:#2f3a2a}
+#app .observe-ask{font-size:20px;color:var(--ui-ink)}
 
 #app .screen-hud .hud-btn:disabled{opacity:1;color:#c3b894;background:#fff9e9d9}
 /* Dragging: every place a card can go lights up; the ghost floats above the corner icons. */
 .drag-ghost{z-index:4500!important}
-#app .card-dragging .drop-zone:not(.card-tray){outline:4px dashed #f6d36e;outline-offset:-4px}
-#app .card-dragging .drop-zone.drop-hover{outline:5px solid #f6d36e;background-color:#fff6d0cc!important}
+#app .card-dragging .drop-zone:not(.card-tray){outline:4px dashed var(--ui-accent);outline-offset:-4px}
+#app .card-dragging .drop-zone.drop-hover{outline:5px solid var(--ui-accent);background-color:#fff6d0cc!important}
 
 /* O·X sorting (2-1 wings, 2-2 own criterion): question big on top, O zone | 3×2 animal cards | X zone on the scene art. */
 #app .mission-page .sorting-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,min(58vw,calc((100dvh - var(--hud-top) - 200px)*1.2)));grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"sign sign sign" "yes pool no";gap:14px;padding:calc(var(--hud-top) + 4px) 14px 84px;height:100%;overflow:hidden}
 #app .sorting-workspace>.gate-board{display:contents}
-#app .sorting-workspace>.criterion-sign{grid-area:sign;justify-self:center;display:flex;flex-direction:column;align-items:center;gap:2px;margin:0;padding:8px 36px 12px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9f2;box-shadow:0 5px 0 #4a3a2299}
+#app .sorting-workspace>.criterion-sign{grid-area:sign;justify-self:center;display:flex;flex-direction:column;align-items:center;gap:2px;margin:0;padding:8px 36px 12px;border:3px solid var(--ui-frame);border-radius:18px;background:#fff9e9f2;box-shadow:0 5px 0 #4a3a2299}
 #app .sorting-workspace>.criterion-sign>.icon{display:none}
 #app #main .sorting-workspace>.criterion-sign>span{font-size:18px!important;color:#6b5a32}
-#app #main .sorting-workspace>.criterion-sign strong{margin:0;font-size:clamp(32px,3.4vw,52px)!important;line-height:1.15;color:#2f3a2a}
+#app #main .sorting-workspace>.criterion-sign strong{margin:0;font-size:clamp(32px,3.4vw,52px)!important;line-height:1.15;color:var(--ui-ink)}
 #app .sorting-workspace .gate{position:relative;display:flex;flex-direction:column;min-height:0;margin:0;padding:12px;border:4px dashed #ffffffcc;border-radius:22px;overflow:auto}
 #app .sorting-workspace .gate-yes{grid-area:yes;background:#5c9a4a3d!important}
 #app .sorting-workspace .gate-no{grid-area:no;background:#c0533f33!important}
-#app .sorting-workspace .gate>h3{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px;padding:4px 18px;align-self:center;border-radius:999px;background:#fff9e9f0;border:3px solid #4a3a22}
+#app .sorting-workspace .gate>h3{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px;padding:4px 18px;align-self:center;border-radius:999px;background:#fff9e9f0;border:3px solid var(--ui-frame)}
 #app #main .sorting-workspace .gate .sort-symbol{font:400 clamp(40px,4vw,64px)/1 var(--font-display)!important;color:#3f7a3a}
 #app #main .sorting-workspace .gate-no .sort-symbol{color:#b8442f}
 #app #main .sorting-workspace .gate>h3>small{font-size:20px!important;color:#5b5a45}
@@ -77,62 +79,62 @@
 #app .sorting-workspace .gate-cards .animal-card{padding:6px;min-height:0}
 #app .sorting-workspace .gate-cards .animal-card>.animal{height:84px;max-width:110px}
 #app #main .sorting-workspace .gate-cards .animal-card>b{margin:2px 0 0;font-size:18px!important}
-#app .sorting-workspace>.card-tray{grid-area:pool;display:flex;flex-direction:column;min-height:0;margin:0;padding:10px 14px 14px;background:#fff9e9cc!important;border:3px solid #4a3a22;border-radius:22px;box-shadow:0 6px 0 #4a3a2266}
+#app .sorting-workspace>.card-tray{grid-area:pool;display:flex;flex-direction:column;min-height:0;margin:0;padding:10px 14px 14px;background:#fff9e9cc!important;border:3px solid var(--ui-frame);border-radius:22px;box-shadow:0 6px 0 #4a3a2266}
 #app .sorting-workspace>.card-tray>h3{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0 0 8px;text-align:center}
 #app #main .sorting-workspace>.card-tray>h3{font-size:24px!important}
 #app #main .sorting-workspace>.card-tray>h3>small{font-size:18px!important;color:#6b5a32}
 #app .sorting-workspace>.card-tray>.card-pool{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:12px;width:min(52vw,calc((100dvh - var(--hud-top) - 250px)*1.15))}
-#app .sorting-workspace .card-pool .animal-card{min-width:0;min-height:0;height:100%;margin:0;padding:8px;justify-content:center;border:3px solid #c9b98a;border-radius:18px;background:#fffdf5;box-shadow:0 5px 0 #c9b98a;cursor:grab}
-#app .sorting-workspace .card-pool .animal-card:hover{border-color:#b59342;transform:translateY(-3px);box-shadow:0 8px 0 #b59342}
-#app .sorting-workspace .card-pool .animal-card.picked{border-color:#4f7a45;box-shadow:0 0 0 5px #f6d36e,0 5px 0 #4f7a45}
+#app .sorting-workspace .card-pool .animal-card{min-width:0;min-height:0;height:100%;margin:0;padding:8px;justify-content:center;border:3px solid var(--ui-line);border-radius:18px;background:var(--ui-paper-strong);box-shadow:0 5px 0 var(--ui-line);cursor:grab}
+#app .sorting-workspace .card-pool .animal-card:hover{border-color:var(--ui-brass);transform:translateY(-3px);box-shadow:0 8px 0 var(--ui-brass)}
+#app .sorting-workspace .card-pool .animal-card.picked{border-color:var(--ui-ok);box-shadow:0 0 0 5px var(--ui-accent),0 5px 0 var(--ui-ok)}
 #app .sorting-workspace .card-pool .animal-card>.animal{flex:1;min-height:0;height:auto;width:100%;max-width:none;object-fit:contain}
 #app #main .sorting-workspace .card-pool .animal-card>b{margin:4px 0 0;font-size:clamp(20px,1.7vw,28px)!important}
 #app .sorting-workspace .card-pool .animal-card{width:100%;max-width:none}
 
 /* Compare (1-2, 1-4): animals on the left, two big drop slots on top, statement cards below as a 2-column deck. */
 #app .mission-page .compare-board{display:grid;grid-template-columns:minmax(200px,21%) minmax(0,1fr);grid-template-rows:auto auto;align-content:start;grid-template-areas:"photo slots" "photo tray";gap:14px;padding:calc(var(--hud-top) + 4px) 14px 84px;height:100%;overflow:auto}
-#app .compare-board>.compare-photo{grid-area:photo;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:12px;margin:0;padding:14px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9e6;box-shadow:0 6px 0 #4a3a2266}
+#app .compare-board>.compare-photo{grid-area:photo;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:12px;margin:0;padding:14px;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9e6;box-shadow:0 6px 0 #4a3a2266}
 #app .compare-photo>div{display:flex;flex-direction:column;gap:10px;align-items:center}
 #app .compare-photo>div>div{display:flex;flex-direction:column;align-items:center}
 #app .compare-photo>div>div>.animal{width:auto;height:clamp(110px,22vh,220px);max-width:100%;object-fit:contain}
-#app #main .compare-photo>div>div>b{font-size:24px!important;color:#2f3a2a}
-#app #main .compare-photo>.compare-tip{margin:0;padding:8px 10px;border-radius:12px;background:#f3ead0;font-size:17px!important;line-height:1.4;color:#5b4a2a}
+#app #main .compare-photo>div>div>b{font-size:24px!important;color:var(--ui-ink)}
+#app #main .compare-photo>.compare-tip{margin:0;padding:8px 10px;border-radius:12px;background:#f3ead0;font-size:17px!important;line-height:1.4;color:var(--ui-brown)}
 #app .compare-board>.compare-slots{grid-area:slots;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0}
-#app .compare-board .compare-slot{min-height:clamp(120px,22vh,200px);margin:0;padding:12px 14px;border:4px dashed #fff9e9;border-radius:22px;background:#fffcf0b3!important;box-shadow:0 6px 18px #2a3a2633}
-#app #main .compare-board .compare-slot>h3{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:clamp(26px,2.2vw,36px)!important;color:#2f3a2a}
-#app #main .compare-board .compare-slot>.slot-empty{margin:18px 0 0;text-align:center;font-size:20px!important;color:#7a6a48}
-#app .compare-board>.card-tray{grid-area:tray;align-self:start;margin:0;padding:12px 14px 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9e0!important;box-shadow:0 6px 0 #4a3a2266}
+#app .compare-board .compare-slot{min-height:clamp(120px,22vh,200px);margin:0;padding:12px 14px;border:4px dashed var(--ui-paper);border-radius:22px;background:#fffcf0b3!important;box-shadow:0 6px 18px #2a3a2633}
+#app #main .compare-board .compare-slot>h3{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:clamp(26px,2.2vw,36px)!important;color:var(--ui-ink)}
+#app #main .compare-board .compare-slot>.slot-empty{margin:18px 0 0;text-align:center;font-size:20px!important;color:var(--ui-muted)}
+#app .compare-board>.card-tray{grid-area:tray;align-self:start;margin:0;padding:12px 14px 16px;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9e0!important;box-shadow:0 6px 0 #4a3a2266}
 #app #main .compare-board>.card-tray>h3{margin:0 0 10px;font-size:24px!important}
 #app .compare-board .card-pool{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-#app .statement-card{display:flex;align-items:center;gap:10px;min-height:60px;padding:10px 14px;border:3px solid #c9b98a;border-radius:14px;background:#fffdf5;color:#2f3a2a;text-align:left;box-shadow:0 4px 0 #c9b98a;cursor:grab}
-#app .statement-card:hover{border-color:#b59342;transform:translateY(-2px);box-shadow:0 6px 0 #b59342}
-#app .statement-card.picked{border-color:#4f7a45;box-shadow:0 0 0 5px #f6d36e,0 4px 0 #4f7a45}
+#app .statement-card{display:flex;align-items:center;gap:10px;min-height:60px;padding:10px 14px;border:3px solid var(--ui-line);border-radius:14px;background:var(--ui-paper-strong);color:var(--ui-ink);text-align:left;box-shadow:0 4px 0 var(--ui-line);cursor:grab}
+#app .statement-card:hover{border-color:var(--ui-brass);transform:translateY(-2px);box-shadow:0 6px 0 var(--ui-brass)}
+#app .statement-card.picked{border-color:var(--ui-ok);box-shadow:0 0 0 5px var(--ui-accent),0 4px 0 var(--ui-ok)}
 #app #main .statement-card>span{font-size:clamp(19px,1.5vw,24px)!important;line-height:1.35}
-#app .statement-card>.icon{flex:none;width:22px;height:22px;color:#b59342}
+#app .statement-card>.icon{flex:none;width:22px;height:22px;color:var(--ui-brass)}
 /* Scale the compare deck with screen height so a whiteboard fills up and a small tablet still fits. */
 #app .compare-board .compare-slot{min-height:clamp(110px,24vh,300px)}
 #app #main .statement-card>span{font-size:clamp(19px,2.5vh,30px)!important}
 #app .statement-card{min-height:clamp(52px,7vh,84px)}
-#app #main .compare-board>.card-tray>h3::after{content:'  ·  눌러서 위 칸으로 옮겨 봐';font:400 18px/1 var(--font-body);color:#7a6a48}
+#app #main .compare-board>.card-tray>h3::after{content:'  ·  눌러서 위 칸으로 옮겨 봐';font:400 18px/1 var(--font-body);color:var(--ui-muted)}
 @media(max-height:650px){#app .compare-photo>div>div>.animal{height:clamp(70px,15vh,120px)}#app #main .compare-photo>.compare-tip{display:none}#app #main .compare-photo>div>div>b{font-size:20px!important}}
 
 /* Panel tabs are a step sequence: ① → ② → ③. Done steps show a check; the next step pulses with "다음". */
 #app .panel-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px}
-#app .panel-tabs>.btn{position:relative;display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 16px 6px 8px;border:3px solid #c9b98a;border-radius:999px;background:#fffdf5;color:#5b4a2a;box-shadow:0 3px 0 #c9b98a}
+#app .panel-tabs>.btn{position:relative;display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 16px 6px 8px;border:3px solid var(--ui-line);border-radius:999px;background:var(--ui-paper-strong);color:var(--ui-brown);box-shadow:0 3px 0 var(--ui-line)}
 #app .panel-tabs>.btn+.btn{margin-left:22px}
 #app .panel-tabs>.btn+.btn::before{content:'→';position:absolute;left:-24px;top:50%;transform:translateY(-50%);font:400 20px/1 var(--font-display);color:#8a7a52}
-#app .panel-tabs .tab-num{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e8dfc3;color:#5b4a2a;font:400 17px/1 var(--font-display)}
-#app .panel-tabs>.btn[aria-pressed=true]{background:#365c43!important;border-color:#22372a;color:#fffbed!important;box-shadow:0 3px 0 #22372a}
-#app .panel-tabs>.btn[aria-pressed=true] .tab-num{background:#fffbed;color:#365c43}
-#app .panel-tabs>.btn.tab-done .tab-num{background:#4f7a45;color:#fff;font-size:0}
+#app .panel-tabs .tab-num{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e8dfc3;color:var(--ui-brown);font:400 17px/1 var(--font-display)}
+#app .panel-tabs>.btn[aria-pressed=true]{background:var(--ui-green)!important;border-color:var(--ui-edge);color:#fffbed!important;box-shadow:0 3px 0 var(--ui-edge)}
+#app .panel-tabs>.btn[aria-pressed=true] .tab-num{background:#fffbed;color:var(--ui-green)}
+#app .panel-tabs>.btn.tab-done .tab-num{background:var(--ui-ok);color:#fff;font-size:0}
 #app .panel-tabs>.btn.tab-done .tab-num::after{content:'✓';font-size:18px}
-#app .panel-tabs>.btn.tab-next{border-color:#b59342;background:#fff1bf;animation:choice-invite 1.8s ease-in-out infinite}
+#app .panel-tabs>.btn.tab-next{border-color:var(--ui-brass);background:#fff1bf;animation:choice-invite 1.8s ease-in-out infinite}
 #app .panel-tabs>.btn.tab-next::after{content:'다음';position:absolute;top:-14px;right:-6px;padding:1px 8px 3px;border-radius:999px;background:#e0663f;color:#fff;font:400 14px/1.2 var(--font-display)}
 @media(prefers-reduced-motion:reduce){#app .panel-tabs>.btn.tab-next{animation:none}}
 
 /* Verify (2-2): panels only as tall as their content so the lab art shows; the first action is the big pulsing button. */
 #app .mission-page .verify-lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start;align-content:start;gap:14px;padding:calc(var(--hud-top) + 4px) 14px 84px;height:100%;overflow:auto}
-#app .verify-lab>section{height:auto;max-height:100%;overflow:auto;margin:0;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9eb!important;box-shadow:0 6px 0 #4a3a2266}
+#app .verify-lab>section{height:auto;max-height:100%;overflow:auto;margin:0;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9eb!important;box-shadow:0 6px 0 #4a3a2266}
 #app .verify-lab .verify-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 18px;text-align:center}
 #app #main .verify-lab .verify-empty p{font-size:clamp(22px,2.6vh,30px)!important;line-height:1.5}
 #app .verify-lab .verify-empty .icon{width:48px;height:48px;color:#6b5a32}
@@ -145,26 +147,26 @@
    Middle: the question card. Right: the answer as a real oak exhibit plaque that fills in as the learner picks. */
 #app main.commission-page{position:relative;height:var(--app-height,100dvh)!important;min-height:0;max-width:none;margin:0;padding:calc(var(--hud-top) + 4px) 14px 84px!important;display:block!important;overflow:hidden;background:#3a4a32 url('../assets/scenes/request-hall.webp') center/cover no-repeat}
 #app .commission-page .commission-layout{display:grid!important;grid-template-columns:clamp(190px,16vw,270px) minmax(0,1fr);gap:14px;height:100%;min-height:0;margin:0}
-#app .commission-page .client-card{position:static!important;display:flex!important;flex-direction:column;align-items:center;gap:8px;min-height:0;margin:0;padding:12px!important;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9eb!important;color:#2f3a2a;box-shadow:0 6px 0 #4a3a2266;text-align:center;overflow:auto}
+#app .commission-page .client-card{position:static!important;display:flex!important;flex-direction:column;align-items:center;gap:8px;min-height:0;margin:0;padding:12px!important;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9eb!important;color:var(--ui-ink);box-shadow:0 6px 0 #4a3a2266;text-align:center;overflow:auto}
 #app .commission-page .client-card>.commission-npc{position:static;width:auto;height:clamp(110px,26vh,260px);max-width:100%;object-fit:contain;margin:0}
 #app #main.commission-page .client-card small{font-size:16px!important;color:#6b5a32}
-#app #main.commission-page .client-card h1{margin:2px 0 0;font-size:clamp(20px,2.6vh,28px)!important;line-height:1.3;color:#2f3a2a}
-#app #main.commission-page .client-card>p{margin:0;font-size:17px!important;line-height:1.4;color:#5b4a2a}
+#app #main.commission-page .client-card h1{margin:2px 0 0;font-size:clamp(20px,2.6vh,28px)!important;line-height:1.3;color:var(--ui-ink)}
+#app #main.commission-page .client-card>p{margin:0;font-size:17px!important;line-height:1.4;color:var(--ui-brown)}
 #app .commission-page .client-card .btn{min-height:44px;width:100%;font-size:17px}
 #app .commission-page .client-card .commission-tabs{display:flex;flex-direction:column;gap:6px;width:100%;margin:auto 0 0;padding:8px 0 0;border-top:2px dashed #d8cba3;background:none}
 #app #main.commission-page .client-card .commission-tabs .btn{min-height:40px;font-size:16px!important;padding:4px 10px}
 #app .commission-page .commission-work{display:flex!important;flex-direction:column;gap:10px;min-height:0;margin:0;padding:0!important;background:none!important;border:0;box-shadow:none}
-#app .commission-page .deck-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;padding:6px 10px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9eb;box-shadow:0 4px 0 #4a3a2266}
+#app .commission-page .deck-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;padding:6px 10px;border:3px solid var(--ui-frame);border-radius:18px;background:#fff9e9eb;box-shadow:0 4px 0 #4a3a2266}
 #app .commission-page .request-parts{flex:1;min-height:0;display:flex;margin:0}
-#app .commission-page .request-part{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;margin:0;padding:12px 16px!important;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9eb!important;box-shadow:0 6px 0 #4a3a2266;overflow:auto}
+#app .commission-page .request-part{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;margin:0;padding:12px 16px!important;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9eb!important;box-shadow:0 6px 0 #4a3a2266;overflow:auto}
 #app .commission-page .request-part-heading{display:flex;align-items:center;gap:10px;margin:0}
 #app #main.commission-page .request-part-heading h2{margin:0;font-size:clamp(24px,3vh,34px)!important}
-#app #main.commission-page .request-part-intro{margin:0;padding:8px 12px;border-left:6px solid #f6d36e;border-radius:8px;background:#fff6d8;font-size:clamp(19px,2.4vh,26px)!important;line-height:1.4;color:#3b2a1a}
+#app #main.commission-page .request-part-intro{margin:0;padding:8px 12px;border-left:6px solid var(--ui-accent);border-radius:8px;background:#fff6d8;font-size:clamp(19px,2.4vh,26px)!important;line-height:1.4;color:var(--ui-wood)}
 #app .commission-page .card-body{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(280px,42%);gap:16px;align-items:start;margin:0}
 #app .commission-page .card-questions{display:flex;flex-direction:column;gap:10px;min-width:0}
-#app .commission-page .record-row{margin:0;padding:8px 10px 10px;border:2px solid #e2d6b2;border-radius:16px;background:#fffdf5}
-#app #main.commission-page .record-row>legend{display:flex;align-items:center;gap:8px;padding:0 6px;font-size:clamp(19px,2.3vh,24px)!important;font-weight:700;color:#2f3a2a}
-#app .commission-page .record-row>legend>span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#365c43;color:#fff;font-size:16px}
+#app .commission-page .record-row{margin:0;padding:8px 10px 10px;border:2px solid #e2d6b2;border-radius:16px;background:var(--ui-paper-strong)}
+#app #main.commission-page .record-row>legend{display:flex;align-items:center;gap:8px;padding:0 6px;font-size:clamp(19px,2.3vh,24px)!important;font-weight:700;color:var(--ui-ink)}
+#app .commission-page .record-row>legend>span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ui-green);color:#fff;font-size:16px}
 #app .commission-page .record-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
 #app .commission-page .commission-choice{min-height:56px;justify-content:flex-start;text-align:left}
 /* The plaque: animal photo + picked lines on the cream card, the card's name on the brass strip. */
@@ -173,23 +175,23 @@
 #app .commission-page .card-result>h3 .icon{width:16px;height:16px}
 #app .commission-page .card-result-animal{grid-row:1/3;display:flex;flex-direction:column;align-items:center;gap:2px;margin:0}
 #app .commission-page .card-result-animal>.animal{width:clamp(70px,9vw,150px);height:auto;max-height:100%;object-fit:contain}
-#app #main.commission-page .card-result-animal>b{font-size:clamp(17px,2vh,22px)!important;color:#2f3a2a}
+#app #main.commission-page .card-result-animal>b{font-size:clamp(17px,2vh,22px)!important;color:var(--ui-ink)}
 #app .commission-page .card-result>ol{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none;min-width:0}
-#app .commission-page .card-result>ol>li{display:flex;flex-direction:column;gap:0;padding:3px 0 4px;border-bottom:2px dotted #c9b98a}
-#app #main.commission-page .card-result>ol>li>small{font-size:14px!important;color:#7a6a48}
-#app #main.commission-page .card-result>ol>li>b{font-size:clamp(16px,2vh,22px)!important;line-height:1.3;color:#2f3a2a}
+#app .commission-page .card-result>ol>li{display:flex;flex-direction:column;gap:0;padding:3px 0 4px;border-bottom:2px dotted var(--ui-line)}
+#app #main.commission-page .card-result>ol>li>small{font-size:14px!important;color:var(--ui-muted)}
+#app #main.commission-page .card-result>ol>li>b{font-size:clamp(16px,2vh,22px)!important;line-height:1.3;color:var(--ui-ink)}
 #app #main.commission-page .card-result>ol>li>b.blank{color:#b9ab86;font-weight:400}
 #app .commission-page .card-result>ol>li>.animal{width:36px;height:36px}
-#app #main.commission-page .card-result>.card-stamp{grid-column:2;margin:0;font-size:15px!important;color:#7a6a48}
+#app #main.commission-page .card-result>.card-stamp{grid-column:2;margin:0;font-size:15px!important;color:var(--ui-muted)}
 #app #main.commission-page .card-result.complete>.card-stamp{position:absolute;right:9%;top:18%;padding:4px 12px;border:3px solid #3f7a3a;border-radius:10px;color:#3f7a3a;background:#effae0e6;font:400 18px/1.2 var(--font-display)!important;transform:rotate(-8deg)}
 /* Mori's line and the page buttons float like on activity pages. */
-#app .commission-page .commission-feedback{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:3960;display:flex;align-items:center;gap:8px;width:max-content;max-width:min(640px,calc(100vw - 440px));margin:0;padding:6px 14px 6px 6px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;box-shadow:0 4px 0 #3b2a1a55}
+#app .commission-page .commission-feedback{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:3960;display:flex;align-items:center;gap:8px;width:max-content;max-width:min(640px,calc(100vw - 440px));margin:0;padding:6px 14px 6px 6px;border:3px solid var(--ui-wood);border-radius:14px;background:var(--ui-bubble);box-shadow:0 4px 0 #3b2a1a55}
 #app .commission-page .commission-feedback .mori{width:44px;height:52px;flex:none}
-#app #main.commission-page .commission-feedback>p{margin:0;font-size:18px!important;line-height:1.35;color:#3b2a1a}
+#app #main.commission-page .commission-feedback>p{margin:0;font-size:18px!important;line-height:1.35;color:var(--ui-wood)}
 #app .commission-page .commission-feedback.good{border-color:#3f6b45;background:#effae0}
 #app .commission-page .commission-footer{position:fixed;left:12px;right:12px;bottom:12px;z-index:3900;display:flex;justify-content:space-between;align-items:flex-end;margin:0;padding:0!important;background:none;border:0;pointer-events:none}
-#app .commission-page .commission-footer>.btn{pointer-events:auto;min-height:56px;padding:10px 22px;font-size:20px;border:2px solid #22372a;border-radius:14px;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
-#app .commission-page .commission-footer>.btn.quiet{background:#fff9e9;color:#2f3a2a}
+#app .commission-page .commission-footer>.btn{pointer-events:auto;min-height:56px;padding:10px 22px;font-size:20px;border:2px solid var(--ui-edge);border-radius:14px;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
+#app .commission-page .commission-footer>.btn.quiet{background:var(--ui-paper);color:var(--ui-ink)}
 @media(max-width:1100px){#app .commission-page .card-body{grid-template-columns:minmax(0,1fr) minmax(240px,40%)}#app .commission-page .record-options{grid-template-columns:1fr}}
 @media(max-height:650px){#app .commission-page .client-card>.commission-npc{height:90px}#app #main.commission-page .client-card>p{display:none}}
 
@@ -197,17 +199,17 @@
 dialog:has(.resident-letter){width:min(620px,94vw);max-height:96dvh;padding:0;border:0;background:transparent;box-shadow:none;overflow:visible}
 dialog:has(.resident-letter)>.dialog-heading{position:absolute;right:6%;top:3%;z-index:2;padding:0;border:0;background:none}
 dialog:has(.resident-letter)>.dialog-heading>h2{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.resident-letter{position:relative;display:flex;flex-direction:column;gap:10px;aspect-ratio:900/1194;max-height:94dvh;padding:14% 19% 19% 19%;background:url('../assets/scenes/letter-paper.webp') center/100% 100% no-repeat;color:#3b2a1a;font-family:var(--font-body);overflow:auto}
-.resident-letter .letter-sender{display:flex;align-items:center;gap:12px;margin:0;padding:0 0 6px;border-bottom:2px dashed #c9b98a}
+.resident-letter{position:relative;display:flex;flex-direction:column;gap:10px;aspect-ratio:900/1194;max-height:94dvh;padding:14% 19% 19% 19%;background:url('../assets/scenes/letter-paper.webp') center/100% 100% no-repeat;color:var(--ui-wood);font-family:var(--font-body);overflow:auto}
+.resident-letter .letter-sender{display:flex;align-items:center;gap:12px;margin:0;padding:0 0 6px;border-bottom:2px dashed var(--ui-line)}
 .resident-letter .letter-sender .commission-npc{width:auto;height:clamp(64px,10dvh,96px);object-fit:contain}
-.resident-letter .letter-sender small{display:block;font-size:14px;color:#7a6a48}.resident-letter .letter-sender b{font:400 22px/1.2 var(--font-display);color:#2f3a2a}
+.resident-letter .letter-sender small{display:block;font-size:14px;color:var(--ui-muted)}.resident-letter .letter-sender b{font:400 22px/1.2 var(--font-display);color:var(--ui-ink)}
 .resident-letter>h3{margin:0;font:400 clamp(24px,3.2dvh,30px)/1.25 var(--font-display);color:#2f4a36}
 .resident-letter>p{margin:0;font-size:18px;line-height:1.5}
 .resident-letter .letter-greeting{font-weight:700}
 .resident-letter .letter-tasks{display:flex;flex-direction:column;gap:8px;margin:2px 0;padding:0;list-style:none}
 .resident-letter .letter-tasks>li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:12px;background:#fff6d8cc;border:2px solid #e6d59c}
 .resident-letter .letter-tasks>li>i{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#3f6b45;color:#fff;font:400 18px/1 var(--font-display);font-style:normal}
-.resident-letter .letter-tasks b{display:block;font:400 19px/1.3 var(--font-display);color:#2f3a2a}
+.resident-letter .letter-tasks b{display:block;font:400 19px/1.3 var(--font-display);color:var(--ui-ink)}
 .resident-letter .letter-tasks span{display:block;margin-top:2px;font-size:17px;line-height:1.45}
 .resident-letter .letter-signature{margin-top:auto;text-align:right;font-size:17px}
 .resident-letter .dialog-actions{display:flex;justify-content:center;gap:10px;margin:4px 0 0}
@@ -216,27 +218,27 @@ dialog:has(.resident-letter)>.dialog-heading>h2{position:absolute;width:1px;heig
 /* Plaque contents: plain written lines on the cream card (undo the old white chip boxes and corner frog). */
 #app .commission-page .card-result-animal{position:static!important;display:flex!important}
 #app .commission-page .card-result-animal>b{display:block!important}
-#app .commission-page .card-result li{display:flex!important;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;gap:0;padding:3px 0 5px!important;border:0!important;border-bottom:2px dotted #c9b98a!important;border-radius:0;background:none!important;animation:none}
+#app .commission-page .card-result li{display:flex!important;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;gap:0;padding:3px 0 5px!important;border:0!important;border-bottom:2px dotted var(--ui-line)!important;border-radius:0;background:none!important;animation:none}
 #app .commission-page .card-result li small{flex:none!important;flex-basis:auto!important}
 #app .commission-page .card-result li.filled>b{animation:card-fill .35s ease-out}
 #app .commission-page .card-result.complete{background-color:transparent!important}
 /* Question rows: label on top, choices underneath (no narrow side label that wraps into 3 lines). */
 #app .commission-page .request-card .card-questions .record-row legend{float:none!important;width:auto!important;margin:0 0 6px!important}
-#app .commission-page .client-card>.btn{display:flex!important;color:#2f3a2a!important;background:#fff9e9!important;border:2px solid #c9b98a!important}
+#app .commission-page .client-card>.btn{display:flex!important;color:var(--ui-ink)!important;background:var(--ui-paper)!important;border:2px solid var(--ui-line)!important}
 @media(max-height:650px){#app .commission-page .card-result-animal{display:none!important}#app .commission-page .card-result{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){#app .commission-page .card-result li.filled>b{animation:none}}
 .resident-letter .dialog-actions{position:static;padding:0;border:0;background:none!important;box-shadow:none}
-dialog:has(.resident-letter)>.dialog-heading .btn{width:48px;min-width:48px;height:48px;min-height:48px;padding:0;border:2px solid #4a3a22;border-radius:12px;background:#fff9e9;color:#3f3420;box-shadow:0 3px 0 #4a3a2299}
+dialog:has(.resident-letter)>.dialog-heading .btn{width:48px;min-width:48px;height:48px;min-height:48px;padding:0;border:2px solid var(--ui-frame);border-radius:12px;background:var(--ui-paper);color:#3f3420;box-shadow:0 3px 0 #4a3a2299}
 dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 
 /* ── 전시관 (5 exhibit rooms) ─────────────────────────────────────────────
    Museum-wall art fills the screen. Room tabs on top, then the room: the resident's line,
    and each finished record hung as an oak plaque (border-image keeps the carved frame unstretched). */
-#app main.museum-page{position:relative;height:var(--app-height,100dvh)!important;max-width:none;margin:0;padding:calc(var(--hud-top) + 4px) 14px 84px!important;display:block!important;overflow:hidden;background:#3f5a3a url('../assets/scenes/museum-wall.webp') center/cover no-repeat;color:#2f3a2a}
+#app main.museum-page{position:relative;height:var(--app-height,100dvh)!important;max-width:none;margin:0;padding:calc(var(--hud-top) + 4px) 14px 84px!important;display:block!important;overflow:hidden;background:#3f5a3a url('../assets/scenes/museum-wall.webp') center/cover no-repeat;color:var(--ui-ink)}
 #app .museum-page>.museum-heading{position:fixed;top:12px;left:var(--hud-left);z-index:3950;display:flex;align-items:center;gap:8px;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
 #app .museum-page>.museum-heading>:is(.overline,p,[data-action=map]){display:none!important}
-#app #main.museum-page>.museum-heading>h1{margin:0;padding:8px 16px;font-size:22px!important;line-height:1.2;white-space:nowrap;color:#2f3a2a;background:#fff9e9f0;border:2px solid #4a3a22;border-radius:12px;box-shadow:0 3px 0 #4a3a2299}
-#app .museum-page>.museum-heading>.btn{min-height:46px;font-size:17px;background:#fff9e9;color:#2f3a2a;border:2px solid #4a3a22}
+#app #main.museum-page>.museum-heading>h1{margin:0;padding:8px 16px;font-size:22px!important;line-height:1.2;white-space:nowrap;color:var(--ui-ink);background:#fff9e9f0;border:2px solid var(--ui-frame);border-radius:12px;box-shadow:0 3px 0 #4a3a2299}
+#app .museum-page>.museum-heading>.btn{min-height:46px;font-size:17px;background:var(--ui-paper);color:var(--ui-ink);border:2px solid var(--ui-frame)}
 #app .museum-page .museum-exhibits{display:flex!important;flex-direction:column;gap:10px;height:100%;min-height:0}
 #app .museum-page .museum-exhibits>.panel-tabs{justify-content:center;margin:0}
 #app .museum-page .museum-exhibits>.panel-tabs>.btn+.btn{margin-left:6px}
@@ -244,7 +246,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .museum-page .museum-exhibits>.panel-tabs .tab-num{display:none}
 #app .museum-page .museum-exhibit{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto minmax(0,1fr) auto;gap:12px 18px;margin:0;padding:0!important;border:0!important;background:none!important;box-shadow:none;overflow:hidden}
 #app .museum-page .museum-exhibit[hidden]{display:none}
-#app .museum-page .museum-exhibit>header{grid-column:1/-1;justify-self:center;display:flex;align-items:center;gap:12px;margin:0;padding:6px 18px 6px 8px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9eb;box-shadow:0 4px 0 #4a3a2266}
+#app .museum-page .museum-exhibit>header{grid-column:1/-1;justify-self:center;display:flex;align-items:center;gap:12px;margin:0;padding:6px 18px 6px 8px;border:3px solid var(--ui-frame);border-radius:18px;background:#fff9e9eb;box-shadow:0 4px 0 #4a3a2266}
 #app .museum-page .museum-exhibit>header .commission-npc{width:auto;height:64px;margin:0}
 #app #main.museum-page .museum-exhibit>header h2{margin:0;font-size:clamp(22px,2.8vh,30px)!important}
 #app #main.museum-page .museum-exhibit>header :is(small,span){font-size:15px!important;color:#6b5a32}
@@ -254,18 +256,18 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .museum-page .museum-specimens{display:flex;justify-content:center;gap:18px;margin:0;padding:0;background:none}
 #app .museum-page .museum-specimens figure{margin:0;max-width:none;flex:none;text-align:center}
 #app .museum-page .museum-specimens .animal{width:auto;height:clamp(64px,13vh,140px);object-fit:contain}
-#app #main.museum-page .museum-specimens figcaption{margin:0;font-size:clamp(16px,2vh,21px)!important;font-weight:700;color:#2f3a2a}
+#app #main.museum-page .museum-specimens figcaption{margin:0;font-size:clamp(16px,2vh,21px)!important;font-weight:700;color:var(--ui-ink)}
 #app .museum-page .museum-exhibit>section>ul{width:100%;margin:0;padding:0;list-style:none}
-#app #main.museum-page .museum-exhibit>section>ul>li{padding:3px 2px 4px;border-bottom:2px dotted #c9b98a;font-size:clamp(16px,2.1vh,21px)!important;line-height:1.35}
+#app #main.museum-page .museum-exhibit>section>ul>li{padding:3px 2px 4px;border-bottom:2px dotted var(--ui-line);font-size:clamp(16px,2.1vh,21px)!important;line-height:1.35}
 #app #main.museum-page .museum-exhibit>section>p{margin:0;font-size:clamp(16px,2.1vh,21px)!important;line-height:1.4}
 #app .museum-page .museum-model{max-width:min(320px,100%);margin:0;background:none}
-#app .museum-page .museum-exhibit>blockquote{grid-column:1;align-self:center;margin:0;padding:10px 14px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;font-size:18px;line-height:1.4;box-shadow:0 4px 0 #3b2a1a55}
+#app .museum-page .museum-exhibit>blockquote{grid-column:1;align-self:center;margin:0;padding:10px 14px;border:3px solid var(--ui-wood);border-radius:14px;background:var(--ui-bubble);font-size:18px;line-height:1.4;box-shadow:0 4px 0 #3b2a1a55}
 #app .museum-page .museum-exhibit>.btn{grid-column:2;justify-self:end;align-self:center;min-height:52px;font-size:19px}
-#app .museum-page .museum-exhibit>.empty-exhibit{grid-column:1/-1;align-self:center;justify-self:center;max-width:620px;margin:0;padding:22px 28px;border:3px dashed #fff9e9;border-radius:22px;background:#fff9e9d9;text-align:center;font-size:22px;line-height:1.5}
+#app .museum-page .museum-exhibit>.empty-exhibit{grid-column:1/-1;align-self:center;justify-self:center;max-width:620px;margin:0;padding:22px 28px;border:3px dashed var(--ui-paper);border-radius:22px;background:#fff9e9d9;text-align:center;font-size:22px;line-height:1.5}
 #app .museum-page .museum-studio{grid-column:1/-1}
 #app .museum-page>footer{position:fixed;right:12px;bottom:12px;z-index:3900;margin:0;padding:0;background:none}
-#app .museum-page>footer>.btn{min-height:56px;font-size:20px;border:2px solid #22372a;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
-#app .museum-page .museum-exhibit>.btn{background:#fff9e9;color:#2f3a2a;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+#app .museum-page>footer>.btn{min-height:56px;font-size:20px;border:2px solid var(--ui-edge);box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
+#app .museum-page .museum-exhibit>.btn{background:var(--ui-paper);color:var(--ui-ink);border:2px solid var(--ui-frame);box-shadow:0 3px 0 #4a3a2299}
 #app .museum-page .museum-exhibit>section{--pt:clamp(56px,10vh,104px);overflow:visible;justify-content:center}
 #app .museum-page .museum-specimens{flex-wrap:nowrap;width:100%}
 #app .museum-page .museum-specimens figure{flex:0 1 auto;min-width:0}
@@ -309,8 +311,8 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app #main.mission-page .observation-shortcut{display:inline-flex;align-items:center;gap:6px;margin:0;padding:4px 14px 5px;border-radius:999px;background:#fff9e9e6;color:#3f5a3a;font-size:clamp(16px,1.9vh,22px)!important;box-shadow:0 2px 0 #4a3a2255}
 /* Part buttons grow with the screen and the chosen part is clearly green. */
 #app .mission-page .scan-scene .part-buttons{gap:8px}
-#app #main.mission-page .scan-scene .part-buttons .btn{min-height:clamp(48px,6vh,66px);padding:6px clamp(12px,1.2vw,22px);border:3px solid #c9b98a;border-radius:14px;background:#fffdf5;color:#2f3a2a;font-size:clamp(18px,2.3vh,27px)!important;box-shadow:0 4px 0 #c9b98a}
-#app #main.mission-page .scan-scene .part-buttons .btn.selected{background:#365c43;border-color:#22372a;color:#fffbed;box-shadow:0 4px 0 #22372a}
+#app #main.mission-page .scan-scene .part-buttons .btn{min-height:clamp(48px,6vh,66px);padding:6px clamp(12px,1.2vw,22px);border:3px solid var(--ui-line);border-radius:14px;background:var(--ui-paper-strong);color:var(--ui-ink);font-size:clamp(18px,2.3vh,27px)!important;box-shadow:0 4px 0 var(--ui-line)}
+#app #main.mission-page .scan-scene .part-buttons .btn.selected{background:var(--ui-green);border-color:var(--ui-edge);color:#fffbed;box-shadow:0 4px 0 var(--ui-edge)}
 #app .mission-page .scan-scene .part-buttons .btn .icon{width:clamp(18px,2.2vh,26px);height:clamp(18px,2.2vh,26px)}
 /* Notes panel: progress labels scale too. */
 #app #main.mission-page .lens-notes>.notes-title{font-size:clamp(16px,2vh,24px)!important}
@@ -382,7 +384,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 /* Field notes: checklist chips stay on one line; the notes fill the column instead of floating in its middle. */
 #app .mission-page .activity-workspace>.field-notes.habitat-notes{justify-content:flex-start;gap:8px;background:#fff9e98c}
 #app .habitat-notes .motion-checklist{background:#f3f1e2;border:2px solid #d2dcbf}
-#app .habitat-notes>.empty-experiment{background:#fffdf5;border:3px dashed #c9b98a}
+#app .habitat-notes>.empty-experiment{background:var(--ui-paper-strong);border:3px dashed var(--ui-line)}
 #app .habitat-notes .motion-checklist{flex:none;gap:10px;padding:8px 10px;border-radius:14px}
 #app #main .habitat-notes .motion-checklist>b{max-width:7.5em;font-size:clamp(14px,1.8vh,19px)!important;line-height:1.3}
 #app .habitat-notes .motion-checklist>div{gap:6px}
@@ -392,7 +394,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app #main .habitat-notes>.empty-experiment p{margin:0;font-size:clamp(20px,2.6vh,30px)!important;line-height:1.45}
 /* Motion record: one grid that fits without an inner scroll; caption + player controls share a row
    and the video takes whatever height is left. */
-#app .habitat-notes .motion-observer{flex:1 1 auto;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(80px,1fr) auto auto auto;grid-template-areas:"steps steps" "title title" "goal goal" "pred pred" "video video" "cap ctrl" "dock dock" "done done";column-gap:12px;row-gap:0;min-height:0;padding:10px 12px 8px;border-radius:16px;background:#fffdf5;box-shadow:0 3px 0 #d8cba3}
+#app .habitat-notes .motion-observer{flex:1 1 auto;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(80px,1fr) auto auto auto;grid-template-areas:"steps steps" "title title" "goal goal" "pred pred" "video video" "cap ctrl" "dock dock" "done done";column-gap:12px;row-gap:0;min-height:0;padding:10px 12px 8px;border-radius:16px;background:var(--ui-paper-strong);box-shadow:0 3px 0 #d8cba3}
 #app .habitat-notes .motion-observer>*{margin:0 0 6px}
 #app .habitat-notes .motion-observer>.motion-steps{grid-area:steps}
 #app .habitat-notes .motion-observer>.motion-title{grid-area:title}
@@ -423,19 +425,19 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .link-activity>.link-animal{flex:none;margin:0 auto;padding:6px 22px}
 #app .link-activity>.link-chain{flex:1 1 auto;min-height:0;margin:0;gap:8px;align-items:stretch}
 /* Drop slots: big, see-through dashed zones on the cork board. */
-#app .link-activity .link-slot{display:flex;flex-direction:column;min-height:0;padding:10px 14px;border:4px dashed #fff9e9;border-radius:22px;background-color:#fffcf0a6!important;box-shadow:0 6px 18px #2a3a2633}
-#app #main .link-activity .link-slot>h3{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:clamp(22px,2.8vh,34px)!important;color:#2f3a2a}
+#app .link-activity .link-slot{display:flex;flex-direction:column;min-height:0;padding:10px 14px;border:4px dashed var(--ui-paper);border-radius:22px;background-color:#fffcf0a6!important;box-shadow:0 6px 18px #2a3a2633}
+#app #main .link-activity .link-slot>h3{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:clamp(22px,2.8vh,34px)!important;color:var(--ui-ink)}
 #app #main .link-activity .link-slot>h3>span{width:clamp(28px,3.2vh,38px);height:clamp(28px,3.2vh,38px);font-size:clamp(16px,2vh,22px)!important}
 #app #main .link-activity .link-slot>.slot-empty{flex:1;display:grid;place-items:center;margin:0;padding:6px;font-size:clamp(19px,2.4vh,28px)!important;color:#6b5a32}
 #app .link-activity .link-slot>.statement-card{margin:auto 0}
 /* Card tray: see-through, cards opaque, 3 columns. */
-#app .link-activity>.card-tray{flex:none;margin:0;padding:10px 14px 14px;border:3px solid #4a3a22;border-radius:22px;background-color:#fff9e9b3!important;box-shadow:0 6px 0 #4a3a2266}
+#app .link-activity>.card-tray{flex:none;margin:0;padding:10px 14px 14px;border:3px solid var(--ui-frame);border-radius:22px;background-color:#fff9e9b3!important;box-shadow:0 6px 0 #4a3a2266}
 #app #main .link-activity>.card-tray>h3{margin:0 0 8px;font-size:clamp(22px,2.6vh,32px)!important}
-#app #main .link-activity>.card-tray>h3::after{content:'  ·  카드를 눌러 위 칸으로 옮겨 봐';font:400 clamp(16px,1.9vh,22px)/1 var(--font-body);color:#7a6a48}
+#app #main .link-activity>.card-tray>h3::after{content:'  ·  카드를 눌러 위 칸으로 옮겨 봐';font:400 clamp(16px,1.9vh,22px)/1 var(--font-body);color:var(--ui-muted)}
 #app .link-activity .card-pool{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px}
 /* Evidence card: kind tag on top, statement below, grip dots on the right so it reads as "pick me up". */
-#app .link-activity .statement-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;width:100%;min-height:clamp(56px,9vh,104px);padding:6px 40px 8px 14px;border:3px solid #c9b98a;border-radius:14px;background:#fffdf5;box-shadow:0 4px 0 #c9b98a;cursor:grab}
-#app .link-activity .statement-card::after{content:'';position:absolute;right:12px;top:50%;width:12px;height:22px;transform:translateY(-50%);background:radial-gradient(circle,#b59342 2px,transparent 2.5px) 0 0/6px 7.3px;opacity:.8}
+#app .link-activity .statement-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;width:100%;min-height:clamp(56px,9vh,104px);padding:6px 40px 8px 14px;border:3px solid var(--ui-line);border-radius:14px;background:var(--ui-paper-strong);box-shadow:0 4px 0 var(--ui-line);cursor:grab}
+#app .link-activity .statement-card::after{content:'';position:absolute;right:12px;top:50%;width:12px;height:22px;transform:translateY(-50%);background:radial-gradient(circle,var(--ui-brass) 2px,transparent 2.5px) 0 0/6px 7.3px;opacity:.8}
 #app #main .link-activity .statement-card>small{margin:0;padding:1px 8px;border-radius:999px;background:#f1e7c6;color:#6b5226;white-space:nowrap;font-size:clamp(14px,1.7vh,19px)!important;line-height:1.35}
 #app .link-activity .statement-card.kind-environment>small{background:#e1efd3;color:#3f6b33}
 #app .link-activity .statement-card.kind-body>small{background:#f7e2c4;color:#7a4f12}
@@ -467,12 +469,12 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 /* Right side: the question sits on a cream card over the desk photo (heading no longer on the busy photo). */
 #app .mission-page .activity-workspace>.case-photo-panel.evidence-panel~.case-activity{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:calc(var(--hud-top) + 4px) 14px 84px;overflow:auto}
 #app .evidence-panel~.case-activity>.panel-tabs{flex:none;margin:0;padding-right:150px;min-height:56px}
-#app .evidence-panel~.case-activity>section{flex:none;margin:0!important;padding:12px 16px 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9f0;box-shadow:0 6px 0 #4a3a2266}
-#app #main .evidence-panel~.case-activity>section>h2{margin:0 0 8px;font-size:clamp(24px,3.2vh,36px)!important;color:#2f3a2a}
-#app #main .evidence-panel~.case-activity .candidate-count{margin:0 0 10px;color:#5b4a2a;font-size:clamp(18px,2.3vh,26px)!important}
+#app .evidence-panel~.case-activity>section{flex:none;margin:0!important;padding:12px 16px 16px;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9f0;box-shadow:0 6px 0 #4a3a2266}
+#app #main .evidence-panel~.case-activity>section>h2{margin:0 0 8px;font-size:clamp(24px,3.2vh,36px)!important;color:var(--ui-ink)}
+#app #main .evidence-panel~.case-activity .candidate-count{margin:0 0 10px;color:var(--ui-brown);font-size:clamp(18px,2.3vh,26px)!important}
 #app .evidence-panel~.case-activity .candidate-grid{margin:0;gap:10px}
-#app .evidence-panel~.case-activity .candidate{min-height:0;padding:8px;border:3px solid #c9b98a;border-radius:16px;background:#fffdf5;box-shadow:0 4px 0 #c9b98a}
-#app .evidence-panel~.case-activity .candidate.selected{border-color:#4f7a45;background:#eaf3d6;box-shadow:0 0 0 4px #f6d36e,0 4px 0 #4f7a45}
+#app .evidence-panel~.case-activity .candidate{min-height:0;padding:8px;border:3px solid var(--ui-line);border-radius:16px;background:var(--ui-paper-strong);box-shadow:0 4px 0 var(--ui-line)}
+#app .evidence-panel~.case-activity .candidate.selected{border-color:var(--ui-ok);background:#eaf3d6;box-shadow:0 0 0 4px var(--ui-accent),0 4px 0 var(--ui-ok)}
 #app .evidence-panel~.case-activity .candidate .art{width:100%;height:clamp(62px,14vh,170px);object-fit:contain}
 @media(max-height:650px){#app .evidence-panel~.case-activity .candidate .art{height:58px}#app .evidence-panel~.case-activity .candidate{padding:4px 6px}}
 
@@ -480,7 +482,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app #main .evidence-panel~.case-activity .choice>span{font-size:clamp(19px,2.5vh,28px)!important}
 #app .evidence-panel~.case-activity .choice{min-height:clamp(52px,7vh,80px)}
 #app .mission-page .activity-workspace>.evidence-panel~.case-activity{position:relative}
-#app .evidence-panel~.case-activity>.btn[data-action=case-reset]{position:absolute;top:calc(var(--hud-top) + 4px);right:14px;margin:0;min-height:52px;padding:8px 20px;border:2px solid #4a3a22;border-radius:14px;background:#fff9e9;color:#2f3a2a;box-shadow:0 3px 0 #4a3a2299}
+#app .evidence-panel~.case-activity>.btn[data-action=case-reset]{position:absolute;top:calc(var(--hud-top) + 4px);right:14px;margin:0;min-height:52px;padding:8px 20px;border:2px solid var(--ui-frame);border-radius:14px;background:var(--ui-paper);color:var(--ui-ink);box-shadow:0 3px 0 #4a3a2299}
 
 /* ── 4-1 / 4-3 life guide (photo + floating question card) ────────────── */
 #app .mission-page .activity-workspace:has(>.case-photo-panel:not(.evidence-panel)){--case-card:clamp(360px,36vw,640px)}
@@ -491,7 +493,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app #main .case-photo-panel:not(.evidence-panel) .case-place figcaption{font-size:clamp(15px,1.9vh,22px)!important}
 #app #main .case-photo-panel:not(.evidence-panel)>.photo-caption{max-width:100%;margin:0;padding:6px 16px;border-radius:14px;background:#0f281cd0;font-size:clamp(19px,2.5vh,28px)!important;line-height:1.4}
 /* The card centers vertically between the corner icons and the bottom buttons; no inherited top padding inside. */
-#app .mission-page .activity-workspace>.case-photo-panel:not(.evidence-panel)~.case-activity.paged-panel{bottom:84px;height:fit-content;margin:auto 0;padding:14px 16px 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9f2;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .activity-workspace>.case-photo-panel:not(.evidence-panel)~.case-activity.paged-panel{bottom:84px;height:fit-content;margin:auto 0;padding:14px 16px 16px;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9f2;box-shadow:0 6px 0 #4a3a2266}
 #app .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs{flex-wrap:nowrap;margin:0 0 10px}
 #app .case-photo-panel:not(.evidence-panel)~.case-activity .panel-tabs>.btn{white-space:nowrap}
 #app #main .case-photo-panel:not(.evidence-panel)~.case-activity section>h2{margin:0 0 8px;font-size:clamp(24px,3.2vh,36px)!important}
@@ -515,16 +517,16 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
    the card starts below the corner icons and stops above the next button. */
 #app .mission-page .activity-workspace:has(>.design-bench){--design-card:clamp(420px,36vw,640px)}
 #app .mission-page .activity-workspace>.design-bench{background:none;box-shadow:none;border:0;padding:calc(var(--hud-top) + 4px) calc(var(--design-card) + 30px) 90px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,1.2vh,14px)}
-#app .mission-page .design-bench>h2{flex:none;margin:0;padding:4px 20px;border:2px solid #4a3a22;border-radius:14px;background:#fff9e9;color:#2f3a2a;box-shadow:0 3px 0 #4a3a2266;font-size:var(--c-title)!important;line-height:1.25}
+#app .mission-page .design-bench>h2{flex:none;margin:0;padding:4px 20px;border:2px solid var(--ui-frame);border-radius:14px;background:var(--ui-paper);color:var(--ui-ink);box-shadow:0 3px 0 #4a3a2266;font-size:var(--c-title)!important;line-height:1.25}
 #app .mission-page .design-bench>.bench-status{flex:none;justify-content:center;margin:0;padding:6px 12px;border-radius:14px;background:#fff9e9f2;box-shadow:0 3px 10px #2a3a2626}
 #app .mission-page .design-bench .design-checklist li{font-size:var(--c-small)}
-#app .mission-page .design-bench .bench-status .work-status{font-size:var(--c-small);color:#5b4a2a}
+#app .mission-page .design-bench .bench-status .work-status{font-size:var(--c-small);color:var(--ui-brown)}
 /* Fresh bench: the draft is the drawing surface, so it takes all the free height. */
-#app .mission-page .design-bench>.product-art{flex:1 1 0;min-height:120px;width:100%;height:auto;max-width:none;max-height:none;margin:0;padding:10px;border:3px dashed #c9b98a;border-radius:22px;background:#fffdf5e6;box-shadow:0 6px 18px #2a3a2633}
+#app .mission-page .design-bench>.product-art{flex:1 1 0;min-height:120px;width:100%;height:auto;max-width:none;max-height:none;margin:0;padding:10px;border:3px dashed var(--ui-line);border-radius:22px;background:#fffdf5e6;box-shadow:0 6px 18px #2a3a2633}
 #app .mission-page .design-bench>.sketch-actions{flex:none;display:flex;gap:10px;justify-content:center;margin:0}
-#app .mission-page .design-bench>.sketch-actions .btn{min-height:52px;padding:8px 18px;font-size:var(--c-body);background:#fff9e9;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+#app .mission-page .design-bench>.sketch-actions .btn{min-height:52px;padding:8px 18px;font-size:var(--c-body);background:var(--ui-paper);border:2px solid var(--ui-frame);box-shadow:0 3px 0 #4a3a2299}
 /* The step card */
-#app .mission-page .activity-workspace>.design-options.paged-panel{top:calc(var(--hud-top) + 4px);right:14px;width:var(--design-card);max-height:calc(100% - var(--hud-top) - 94px);padding:18px 16px 14px;gap:clamp(6px,1vh,12px);border:3px solid #4a3a22;border-radius:22px;background:#fff9e9;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .activity-workspace>.design-options.paged-panel{top:calc(var(--hud-top) + 4px);right:14px;width:var(--design-card);max-height:calc(100% - var(--hud-top) - 94px);padding:18px 16px 14px;gap:clamp(6px,1vh,12px);border:3px solid var(--ui-frame);border-radius:22px;background:var(--ui-paper);box-shadow:0 6px 0 #4a3a2266}
 #app .mission-page .design-options .panel-tabs{flex-wrap:nowrap;margin:0 0 2px}
 #app .mission-page .design-options .panel-tabs>.btn{flex:1 1 0;min-width:0;justify-content:center;padding:6px 12px 6px 6px;font-size:clamp(17px,2.2vh,24px);white-space:nowrap}
 #app .mission-page .design-options .panel-tabs .tab-num{flex:none}
@@ -532,7 +534,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .mission-page .design-options .choice{font-size:var(--c-body);min-height:clamp(50px,6.6vh,72px)}
 #app .mission-page .design-options .design-choices .choice{justify-content:flex-start;text-align:left;padding-left:12px}
 #app .mission-page .design-options .source-study :is(b,p){font-size:var(--c-small)}
-#app .mission-page .design-options .part-tip{font-size:var(--c-small);line-height:1.4;color:#5b4a2a}
+#app .mission-page .design-options .part-tip{font-size:var(--c-small);line-height:1.4;color:var(--ui-brown)}
 #app .mission-page .design-options .part-pool{grid-template-columns:1fr;gap:8px}
 #app .mission-page .design-options .part-pool .part-card{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;min-height:0;padding:6px 12px;text-align:left}
 #app .mission-page .design-options .part-pool .part-card>svg{width:clamp(64px,8vh,96px);height:clamp(48px,6vh,72px)}
@@ -564,7 +566,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 /* ── 5-1 Shape-comparison lab ───────────────────────────────────────────
    Two cards that clear the corner buttons; the models grow to fill each card instead of leaving a blank tail. */
 #app .mission-page .activity-workspace>.experiment-lab{height:100%;padding:calc(var(--hud-top) + 4px) 14px 90px;gap:14px;align-items:start}
-#app .mission-page .experiment-lab>:is(.lab-controls,.lab-results){display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);min-height:0;overflow:auto;padding:clamp(10px,1.6vh,18px) 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9f5;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .experiment-lab>:is(.lab-controls,.lab-results){display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);min-height:0;overflow:auto;padding:clamp(10px,1.6vh,18px) 16px;border:3px solid var(--ui-frame);border-radius:22px;background:#fff9e9f5;box-shadow:0 6px 0 #4a3a2266}
 #app .mission-page .experiment-lab>.lab-controls>.current-model{flex:none;height:clamp(90px,24vh,300px);display:flex;align-items:center;justify-content:center;margin:0}
 #app .mission-page .experiment-lab>.lab-controls>.current-model>svg{width:100%;height:100%;max-height:none}
 #app .mission-page .experiment-lab :is(.lab-controls,.lab-results) :is(p,label){margin:0;font-size:var(--c-body)!important;line-height:1.4}
@@ -587,19 +589,19 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 /* ── 5-2 Free drawing studio ────────────────────────────────────────────
    Paper on the field-desk art (no flat grey sheet), a wider notebook so its lines do not stack word by word. */
 #app .mission-page .activity-workspace>.creative-studio.studio-drawing{background:none;border:0;grid-template-columns:minmax(0,1fr) clamp(270px,24vw,440px)!important;padding:calc(var(--hud-top) + 4px) 14px 84px!important;gap:10px 14px}
-#app .mission-page .studio-drawing .studio-toolbar{border:3px solid #4a3a22;border-radius:18px;background:#fff9e9;box-shadow:0 4px 0 #4a3a2266}
-#app .mission-page .studio-drawing .studio-paper{border:3px solid #4a3a22;border-radius:10px;box-shadow:0 10px 26px #1f2a1a55}
+#app .mission-page .studio-drawing .studio-toolbar{border:3px solid var(--ui-frame);border-radius:18px;background:var(--ui-paper);box-shadow:0 4px 0 #4a3a2266}
+#app .mission-page .studio-drawing .studio-paper{border:3px solid var(--ui-frame);border-radius:10px;box-shadow:0 10px 26px #1f2a1a55}
 #app .mission-page .studio-drawing .studio-empty>b{font-size:clamp(26px,3.6vh,42px)}
 #app .mission-page .studio-drawing .studio-empty>span{font-size:var(--c-small)}
 #app .mission-page .studio-drawing .studio-toolbar .studio-button{min-height:clamp(48px,5.6vh,62px);font-size:clamp(18px,2.2vh,24px)}
 #app .mission-page .studio-drawing .studio-toolbar .studio-swatch{width:clamp(42px,5vh,54px);height:clamp(42px,5vh,54px);min-width:0;min-height:0}
 #app .mission-page .studio-drawing .studio-width>span{font-size:clamp(16px,2vh,22px)}
-#app .mission-page .studio-drawing .studio-notebook{align-self:start;max-height:100%;padding:12px 14px;gap:8px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9;box-shadow:0 4px 0 #4a3a2266;overflow:auto}
+#app .mission-page .studio-drawing .studio-notebook{align-self:start;max-height:100%;padding:12px 14px;gap:8px;border:3px solid var(--ui-frame);border-radius:18px;background:var(--ui-paper);box-shadow:0 4px 0 #4a3a2266;overflow:auto}
 #app .mission-page .studio-drawing .studio-notebook :is(.studio-field>span,.studio-note p,.studio-next-hint,.studio-inspiration p){font-size:var(--c-body);line-height:1.4}
 #app .mission-page .studio-drawing .studio-notebook :is(.studio-eyebrow,.studio-note b,summary){font-size:var(--c-small)}
 #app .mission-page .studio-drawing .studio-notebook input{min-height:clamp(46px,5.6vh,60px);font-size:var(--c-body)}
 #app .mission-page .studio-drawing .studio-drawing-footer{padding:6px 8px;border-radius:14px;background:#fff9e9f2}
-#app .mission-page .studio-drawing .studio-drawing-footer>span{font-size:var(--c-small)!important;color:#5b4a2a}
+#app .mission-page .studio-drawing .studio-drawing-footer>span{font-size:var(--c-small)!important;color:var(--ui-brown)}
 @media(max-height:650px){
   #app .mission-page .studio-drawing .studio-notebook>.studio-eyebrow,#app .mission-page .studio-drawing .studio-note>b,#app .mission-page .studio-drawing .studio-drawing-footer>span{display:none}
   #app .mission-page .studio-drawing .studio-notebook{gap:6px;padding:8px 10px}
@@ -610,16 +612,16 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
    The poster artwork fills its card; the two long answers stretch so the form has no blank tail. */
 #app .mission-page .activity-workspace>.creative-studio.studio-showcase{height:100%;min-height:0;overflow:hidden;padding:calc(var(--hud-top) + 4px) 14px 88px!important;gap:14px;align-items:stretch;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr)}
 #app .mission-page .studio-showcase .studio-exhibit{display:flex;flex-direction:column;min-height:0;gap:10px}
-#app .mission-page .studio-showcase .studio-exhibit>.studio-heading{flex:none;margin:0 auto!important;padding:6px 20px;border:2px solid #4a3a22;border-radius:14px;background:#fff9e9;box-shadow:0 3px 0 #4a3a2266;text-align:center}
+#app .mission-page .studio-showcase .studio-exhibit>.studio-heading{flex:none;margin:0 auto!important;padding:6px 20px;border:2px solid var(--ui-frame);border-radius:14px;background:var(--ui-paper);box-shadow:0 3px 0 #4a3a2266;text-align:center}
 #app .mission-page .studio-showcase .studio-heading h2{font-size:var(--c-title)}
 #app .mission-page .studio-showcase .studio-heading p{font-size:var(--c-small)}
-#app .mission-page .studio-showcase .studio-poster{flex:1 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:12px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .studio-showcase .studio-poster{flex:1 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;padding:12px;border:3px solid var(--ui-frame);border-radius:22px;background:var(--ui-paper);box-shadow:0 6px 0 #4a3a2266}
 #app .mission-page .studio-showcase .studio-poster>div{flex:1 1 0;min-height:0;width:100%;display:flex;justify-content:center}
 #app .mission-page .studio-showcase .studio-poster>div>.studio-artwork{width:auto;height:100%;max-width:100%;border:2px solid #e2d6b2}
 #app .mission-page .studio-showcase .studio-poster>h3{margin:2px 0 0;font-size:var(--c-title)}
 #app .mission-page .studio-showcase .studio-poster>p{margin:0;font-size:var(--c-body)}
 #app .mission-page .studio-showcase .studio-poster-tag{margin:0;font-size:var(--c-small)}
-#app .mission-page .studio-showcase .studio-introduction{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);min-height:0;overflow:auto;padding:clamp(10px,1.6vh,18px) 16px;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9;box-shadow:0 6px 0 #4a3a2266}
+#app .mission-page .studio-showcase .studio-introduction{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);min-height:0;overflow:auto;padding:clamp(10px,1.6vh,18px) 16px;border:3px solid var(--ui-frame);border-radius:22px;background:var(--ui-paper);box-shadow:0 6px 0 #4a3a2266}
 #app .mission-page .studio-showcase .studio-field{gap:4px;font-size:var(--c-body)}
 #app .mission-page .studio-showcase .studio-field>span{font-size:var(--c-body)}
 #app .mission-page .studio-showcase .studio-field:has(textarea){flex:1 1 0;min-height:0}
@@ -636,17 +638,17 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app main.reward-screen{display:flex;flex-direction:column;justify-content:safe center;padding:calc(var(--hud-top) * .5) 24px 16px}
 #app .reward-screen .reward-content{margin:0 auto;padding:0}
 #app .reward-screen .reward-content>h1{width:fit-content;max-width:calc(100% - 2 * var(--hud-right));margin:0 auto 6px;padding:4px 24px 6px;border-radius:16px;background:#fff9e9f2;box-shadow:0 3px 12px #2a3a2626;font-size:clamp(28px,4.2vh,48px)}
-#app .reward-screen .reward-content>p{width:fit-content;margin:0 auto;padding:2px 16px;border-radius:12px;background:#fff9e9e6;color:#5b4a2a;font-size:var(--c-body)}
+#app .reward-screen .reward-content>p{width:fit-content;margin:0 auto;padding:2px 16px;border-radius:12px;background:#fff9e9e6;color:var(--ui-brown);font-size:var(--c-body)}
 #app .reward-screen .reward-display{grid-template-columns:auto auto;justify-content:center;gap:clamp(20px,3vw,56px)}
 #app .reward-screen .restore-card{width:fit-content;max-width:100%;height:clamp(170px,34dvh,420px);justify-self:center}
 #app .reward-screen img.restore-photo{width:auto;max-width:100%;height:100%}
 #app .reward-screen .reward-tool>:is(small,h2){width:fit-content;margin-inline:auto;padding:2px 14px;border-radius:12px;background:#fff9e9e6}
 #app .reward-screen .reward-tool>small{font-size:var(--c-small)}
 #app .reward-screen .reward-tool>h2{font-size:clamp(26px,3.6vh,40px)}
-#app .reward-screen .commission-thanks{border:3px solid #4a3a22;border-radius:18px;background:#fff9e9;box-shadow:0 5px 0 #4a3a2266}
+#app .reward-screen .commission-thanks{border:3px solid var(--ui-frame);border-radius:18px;background:var(--ui-paper);box-shadow:0 5px 0 #4a3a2266}
 #app .reward-screen .commission-thanks p{font-size:var(--c-body)!important}
 #app .reward-screen .commission-thanks>div>:is(small,b){font-size:var(--c-small)}
-#app .reward-screen .commission-reward-links .btn{min-height:clamp(50px,6vh,64px);font-size:var(--c-body);background:#fff9e9;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+#app .reward-screen .commission-reward-links .btn{min-height:clamp(50px,6vh,64px);font-size:var(--c-body);background:var(--ui-paper);border:2px solid var(--ui-frame);box-shadow:0 3px 0 #4a3a2299}
 #app .reward-screen .reward-actions{flex-direction:row;justify-content:center;align-items:center;gap:18px}
 #app .reward-screen .reward-actions>*{margin:0}
 #app .reward-screen .reward-actions>.btn{min-height:clamp(54px,6.6vh,72px);padding-inline:28px;font-size:clamp(20px,2.6vh,28px)}
@@ -746,7 +748,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .commission-page .card-result-animal>.animal{width:clamp(56px,31cqw,190px);max-height:none}
 #app #main.commission-page .card-result-animal>b{font-size:clamp(15px,5.6cqw,30px)!important}
 #app .commission-page .card-result>ol{gap:.8cqw}
-#app #main.commission-page .card-result>ol>li>small,#app #main.commission-page .card-result li small{font-size:clamp(13px,4.1cqw,21px)!important;line-height:1.25;color:#7a6a48}
+#app #main.commission-page .card-result>ol>li>small,#app #main.commission-page .card-result li small{font-size:clamp(13px,4.1cqw,21px)!important;line-height:1.25;color:var(--ui-muted)}
 #app #main.commission-page .card-result>ol>li>b,#app #main.commission-page .card-result li b{font-size:clamp(15px,5.8cqw,30px)!important;line-height:1.25}
 #app #main.commission-page .card-result>ol>li>b.blank{letter-spacing:.05em}
 #app .commission-page .card-result li{padding:.5cqw 0 1cqw!important}
@@ -776,24 +778,24 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .commission-page .request-lab>blockquote{margin:0 0 8px;padding:8px 14px}
 #app #main.commission-page .request-lab>blockquote :is(b,p){font-size:clamp(18px,2.2vh,24px)!important;line-height:1.35}
 #app .commission-page .request-lab .request-lab-grid{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
-#app .commission-page .request-lab .retest-controls{display:flex!important;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid #e2d6b2;border-radius:16px;background:#fffdf5}
+#app .commission-page .request-lab .retest-controls{display:flex!important;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid #e2d6b2;border-radius:16px;background:var(--ui-paper-strong)}
 #app .commission-page .request-lab .retest-controls>h2{display:none}
 #app .commission-page .request-lab .retest-model{max-height:clamp(90px,16vh,200px);margin:0;border-radius:12px}
 #app .commission-page .request-lab .retest-model svg{display:block;width:100%;height:clamp(90px,16vh,200px)}
 #app .commission-page .request-lab :is(.retest-controls,.retest-results) fieldset{margin:0;padding:0;border:0;min-width:0}
 #app #main.commission-page .request-lab :is(.retest-controls,.retest-results) legend{margin:0 0 6px;font-size:clamp(19px,2.3vh,26px)!important;font-weight:700}
 #app .commission-page .request-lab .inline-options{display:flex;flex-wrap:wrap;gap:8px}
-#app .commission-page .request-lab .inline-options>.btn{flex:1 1 0;min-width:0;min-height:clamp(48px,6vh,64px);padding:6px 10px;border:2px solid #c9b98a;border-radius:14px;box-shadow:0 3px 0 #c9b98a}
+#app .commission-page .request-lab .inline-options>.btn{flex:1 1 0;min-width:0;min-height:clamp(48px,6vh,64px);padding:6px 10px;border:2px solid var(--ui-line);border-radius:14px;box-shadow:0 3px 0 var(--ui-line)}
 #app #main.commission-page .request-lab .inline-options>.btn{font-size:clamp(18px,2.2vh,25px)!important}
-#app .commission-page .request-lab .inline-options>.btn.quiet{background:#fffdf5;color:#2f3a2a}
-#app .commission-page .request-lab .inline-options>.btn.selected:not(.choice){background:#eaf3d6;border-color:#4f7a45;box-shadow:0 3px 0 #4f7a45;color:#22372a}
+#app .commission-page .request-lab .inline-options>.btn.quiet{background:var(--ui-paper-strong);color:var(--ui-ink)}
+#app .commission-page .request-lab .inline-options>.btn.selected:not(.choice){background:#eaf3d6;border-color:var(--ui-ok);box-shadow:0 3px 0 var(--ui-ok);color:var(--ui-edge)}
 #app .commission-page .request-lab .retest-controls>.btn.primary{align-self:center;min-height:clamp(52px,6.5vh,68px);padding:8px 26px}
 #app #main.commission-page .request-lab .retest-controls>.btn.primary{font-size:clamp(20px,2.5vh,28px)!important}
-#app .commission-page .request-lab .retest-results{display:flex!important;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid #e2d6b2;border-radius:16px;background:#fffdf5}
+#app .commission-page .request-lab .retest-results{display:flex!important;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid #e2d6b2;border-radius:16px;background:var(--ui-paper-strong)}
 #app #main.commission-page .request-lab .retest-results>h3{margin:0;font-size:clamp(20px,2.4vh,27px)!important}
-#app #main.commission-page .request-lab .retest-results>p{margin:0;font-size:clamp(16px,1.9vh,21px)!important;line-height:1.4;color:#5b4a2a}
+#app #main.commission-page .request-lab .retest-results>p{margin:0;font-size:clamp(16px,1.9vh,21px)!important;line-height:1.4;color:var(--ui-brown)}
 #app .commission-page .request-lab .retest-results>table{width:100%;margin:0;border-collapse:collapse}
-#app #main.commission-page .request-lab .retest-results caption{font-size:clamp(14px,1.6vh,18px)!important;text-align:left;color:#7a6a48;padding-bottom:2px}
+#app #main.commission-page .request-lab .retest-results caption{font-size:clamp(14px,1.6vh,18px)!important;text-align:left;color:var(--ui-muted);padding-bottom:2px}
 #app #main.commission-page .request-lab .retest-results :is(td,th){padding:4px 8px;font-size:clamp(17px,2vh,22px)!important;line-height:1.3}
 #app #main.commission-page .request-lab .retest-results th small{font-size:clamp(14px,1.6vh,18px)!important}
 #app .commission-page .request-lab .retest-results .record-row{margin:0;padding:0;border:0;background:none}
@@ -887,7 +889,7 @@ dialog:has(.resident-letter) .resident-letter .letter-tasks span{font-size:clamp
 dialog:has(.resident-letter) .resident-letter .letter-signature{margin:auto 0 0;font-size:clamp(14px,4.8cqw,24px);line-height:1.35;text-align:right}
 dialog:has(.resident-letter) .resident-letter .dialog-actions{position:absolute!important;left:0;right:0;bottom:1.2%;margin:0;gap:12px;justify-content:center}
 dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{min-height:clamp(46px,8cqw,60px);font-size:clamp(17px,5cqw,24px);padding:6px 22px}
-dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{background:#fff9e9;color:#3f3420;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{background:var(--ui-paper);color:#3f3420;border:2px solid var(--ui-frame);box-shadow:0 3px 0 #4a3a2299}
 @media(max-height:650px){
  dialog:has(.resident-letter){width:min(94vw,calc((100dvh - 16px)*900/1010))}
  dialog:has(.resident-letter) .resident-letter{aspect-ratio:900/1010;padding:11% 19% 26% 19%;gap:1.2cqw}
@@ -952,18 +954,18 @@ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{backgro
  #app .map-page .village-resident>span{font-size:18px;bottom:-22px}
 }
 #app .museum-page .museum-specimens:has(>figure:nth-child(3)) .animal{max-width:21cqw}
-#app #main.museum-page .museum-exhibit>.empty-exhibit{font-size:clamp(20px,2.4vh,28px)!important;color:#3b2a1a;opacity:1}
+#app #main.museum-page .museum-exhibit>.empty-exhibit{font-size:clamp(20px,2.4vh,28px)!important;color:var(--ui-wood);opacity:1}
 #app .mission-page .buddy-toggle .mori{display:block!important;width:64px!important;height:72px!important}
 
 /* Mori speaks only when tapped (user rule 2026-10-20): new feedback just turns the cue into a yellow "!". */
-#app .mission-page .guide-buddy.has-feedback .buddy-toggle::after,#app .commission-page .commission-feedback.has-feedback .buddy-toggle::after{content:'!';background:#f6d36e;font-size:16px}
+#app .mission-page .guide-buddy.has-feedback .buddy-toggle::after,#app .commission-page .commission-feedback.has-feedback .buddy-toggle::after{content:'!';background:var(--ui-accent);font-size:16px}
 /* 주민의 부탁: same tap-to-open Mori in the bottom-left corner instead of a line fixed in the middle. */
 #app .commission-page .commission-feedback{left:150px!important;right:auto;bottom:10px!important;transform:none!important;display:block!important;width:auto;max-width:none!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
 #app .commission-page .buddy-toggle{position:relative;display:block;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 3px 0 #22372a66)}
 #app .commission-page .buddy-toggle .mori{display:block!important;width:64px!important;height:72px!important}
-#app .commission-page .buddy-toggle::after{content:'…';position:absolute;right:-6px;top:-6px;padding:0 6px 3px;border:2px solid #3b2a1a;border-radius:8px;background:#fff7df;color:#3b2a1a;font:400 14px/1 var(--font-display);animation:choice-invite 2.2s ease-in-out infinite}
-#app .commission-page .buddy-toggle:focus-visible{outline:4px solid #f6d36e;outline-offset:2px;border-radius:10px}
-#app #main.commission-page .commission-feedback>p{display:none;position:absolute;left:8px;bottom:calc(100% + 10px);width:max-content;max-width:min(560px,calc(100vw - 180px));margin:0;padding:12px 16px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;color:#3b2a1a;font-size:clamp(18px,2.2vh,24px)!important;line-height:1.45;box-shadow:0 4px 0 #3b2a1a55;animation:bubble-pop .22s ease-out}
+#app .commission-page .buddy-toggle::after{content:'…';position:absolute;right:-6px;top:-6px;padding:0 6px 3px;border:2px solid var(--ui-wood);border-radius:8px;background:var(--ui-bubble);color:var(--ui-wood);font:400 14px/1 var(--font-display);animation:choice-invite 2.2s ease-in-out infinite}
+#app .commission-page .buddy-toggle:focus-visible{outline:4px solid var(--ui-accent);outline-offset:2px;border-radius:10px}
+#app #main.commission-page .commission-feedback>p{display:none;position:absolute;left:8px;bottom:calc(100% + 10px);width:max-content;max-width:min(560px,calc(100vw - 180px));margin:0;padding:12px 16px;border:3px solid var(--ui-wood);border-radius:14px;background:var(--ui-bubble);color:var(--ui-wood);font-size:clamp(18px,2.2vh,24px)!important;line-height:1.45;box-shadow:0 4px 0 #3b2a1a55;animation:bubble-pop .22s ease-out}
 #app #main.commission-page .commission-feedback.open>p{display:block}
 #app #main.commission-page .commission-feedback.good>p{border-color:#3f6b45;background:#effae0}
 @media(prefers-reduced-motion:reduce){#app .commission-page .buddy-toggle::after,#app #main.commission-page .commission-feedback>p{animation:none}}
@@ -987,3 +989,198 @@ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{backgro
 #app .compare-board .card-pool .statement-card{height:100%;max-height:150px}
 #app #main .compare-board .card-pool .statement-card>span{font-size:clamp(20px,3.4vh,40px)!important}
 #app .compare-board>.compare-photo{align-self:stretch;justify-content:space-evenly}
+
+/* ── Fit & readability pass (2026-10-20 final-check, approved items 1–11) ─────────────────────
+   One screen at 873×580 / 906×755 / 1280×800 / 1920×1080: no text under 16px, button text 20px+ from 1280 wide,
+   touch targets 44px+, nothing under Mori or the floating back/next buttons. */
+#app,dialog{--btn-fs:clamp(18px,calc(.9375vw + 8px),26px)}
+
+/* 9. Buttons: 18px on small tablets, 20px at 1280 wide, ~26px at 1920. Rules that set their own size keep it,
+   the ones that capped it lower get the floor through max(). */
+#app .btn,dialog .btn{font-size:var(--btn-fs)}
+#app .mission-footer>.btn,#app .commission-page .commission-footer>.btn,#app .museum-page>footer>.btn{font-size:max(var(--btn-fs),20px)}
+#app #main.commission-page .client-card .commission-tabs .btn,#app .commission-page .client-card .btn{font-size:var(--btn-fs)!important}
+#app #main .habitat-scene>.scene-tabs .btn{font-size:max(var(--btn-fs),2.1vh)!important}
+#app #main.mission-page .scan-scene .part-buttons .btn{font-size:max(var(--btn-fs),2.3vh)!important}
+#app .mission-page .scan-scene .btn[data-action=scan-reset]{font-size:max(var(--btn-fs),2.3vh)}
+#app #main.commission-page .request-lab .inline-options>.btn{font-size:max(var(--btn-fs),2.2vh)!important}
+#app #main.commission-page .deck-chip{font-size:max(var(--btn-fs),2vh)!important}
+#app #main .sorting-workspace .gate-cards .animal-card>b{font-size:max(var(--btn-fs),2vh)!important}
+#app #main .evidence-panel .clue-card>b{font-size:max(var(--btn-fs),2.3vh)!important}
+#app #main .habitat-notes .motion-checklist .btn{font-size:max(var(--btn-fs),2.2vh)!important}
+#app #main.museum-page .museum-exhibits>.panel-tabs>.btn,#app #main.museum-page>.museum-heading>.btn,#app #main.museum-page .museum-exhibit>.btn,#app #main.museum-page>footer>.btn{font-size:max(var(--btn-fs),2vh)!important}
+#app main.ending .ending-actions .btn{font-size:max(var(--btn-fs),2.3vh)}
+dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{font-size:max(var(--btn-fs),min(5cqw,24px))}
+dialog .settings-body .setting-row{font-size:max(var(--btn-fs),1em)!important}
+#app .landing .landing-replay>span{font-size:max(var(--btn-fs),2.1vh)}
+/* Step tabs, motion-frame picks and the reward tool link were 16–17px; same floor as every button. */
+#app #main .panel-tabs>.btn,#app #main .habitat-notes .motion-frames>.btn{font-size:var(--btn-fs)}
+#app .reward-screen .reward-actions>.text-button{font-size:var(--btn-fs)}
+dialog .settings-body .btn :is(span,b){font-size:inherit!important}
+@media(min-width:1280px){
+ #app .mission-page .design-options .panel-tabs>.btn{font-size:max(20px,2.2vh)}
+ #app .map-page .village-resident>span{font-size:20px}
+ #app .map-page .map-markers .map-marker>b{font-size:20px}
+ #app .map-page .map-marker .node-state,#app .map-page .map-marker>b>small{font-size:17px!important}
+ #app .mission-page .design-bench .part-spot>small{font-size:18px}
+}
+
+/* 8. Font floor: nothing visible under 16px (decorative glyphs and the 0px check-mark tab trick excepted). */
+#app .map-page .map-marker>b>small{font-size:16px}
+#app .map-page .map-marker .node-state{font-size:16px;padding:3px 8px 5px}
+@media(min-width:1500px) and (min-height:850px){#app .map-page .map-marker .node-state,#app .map-page .map-marker>b>small{font-size:17px}}
+#app #main .link-activity .statement-card>small{font-size:clamp(16px,1.8vh,20px)!important}
+#app #main .evidence-panel .clue-card>small{font-size:clamp(16px,1.8vh,20px)!important}
+#app #main .habitat-notes .motion-checklist>b{font-size:clamp(16px,1.8vh,19px)!important}
+#app #main .case-photo-panel:not(.evidence-panel) .case-place figcaption{font-size:clamp(16px,1.9vh,22px)!important}
+#app .mission-page .design-options .panel-tabs>.btn:not(.tab-done) .tab-num{font-size:16px}
+#app #main.commission-page .part-tag{font-size:clamp(16px,1.7vh,19px)!important}
+#app #main.commission-page .deck-count{font-size:clamp(16px,1.8vh,20px)!important}
+#app .commission-page .deck-chip>i{font-size:16px}
+#app #main.commission-page .card-result>ol>li>small,#app #main.commission-page .card-result li small,
+#app #main.commission-page .card-result:not(:has(>.card-result-animal))>ol>li>small{font-size:clamp(16px,4.1cqw,21px)!important}
+#app #main.commission-page .card-result>ol>li>b,#app #main.commission-page .card-result li b{font-size:clamp(16px,5.8cqw,30px)!important}
+#app #main.commission-page .card-result-animal>b{font-size:clamp(16px,5.6cqw,30px)!important}
+#app #main.commission-page .card-result>.card-stamp{font-size:clamp(16px,3.9cqw,20px)!important}
+#app #main.commission-page .request-lab .retest-results caption,#app #main.commission-page .request-lab .retest-results th small{font-size:clamp(16px,1.6vh,18px)!important}
+#app #main.museum-page .museum-exhibit>header :is(small,span){font-size:clamp(16px,1.7vh,19px)!important}
+#app #main.museum-page .museum-specimens figcaption{font-size:clamp(16px,min(4.2cqw,6cqh),32px)!important}
+#app #main.museum-page .museum-exhibit>section>ul>li{font-size:clamp(16px,min(4.3cqw,6.4cqh),34px)!important}
+#app #main.museum-page .museum-exhibit>section>p{font-size:clamp(16px,min(3.9cqw,6.4cqh),30px)!important}
+dialog:has(.resident-letter) .resident-letter .letter-sender small{font-size:clamp(16px,3.8cqw,20px)}
+
+/* 5. Brass strips: titles at 16px+ and never clipped.
+   The painted strip is too small for a 16px title, so the title is its own brass plate laid over it. */
+#app #main.commission-page .card-result>h3,#app #main.museum-page .museum-exhibit>section>h3{right:auto;width:max-content;max-width:90%;height:auto;padding:2px 12px 3px;letter-spacing:0;line-height:1.2;overflow:visible;border:1px solid #7a5a1a;border-radius:5px;background:linear-gradient(#f3dc8c,#c9a24a 55%,#a9822f);box-shadow:inset 0 1px 0 #fff3c4,0 2px 3px #3b2a1a66}
+#app #main.commission-page .card-result>h3{left:50%;top:91%;bottom:auto;min-height:0;transform:translate(-50%,-50%);font-size:clamp(16px,4.6cqw,26px)!important}
+#app #main.museum-page .museum-exhibit>section>h3{left:50%;min-height:0;transform:translateX(-50%);font-size:clamp(16px,min(3.8cqw,calc(var(--pb) * .4)),26px)!important}
+/* 5. Question titles: one or two lines, never one word per line (the "pick one" pill used to reserve 190–250px). */
+@media(max-width:1100px){
+ #app .commission-page .request-card .card-questions .record-options:has(>.choice):not(:has(>.choice.selected))::before{content:'골라 봐'}
+ #app .commission-page .request-card .card-questions .record-row>legend{max-width:calc(100% - 104px)}
+ /* The plaque keeps 250px so its brass strip still holds a 16px title; the hint stamp steps aside on it. */
+ #app .commission-page .card-body,#app .commission-page .card-body:has(.record-row:nth-child(3)){grid-template-columns:minmax(0,1fr) minmax(250px,38%);gap:12px}
+ #app #main.commission-page .card-result:not(.complete)>.card-stamp{display:none}
+ #app .commission-page .card-result-animal>.animal{width:24cqw}
+ /* The order number repeats the chip order; dropping it lets all five chips fit beside the arrows. */
+ #app .commission-page .deck-chip>i{display:none}
+}
+
+/* 4. Choices size to their words: short ones share a row, long ones get the full row (no 3-line boxes). */
+#app .commission-page .request-card .card-questions .record-options>.choice{flex:1 1 auto}
+@media(max-width:1100px),(max-height:650px){
+ #app .commission-page .request-lab .retest-results :is(.record-options,.inline-options){flex-wrap:wrap}
+ #app .commission-page .request-lab .retest-results :is(.record-options,.inline-options)>.choice{flex:1 1 auto}
+}
+dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{white-space:nowrap}
+
+/* 3. Commission on short screens: the deck chip names the card, so the title row steps aside for the instruction. */
+@media(max-height:650px){
+ #app .commission-page .request-card:not(:has(.request-lab))>.request-part-heading{display:none}
+ #app #main.commission-page .request-card:not(:has(.request-lab))>.request-part-intro{padding-right:clamp(220px,26vw,300px)}
+ #app .commission-page .request-card .card-questions .record-options>.choice{flex-basis:auto;min-height:44px}
+ #app #main.commission-page .commission-choice>span{font-size:18px!important}
+ #app #main.commission-page .request-lab .retest-results .record-row .commission-choice>span,#app #main.commission-page .request-lab .inline-options>.btn{font-size:18px!important}
+ #app #main.commission-page .request-lab .retest-results :is(td,th){font-size:16px!important}
+ #app .commission-page .request-card .card-questions .record-row{padding-bottom:6px}
+}
+@media(max-height:800px){
+ #app .commission-page .request-part{gap:6px;padding-top:10px!important;padding-bottom:10px!important}
+ #app .commission-page .card-questions{gap:8px}
+ #app .commission-page .request-card .record-row{padding-bottom:8px}
+ #app .commission-page .request-card .card-questions .record-options>.choice{min-height:46px;padding-top:4px;padding-bottom:4px}
+ #app .commission-page .client-card>.commission-npc{height:clamp(90px,18vh,160px)}
+}
+
+/* 6. Touch targets: 44px minimum everywhere. */
+#app .commission-page .deck-chip,#app .commission-page .deck-nav>.btn{min-height:44px}
+#app .commission-page .request-lab .inline-options>.btn,#app .commission-page .request-lab .retest-results .record-options>.choice{min-height:44px}
+#app .commission-page .request-card>.commission-evidence>summary{min-height:44px}
+#app .mission-page .studio-drawing .studio-toolbar .studio-swatch{width:clamp(44px,5vh,54px);height:clamp(44px,5vh,54px)}
+#app .reward-screen .reward-actions>.text-button,#app .reward-screen .text-button{min-height:44px}
+#app .mission-page .design-options .source-study .btn,#app main.ending .final-inventions>.panel-tabs>.btn{min-height:44px}
+
+/* 1. 4-1/4-3 life guide and 2. 5-0 design bench use the floating-card layout on every landscape tablet
+   (workspace.css gate now includes orientation:landscape); short screens shrink the drawing so the bench fits. */
+@media(max-height:650px){
+ #app .mission-page .activity-workspace>.design-bench{gap:6px;padding-bottom:96px}
+ #app .mission-page .activity-workspace>.design-bench>.assembly{width:min(100cqw,(100cqh - 200px)*1.2308)}
+ #app .mission-page .design-bench>.bench-status{padding:3px 10px}
+ #app .mission-page .design-bench>.sketch-actions .btn{min-height:46px;padding-block:4px}
+}
+
+/* 7. 5-1 lab: both cards fit above the floating back button and Mori; the model drawing gives up height first. */
+#app .mission-page .activity-workspace>.experiment-lab:not(:has(>.panel-tabs)){grid-template-rows:minmax(0,1fr)}
+#app .mission-page .experiment-lab>:is(.lab-controls,.lab-results){max-height:100%}
+#app .mission-page .experiment-lab>.lab-controls>.current-model{flex:0 1 clamp(90px,24vh,300px);height:auto;min-height:64px}
+
+/* 3. Commission fit on 906×755-class tablets: a slimmer deck row; three-question cards trade the title row
+   (the deck chip and the plaque already name the card) for room, and the notebook button moves under the plaque. */
+@media(max-width:1100px),(max-height:800px){
+ #app .commission-page .deck-nav{padding-top:3px;padding-bottom:3px}
+ #app .commission-page .deck-nav>.btn{min-height:44px;padding-top:2px;padding-bottom:2px}
+ #app .commission-page .request-card:has(.record-row:nth-child(3))>.request-part-heading{display:none}
+ #app .commission-page .request-card:has(.record-row:nth-child(3))>.commission-evidence:not([open]){top:auto;bottom:10px}
+ #app .commission-page .request-card:has(.record-row:nth-child(3))>.commission-evidence[open]{top:auto;bottom:10px}
+ #app #main.commission-page .request-card:has(.record-row:nth-child(3))>.request-part-intro{padding-right:12px!important}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .card-result{align-self:start}
+ /* Retest lab: the model drawing, the table caption and the results heading step aside; choices share rows. */
+ #app .commission-page .request-lab .retest-model,#app .commission-page .request-lab .retest-results>h3,#app .commission-page .request-lab .retest-results caption{display:none}
+ #app .commission-page .request-lab .retest-results .inline-options>.choice,#app .commission-page .request-lab .retest-results .record-options>.choice{flex:1 1 auto!important;width:auto!important;min-width:0!important;min-height:44px}
+ #app #main.commission-page .request-lab .retest-results .commission-choice>span{font-size:var(--btn-fs)!important;line-height:1.25}
+ #app .commission-page .request-lab .retest-results :is(th,td){padding:3px 6px}
+ #app .commission-page .request-lab .request-lab-grid{gap:10px}
+ #app .commission-page .request-lab :is(.retest-controls,.retest-results){gap:6px;padding:8px 10px}
+}
+@media(max-height:650px){
+ #app .commission-page .request-card:has(.record-row:nth-child(3))>.request-part-intro{display:none}
+ #app .commission-page .request-card:has(.record-row:nth-child(3)) .card-questions{gap:4px}
+ #app #main.commission-page .request-card:has(.record-row:nth-child(3)) .record-row>legend{font-size:17px!important;margin-bottom:2px!important}
+ /* No intro row here, so the notebook button goes back to the top corner and the plaque sits just under it. */
+ #app #main.commission-page .request-card:has(.record-row:nth-child(3))>.commission-evidence:is([open],:not([open])){top:6px;bottom:auto}
+ #app .commission-page .card-body:has(.record-row:nth-child(3))>.card-result{margin-top:46px}
+}
+#app .mission-page .experiment-lab>.lab-controls{overflow-x:hidden}
+#app #main.museum-page .museum-exhibit>blockquote{font-size:max(16px,min(2.1vh,24px))!important}
+dialog:has(.resident-letter) .resident-letter .letter-signature{font-size:clamp(16px,4.8cqw,24px)}
+@media(max-height:650px){dialog:has(.resident-letter) .resident-letter .letter-signature{font-size:16px}}
+
+@media(max-width:1100px){
+ /* Plaque at 250px: the written lines get the whole cream card (the animal photo would push them off it). */
+ #app .commission-page .card-result-animal{display:none!important}
+ #app #main.commission-page .card-result{grid-template-columns:minmax(0,1fr)}
+ /* Three questions: rows 1–2 sit beside the plaque, row 3 (short answers) runs the full width on one line. */
+ #app .commission-page .card-body:has(.record-row:nth-child(3)){grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto auto auto;align-items:start;row-gap:6px}
+ #app .commission-page .card-body:has(.record-row:nth-child(3))>.card-questions{display:contents}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row:nth-child(1){grid-column:1;grid-row:1}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row:nth-child(2){grid-column:1;grid-row:2}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row:nth-child(3){grid-column:1/-1;grid-row:3}
+ #app .commission-page .card-body:has(.record-row:nth-child(3))>.card-result{grid-column:2;grid-row:1/3;align-self:start}
+ /* The notebook button sits under the plaque, above the full-width third row. */
+ #app .commission-page .request-card:has(.record-row:nth-child(3))>.commission-evidence:is([open],:not([open])){bottom:100px}
+ /* Plaque lines packed a little tighter so three answers stay on the cream card. */
+ #app .commission-page .card-result{padding:22.5% 11.5% 14.5%!important}
+ #app #main.commission-page .card-result>ol>li>:is(small,b){line-height:1.15!important}
+ #app .commission-page .card-result>ol{gap:0}
+ #app .commission-page .card-result li{padding:0 0 2px!important}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-options>.choice{min-height:44px;padding-top:2px;padding-bottom:2px}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row{padding-top:2px;padding-bottom:6px}
+ /* Retest: the deck chip already names the customer, so the quote keeps only the request itself. */
+ #app .commission-page .request-lab>blockquote>b{display:none}
+}
+
+/* Ending on short screens: the four actions stay on one line at 18px (icons step aside), so the certificate keeps its height. */
+@media(max-height:650px){
+ #app main.ending .ending-actions .btn{padding:6px 10px;white-space:nowrap}
+ #app main.ending .ending-actions .btn>.icon{display:none}
+}
+
+/* Star reward: the title chip flashes gold and shows "+1 ★" for a moment when a star is earned. */
+#app #main.mission-page .mission-guide h1 .star-pop-tag{display:inline-block;margin-left:8px;white-space:nowrap;color:#b07a12;font-size:.8em;line-height:1}
+#app #main.mission-page .mission-guide h1.star-pop{border-color:#b07a12;box-shadow:0 3px 0 #b07a1299,0 0 0 4px var(--ui-accent);animation:star-chip-pop .5s ease-out}
+#app #main.mission-page .mission-guide h1.star-pop .star-pop-tag{animation:star-tag-rise .6s ease-out}
+@keyframes star-chip-pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes star-tag-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#app #main.mission-page .mission-guide h1.star-pop,#app #main.mission-page .mission-guide h1.star-pop .star-pop-tag{animation:none}}
+/* Arrow icons inside a line of text take the text size. */
+#app :is(.empty-experiment b,.motion-record-action span) .icon{display:inline-block;width:1em;height:1em;vertical-align:-.15em}

@@ -7,8 +7,10 @@
 | Suno (Pro·Premier 구독) | 배경 음악 2곡 | 가능 | 사용자 확인: 두 곡(2026-10-19 18:40 생성) 모두 유료 구독 중 생성. 무료 요금제 곡은 비상업만 가능하므로 앞으로도 유료 구독 상태에서만 생성 |
 | Higgsfield (Basic 유료 요금제) | 주민 스프라이트·장면 배경·동물 그림·영상 | 가능 | 유료 크레딧으로 생성 |
 | Meshy (유료 요금제) | 동물 3D 모형 | 가능 | 유료 크레딧으로 생성(무료 요금제 결과물은 CC BY 4.0이라 해당 없음) |
-| OpenAI 이미지 생성(ChatGPT image_gen) | 지도·장면 그림 | 가능 | OpenAI 이용약관상 출력물 권리는 사용자에게 |
-| Pixabay 효과음 11종 | 효과음 | 가능 | Pixabay Content License(출처 표기 불필요·상업 이용 가능) |
+| OpenAI 이미지 생성(ChatGPT image_gen, Codex 내장 image_gen) | 지도·장면 그림, 제목 그림, 주민 초상화·도구 그림(v2) | 가능 | OpenAI 이용약관상 출력물 권리는 사용자에게 |
+| 사용자 제공 ChatGPT 그림 (2026-09-23 `ChatGPT Image …png`, 2026-10-07 `image/chatgpt_2026-10-07_latest_*.png`) | 마을 지도·건물 복구 조각·하루·모리·주민 시트·지도 표시, 모리 시트·생태 디오라마·수사실 배경 | 확인 필요 (2026-10-20) | 원본 파일과 가공 과정은 아래 "런타임 에셋 출처 보충"에 기록. 생성한 계정·요금제와 계약상 권리 주체 기록이 저장소에 없음 — 사용자 확인 |
+| 사용자 제공 생성 영상 6종 (`gemini_generated_video_*.mp4`) | 동물 움직임 영상(낙타·펭귄 제외) | 확인 필요 (2026-10-20) | 생성 모델·요금제 기록 없음(아래 2026-10-18 기록) — 사용자 확인 |
+| Pixabay 효과음 10종 (2026-10-20 `drop.mp3` 사용 중지로 11→10) | 효과음 | 가능 | Pixabay Content License(출처 표기 불필요·상업 이용 가능) |
 | Jua·Pretendard | 글꼴 | 가능 | SIL OFL 1.1, 원문 `fonts/*-OFL.txt` 동봉 |
 | three.js | 3D 표시 | 가능 | MIT License |
 | Remotion | 쓰지 않음 | 해당 없음 | `package.json`·백업 package.json·코드에 사용 흔적 없음(영상은 ffmpeg로 편집) |
@@ -31,7 +33,7 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 
 ## 효과음 (2026-10-17 추가)
 
-위의 "효과음: 사인파 합성, 외부 음원 없음" 항목은 이제 맞지 않는다. 아래 Pixabay 효과음 6종을 쓰고, `src/audio.js`의 합성음은 파일을 불러오지 못했을 때만 대신 나온다. 6종 모두 Pixabay Content License(출처 표기 불필요, 상업적 사용 가능)이며 원본을 수정하지 않았다.
+위의 "효과음: 사인파 합성, 외부 음원 없음" 항목은 이제 맞지 않는다. 아래 Pixabay 효과음을 쓰고(처음 6종, 2026-10-19 5종 추가, 2026-10-20 `drop.mp3` 사용 중지 → 현재 10종), `src/audio.js`의 합성음은 파일을 불러오지 못했을 때와 카드 놓기 소리에만 나온다. 모두 Pixabay Content License(출처 표기 불필요, 상업적 사용 가능)이며 원본을 수정하지 않았다.
 
 | 파일 | 쓰는 곳 | 출처 | 제작자 | 확보일 |
 |---|---|---|---|---|
@@ -116,3 +118,45 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 `scenes/{compare,sorting,verify,link,experiment,showcase}.webp`: 그림 없이 CSS 칸만 있던 활동 6개(1장 비교, 2장 분류·검증, 3장 생활 잇기, 5장 실험 비교·작품 소개)의 배경. Higgsfield GPT Image 2.5(high, 16:9)로 생성, 참고 이미지는 `investigation.webp`·`adventure/museum-opening.webp`(화풍). 1600px WebP(q80)로 줄임. 작업 ID: compare 2ab985e8, sorting c80aba04, verify cc9a7d40, link b49a89a3, experiment e207af88, showcase 1a34fd86. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/scenes/`.
 
 `scenes/{letter-paper,museum-wall,request-hall,exhibit-plaque}.webp` (2026-10-20): 주민 편지지, 전시관 벽, 주민의 부탁 전시실 배경, 전시 설명판(나무 액자). Higgsfield GPT Image 2.5(글자 없음 지시)로 생성, 참고 이미지 없이 프롬프트만. 편지지 900px·배경 1920px WebP(q82), 설명판은 초록 벽을 지워 투명 처리 후 900px WebP. 작업 ID: letter 4e37e378, museum-wall 101baa77, request-hall 1927a1ab, plaque 148c6b26. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/hf/`.
+
+## 런타임 에셋 출처 보충 · 2026-10-20
+
+`scripts/build.mjs` 배포 목록과 대조해 이 문서에 파일 이름으로 적혀 있지 않던 에셋을 채웠다. 근거는 깃 기록(`git log --follow`), `ASSETS.md`·`docs/ASSETS.md`, `docs/HANDOFF.md`, `docs/visual-polish-v2.md`, `docs/landing-title.md`, 그리고 가공 스크립트(`D:/iscreammedia_sc34/_scratch/village/*.py`, `output/prepare-art-v2.mjs`)다. 새로 생성하거나 내려받은 것은 없다.
+
+### 첫 버전 사용자 제공 그림 (2026-09-23 원본, 깃 첫 커밋 2026-10-17 `8d1fda5`)
+
+| 파일 | 원본 | 만든 방법 | 상업 이용 |
+|---|---|---|---|
+| `raccoon.webp` | 사용자가 넣어 준 `ChatGPT Image 2026년 9월 23일 오후 07_01_41 (2).png` | 모리(너구리) 표정·행동 시트. sharp로 WebP 변환 | 확인 필요 — 생성 계정·요금제 기록 없음 |
+| `biomes.webp` | 같은 묶음의 `07_02_48 (2).png` | 숲·연못·해안 디오라마 시트. sharp로 WebP 변환 | 확인 필요 — 위와 같음 |
+| `investigation.webp` | 같은 묶음의 `07_00_52 (7).png` | 수사실 배경. sharp로 WebP 변환 | 확인 필요 — 위와 같음 |
+
+원본 PNG는 2026-10-18 사용자 요청 정리 때 삭제됐다(`docs/ASSET-CLEANUP-20261018.json`). 대응표는 `ASSETS.md`.
+
+### 픽셀 마을 (2026-10-17 `224bc68`)
+
+원본은 사용자가 프로젝트 `image/` 폴더에 넣어 둔 ChatGPT 그림 `chatgpt_2026-10-07_latest_NN.png`다. 원본 PNG는 2026-10-18 정리 때 삭제됐다(`docs/ASSET-CLEANUP-20261018.json`에 01~10 목록). 가공은 Python Pillow 스크립트(`D:/iscreammedia_sc34/_scratch/village/`)로 했고 그림을 새로 그리지 않았다.
+
+| 파일 | 원본 | 만든 방법 |
+|---|---|---|
+| `village/map-base.webp` | `latest_01` | 그림 속 캐릭터를 주변 픽셀로 지우고(`erase_chars.py`) 1600×900 WebP(q80). 2026-10-18 공방 지붕 보정은 위 기록 |
+| `village/map-restored.webp` | `latest_02` | 위와 같음(복구된 마을 그림) |
+| `village/restore-1.webp`·`restore-2.webp`·`restore-3.webp`·`restore-core.webp` | `latest_02`(복구 지도) | 건물 영역을 잘라 가장자리를 부드럽게 한 덮개(`make_restore.py`). `restore-4`·`5`·`gallery`의 2026-10-18 역할 변경은 위 기록 |
+| `village/haru.webp` | `latest_04`(하루 걷기 시트) | 칸을 찾아 발 바닥선을 맞추고 줄여 4방향 시트로 정리(`make_chars.py`) |
+| `village/mori.webp`·`researcher.webp`·`ranger.webp`·`engineer.webp` | `latest_05`(주민 시트) | 위와 같은 방법으로 캐릭터별 시트로 분리 |
+| `village/marker-{talk,enter,lock,unlock,sparkle}.webp` | `latest_10`(지도 표시 아이콘) | 아이콘별로 잘라 WebP(`make_markers.py`) |
+| `village/village.json` | — | 길·건물·주민 자리 데이터. 스크립트(`make_json.py`)와 코드 수정으로 만든 프로젝트 데이터 |
+
+상업 이용: **확인 필요** — ChatGPT로 만든 그림이라는 것은 파일명으로 확인되지만, 누가 어떤 계정·요금제로 만들었는지와 납품 계약상 권리 주체는 저장소에 기록이 없다. 사용자 확인.
+
+### 주민 초상화·도구 그림·복구 장면 v2 (2026-10-19 `b6ea22a`)
+
+- `residents/{researcher,curator,ranger,detective,engineer}-v2.webp`: Codex 내장 image_gen(OpenAI 이미지 생성)으로 만든 5명 한 장짜리 투명 시트(`output/residents-source-v2.png`)를 투명 영역 기준으로 잘라 WebP로 줄였다(`output/prepare-art-v2.mjs`, 다시 그리거나 색을 바꾸지 않음). 화풍 참고: `adventure/explorer.webp`, `raccoon.webp`. 프롬프트 원문은 `docs/visual-polish-v2.md`.
+- `tools/{1,2,3,4,5}-v2.webp`: 같은 도구로 만든 탐사 도구 5개 시트(`output/tools-source-v2.png`)를 같은 방법으로 분리. 화풍 참고: `adventure/field-kit.webp`. 프롬프트 원문은 `docs/visual-polish-v2.md`.
+- `village/recovery-{1,2,3,4,5}-v2.webp`: 새로 생성하지 않았다. 기존 `village/map-restored.webp`에서 해당 건물과 주변 길을 잘라낸 것(`docs/visual-polish-v2.md`).
+- 상업 이용: 가능(위 검토표의 OpenAI 이미지 생성 항목). 생성 계정의 요금제 기록은 없다.
+
+### 첫 화면 제목 그림 (2026-10-19 `b6ea22a`)
+
+- `adventure/title-logo-v1.webp`: Codex 내장 image_gen(OpenAI 이미지 생성)으로 만든 '동물기록 복구작전' 제목 글자 그림. 원본 `output/imagegen/animal-record-title-concept-v1.png`, 프롬프트 `output/imagegen/animal-record-title-concept-v1.prompt.txt`(`output/`은 깃 제외). 1200×800, 투명 배경 WebP. 자세한 기록은 `docs/landing-title.md`.
+- 상업 이용: 가능(위 검토표의 OpenAI 이미지 생성 항목).

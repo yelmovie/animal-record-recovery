@@ -139,7 +139,7 @@ img.restore-photo{display:block;width:100%;height:100%;object-fit:contain;backgr
 .volume-row.muted{opacity:.55}.volume-row.muted input{cursor:not-allowed}
 /* Invention design (5장 부품 붙이기): the desk spans the whole workspace and the choices float on it as a card,
    so the assembly grows with the screen instead of sharing half the width with a mostly empty panel. */
-@media(min-width:901px){
+@media(min-width:901px),(orientation:landscape){
   .activity-workspace:has(>.design-bench){--design-card:clamp(300px,28vw,420px);position:relative;display:block}
   .activity-workspace>.design-bench{position:absolute;inset:0;container-type:size;padding:14px calc(var(--design-card) + 28px) 14px 18px;justify-content:center}
   .mission-page .activity-workspace>.design-bench>.assembly{max-width:none;max-height:none;flex:0 0 auto;height:auto;width:min(100cqw,(100cqh - 160px)*1.2308)}

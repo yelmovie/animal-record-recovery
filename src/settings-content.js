@@ -2,7 +2,8 @@
 // APP_VERSION must match package.json "version" — tests/settings.test.mjs checks it.
 export const APP_NAME='동물기록 복구작전';
 export const APP_VERSION='0.5.0';
-// Teacher demo code: checked on this screen only, never stored. Not a security password.
+// Teacher tool: one on/off switch (no code). Opens every stage for class demos only;
+// the unlock is not saved (dropped on reload) and never writes learning records.
 
 export const SETTINGS_TEXT={
   replayIntro:'이 탐험을 하는 이유 다시 보기',
@@ -72,7 +73,6 @@ export const SETTINGS_TEXT={
       '발걸음 · joentnt · Pixabay Content License',
       '문 열기 · soundreality · Pixabay Content License',
       '책장 넘김 · creatorshome · Pixabay Content License',
-      '카드 내려놓기 · soundshelfstudio · Pixabay Content License',
     ]],
     ['글꼴·프로그램',[
       'Jua · Woowahan Brothers Corp. · SIL Open Font License 1.1',
@@ -80,7 +80,7 @@ export const SETTINGS_TEXT={
       'three.js · three.js authors · MIT License',
     ]],
   ],
-  copyright:'ⓒ 옐샘 & i-Scream Media Corporation. All rights reserved.',
+  copyright:'ⓒ 2026 옐샘 & i-Scream Media Corporation. All rights reserved.',
   ownWorks:'앱 화면 캡처·자체 제작 일러스트·자체 제작 음원은 무단 복제·재배포·전용·상업적 이용을 금지해요.',
   externalWorks:'외부 공개 효과음·폰트·프로그램의 저작권은 각 원저작자에게 있으며, 각 자료의 공개 라이선스와 이용 조건을 따라요.',
   contentSource:'교육 내용 구성 참고: 교육부(moe.go.kr), 국가교육과정정보센터(ncic.go.kr).',

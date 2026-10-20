@@ -1,7 +1,7 @@
 import {anatomy,sourceView,labView,motionView} from './inquiry-views.js';
 import {EXPERIMENTS} from './inquiry.js';
 import {ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,CASES,CLUE_ENERGY,clueOf,fitting,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,compareCards,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign} from './expedition.js';
-import {art,animal,icon,sprite,btn,choice,esc,off} from './presentation.js';
+import {art,animal,icon,sprite,btn,choice,esc,off,withParticle} from './presentation.js';
 import {assetURL,workshopSprite} from './assets.js';
 import {studioView} from './studio-views.js';
 
@@ -78,7 +78,7 @@ function habitatView(s,v){const r=v.round;
  const next=remaining.find(x=>x.animal!==motionId)||remaining[0];
  const checklist='<div class="motion-checklist"><b>이번 활동 · '+(3-remaining.length)+'/3마리 기록</b><div>'+list.map(x=>btn((s.inquiry.motion[x.animal]!==undefined?'✓ ':'○ ')+ANIMALS[x.animal].name,'habitat',x.animal===motionId?'selected':'quiet','data-id="'+x.habitat+'"')).join('')+'</div></div>';
  const nextAction=recorded||extra?(next?btn('다음 관찰 · '+ANIMALS[next.animal].name+' →','habitat','primary motion-next','data-id="'+next.habitat+'"'):btn('세 마리 기록 완료 · 다음 활동 →','advance','primary motion-next')):'';
- const notes=empty=>'<aside class="field-notes habitat-notes">'+checklist+'<div class="notes-title">'+(extra?'추가 관찰 · 완료에 꼭 필요하지 않아':'움직임 기록')+'</div>'+(motionFound?motionView(motionId,{...v,motionPrediction:s.inquiry.motionPredictions[motionId],motionEvidence:s.inquiry.motionEvidence[motionId]},s.inquiry.motion[motionId]):'<div class="empty-experiment"><b>☜ 먼저 '+(extra?extra.animalName:ANIMALS[motionId].name)+'를 눌러 봐.</b><p>'+empty+'</p><p>예상하기 → 장면 찾기 → 기록하기</p></div>')+nextAction+'</aside>';
+ const notes=empty=>'<aside class="field-notes habitat-notes">'+checklist+'<div class="notes-title">'+(extra?'추가 관찰 · 완료에 꼭 필요하지 않아':'움직임 기록')+'</div>'+(motionFound?motionView(motionId,{...v,motionPrediction:s.inquiry.motionPredictions[motionId],motionEvidence:s.inquiry.motionEvidence[motionId]},s.inquiry.motion[motionId]):'<div class="empty-experiment"><b>'+icon('back')+' 먼저 '+withParticle(extra?extra.animalName:ANIMALS[motionId].name)+' 눌러 봐.</b><p>'+empty+'</p><p>예상하기 → 장면 찾기 → 기록하기</p></div>')+nextAction+'</aside>';
 
  // Screen 06 in 3D: swipe round the dome and tap the animal; tilting the tablet is an optional extra.
  // Extra dome animals have optional motion records; the required three-animal task stays unchanged.

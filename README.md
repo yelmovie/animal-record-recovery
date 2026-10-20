@@ -80,13 +80,27 @@ npm run preview
 - `src/mission-views.js`, `src/shell-views.js`: 활동·지도·보상·가방 화면
 - `src/trail-map.js`: 이미지 지도에 맞춘 경유점과 하루·모리 이동
 - `src/presentation.js`, `src/assets.js`: 2D 이미지 경계. 이후 3D 교체 위치
-- `src/adventure.css`: 실제 로드하는 공통 디자인·반응형 스타일
+- 스타일(CSS): `index.html`이 아래 순서로 불러온다. 뒤에 오는 파일이 앞 파일을 덮어쓴다.
+  1. `adventure.css` — 공통 토큰·기본 화면(가장 먼저, 바탕 층)
+  2. `inquiry.css` — 관찰·비교 시험 화면, 터치·글자 크기 단위
+  3. `campaign.css` — 주민 의뢰 작업대·전시관
+  4. `tablet.css` — 태블릿 화면 맞춤, 긴 기록의 페이지 나눔
+  5. `story.css` — 인트로·아웃트로 영상 화면
+  6. `landing.css` — 첫 화면 제목 그림과 시작 장면
+  7. `workspace.css` — 활동 작업 칸(도구 그림·조립 도화지)
+  8. `studio.css` — 자유 발명 그리기 작업실
+  9. `readability.css` — 전자칠판용 최소 글자 크기(16px 이하 금지)
+  10. `stage-map.css` — 화면을 꽉 채우는 걸어 다니는 마을 지도, 카메라 따라가기, 모서리에 뜬 아이콘
+  11. `layout.css` — **마지막 덮어쓰기 층.** 상·하단 줄 없는 화면 틀, 떠 있는 아이콘 4개, 활동 화면 최대 크기
+  - 화면 모양을 고칠 때는 보통 `layout.css`(전체 틀)나 해당 화면 파일을 고친다. 순서를 바꾸면 덮어쓰기 결과가 달라진다.
 - `assets/adventure/`: 동물·탐험가·작업대·새 전시관 메인의 PNG 원본·WebP
 - `docs/ADVENTURE-PLAN-20261015.md`: 이번 활동·역할·보상 설계
 - `docs/ADVENTURE-ASSET-PROMPTS.json`: 실제 생성 프롬프트
 - `docs/reviews/ADVENTURE-QA-20261015.md`: 이번 검증 결과
+- `docs/MAKING-OF.md`, `docs/IMPROVEMENT-LOG.md`: 제작기·기능향상기(Class Maker Lab 업로드용)
+- `assets/CREDITS.md`: 그림·소리·글꼴 출처와 상업 이용 검토표
 
-`src/model.js`는 이전 저장 정규화와 발명 판정에도 사용한다. 기존 `app.js`, `hub.js`, `style.css`, `polish.css`는 이전 버전 보관용이며 현재 화면과 배포에서 로드하지 않는다. `tests/app.test.mjs`는 이전 버전 회귀, `tests/adventure-app.test.mjs`와 `tests/expedition.test.mjs`는 현재 버전 검증이다.
+`src/model.js`는 이전 저장 정규화와 발명 판정에도 사용한다. 기존 `app.js`, `hub.js`는 이전 버전 보관용이며 현재 화면과 배포에서 로드하지 않는다(`tests/app.test.mjs`가 `app.js`를 읽어서 남겨 둠). 같은 이전 버전의 `style.css`, `polish.css`는 2026-10-20 `_unused/src/`로 옮겼다(근거는 `_unused/DELETE-CANDIDATES.md`). `tests/app.test.mjs`는 이전 버전 회귀, `tests/adventure-app.test.mjs`와 `tests/expedition.test.mjs`는 현재 버전 검증이다.
 
 ## 빌드와 전달
 
