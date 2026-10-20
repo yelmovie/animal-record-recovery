@@ -84,6 +84,7 @@
   },
   "5": {
    "name": "발명의 공방",
+   "node": "workshop-door",
    "rect": [
     1180,
     440,
@@ -499,12 +500,22 @@
    1300,
    383
   ],
+  "workshop-turn": [1280, 430],
+  "workshop-north": [1530, 445],
+  "workshop-east": [1570, 570],
+  "workshop-south": [1520, 755],
+  "workshop-door": [1390, 700],
   "door-4": [
    1395,
    378
   ]
  },
  "edges": [
+  ["libPath", "workshop-turn"],
+  ["workshop-turn", "workshop-north"],
+  ["workshop-north", "workshop-east"],
+  ["workshop-east", "workshop-south"],
+  ["workshop-south", "workshop-door"],
   [
    "entrance",
    "dirt"

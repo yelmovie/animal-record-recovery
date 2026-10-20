@@ -1,4 +1,3 @@
-import * as settingsText from '../src/settings-content.js';
 import * as researchReport from '../src/research-report.js';
 import * as studioModel from '../src/studio.js';
 import * as studioRuntime from '../src/studio-runtime.js';
@@ -21,13 +20,13 @@ import * as drag from '../src/drag.js';
 const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
 function appHarness({fail=false,motion=false,three=false}={}){
   let stored=null,warning=null,writeFailure=fail,exported=null;
-  const listeners=new Map(),heading={textContent:''},status={textContent:''},announcer={textContent:''},link={href:''};
+  const listeners=new Map(),heading={textContent:''},status={textContent:''},announcer={textContent:''},link={href:''},quest={innerHTML:'',inert:true},travel={textContent:''};
   const app={_html:'',get innerHTML(){return this._html;},set innerHTML(v){this._html=v;warning=null;},querySelectorAll(){return [];},insertAdjacentHTML(_,text){warning={text,remove(){warning=null;}};}};
   const dialog={open:false,innerHTML:'',showModal(){this.open=true;},close(){this.open=false;},addEventListener(){}};
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
-  const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{}}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(){},setMusicVolume(){},TEACHER_CODE:settingsText.TEACHER_CODE,window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
+  const context=vm.createContext({...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(){},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,status,announcer,slider,inputControl(target){listeners.get('input')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -46,6 +45,25 @@ test('current reset clears all new records and previous completed routes',()=>{
 });
 test('current preview unlock grants access without granting stars or tools',()=>{
   const a=appHarness();a.run("act('admin',{dataset:{}})");assert.equal(a.run('s.adminUnlocked'),true);assert.equal(a.run('s.activities.length'),0);assert.equal(a.run('availableTools(s).length'),0);a.run("dialog.close();enter(4);act('advance',{dataset:{}})");assert.equal(a.run('step'),0);assert.equal(a.run('s.activities.length'),0);
+});
+
+test('teacher preview never writes answers, stars or completions to the student save and restores it on exit',()=>{
+ const a=appHarness();a.run("s.observed=['frog-eye'];s.activities=['1-0'];save()");const before=JSON.parse(a.saved);
+ a.run("act('admin',{dataset:{}});s.observed.push('crab-eye');s.activities.push('1-1');s.completed.push(1);s.stage=5;save()");
+ assert.equal(a.run('s.adminUnlocked'),true);assert.deepEqual(JSON.parse(a.saved),before);
+ assert.equal(model.restoreExpedition(a.saved).adminUnlocked,false);
+ a.run("act('preview-end',{dataset:{}})");
+ assert.equal(a.run('screen'),'map');assert.equal(a.run('s.adminUnlocked'),false);
+ assert.deepEqual(Array.from(a.run('s.observed')),before.observed);assert.deepEqual(Array.from(a.run('s.activities')),before.activities);assert.deepEqual(Array.from(a.run('s.completed')),before.completed);
+ assert.deepEqual(JSON.parse(a.saved),before);
+});
+
+test('locked map selection stops pending entry and points to the actual next unfinished place',()=>{
+ const a=appHarness();a.run("go('map');selectMap(1);selectMap(5)");
+ assert.equal(a.run('autoEnter'),false);assert.equal(a.dialog.open,true);
+ assert.match(a.dialog.innerHTML,/아직 들어갈 수 없어요 · 발명의 공방/);
+ assert.match(a.dialog.innerHTML,/관찰의 숲으로 가기/);assert.equal(a.run('screen'),'map');
+ a.run("act('locked-next',{dataset:{id:'1'}})");assert.equal(a.dialog.open,false);assert.equal(a.run('selectedStage'),1);assert.equal(a.run('autoEnter'),true);
 });
 test('current input and export escape markup and include both independent inventions',async()=>{
   const a=appHarness();a.run("s.adminUnlocked=true;stage=5;step=0;s.designs[0].problem='swim';s.designs[1].problem='warm';s.designs[1].name='포근 외투';screen='mission';render()");a.input('<script>alert(1)</script>');a.run('render()');assert.ok(!a.app.innerHTML.includes('<script>alert'));a.run('download()');assert.ok(!a.dialog.innerHTML.includes('<script>alert'));const text=await a.exported.text();assert.match(text,/\[초안\] <script>/);assert.match(text,/\[초안\] 포근 외투/);assert.match(text,/완성품 인증에 포함되지 않음/);assert.match(a.dialog.innerHTML,/&lt;script&gt;/);
@@ -158,7 +176,7 @@ test('guided invention leads to an empty creative studio, then preserves artwork
  a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'reward');
  const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,18);
 });
-test('reset keeps the teacher\'s sound settings; the teacher demo switch needs the code first',()=>{
+test('reset keeps the teacher\'s sound settings',()=>{
   const a=appHarness();a.run("s.soundEnabled=false;s.musicOn=false;s.musicVolume=.2;s.activities=['1-0'];act('reset',{dataset:{}})");
   assert.equal(a.run('s.activities.length'),0);assert.equal(a.run('s.soundEnabled'),false);assert.equal(a.run('s.musicOn'),false);assert.equal(a.run('s.musicVolume'),.2);
 });
@@ -171,4 +189,15 @@ test('request cards move with the deck buttons and a blank reply jumps to the ca
  a.run("for(const r of missionRows(s,3,0))chooseCommission(s,3,0,r.key,r.answer);for(const r of missionRows(s,3,1))if(r.key!=='butterfly-life')chooseCommission(s,3,1,r.key,r.answer);requestCard=0;act('commission-submit',{dataset:{}})");
  assert.equal(a.run('screen'),'commission');assert.equal(a.run('requestCard'),3);assert.match(a.app.innerHTML,/data-row="butterfly-life"/);assert.match(a.run('feedback.text'),/나비 · 움직임/);
  assert.match(a.app.innerHTML,/record-row\s+retry" data-row="butterfly-life"|retry" data-row="butterfly-life"/);
+});
+
+
+test('effect volume input persists independently and survives record reset',()=>{
+ const a=appHarness(),control={id:'sound-volume',value:'35',nextElementSibling:{textContent:''}};
+ a.inputControl(control);
+ assert.equal(control.nextElementSibling.textContent,'35%');
+ assert.equal(JSON.parse(a.saved).soundVolume,.35);
+ assert.equal(JSON.parse(a.saved).musicVolume,.5);
+ a.run("act('reset',{dataset:{}})");
+ assert.equal(a.run('s.soundVolume'),.35);
 });

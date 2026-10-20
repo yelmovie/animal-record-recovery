@@ -1,9 +1,16 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {villagePath,nearestNode,npcLine,NPCS,buildingAt} from '../src/village.js';
+import {villagePath,nearestNode,directionalNode,npcLine,NPCS,buildingAt} from '../src/village.js';
 
 const graph={nodes:{a:[0,0],b:[100,0],c:[100,100],d:[300,300]},edges:[['a','b'],['b','c'],['c','d']]};
+test('directional walking follows a connected segment and cannot walk through a building',()=>{
+  assert.equal(directionalNode(graph,'a','right'),'b');
+  assert.equal(directionalNode(graph,'a','down'),null);
+  assert.equal(directionalNode(graph,'b','down'),'c');
+  assert.equal(directionalNode(graph,'b','left'),'a');
+  assert.equal(directionalNode(graph,'missing','up'),null);
+});
 test('village walks follow the path graph and snap taps to the nearest node',()=>{
   assert.deepEqual(villagePath(graph,'a','d'),['a','b','c','d']);
   assert.deepEqual(villagePath(graph,'a','missing'),[]);
@@ -27,4 +34,13 @@ test('book building opens the gallery and the flask building opens invention sta
   assert.equal(buildingAt(buildings,[1410,330]),'gallery');
   assert.equal(buildingAt(buildings,[1400,670]),'5');
   assert.equal(buildingAt(buildings,[300,630]),'4');
+});
+test('every stage and the gallery have a connected door node, including the workshop across the river',()=>{
+ const data=JSON.parse(readFileSync(new URL('../assets/village/village.json',import.meta.url),'utf8'));
+ for(const [id,b]of Object.entries(data.buildings)){
+  if(id==='core')continue;
+  assert.deepEqual(data.nodes[b.node],b.door,`${id}: door must be on the walk graph`);
+  const route=villagePath(data,'plaza',b.node);assert.ok(route.length>1,`${id}: reachable from plaza`);
+  if(id==='5')assert.ok(route.includes('woodBridge'),'the workshop route crosses the actual bridge');
+ }
 });
