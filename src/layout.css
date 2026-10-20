@@ -24,7 +24,7 @@
 #app .mission-page .buddy-toggle::after{content:'…';position:absolute;right:-6px;top:-6px;padding:0 6px 3px;border:2px solid #3b2a1a;border-radius:8px;background:#fff7df;color:#3b2a1a;font:400 14px/1 var(--font-display)}
 #app .mission-page .buddy-toggle:focus-visible{outline:4px solid #f6d36e;outline-offset:2px;border-radius:10px}
 #app #main.mission-page .guide-buddy>p{display:none;position:absolute;left:8px;bottom:calc(100% + 10px);width:max-content;max-width:min(560px,calc(100vw - 180px));margin:0;padding:12px 16px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;color:#3b2a1a;font-size:20px!important;line-height:1.45;box-shadow:0 4px 0 #3b2a1a55;animation:bubble-pop .22s ease-out}
-#app #main.mission-page .guide-buddy:is(.open,.has-feedback)>p{display:block}
+#app #main.mission-page .guide-buddy.open>p{display:block}
 #app #main.mission-page .guide-buddy>p::after{content:'';position:absolute;left:24px;top:100%;width:16px;height:10px;background:#3b2a1a;clip-path:polygon(0 0,100% 0,0 100%)}
 #app #main.mission-page .guide-buddy.good>p{border-color:#3f6b45;background:#effae0}
 @keyframes bubble-pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
@@ -954,3 +954,16 @@ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{backgro
 #app .museum-page .museum-specimens:has(>figure:nth-child(3)) .animal{max-width:21cqw}
 #app #main.museum-page .museum-exhibit>.empty-exhibit{font-size:clamp(20px,2.4vh,28px)!important;color:#3b2a1a;opacity:1}
 #app .mission-page .buddy-toggle .mori{display:block!important;width:64px!important;height:72px!important}
+
+/* Mori speaks only when tapped (user rule 2026-10-20): new feedback just turns the cue into a yellow "!". */
+#app .mission-page .guide-buddy.has-feedback .buddy-toggle::after,#app .commission-page .commission-feedback.has-feedback .buddy-toggle::after{content:'!';background:#f6d36e;font-size:16px}
+/* 주민의 부탁: same tap-to-open Mori in the bottom-left corner instead of a line fixed in the middle. */
+#app .commission-page .commission-feedback{left:150px!important;right:auto;bottom:10px!important;transform:none!important;display:block!important;width:auto;max-width:none!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+#app .commission-page .buddy-toggle{position:relative;display:block;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 3px 0 #22372a66)}
+#app .commission-page .buddy-toggle .mori{display:block!important;width:64px!important;height:72px!important}
+#app .commission-page .buddy-toggle::after{content:'…';position:absolute;right:-6px;top:-6px;padding:0 6px 3px;border:2px solid #3b2a1a;border-radius:8px;background:#fff7df;color:#3b2a1a;font:400 14px/1 var(--font-display);animation:choice-invite 2.2s ease-in-out infinite}
+#app .commission-page .buddy-toggle:focus-visible{outline:4px solid #f6d36e;outline-offset:2px;border-radius:10px}
+#app #main.commission-page .commission-feedback>p{display:none;position:absolute;left:8px;bottom:calc(100% + 10px);width:max-content;max-width:min(560px,calc(100vw - 180px));margin:0;padding:12px 16px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;color:#3b2a1a;font-size:clamp(18px,2.2vh,24px)!important;line-height:1.45;box-shadow:0 4px 0 #3b2a1a55;animation:bubble-pop .22s ease-out}
+#app #main.commission-page .commission-feedback.open>p{display:block}
+#app #main.commission-page .commission-feedback.good>p{border-color:#3f6b45;background:#effae0}
+@media(prefers-reduced-motion:reduce){#app .commission-page .buddy-toggle::after,#app #main.commission-page .commission-feedback>p{animation:none}}
