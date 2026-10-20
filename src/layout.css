@@ -139,3 +139,138 @@
 #app #main .verify-step>h3{display:flex;align-items:center;gap:10px;font-size:clamp(24px,3vh,34px)!important}
 #app .verify-step .btn.primary[data-action=verify-run]{min-height:64px;padding:12px 30px;font-size:24px;animation:choice-invite 1.8s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){#app .verify-step .btn.primary[data-action=verify-run]{animation:none}}
+
+/* ── Resident request (주민의 부탁) — all five NPCs ─────────────────────────────
+   Exhibition-hall art fills the screen. Left: the NPC card (letter + page tabs folded in).
+   Middle: the question card. Right: the answer as a real oak exhibit plaque that fills in as the learner picks. */
+#app main.commission-page{position:relative;height:var(--app-height,100dvh)!important;min-height:0;max-width:none;margin:0;padding:calc(var(--hud-top) + 4px) 14px 84px!important;display:block!important;overflow:hidden;background:#3a4a32 url('../assets/scenes/request-hall.webp') center/cover no-repeat}
+#app .commission-page .commission-layout{display:grid!important;grid-template-columns:clamp(190px,16vw,270px) minmax(0,1fr);gap:14px;height:100%;min-height:0;margin:0}
+#app .commission-page .client-card{position:static!important;display:flex!important;flex-direction:column;align-items:center;gap:8px;min-height:0;margin:0;padding:12px!important;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9eb!important;color:#2f3a2a;box-shadow:0 6px 0 #4a3a2266;text-align:center;overflow:auto}
+#app .commission-page .client-card>.commission-npc{position:static;width:auto;height:clamp(110px,26vh,260px);max-width:100%;object-fit:contain;margin:0}
+#app #main.commission-page .client-card small{font-size:16px!important;color:#6b5a32}
+#app #main.commission-page .client-card h1{margin:2px 0 0;font-size:clamp(20px,2.6vh,28px)!important;line-height:1.3;color:#2f3a2a}
+#app #main.commission-page .client-card>p{margin:0;font-size:17px!important;line-height:1.4;color:#5b4a2a}
+#app .commission-page .client-card .btn{min-height:44px;width:100%;font-size:17px}
+#app .commission-page .client-card .commission-tabs{display:flex;flex-direction:column;gap:6px;width:100%;margin:auto 0 0;padding:8px 0 0;border-top:2px dashed #d8cba3;background:none}
+#app #main.commission-page .client-card .commission-tabs .btn{min-height:40px;font-size:16px!important;padding:4px 10px}
+#app .commission-page .commission-work{display:flex!important;flex-direction:column;gap:10px;min-height:0;margin:0;padding:0!important;background:none!important;border:0;box-shadow:none}
+#app .commission-page .deck-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;padding:6px 10px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9eb;box-shadow:0 4px 0 #4a3a2266}
+#app .commission-page .request-parts{flex:1;min-height:0;display:flex;margin:0}
+#app .commission-page .request-part{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;margin:0;padding:12px 16px!important;border:3px solid #4a3a22;border-radius:22px;background:#fff9e9eb!important;box-shadow:0 6px 0 #4a3a2266;overflow:auto}
+#app .commission-page .request-part-heading{display:flex;align-items:center;gap:10px;margin:0}
+#app #main.commission-page .request-part-heading h2{margin:0;font-size:clamp(24px,3vh,34px)!important}
+#app #main.commission-page .request-part-intro{margin:0;padding:8px 12px;border-left:6px solid #f6d36e;border-radius:8px;background:#fff6d8;font-size:clamp(19px,2.4vh,26px)!important;line-height:1.4;color:#3b2a1a}
+#app .commission-page .card-body{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(280px,42%);gap:16px;align-items:start;margin:0}
+#app .commission-page .card-questions{display:flex;flex-direction:column;gap:10px;min-width:0}
+#app .commission-page .record-row{margin:0;padding:8px 10px 10px;border:2px solid #e2d6b2;border-radius:16px;background:#fffdf5}
+#app #main.commission-page .record-row>legend{display:flex;align-items:center;gap:8px;padding:0 6px;font-size:clamp(19px,2.3vh,24px)!important;font-weight:700;color:#2f3a2a}
+#app .commission-page .record-row>legend>span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#365c43;color:#fff;font-size:16px}
+#app .commission-page .record-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+#app .commission-page .commission-choice{min-height:56px;justify-content:flex-start;text-align:left}
+/* The plaque: animal photo + picked lines on the cream card, the card's name on the brass strip. */
+#app .commission-page .card-result{position:relative;display:grid!important;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;align-items:center;gap:6px 12px;aspect-ratio:900/795;margin:0;padding:22.5% 11% 14.5%!important;border:0!important;border-radius:0;background:url('../assets/scenes/exhibit-plaque.webp') center/100% 100% no-repeat!important;box-shadow:none!important;filter:drop-shadow(0 10px 14px #1f2a1a66);overflow:visible}
+#app #main.commission-page .card-result>h3{position:absolute;left:31.5%;right:32%;top:88%;bottom:4.3%;display:flex;align-items:center;justify-content:center;gap:4px;margin:0;font-size:clamp(14px,1.8vh,19px)!important;line-height:1;color:#4a3410;text-shadow:0 1px 0 #f7e3a0;white-space:nowrap}
+#app .commission-page .card-result>h3 .icon{width:16px;height:16px}
+#app .commission-page .card-result-animal{grid-row:1/3;display:flex;flex-direction:column;align-items:center;gap:2px;margin:0}
+#app .commission-page .card-result-animal>.animal{width:clamp(70px,9vw,150px);height:auto;max-height:100%;object-fit:contain}
+#app #main.commission-page .card-result-animal>b{font-size:clamp(17px,2vh,22px)!important;color:#2f3a2a}
+#app .commission-page .card-result>ol{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none;min-width:0}
+#app .commission-page .card-result>ol>li{display:flex;flex-direction:column;gap:0;padding:3px 0 4px;border-bottom:2px dotted #c9b98a}
+#app #main.commission-page .card-result>ol>li>small{font-size:14px!important;color:#7a6a48}
+#app #main.commission-page .card-result>ol>li>b{font-size:clamp(16px,2vh,22px)!important;line-height:1.3;color:#2f3a2a}
+#app #main.commission-page .card-result>ol>li>b.blank{color:#b9ab86;font-weight:400}
+#app .commission-page .card-result>ol>li>.animal{width:36px;height:36px}
+#app #main.commission-page .card-result>.card-stamp{grid-column:2;margin:0;font-size:15px!important;color:#7a6a48}
+#app #main.commission-page .card-result.complete>.card-stamp{position:absolute;right:9%;top:18%;padding:4px 12px;border:3px solid #3f7a3a;border-radius:10px;color:#3f7a3a;background:#effae0e6;font:400 18px/1.2 var(--font-display)!important;transform:rotate(-8deg)}
+/* Mori's line and the page buttons float like on activity pages. */
+#app .commission-page .commission-feedback{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:3960;display:flex;align-items:center;gap:8px;width:max-content;max-width:min(640px,calc(100vw - 440px));margin:0;padding:6px 14px 6px 6px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;box-shadow:0 4px 0 #3b2a1a55}
+#app .commission-page .commission-feedback .mori{width:44px;height:52px;flex:none}
+#app #main.commission-page .commission-feedback>p{margin:0;font-size:18px!important;line-height:1.35;color:#3b2a1a}
+#app .commission-page .commission-feedback.good{border-color:#3f6b45;background:#effae0}
+#app .commission-page .commission-footer{position:fixed;left:12px;right:12px;bottom:12px;z-index:3900;display:flex;justify-content:space-between;align-items:flex-end;margin:0;padding:0!important;background:none;border:0;pointer-events:none}
+#app .commission-page .commission-footer>.btn{pointer-events:auto;min-height:56px;padding:10px 22px;font-size:20px;border:2px solid #22372a;border-radius:14px;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
+#app .commission-page .commission-footer>.btn.quiet{background:#fff9e9;color:#2f3a2a}
+@media(max-width:1100px){#app .commission-page .card-body{grid-template-columns:minmax(0,1fr) minmax(240px,40%)}#app .commission-page .record-options{grid-template-columns:1fr}}
+@media(max-height:650px){#app .commission-page .client-card>.commission-npc{height:90px}#app #main.commission-page .client-card>p{display:none}}
+
+/* NPC letter: a real letter on vine-bordered paper with a wax seal (assets/scenes/letter-paper.webp). */
+dialog:has(.resident-letter){width:min(620px,94vw);max-height:96dvh;padding:0;border:0;background:transparent;box-shadow:none;overflow:visible}
+dialog:has(.resident-letter)>.dialog-heading{position:absolute;right:6%;top:3%;z-index:2;padding:0;border:0;background:none}
+dialog:has(.resident-letter)>.dialog-heading>h2{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.resident-letter{position:relative;display:flex;flex-direction:column;gap:10px;aspect-ratio:900/1194;max-height:94dvh;padding:14% 19% 19% 19%;background:url('../assets/scenes/letter-paper.webp') center/100% 100% no-repeat;color:#3b2a1a;font-family:var(--font-body);overflow:auto}
+.resident-letter .letter-sender{display:flex;align-items:center;gap:12px;margin:0;padding:0 0 6px;border-bottom:2px dashed #c9b98a}
+.resident-letter .letter-sender .commission-npc{width:auto;height:clamp(64px,10dvh,96px);object-fit:contain}
+.resident-letter .letter-sender small{display:block;font-size:14px;color:#7a6a48}.resident-letter .letter-sender b{font:400 22px/1.2 var(--font-display);color:#2f3a2a}
+.resident-letter>h3{margin:0;font:400 clamp(24px,3.2dvh,30px)/1.25 var(--font-display);color:#2f4a36}
+.resident-letter>p{margin:0;font-size:18px;line-height:1.5}
+.resident-letter .letter-greeting{font-weight:700}
+.resident-letter .letter-tasks{display:flex;flex-direction:column;gap:8px;margin:2px 0;padding:0;list-style:none}
+.resident-letter .letter-tasks>li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:12px;background:#fff6d8cc;border:2px solid #e6d59c}
+.resident-letter .letter-tasks>li>i{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#3f6b45;color:#fff;font:400 18px/1 var(--font-display);font-style:normal}
+.resident-letter .letter-tasks b{display:block;font:400 19px/1.3 var(--font-display);color:#2f3a2a}
+.resident-letter .letter-tasks span{display:block;margin-top:2px;font-size:17px;line-height:1.45}
+.resident-letter .letter-signature{margin-top:auto;text-align:right;font-size:17px}
+.resident-letter .dialog-actions{display:flex;justify-content:center;gap:10px;margin:4px 0 0}
+.resident-letter .dialog-actions .btn{min-height:52px;font-size:19px}
+
+/* Plaque contents: plain written lines on the cream card (undo the old white chip boxes and corner frog). */
+#app .commission-page .card-result-animal{position:static!important;display:flex!important}
+#app .commission-page .card-result-animal>b{display:block!important}
+#app .commission-page .card-result li{display:flex!important;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;gap:0;padding:3px 0 5px!important;border:0!important;border-bottom:2px dotted #c9b98a!important;border-radius:0;background:none!important;animation:none}
+#app .commission-page .card-result li small{flex:none!important;flex-basis:auto!important}
+#app .commission-page .card-result li.filled>b{animation:card-fill .35s ease-out}
+#app .commission-page .card-result.complete{background-color:transparent!important}
+/* Question rows: label on top, choices underneath (no narrow side label that wraps into 3 lines). */
+#app .commission-page .request-card .card-questions .record-row legend{float:none!important;width:auto!important;margin:0 0 6px!important}
+#app .commission-page .client-card>.btn{display:flex!important;color:#2f3a2a!important;background:#fff9e9!important;border:2px solid #c9b98a!important}
+@media(max-height:650px){#app .commission-page .card-result-animal{display:none!important}#app .commission-page .card-result{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#app .commission-page .card-result li.filled>b{animation:none}}
+.resident-letter .dialog-actions{position:static;padding:0;border:0;background:none!important;box-shadow:none}
+dialog:has(.resident-letter)>.dialog-heading .btn{width:48px;min-width:48px;height:48px;min-height:48px;padding:0;border:2px solid #4a3a22;border-radius:12px;background:#fff9e9;color:#3f3420;box-shadow:0 3px 0 #4a3a2299}
+dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
+
+/* ── 전시관 (5 exhibit rooms) ─────────────────────────────────────────────
+   Museum-wall art fills the screen. Room tabs on top, then the room: the resident's line,
+   and each finished record hung as an oak plaque (border-image keeps the carved frame unstretched). */
+#app main.museum-page{position:relative;height:var(--app-height,100dvh)!important;max-width:none;margin:0;padding:calc(var(--hud-top) + 4px) 14px 84px!important;display:block!important;overflow:hidden;background:#3f5a3a url('../assets/scenes/museum-wall.webp') center/cover no-repeat;color:#2f3a2a}
+#app .museum-page>.museum-heading{position:fixed;top:12px;left:var(--hud-left);z-index:3950;display:flex;align-items:center;gap:8px;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+#app .museum-page>.museum-heading>:is(.overline,p,[data-action=map]){display:none!important}
+#app #main.museum-page>.museum-heading>h1{margin:0;padding:8px 16px;font-size:22px!important;line-height:1.2;white-space:nowrap;color:#2f3a2a;background:#fff9e9f0;border:2px solid #4a3a22;border-radius:12px;box-shadow:0 3px 0 #4a3a2299}
+#app .museum-page>.museum-heading>.btn{min-height:46px;font-size:17px;background:#fff9e9;color:#2f3a2a;border:2px solid #4a3a22}
+#app .museum-page .museum-exhibits{display:flex!important;flex-direction:column;gap:10px;height:100%;min-height:0}
+#app .museum-page .museum-exhibits>.panel-tabs{justify-content:center;margin:0}
+#app .museum-page .museum-exhibits>.panel-tabs>.btn+.btn{margin-left:6px}
+#app .museum-page .museum-exhibits>.panel-tabs>.btn+.btn::before{content:none}
+#app .museum-page .museum-exhibits>.panel-tabs .tab-num{display:none}
+#app .museum-page .museum-exhibit{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto minmax(0,1fr) auto;gap:12px 18px;margin:0;padding:0!important;border:0!important;background:none!important;box-shadow:none;overflow:hidden}
+#app .museum-page .museum-exhibit[hidden]{display:none}
+#app .museum-page .museum-exhibit>header{grid-column:1/-1;justify-self:center;display:flex;align-items:center;gap:12px;margin:0;padding:6px 18px 6px 8px;border:3px solid #4a3a22;border-radius:18px;background:#fff9e9eb;box-shadow:0 4px 0 #4a3a2266}
+#app .museum-page .museum-exhibit>header .commission-npc{width:auto;height:64px;margin:0}
+#app #main.museum-page .museum-exhibit>header h2{margin:0;font-size:clamp(22px,2.8vh,30px)!important}
+#app #main.museum-page .museum-exhibit>header :is(small,span){font-size:15px!important;color:#6b5a32}
+/* A finished record = one plaque on the wall */
+#app .museum-page .museum-exhibit>section{--pt:clamp(70px,13vh,120px);--pb:clamp(44px,7vh,64px);position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;margin:0;padding:4px 10px 6px;border-style:solid;border-width:var(--pt) 28px var(--pb);border-image:url('../assets/scenes/exhibit-plaque.webp') 200 88 120 84 fill / var(--pt) 28px var(--pb) stretch;background:none;filter:drop-shadow(0 10px 14px #1f2a1a66);overflow:hidden}
+#app #main.museum-page .museum-exhibit>section>h3{position:absolute;left:31%;right:31%;bottom:calc(var(--pb) * -.71);height:calc(var(--pb) * .52);display:flex;align-items:center;justify-content:center;margin:0;font-size:clamp(14px,1.9vh,19px)!important;line-height:1;color:#4a3410;text-shadow:0 1px 0 #f7e3a0;white-space:nowrap;overflow:hidden}
+#app .museum-page .museum-specimens{display:flex;justify-content:center;gap:18px;margin:0;padding:0;background:none}
+#app .museum-page .museum-specimens figure{margin:0;max-width:none;flex:none;text-align:center}
+#app .museum-page .museum-specimens .animal{width:auto;height:clamp(64px,13vh,140px);object-fit:contain}
+#app #main.museum-page .museum-specimens figcaption{margin:0;font-size:clamp(16px,2vh,21px)!important;font-weight:700;color:#2f3a2a}
+#app .museum-page .museum-exhibit>section>ul{width:100%;margin:0;padding:0;list-style:none}
+#app #main.museum-page .museum-exhibit>section>ul>li{padding:3px 2px 4px;border-bottom:2px dotted #c9b98a;font-size:clamp(16px,2.1vh,21px)!important;line-height:1.35}
+#app #main.museum-page .museum-exhibit>section>p{margin:0;font-size:clamp(16px,2.1vh,21px)!important;line-height:1.4}
+#app .museum-page .museum-model{max-width:min(320px,100%);margin:0;background:none}
+#app .museum-page .museum-exhibit>blockquote{grid-column:1;align-self:center;margin:0;padding:10px 14px;border:3px solid #3b2a1a;border-radius:14px;background:#fff7df;font-size:18px;line-height:1.4;box-shadow:0 4px 0 #3b2a1a55}
+#app .museum-page .museum-exhibit>.btn{grid-column:2;justify-self:end;align-self:center;min-height:52px;font-size:19px}
+#app .museum-page .museum-exhibit>.empty-exhibit{grid-column:1/-1;align-self:center;justify-self:center;max-width:620px;margin:0;padding:22px 28px;border:3px dashed #fff9e9;border-radius:22px;background:#fff9e9d9;text-align:center;font-size:22px;line-height:1.5}
+#app .museum-page .museum-studio{grid-column:1/-1}
+#app .museum-page>footer{position:fixed;right:12px;bottom:12px;z-index:3900;margin:0;padding:0;background:none}
+#app .museum-page>footer>.btn{min-height:56px;font-size:20px;border:2px solid #22372a;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
+#app .museum-page .museum-exhibit>.btn{background:#fff9e9;color:#2f3a2a;border:2px solid #4a3a22;box-shadow:0 3px 0 #4a3a2299}
+#app .museum-page .museum-exhibit>section{--pt:clamp(56px,10vh,104px);overflow:visible;justify-content:center}
+#app .museum-page .museum-specimens{flex-wrap:nowrap;width:100%}
+#app .museum-page .museum-specimens figure{flex:0 1 auto;min-width:0}
+#app .museum-page .museum-specimens .animal{height:clamp(52px,10vh,120px);max-width:100%}
+#app #main.museum-page .museum-exhibit>section>ul>li,#app #main.museum-page .museum-exhibit>section>p{font-size:clamp(15px,2.4vh,30px)!important}
+#app #main.museum-page .museum-specimens figcaption{font-size:clamp(15px,2.2vh,28px)!important}
+#app .museum-page .museum-specimens .animal{height:clamp(44px,12vh,190px)}
+@media(max-height:650px){#app .museum-page .museum-exhibit>header{display:none}#app .museum-page .museum-exhibit>section{--pt:46px;--pb:38px;border-left-width:20px;border-right-width:20px}#app .museum-page .museum-specimens .animal{height:44px}#app #main.museum-page .museum-exhibit>blockquote{font-size:15px;padding:6px 10px}}

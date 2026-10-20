@@ -10,7 +10,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['dome-ground','nature-materials','workshop-atlas','terrain-atlas','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),
   ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page'].map(f=>`assets/sfx/${f}.mp3`),
-  'assets/music/village-theme.mp3',...['compare','sorting','verify','link','experiment','showcase'].map(f=>`assets/scenes/${f}.webp`),
+  'assets/music/village-theme.mp3',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
@@ -34,7 +34,7 @@ for(const file of files){
   await copyFile(source,dest);
   manifest.push({file,bytes:(await stat(source)).size});
 }
-for(const css of ['src/adventure.css','src/inquiry.css','src/campaign.css','src/tablet.css']){
+for(const css of ['src/adventure.css','src/inquiry.css','src/campaign.css','src/tablet.css','src/layout.css']){
   for(const match of (await readFile(path.join(root,css),'utf8')).matchAll(/url\(['"]?(\.\.\/assets\/[^'"\)]+)['"]?\)/g)){
     const asset=path.posix.normalize(path.posix.join('src',match[1]));
     if(!files.includes(asset))throw new Error(`Missing build asset: ${asset}`);

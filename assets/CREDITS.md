@@ -114,3 +114,5 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 ## 활동 장면 배경 · 2026-10-19
 
 `scenes/{compare,sorting,verify,link,experiment,showcase}.webp`: 그림 없이 CSS 칸만 있던 활동 6개(1장 비교, 2장 분류·검증, 3장 생활 잇기, 5장 실험 비교·작품 소개)의 배경. Higgsfield GPT Image 2.5(high, 16:9)로 생성, 참고 이미지는 `investigation.webp`·`adventure/museum-opening.webp`(화풍). 1600px WebP(q80)로 줄임. 작업 ID: compare 2ab985e8, sorting c80aba04, verify cc9a7d40, link b49a89a3, experiment e207af88, showcase 1a34fd86. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/scenes/`.
+
+`scenes/{letter-paper,museum-wall,request-hall,exhibit-plaque}.webp` (2026-10-20): 주민 편지지, 전시관 벽, 주민의 부탁 전시실 배경, 전시 설명판(나무 액자). Higgsfield GPT Image 2.5(글자 없음 지시)로 생성, 참고 이미지 없이 프롬프트만. 편지지 900px·배경 1920px WebP(q82), 설명판은 초록 벽을 지워 투명 처리 후 900px WebP. 작업 ID: letter 4e37e378, museum-wall 101baa77, request-hall 1927a1ab, plaque 148c6b26. 원본 PNG는 `D:/iscreammedia_sc34/_scratch/hf/`.
