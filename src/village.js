@@ -45,8 +45,13 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       const img=doc.createElement('img');img.className='village-restore'+(String(flash)===id||(id==='core'&&flash&&completed.length===5)?' just-restored':'');img.alt='';img.decoding='async';img.src=BASE+`restore-${id}.webp`;
       Object.assign(img.style,{left:pct(b.rect[0],W),top:pct(b.rect[1],H),width:pct(b.rect[2],W),height:pct(b.rect[3],H)});layer.append(img);
     }
-    // Stage markers already rendered by the page move onto their building.
-    root.querySelectorAll('.map-marker[data-id]').forEach(m=>{const b=j.buildings[m.dataset.id];if(!b?.rect)return;m.style.setProperty('--x',(b.rect[0]+b.rect[2]/2)/W*100);m.style.setProperty('--y',(b.rect[1]+b.rect[3]*.3)/H*100);});
+    // Stage markers already rendered by the page move onto their building. A marker on a top-row building slides
+    // down its roof just enough to clear the corner icons (--hud-top) while the camera rests at the map's top edge.
+    const placeMarkers=()=>{const fh=root.offsetHeight,safe=parseFloat(doc.defaultView?.getComputedStyle(root).getPropertyValue('--hud-top'))||0;
+      root.querySelectorAll('.map-marker[data-id]').forEach(m=>{const b=j.buildings[m.dataset.id];if(!b?.rect)return;const base=b.rect[1]+b.rect[3]*.3;m.style.setProperty('--x',(b.rect[0]+b.rect[2]/2)/W*100);m.style.setProperty('--y',base/H*100);
+        if(!fh||!m.offsetHeight)return;const top=m.getBoundingClientRect().top-root.getBoundingClientRect().top,lift=(safe+6-top)/fh*H;
+        if(lift>0)m.style.setProperty('--y',Math.min(base+lift,b.rect[1]+b.rect[3]*.7)/H*100);});};
+    placeMarkers();
     const sprite=(key,cls,label,talk=false)=>{const c=j.characters?.[key];if(!c)return null;const el=doc.createElement(talk?'button':'div');el.className='village-sprite '+cls;if(talk){el.type='button';const cue=doc.createElement('span');cue.className='talk-cue';cue.setAttribute('aria-hidden','true');el.append(cue);}else el.setAttribute('role','img');el.setAttribute('aria-label',label);
       const rows=Object.keys(c.rows),cols=Math.max(...Object.values(c.rows));Object.assign(el.style,{width:pct(c.cell[0],W),aspectRatio:`${c.cell[0]}/${c.cell[1]}`,backgroundImage:`url('${BASE+c.src}')`,backgroundSize:`${cols*100}% ${rows.length*100}%`});
       // The anchor (feet point inside the cell) sits on the sprite's map position.
@@ -59,8 +64,12 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     const scene=root.parentElement;let cam=null;
     const follow=()=>{if(!haru||!scene)return;const sw=scene.clientWidth,sh=scene.clientHeight,fw=root.offsetWidth,fh=root.offsetHeight;if(!fw||!fh)return;
       const x=Math.min(0,Math.max(sw-fw,sw/2-haru.x/W*fw)),y=Math.min(0,Math.max(sh-fh,sh*.55-haru.y/H*fh));
-      if(cam&&Math.abs(cam[0]-x)<.5&&Math.abs(cam[1]-y)<.5)return;cam=[x,y];root.style.transform=`translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;};
-    const onResize=()=>{cam=null;follow();};doc.defaultView?.addEventListener('resize',onResize);
+      if(cam&&Math.abs(cam[0]-x)<.5&&Math.abs(cam[1]-y)<.5)return;cam=[x,y];root.style.transform=`translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;clearControls();};
+    // While the camera slides, a marker that would sit under a corner icon or floating button fades out until it is clear.
+    let controls=null;
+    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
+      root.querySelectorAll('.map-marker[data-id]').forEach(m=>{const q=m.getBoundingClientRect();m.classList.toggle('under-control',q.width>0&&controls.some(r=>q.left<r.right&&q.right>r.left&&q.top<r.bottom&&q.bottom>r.top));});};
+    const onResize=()=>{cam=null;controls=null;placeMarkers();follow();};doc.defaultView?.addEventListener('resize',onResize);
     const doorOf=id=>j.buildings[id]?.door;
     const start=doorOf(position)||j.spawn||j.entrance||graph.nodes[Object.keys(graph.nodes)[0]]||[W/2,H*.85];
     const haru=sprite('haru','haru','하루 탐험가'),mori=sprite('mori','mori-follow','모리에게 길 물어보기',true);

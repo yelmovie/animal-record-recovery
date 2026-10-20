@@ -1184,3 +1184,43 @@ dialog:has(.resident-letter) .resident-letter .letter-signature{font-size:clamp(
 @media(prefers-reduced-motion:reduce){#app #main.mission-page .mission-guide h1.star-pop,#app #main.mission-page .mission-guide h1.star-pop .star-pop-tag{animation:none}}
 /* Arrow icons inside a line of text take the text size. */
 #app :is(.empty-experiment b,.motion-record-action span) .icon{display:inline-block;width:1em;height:1em;vertical-align:-.15em}
+
+/* Retest (stage 5): one column per shape. Its header is the "send this shape" choice, so each shape's
+   prediction and results sit right under the button that picks it (no separate choice block, no growing rows). */
+#app .commission-page .request-lab .retest-table{table-layout:fixed}
+#app #main.commission-page .request-lab .retest-table th:first-child{width:28%;text-align:left;padding-left:6px;padding-right:4px;line-height:1.2}
+#app #main.commission-page .request-lab .retest-table thead th{padding:4px 2px;vertical-align:bottom}
+#app #main.commission-page .request-lab .retest-table td{padding-left:2px;padding-right:2px}
+#app .commission-page .request-lab .retest-table thead .choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;min-width:0;min-height:44px;margin:0;padding:3px 2px;text-align:center;word-break:keep-all;line-height:1.2}
+#app #main.commission-page .request-lab .retest-table thead .commission-choice>span{line-height:1.2}
+#app .commission-page .request-lab .retest-table td{text-align:center;vertical-align:middle}
+#app .commission-page .request-lab .retest-table .untested{color:var(--ui-muted);font-weight:700}
+#app .commission-page .request-lab .retest-results>.record-row .record-options{gap:6px}
+#app .commission-page .request-lab .retest-results>.record-row .record-options>.choice{line-height:1.2}
+#app #main.commission-page .request-lab .retest-results>.record-row .commission-choice>span{line-height:1.2}
+#app .commission-page .request-lab .retest-table thead .choice-mark{width:20px;height:20px}
+@media(max-width:1100px),(max-height:800px){
+ #app #main.commission-page .request-lab>blockquote :is(b,p){font-size:16px!important;line-height:1.3}
+ #app .commission-page .request-lab>blockquote{padding-top:4px;padding-bottom:4px}
+ #app #main.commission-page .request-lab .retest-results :is(td,th){line-height:1.15}
+ #app #main.commission-page .request-lab :is(.retest-controls,.retest-results) legend{font-size:17px!important;line-height:1.2;margin-bottom:4px}
+ #app .commission-page .request-lab .retest-results>.record-row .record-options>.choice{min-height:44px;padding-top:3px;padding-bottom:3px}
+ #app #main.commission-page .request-lab .retest-table :is(td,th){padding-top:2px;padding-bottom:2px}
+ #app .commission-page .request-lab .retest-results{padding-top:6px;padding-bottom:6px;gap:4px}
+ #app .commission-page .request-lab>blockquote{margin-bottom:4px}
+ #app .commission-page .request-lab .request-lab-grid{gap:8px}
+ #app .commission-page .request-lab .retest-results>.record-row .record-options{gap:4px}
+}
+
+/* Three-question cards on short small tablets (873x580): the plaque steps down to 210px and its lines pack tighter,
+   so every question keeps its three answers on one line (two-line labels at word breaks) and the third row fits. */
+@media(max-width:1100px) and (max-height:650px){
+ #app .commission-page .card-body:has(.record-row:nth-child(3)){grid-template-columns:minmax(0,1fr) 210px}
+ #app #main.commission-page .card-body:has(.record-row:nth-child(3)) .card-result>ol>li>:is(small,b){line-height:1.05!important}
+ #app #main.commission-page .card-body:has(.record-row:nth-child(3))>.card-result{padding:24.5% 11.5% 13%!important}
+ #app #main.commission-page .card-body:has(.record-row:nth-child(3))>.card-result li{padding:0!important}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row:nth-child(-n+2){padding-left:4px;padding-right:4px}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row .record-options{flex-wrap:nowrap;gap:4px}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row .record-options>.choice{flex:1 1 0!important;width:auto!important;min-width:0!important;padding:2px;gap:4px;word-break:keep-all;overflow-wrap:anywhere;line-height:1.15}
+ #app .commission-page .card-body:has(.record-row:nth-child(3)) .record-row .choice-mark{width:18px;height:18px;flex:none}
+}

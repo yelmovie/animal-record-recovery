@@ -55,6 +55,8 @@ export const COMMISSIONS=[
 ];
 export const SORT_KEYS={legs:'다리가 있나요?',six:'다리가 여섯 개인가요?',web:'물갈퀴가 있나요?'};
 const SORT_TRUTH={legs:['hen','bat','bee'],six:['bee'],web:[]};
+// The curator's own-sort needs a criterion that splits the four animals (물갈퀴 puts all of them in X).
+const splitsArrivals=key=>(SORT_TRUTH[key]||[]).length>0&&(SORT_TRUTH[key]||[]).length<4;
 export const RETEST={
  swim:{name:'오리발',request:'처음 배우는 친구의 부탁이야. 미는 물은 중간 이상, 드는 힘은 중간 이하인 모양을 찾아 줘.',levels:['좁은 면','중간 면','넓은 면'],metrics:['미는 물','움직이는 데 드는 힘'],values:[[1,1],[2,2],[3,3]],target:2,reason:'미는 물과 필요한 힘을 함께 비교했어.',note:'같은 횟수로 젓는 모형이야. 면이 넓으면 물을 더 밀지만 움직이는 데 드는 힘도 커져.'},
  protect:{name:'보호 덮개',request:'전시 모형의 위와 옆을 가려 줘. 뒷부분까지 덮을 재료는 부족하니, 꼭 필요한 곳만 감싸 달래.',levels:['위쪽 덮개','위와 옆 덮개','위·옆·뒤 덮개'],metrics:['가려지는 범위','쓰는 재료의 양'],values:[[1,1],[2,2],[3,3]],target:2,reason:'위와 옆을 가리면서 재료도 아낄 수 있어.',note:'같은 재료와 두께로, 덮개가 감싸는 곳만 바꿔. 더 많은 곳을 감싸면 필요한 재료도 늘어나.'},
@@ -76,7 +78,7 @@ export function missionRows(s,stage,index,d=campaignDraft(s,stage,index)){
 export function campaignReady(s,stage,index,d=campaignDraft(s,stage,index)){
  if(stage===5&&index<2&&s.studioRecord)return studioReady(s.studioRecord);
  const m=commission(stage,index);if(!m)return false;
- if(m.kind==='own-sort'&&!Object.hasOwn(SORT_KEYS,d.answers.criterion))return false;
+ if(m.kind==='own-sort'&&(!Object.hasOwn(SORT_KEYS,d.answers.criterion)||!splitsArrivals(d.answers.criterion)))return false;
  if(m.kind==='retest'){
   const p=designProblem(s,index),r=RETEST[p],levels=new Set(d.trials.filter(t=>t.problem===p).map(t=>t.level));
   return !!r&&levels.size>=2&&levels.has(r.target)&&d.answers.choice===String(r.target)&&d.answers.reason==='fit';
@@ -143,6 +145,7 @@ export function cardProgress(s,stage,cards){let n=0,total=0;for(const c of cards
 export function requestGap(s,stage,parts){const pending=parts.filter(i=>!campaignDone(s,stage,i));
  for(const i of pending){const d=campaignDraft(s,stage,i),m=commission(stage,i);
   if(m.kind==='own-sort'&&!SORT_KEYS[d.answers.criterion])return {index:i,key:'criterion',missing:true,text:'먼저 몸에서 확인할 수 있는 분류 기준을 골라 줘.'};
+  if(m.kind==='own-sort'&&!splitsArrivals(d.answers.criterion))return {index:i,key:'criterion',text:`‘${SORT_KEYS[d.answers.criterion]}’로 나누면 네 동물이 모두 ${(SORT_TRUTH[d.answers.criterion]||[]).length?'O':'X'} 칸이야. 두 무리로 나뉘는 기준을 골라 봐.`};
   const blank=missionRows(s,stage,i,d).find(r=>!answered(d,r));if(blank)return {index:i,key:blank.key,missing:true,text:`‘${blank.label}’ 칸이 아직 비어 있어. 그 카드로 옮겨 뒀어.`};}
  const i=pending.find(i=>!campaignReady(s,stage,i));if(i===undefined)return null;
  const d=campaignDraft(s,stage,i),bad=missionRows(s,stage,i,d).find(r=>d.answers[r.key]!==r.answer);

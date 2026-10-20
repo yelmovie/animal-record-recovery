@@ -61,3 +61,6 @@
 @media(max-width:620px){.hud-chip>span{display:none}#app .screen-hud .hud-btn{width:44px;min-width:44px;height:44px;min-height:44px}.screen-hud>nav{gap:4px}}
 /* Large boards (electronic whiteboard) */
 @media(min-width:1500px) and (min-height:850px){#app .screen-hud .hud-btn{width:60px;min-width:60px;height:60px;min-height:60px}#app .screen-hud .hud-btn .icon{width:28px;height:28px}.hud-chip{height:52px;font-size:22px}.map-direction{grid-template-columns:repeat(3,64px);grid-template-rows:64px 64px}#app .map-direction .btn{width:64px;min-width:64px;min-height:64px;font-size:30px}#app .map-next>.btn{min-height:72px;font-size:26px;padding:14px 32px}}
+/* village.js marks a marker that the sliding camera has pushed under a corner icon or floating button. */
+#app .map-page .map-marker{transition:filter .18s,opacity .18s}
+#app .map-page .map-marker.under-control{opacity:0;pointer-events:none}
