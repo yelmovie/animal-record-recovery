@@ -332,7 +332,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 
 /* ---------- Compare (1-2, 1-4) ---------- */
 /* Drop slots take all the height that is left, so there is no empty strip under the deck. */
-#app .mission-page .compare-board{grid-template-rows:minmax(0,1fr) auto;align-content:stretch}
+#app .mission-page .compare-board{grid-template-rows:auto auto;align-content:center}
 #app .compare-board>.compare-slots{min-height:0}
 #app .compare-board .compare-slot{display:flex;flex-direction:column;min-height:110px;overflow:auto}
 #app #main .compare-board .compare-slot>.slot-empty{flex:1;display:grid;place-items:center;margin:0;font-size:clamp(19px,2.4vh,28px)!important}
@@ -967,3 +967,23 @@ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{backgro
 #app #main.commission-page .commission-feedback.open>p{display:block}
 #app #main.commission-page .commission-feedback.good>p{border-color:#3f6b45;background:#effae0}
 @media(prefers-reduced-motion:reduce){#app .commission-page .buddy-toggle::after,#app #main.commission-page .commission-feedback>p{animation:none}}
+
+/* Compare (1-2, 1-4): no tall empty drop boxes — the board sizes to its cards and sits mid-screen;
+   cards and text grow with the screen height instead. */
+#app .compare-board .compare-slot{min-height:clamp(120px,19vh,220px)!important}
+#app #main .compare-board .compare-slot>h3{font-size:clamp(26px,3.4vh,40px)!important}
+#app .compare-board .statement-card{min-height:clamp(58px,9vh,104px);padding:10px 18px}
+#app #main .compare-board .statement-card>span{font-size:clamp(20px,3.1vh,36px)!important}
+#app .compare-board .statement-card>.icon{width:clamp(22px,2.8vh,32px);height:clamp(22px,2.8vh,32px)}
+#app .compare-board .card-pool{gap:clamp(10px,1.6vh,18px)}
+#app .compare-board>.compare-photo{align-self:center;padding:clamp(12px,2vh,24px) 14px}
+#app .compare-photo>div>div>.animal{height:clamp(90px,24vh,280px)}
+@media(max-height:650px){#app .compare-photo>div>div>.animal{height:clamp(70px,15vh,110px)}#app .compare-board .compare-slot{min-height:100px!important}}
+/* The card deck takes the rest of the height: big tappable cards instead of an empty band under them. */
+#app .mission-page .compare-board{grid-template-rows:auto minmax(0,1fr)!important;align-content:stretch!important}
+#app .compare-board>.card-tray{align-self:stretch!important;display:flex;flex-direction:column;min-height:0}
+#app .compare-board>.card-tray>.card-pool{flex:1;min-height:0;grid-auto-rows:minmax(0,min(1fr,150px));align-content:center}
+#app .compare-board>.card-tray>.card-pool{grid-auto-rows:minmax(clamp(58px,9vh,104px),150px)}
+#app .compare-board .card-pool .statement-card{height:100%;max-height:150px}
+#app #main .compare-board .card-pool .statement-card>span{font-size:clamp(20px,3.4vh,40px)!important}
+#app .compare-board>.compare-photo{align-self:stretch;justify-content:space-evenly}

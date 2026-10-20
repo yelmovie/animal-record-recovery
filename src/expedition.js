@@ -52,9 +52,10 @@ export const OBSERVATIONS={
 };
 export const OBSERVE_PAIRS=[['frog','crab'],['duck','rabbit']];
 // The third item of a wrong option is the observed fact that disproves it.
+// Round 2 keeps keys fur/cover for saved records; the labels use wings/bill, which children tell apart more easily than feathers vs fur.
 export const COMPARES=[
   [{key:'common',title:'같은 점은?',answer:'eyes',options:[['eyes','둘 다 눈과 다리가 있어'],['feathers','둘 다 깃털로 덮여 있어','개구리는 맨살, 게는 껍데기였어. 깃털은 못 봤어.'],['shell','둘 다 단단한 껍데기가 있어','단단한 껍데기는 게에게만 있었어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','게에게는 단단한 껍데기가 있어'],['eyes','개구리에게만 눈이 있어','게에게도 자루 끝에 달린 눈이 있었어.'],['legs','게에게는 다리가 없어','게에게는 집게다리와 걷는 다리가 있었어.']]}],
-  [{key:'common',title:'같은 점은?',answer:'legs',options:[['legs','둘 다 다리로 땅을 디딜 수 있어'],['wings','둘 다 날개가 있어','토끼에게는 날개가 없었어.'],['fur','둘 다 털로 덮여 있어','오리는 털이 아니라 깃털로 덮여 있었어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','오리는 깃털, 토끼는 털로 덮여 있어'],['ears','오리에게만 긴 귀가 있어','길게 솟은 귀는 토끼에게 있었어.'],['feet','토끼에게만 물갈퀴가 있어','물갈퀴는 오리 발에 있었어.']]}],
+  [{key:'common',title:'같은 점은?',answer:'legs',options:[['legs','둘 다 다리로 땅을 디딜 수 있어'],['wings','둘 다 날개가 있어','토끼에게는 날개가 없었어.'],['fur','둘 다 부리가 있어','부리는 오리에게만 있었어. 토끼는 부리가 없어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','오리에게는 날개가 있고, 토끼에게는 없어'],['ears','오리에게만 긴 귀가 있어','길게 솟은 귀는 토끼에게 있었어.'],['feet','토끼에게만 물갈퀴가 있어','물갈퀴는 오리 발에 있었어.']]}],
 ];
 // Screen 03 statement cards: both questions' options in one pile; ref keeps the slot they were written for.
 export const compareCards=round=>{const all=COMPARES[round].flatMap(q=>q.options.map(([value,label,why])=>({ref:`${q.key}-${value}`,key:q.key,label,why})));return [0,3,1,4,2,5].map(i=>all[i]);};
