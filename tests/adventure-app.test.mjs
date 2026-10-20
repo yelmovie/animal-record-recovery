@@ -78,7 +78,7 @@ test('motion range keeps the newly entered value when stopping playback repaints
 test('summary entry and footer reject an untested current setting and explain the next action',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(5);s.designs[0].experiment.sourceSeen=true;s.designs[0].experiment.prediction='same';addExperimentTrial(s.designs[0]);s.designs[0].experiment.level=2;addExperimentTrial(s.designs[0]);step=1;s.designs[0].experiment.level=3;render();act('lab-summary',{dataset:{}})");assert.equal(a.run('labSummary'),false);assert.match(a.app.innerHTML,/지금 고른 모양도 시험/);assert.match(a.app.innerHTML,/data-action="lab-summary"[^>]*disabled/);a.run("addExperimentTrial(s.designs[0]);act('lab-summary',{dataset:{}})");assert.equal(a.run('labSummary'),true);});
 test('a win immediately updates stars and shows the new task instruction; replay never grants another star',()=>{
   const a=appHarness();a.run("s.observed=['frog-eye','frog-leg','frog-skin','crab-eye','crab-leg','crab-shell'];enter(1);advance()");
-  assert.equal(a.run('step'),1);assert.equal(a.run('feedback'),null);assert.match(a.app.innerHTML,/탐험 별 1개/);assert.match(a.app.innerHTML,/맞는 카드 2장만/);assert.equal(JSON.parse(a.saved).activities.length,1);
+  assert.equal(a.run('step'),1);assert.equal(a.run('feedback'),null);assert.match(a.app.innerHTML,/맞는 카드 2장만/);assert.equal(JSON.parse(a.saved).activities.length,1);
   a.run('previous();advance()');assert.equal(a.run('step'),1);assert.equal(a.run('feedback'),null);
 });
 test('drag cards and tap pick → place both fill gates, slots and the chain; wrong-kind cards bounce back',()=>{const a=appHarness();
@@ -156,8 +156,10 @@ test('animal-specific video goals reject a repeated second-scene strategy; wrong
  }
 });
 
-test('completed places open a review picker and any earned activity is reachable without overwriting works',()=>{
+test('completed places enter straight into the mission; the review picker still reaches any earned activity without overwriting works',()=>{
  const a=appHarness();a.run('s=restoreExpedition('+JSON.stringify(JSON.stringify(campaignFixture()))+');enter(5)');
+ assert.equal(a.run('screen'),'mission');assert.equal(a.dialog.open,false);
+ a.run("act('review-activities',{dataset:{id:'5'}})");
  assert.match(a.dialog.innerHTML,/활동 선택/);assert.match(a.dialog.innerHTML,/내 발명 그리기/);
  const before=a.run('JSON.stringify(s.records)');a.run("act('review-open',{dataset:{id:'5',value:'2'}})");
  assert.equal(a.run('step'),2);assert.equal(a.run('screen'),'mission');assert.equal(a.dialog.open,false);assert.equal(a.run('JSON.stringify(s.records)'),before);

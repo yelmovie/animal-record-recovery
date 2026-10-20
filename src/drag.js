@@ -21,7 +21,7 @@ export function enableDrag(root,onDrop){
       if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<8)return;
       const r=d.card.getBoundingClientRect();d.ghost=d.card.cloneNode(true);d.ghost.classList.add('drag-ghost');d.ghost.removeAttribute('data-action');
       Object.assign(d.ghost.style,{width:r.width+'px',height:r.height+'px',left:r.left+'px',top:r.top+'px'});document.body.append(d.ghost);d.card.classList.add('dragging');
-      root.classList.toggle('part-dragging',d.card.classList.contains('part-card'));root.setPointerCapture?.(e.pointerId);
+      root.classList.toggle('part-dragging',d.card.classList.contains('part-card'));root.classList.add('card-dragging');root.setPointerCapture?.(e.pointerId);
     }
     e.preventDefault();d.ghost.style.transform=`translate(${e.clientX-d.x}px,${e.clientY-d.y}px) rotate(-3deg)`;
     const zone=dropTarget(root,d.card,e.clientX,e.clientY);
@@ -29,7 +29,7 @@ export function enableDrag(root,onDrop){
   });
   const end=e=>{
     if(!d||e.pointerId!==d.id)return;const {card,ghost,zone}=d;d=null;if(!ghost)return;
-    ghost.remove();card.classList.remove('dragging');zone?.classList.remove('drop-hover');root.classList.remove('part-dragging');if(root.hasPointerCapture?.(e.pointerId))root.releasePointerCapture(e.pointerId);
+    ghost.remove();card.classList.remove('dragging');zone?.classList.remove('drop-hover');root.classList.remove('part-dragging','card-dragging');if(root.hasPointerCapture?.(e.pointerId))root.releasePointerCapture(e.pointerId);
     // The click that follows a drag must not also count as a tap.
     suppress=true;setTimeout(()=>{suppress=false;},0);
     if(zone&&e.type!=='pointercancel')onDrop(card.dataset,zone.dataset);

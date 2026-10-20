@@ -46,8 +46,10 @@ function setupPanels(){
       const key=[screen,stage,step,commissionIndex,selector,group].join(':');
       let current=Math.min(panelPages.get(key)||0,panels.length-1);
       const nav=document.createElement('nav');nav.className='panel-tabs';nav.setAttribute('aria-label','내용 선택');
-      panels.forEach((panel,i)=>{const button=document.createElement('button');button.type='button';button.className='btn quiet';button.textContent=labels?.[i]||panel.querySelector('h2,h3,b,legend')?.textContent||`${i+1}번 기록`;button.addEventListener('click',()=>{current=i;panelPages.set(key,i);update();});nav.append(button);});
-      function update(){panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));});}
+      panels.forEach((panel,i)=>{const button=document.createElement('button');button.type='button';button.className='btn quiet';const num=document.createElement('span');num.className='tab-num';num.textContent=String(i+1);button.append(num,labels?.[i]||panel.querySelector('h2,h3,b,legend')?.textContent||`${i+1}번 기록`);button.addEventListener('click',()=>{current=i;panelPages.set(key,i);update();});nav.append(button);});
+      // Steps read as a sequence: finished panels get a check, and once the open one is finished the next tab says "다음".
+      const finished=p=>p.classList.contains('done')||(()=>{const groups=[...p.querySelectorAll('.choices,.problem-options,.design-choices')];return groups.length>0&&groups.every(g=>g.querySelector('.selected'));})();
+      function update(){const done=panels.map(finished),next=done[current]?done.findIndex((d,i)=>i>current&&!d):-1;panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));nav.children[i].classList.toggle('tab-done',done[i]);nav.children[i].classList.toggle('tab-next',i===next);});}
       host.prepend(nav);host.classList.add('paged-panel');update();
     });
   };
@@ -73,7 +75,7 @@ function render(){
   const route=[screen,stage,step,activeHabitat,s.activeAnimal,screen==='commission'?requestCard:''].join(':');
   const scroll=route===renderedRoute?[...app.querySelectorAll('.request-part,.motion-observer,.lens-notes')].map(el=>el.scrollTop):[];
   const expanded=route===renderedRoute?[...app.querySelectorAll('.commission-evidence')].map(el=>el.open):[];
-  renderedRoute=route;
+  const freshRoute=route!==renderedRoute;renderedRoute=route;
   syncMusic();
   storyPlayer?.destroy();storyPlayer=null;
   stopMotionFrame();
@@ -84,6 +86,8 @@ function render(){
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   setupPanels();
+  // A new activity opens with Mori saying what to do, then the bubble tucks away (tap Mori to see it again).
+  if(freshRoute&&screen==='mission'&&typeof setTimeout==='function'){const b=app.querySelector?.('.guide-buddy');if(b&&!feedback){b.classList.add('open');setTimeout(()=>b.classList.remove('open'),5000);}}
   if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{s.studio=next;save();}});
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
@@ -178,7 +182,6 @@ function explainLocked(id){
 function setQuestOpen(open){questOpen=open;const page=document.querySelector('.map-page'),panel=document.querySelector('#quest-panel');page?.classList?.toggle('quest-open',open);if(panel)panel.inert=!open;document.querySelectorAll('[data-action="quest-toggle"]').forEach(el=>el.setAttribute('aria-expanded',String(open)));if(open){autoEnter=false;map?.pause?.();panel?.querySelector?.('button')?.focus({preventScroll:true});}else map?.resume?.();document.querySelector('.map-scene')?.scrollTo?.({left:0,top:0});}
 function enter(id,replay=false){
   if(!isStageOpen(s,id)){if(screen==='map'&&STAGES[id-1])explainLocked(id);return;}playSound(s.soundEnabled,'door');stage=id;step=s.step[id]??Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
-  if(s.completed.includes(id)){reviewActivities(id);return;}
   if(replay)step=0;
   if(step>0&&!s.activities.includes(`${id}-${step-1}`))step=Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
   selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem){d.problem='swim';d.name=PROBLEMS.swim.product;}}go('mission');
@@ -406,6 +409,8 @@ let toastTimer=0;
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
 const CLICK_SOUND={sound:null,enter:null,notebook:'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),speaker?4200:2600);}
+// Mori's bubble (activity instruction) opens on tap and closes when the learner taps anywhere else.
+document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback');}else if(!buddy.contains(e.target))buddy.classList.remove('open');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{
   if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);save();return;}
