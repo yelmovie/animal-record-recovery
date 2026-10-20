@@ -274,3 +274,24 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app #main.museum-page .museum-specimens figcaption{font-size:clamp(15px,2.2vh,28px)!important}
 #app .museum-page .museum-specimens .animal{height:clamp(44px,12vh,190px)}
 @media(max-height:650px){#app .museum-page .museum-exhibit>header{display:none}#app .museum-page .museum-exhibit>section{--pt:46px;--pb:38px;border-left-width:20px;border-right-width:20px}#app .museum-page .museum-specimens .animal{height:44px}#app #main.museum-page .museum-exhibit>blockquote{font-size:15px;padding:6px 10px}}
+
+/* 3D observation (1-1, 1-3) and habitat dome (3-1, 3-3): scene tabs float inside the scene below the corner icons,
+   the bottom control row clears the back button, and the notes panel centers its question instead of leaving a blank tail. */
+#app .mission-page .activity-workspace>:is(.specimen-scene,.habitat-scene){padding-bottom:80px!important}
+#app .mission-page :is(.specimen-scene,.habitat-scene)>.scene-tabs{top:calc(var(--hud-top) + 8px)!important;left:20px!important;z-index:6}
+#app .mission-page .observation-controls{padding-left:clamp(0px,calc(230px - 8vw),170px)}
+#app .mission-page .activity-workspace>.field-notes{display:flex;flex-direction:column;justify-content:center;gap:10px;padding-bottom:84px!important;background:#fff9e9eb}
+#app #main.mission-page .lens-notes>h2{font-size:clamp(26px,3.6vh,40px)!important}
+#app #main.mission-page .lens-notes>.observe-ask{font-size:clamp(19px,2.5vh,28px)!important}
+#app #main.mission-page .observe-options>.choice>span{font-size:clamp(19px,2.5vh,28px)!important}
+#app .mission-page .observe-options>.choice{min-height:clamp(52px,7vh,80px)}
+#app .mission-page .lens-notes>.detail-crop{height:clamp(140px,24vh,280px)}
+#app .commission-page .request-card .card-questions .record-options{display:grid!important;margin-left:0!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))!important}
+#app .commission-page .request-card .card-questions .record-row{display:block}
+#app #main.commission-page .commission-choice>span{font-size:clamp(18px,2.3vh,26px)!important}
+/* 4-2/4-4: the floating question card starts below the corner icons. 5-3: the drawing desk keeps its own save row above the floating next button. */
+#app .mission-page .activity-workspace>.case-photo-panel:not(.evidence-panel)~.case-activity.paged-panel{top:calc(var(--hud-top) + 4px)!important;max-height:calc(100% - var(--hud-top) - 96px)!important}
+#app .mission-page .activity-workspace>.creative-studio{padding-bottom:80px!important}
+#app .mission-page .activity-workspace>:is(.specimen-scene,.habitat-scene){padding-bottom:92px!important}
+/* Ending certificate: content starts below the corner icons. */
+#app main.ending{height:var(--app-height,100dvh)!important;padding-top:calc(var(--hud-top) + 4px)!important}
