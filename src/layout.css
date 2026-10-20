@@ -1,0 +1,33 @@
+/* Last override layer (loaded after every other sheet; wins with one #app prefix).
+   iscream screen frame: no top bar, no bottom bar. Corner icons float (stage-map.css .screen-hud),
+   the page's own back/next buttons float in the bottom corners, and the activity takes the whole page. */
+#app{--hud-left:132px;--hud-right:300px;--hud-top:76px}
+@media(max-height:620px),(max-width:820px){#app{--hud-left:116px;--hud-right:262px;--hud-top:64px}}
+@media(min-width:1500px) and (min-height:850px){#app{--hud-left:152px;--hud-right:340px;--hud-top:88px}}
+
+/* Activity pages: title row shares the top line with the corner icons. */
+#app .mission-page{height:var(--app-height,100dvh)!important;grid-template-rows:auto minmax(0,1fr)!important;padding:8px!important;gap:8px}
+#app .mission-page .mission-guide{padding-left:var(--hud-left);padding-right:var(--hud-right);min-height:56px;background:none;border-radius:0}
+#app .mission-footer{position:fixed;left:12px;right:12px;bottom:12px;z-index:3900;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;min-height:0;margin:0;padding:0!important;background:none;border:0;backdrop-filter:none;pointer-events:none}
+#app .mission-footer>*{pointer-events:auto;box-shadow:0 4px 0 #22372a66,0 6px 16px #0d1f1640}
+
+/* Page back/next buttons float in the bottom corners: solid so they read on any background. */
+#app .mission-footer>.btn{min-height:56px;padding:10px 22px;font-size:20px;border:2px solid #22372a;border-radius:14px}
+#app .mission-footer>.btn.quiet{background:#fff9e9;color:#2f3a2a}
+
+/* Answer choices (every activity): pressable card + radio circle, a "pick one" cue and a soft pulse until something is chosen. */
+#app .choice{position:relative;align-items:center;gap:12px;min-height:56px;padding:10px 16px 10px 12px;border:2px solid #c9b98a;border-radius:14px;background:#fffdf5;color:#2f3a2a;font-size:20px;line-height:1.35;box-shadow:0 3px 0 #c9b98a;transition:transform .12s,box-shadow .12s,background-color .12s}
+#app .choice:hover{background:#fff6d8;border-color:#b59342;transform:translateY(-2px);box-shadow:0 5px 0 #b59342}
+#app .choice:active{transform:translateY(2px);box-shadow:0 1px 0 #b59342}
+#app .choice:focus-visible{outline:4px solid #f6d36e;outline-offset:2px}
+#app .choice-mark{flex:none;display:grid;place-items:center;width:26px;height:26px;border:3px solid #b59342;border-radius:50%;background:#fff;color:#fff;font-style:normal}
+#app .choice-mark .icon{display:block;width:16px;height:16px;stroke-width:3.2}
+#app .choice.selected{background:#eaf3d6;border-color:#4f7a45;box-shadow:0 3px 0 #4f7a45}
+#app .choice.selected .choice-mark{background:#4f7a45;border-color:#4f7a45}
+#app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options):has(>.choice):not(:has(>.choice.selected))::before{content:'하나를 골라 눌러 봐';grid-column:1/-1;flex-basis:100%;align-self:flex-start;justify-self:start;width:max-content;padding:3px 12px 4px;border-radius:999px;background:#f6d36e;color:#3f3420;font:400 16px/1.3 var(--font-display);box-shadow:0 2px 0 #b59342}
+#app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options):not(:has(>.choice.selected))>.choice{animation:choice-invite 2.6s ease-in-out infinite}
+#app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options)>.choice:nth-child(3){animation-delay:.25s}
+#app :is(.observe-options,.choices,.problem-options,.design-choices,.record-options,.prediction-options,.reflection-options)>.choice:nth-child(4){animation-delay:.5s}
+@keyframes choice-invite{0%,60%,100%{box-shadow:0 3px 0 #c9b98a}30%{box-shadow:0 3px 0 #c9b98a,0 0 0 5px #f6d36e99}}
+@media(prefers-reduced-motion:reduce){#app .choice{animation:none!important;transition:none}}
+#app .observe-ask{font-size:20px;color:#2f3a2a}

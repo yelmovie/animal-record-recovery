@@ -45,7 +45,7 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 | sfx/step.mp3 | 마을에서 하루가 걸을 때 발걸음 | https://pixabay.com/sound-effects/film-special-effects-walk-on-grass-1-291984/ | joentnt | 2026-10-19 |
 | sfx/door.mp3 | 건물(활동)에 들어갈 때 | https://pixabay.com/sound-effects/household-opening-door-411632/ | soundreality | 2026-10-19 |
 | sfx/page.mp3 | 가방·설정·도구 창 열기 | https://pixabay.com/sound-effects/film-special-effects-turn-a-page-336933/ | creatorshome | 2026-10-19 |
-| sfx/drop.mp3 | 카드를 끌어다 놓을 때 | https://pixabay.com/sound-effects/film-special-effects-ui-drop-success-521938/ | soundshelfstudio | 2026-10-19 |
+| ~~sfx/drop.mp3~~ (2026-10-20 사용 중지 → `_unused/sfx/`, 틀린 소리처럼 들려 합성음으로 교체) | 카드를 끌어다 놓을 때 | https://pixabay.com/sound-effects/film-special-effects-ui-drop-success-521938/ | soundshelfstudio | 2026-10-19 |
 
 ## 동물 그림 추가 (2026-10-17)
 

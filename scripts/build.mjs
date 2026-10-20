@@ -9,7 +9,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...['raccoon','biomes','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['dome-ground','nature-materials','workshop-atlas','terrain-atlas','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),
-  ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page','drop'].map(f=>`assets/sfx/${f}.mp3`),
+  ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page'].map(f=>`assets/sfx/${f}.mp3`),
   'assets/music/village-theme.mp3',...['compare','sorting','verify','link','experiment','showcase'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/${f}.glb`),
@@ -27,7 +27,7 @@ for(const item of previous){
   await unlink(target).catch(error=>{if(error.code!=='ENOENT')throw error;});
 }
 const manifest=[];
-files.push('src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
+files.push('src/stage-map.css','src/layout.css','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
   await mkdir(path.dirname(dest),{recursive:true});

@@ -30,3 +30,86 @@
 .pin-layer .pin3d.zone span,.mission-page .activity-workspace .part-spot>small{font-size:16px}
 .request-part .commission-evidence>summary,.studio-desk .studio-drawing-footer>span,main article>div>p.trial-summary{font-size:16px!important}
 dialog details>small.copyright{display:block;margin-top:4px}
+
+/* Classroom type scale: keep secondary labels smaller than learning copy. */
+:root{--class-copy:clamp(20px,1.5vw,26px);--class-label:clamp(16px,1.15vw,20px);--class-title:clamp(30px,2.3vw,40px);--class-heading:clamp(26px,2vw,34px)}
+.panel-tabs .btn[aria-pressed=true]{background:#365c43!important;color:#fffbed!important;border-color:#365c43}
+@media(min-width:1000px) and (min-height:651px){
+ #main:not(.map-page) :is(button,.btn,.choice,legend,textarea,input,select),#main:not(.map-page) p{font-size:var(--class-copy)!important;line-height:1.4}
+ #main:not(.map-page) :is(h2,h3){font-size:var(--class-heading)!important;line-height:1.25}
+ #main:not(.map-page) h1{font-size:var(--class-title)!important;line-height:1.2}
+ #main small{font-size:var(--class-label)!important}
+ main :is(p,legend,label,textarea,input,select),main .btn,main .choice,main .commission-choice,main .statement-card{font-size:var(--class-copy)!important;line-height:1.4}
+ main :is(h1,.client-card h1),.mission-page .mission-guide h1{font-size:var(--class-title);line-height:1.2}
+ main h2,main h3{font-size:var(--class-heading);line-height:1.25}
+ .mission-page .mission-guide{grid-template-columns:minmax(220px,1fr) auto minmax(0,2fr) auto;gap:8px}
+ .mission-page .mission-guide .guide-buddy p,.mission-page .lens-notes>p,.mission-page .motion-goal,.mission-page .motion-prediction .choice{font-size:var(--class-copy)!important}
+ main .panel-tabs .btn,main .commission-tabs .btn,main .deck-chip,main .record-row legend,main .retest-results :is(td,th),main .card-result li b{font-size:var(--class-copy)!important}
+ main :is(small,caption,.overline,.motion-steps,.motion-instruction,.motion-caption,.captured-frame,.interaction-note,.work-status,.pair-status,.deck-count,.part-tag,.card-stamp),main .card-result li small,main .arrival-card small{font-size:var(--class-label)!important;line-height:1.4}
+ #main .scan-reset{font-size:0!important}
+ .mission-page .lens-notes .detail-crop{height:clamp(110px,20dvh,180px)!important;flex-shrink:0}
+ .mission-page .lens-notes{gap:8px}
+ .mission-page .compare-photo .animal{height:100px}
+ .request-card .card-questions .record-row legend{float:left;width:128px;margin:4px 8px 0 0}
+ .request-card .card-questions .record-options{margin-left:136px;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .request-card .card-body{grid-template-columns:minmax(0,1.7fr) minmax(230px,1fr)}
+ .request-card .record-row{padding:5px 8px}
+ .request-card .request-part-heading{padding-right:250px}
+ .request-card>.commission-evidence{width:240px}
+ .request-card .card-result li{flex-wrap:nowrap}
+ .request-card .card-result li small{flex-basis:45%}
+ .unified-request .client-card{min-height:64px}
+ .unified-request .client-card .commission-npc{height:54px}
+ .mission-page .studio-showcase{height:100%;min-height:0;align-items:stretch}
+ .studio-showcase .studio-exhibit{display:flex;flex-direction:column;min-height:0}
+ .studio-showcase .studio-heading{flex:none;margin-bottom:6px!important}
+ .studio-showcase .studio-poster{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;margin-top:0;padding:10px;gap:4px}
+ .studio-showcase .studio-poster .studio-artwork{flex:1;min-height:0;width:100%;object-fit:contain}
+ .studio-showcase .studio-poster h3,.studio-showcase .studio-poster p{margin:4px 0}
+ .studio-showcase .studio-introduction{min-height:0;gap:8px;padding:10px}
+ .studio-showcase .studio-field{gap:4px}
+ .studio-showcase .studio-field input{height:48px;min-height:48px;padding:6px 10px}
+ .studio-showcase .studio-field textarea{height:68px;min-height:68px;padding:6px 10px;resize:vertical}
+ .studio-showcase .studio-download-note{font-size:var(--class-label)!important;margin:0}
+ .mission-page:has(.creative-studio) .creative-studio.studio-drawing{grid-template-columns:minmax(0,1fr) 335px}
+ .studio-drawing .studio-notebook{gap:6px;padding:8px}
+ .studio-drawing .studio-note{padding:8px}
+ .studio-drawing .studio-note p,.studio-drawing .studio-next-hint{margin:4px 0}
+ .request-card:has(.arrival-sort){gap:4px;padding-top:6px}
+ .request-card .arrival-sort{gap:4px}
+ .request-card .arrival-pool,.request-card .arrival-bin{padding:4px}
+ .request-card .arrival-card small{line-height:1.2}
+ .activity-workspace:has(>.design-bench){--design-card:clamp(460px,44vw,650px)}
+ .mission-page .activity-workspace>.design-options.paged-panel{padding:10px;gap:8px}
+ .design-options .panel-tabs{flex-wrap:nowrap;gap:4px;margin-bottom:0}
+ .design-options .panel-tabs .btn{flex:1;padding:6px 8px}
+ .design-options h2{margin:0 0 6px}
+ .design-options .source-study{padding:6px;gap:8px}
+ .design-options .source-art,.design-options .anatomy{width:110px;height:100px;min-width:110px}
+ .design-options .design-choices{gap:5px;margin-top:6px}
+ .design-options .design-choices .choice{min-height:48px;padding:6px 10px}
+ .design-options>.design-name{margin-top:0;padding-top:6px}
+ .design-options .design-name>input{min-height:48px;height:48px;padding:6px 10px}
+ .design-options .part-pool{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .design-options .part-pool .part-card{display:flex;flex-direction:column;justify-content:flex-start;width:100%;min-height:90px;padding:6px;gap:4px}
+ .design-options .part-pool .part-card>svg{width:85px;height:65px;flex:none}
+ .design-options .part-pool .part-card>span{width:100%;white-space:normal;word-break:keep-all}
+ .design-options .part-tip{margin:6px 0;line-height:1.4}
+}
+/* Settings may scroll as a document; closing it never requires scrolling back. */
+dialog:has(.settings-body){width:min(940px,96vw);max-height:94dvh;padding:16px 20px;overflow:hidden}
+dialog:has(.settings-body)[open]{display:flex;flex-direction:column}
+dialog:has(.settings-body)>.dialog-heading{flex:none;margin-bottom:8px}
+.settings-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding-right:8px}
+.settings-body :is(p,li,dd,dt,label,summary,.btn,.setting-row){font-size:clamp(20px,1.5vw,24px)!important;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+.settings-body .volume-row b{font-size:inherit}
+dialog:has(.settings-body) .dialog-heading h2{font-size:var(--class-title);margin:0}
+.settings-body :is(small,.settings-lock){font-size:16px!important;line-height:1.5}
+.settings-body .settings-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.settings-body .setting-row{min-height:52px;padding:8px 12px}
+.settings-body .volume-row{display:grid;grid-template-columns:1fr auto;gap:0 10px;min-width:0;margin:0;padding:4px 10px}
+.settings-body .volume-row input{grid-row:2;grid-column:1;width:100%;min-width:0;min-height:48px;margin:0}
+.settings-body .volume-row output{grid-row:2;grid-column:2;min-width:4ch;align-self:center;text-align:right}
+.settings-footer{flex:none;display:flex;justify-content:space-between;gap:12px;padding-top:12px;background:var(--paper)}
+.settings-footer .btn{min-height:48px;font-size:20px}
+@media(max-width:600px){.settings-body .settings-rows{grid-template-columns:1fr}.settings-body .volume-row{padding-inline:4px}.settings-footer .btn{font-size:18px;padding:8px 10px}dialog:has(.settings-body){padding:12px}}
