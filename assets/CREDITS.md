@@ -176,3 +176,7 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 - SVG 4편은 외부 소재·생성형 AI·Remotion 을 쓰지 않았다. sharp(Apache-2.0)와 FFmpeg(LGPL/GPL 빌드, 도구로만 사용·배포물에 포함하지 않음)만 썼다.
 - `habitat-life` 는 잘라 쓴 움직임 영상의 출처(위 기록: 오리는 사용자 제공 생성 영상, 낙타·펭귄은 Higgsfield Kling 생성)를 그대로 따른다. AI 생성 관찰 자료다.
 - 같은 날 `videos/motion/camel.mp4`·`penguin.mp4` 를 1920×1080 → 1280×720 으로 다시 인코딩했다(길이·파일명 그대로, 소리 없음). 원본 백업은 `D:/iscreammedia_sc34/_scratch/concept-clips-20261021/backup/`.
+
+## 수영 오리발 그림 · 2026-10-21
+
+`adventure/swim-shoe-v2.webp`, `adventure/swim-blade-v2.webp`: 기본 image_gen 도구(OpenAI 이미지 생성)로 만든 투명 배경 그림. 참고 이미지는 이 프로젝트의 `adventure/workshop-atlas.webp`. 프롬프트 원문과 적용 방식은 `docs/SWIM-ARTWORK-20261021.md`. 상업 이용 판단은 위 검토표의 OpenAI 이미지 생성 항목과 같고, 생성 계정·요금제 기록은 없다.
