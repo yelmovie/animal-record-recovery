@@ -78,7 +78,7 @@ export const DISCOVERIES=[
 // A motion's body part and function stay hidden until the learner commits a prediction (or recorded it in an older save).
 export const motionOpen=(s,animal)=>Boolean(s.inquiry?.motionPredictions?.[animal])||s.inquiry?.motion?.[animal]!==undefined;
 // Before that, a found animal shows only its place and a neutral question.
-const neutralCaption=(place,name)=>`${place}에서 ${withParticle(name,'이/가')} 움직이고 있어. 무엇이 움직임을 도울지 먼저 예상해 봐.`;
+const neutralCaption=(place,name)=>`${place}에서 ${withParticle(name,'이/가')} 움직이고 있어. 어떻게 움직일까?`;
 export const discoveryCaption=(s,d)=>motionOpen(s,d.animal)?d.text:neutralCaption(HABITATS[d.habitat].name,ANIMALS[d.animal].name);
 export const domeCaption=(s,z)=>motionOpen(s,z.animal)?z.text:neutralCaption(z.name,z.animalName);
 // 'first' | 'helped' | 'unknown' (observed in a save made before tries were kept).
@@ -283,7 +283,8 @@ export function taskMistake(s,stage,step){
     if(!splitsAnimals(v.fix))return {text:`‘${CRITERIA[v.fix]}’로 나누면 여섯 마리가 모두 ${SORT_ANIMALS.some(id=>ANIMALS[id][v.fix])?'O':'X'} 칸에 들어가. 동물이 두 무리로 나뉘는 기준을 골라 봐.`,wrong:['verify:fix']};
     if(v.checked!==v.fix)return {text:'고친 기준으로 ‘다시 검증’을 눌러 세 결과가 같은지 확인해 봐.',wrong:[]};return null;}
   if(stage===3&&step%2===0){const list=DISCOVERIES.slice(round*3,round*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>motionOpen(s,d.animal)?`${ANIMALS[d.animal].name}: ${MOTIONS[d.animal].goal}을 찾아 기록해 봐.`:`${ANIMALS[d.animal].name}: 먼저 무엇이 움직임을 도울지 예상해 봐.`).join(' '),wrong:[]}:null;}
-  if(stage===3){const id=round?'crab':'frog',keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);return bad.length?{text:bad.map(({k,i})=>s.links[id][k]?`‘${cols[i]}’을 다시 봐. ${tips[i]}`:`‘${cols[i]}’을 아직 고르지 않았어.`).join(' '),wrong:bad.map(({k})=>'link:'+k)}:null;}
+  if(stage===3){const id=round?'crab':'frog',keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);// One short sentence about the first slot to fix; every slot still to fix stays marked.
+    const first=bad[0];return bad.length?{text:s.links[id][first?.k]?`‘${cols[first.i]}’을 다시 봐. ${tips[first.i]}`:`‘${cols[first.i]}’ 칸에 카드를 놓아 줘.`,wrong:bad.map(({k})=>'link:'+k)}:null;}
   if(stage===4){const c=CASES[round],a=s.cases[round],names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');
     if(step%2===0||!groundsReady(c,a)){
       if(!a.opened.length)return {text:`단서 카드를 눌러 조사해 봐. 조사 에너지는 ${CLUE_ENERGY}개야.`,wrong:[]};

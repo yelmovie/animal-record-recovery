@@ -36,7 +36,7 @@ export function motionDiagram(id,phase=0){
  return '<svg class="motion-model" viewBox="0 -25 360 180" role="img" aria-label="'+m.frames[f]+'"><path d="M10 133h340" stroke="'+surface+'" stroke-width="5"/><g transform="translate('+x+' '+y+')">'+body+'</g>'+(f===1?(id==='butterfly'?'<path d="M129 110v25l-7-10m7 10 7-10" stroke="#508f9b" stroke-width="3" fill="none"/>':'<path d="M85 139H25l12-7m-12 7 12 7" stroke="#508f9b" stroke-width="3" fill="none"/>'):'')+'</svg>';
 }
 // Scene captions name the moving body part, so they wait for the learner's prediction.
-export const motionCaption=(id,frame,open)=>open?MOTIONS[id].frames[frame]:'①에서 예상을 고르면 장면 설명이 나와.';
+export const motionCaption=(id,frame,open)=>open?MOTIONS[id].frames[frame]:'';
 export function motionView(id,v={},captured){
  const m=MOTIONS[id];if(!m)return '';
  const phase=v.motionPhase||0,useVideo=Object.hasOwn(MOTION_CLIPS,id)&&!v.failedMotionVideos?.includes(id),frame=useVideo?videoFrameAt(id,phase):frameAt(phase);

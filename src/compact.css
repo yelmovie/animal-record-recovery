@@ -854,7 +854,7 @@
 /* Portrait: the habitat dome sits above the motion notes so the video, scenes and record button get the full width. */
 @media (orientation: portrait) and (max-width: 900px) {
   #app .mission-page .activity-workspace:has(> .habitat-scene) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr); }
-  #app .mission-page .activity-workspace > .habitat-scene { padding-bottom: 8px; }
+  #app .mission-page .activity-workspace > .habitat-scene { padding-bottom: 8px !important; }
   #app .mission-page .activity-workspace > .habitat-notes { margin: 0 12px 84px; min-height: 0; max-height: none; align-self: stretch; overflow-y: auto; }
 }
 /* Portrait: the invention bench sits above the step panels (both need the full width). */
@@ -879,3 +879,10 @@
 @media (orientation: portrait) and (max-width: 900px) { #app .commission-page .request-part { padding-bottom: 72px; } }
 /* Results summary pieces that a failed check points at. */
 #app .reflection-options.retry, #app .invention-explanation.retry, #app .lab-results.retry, #app textarea.retry { border-radius: 12px; box-shadow: 0 0 0 3px #e9a46a; }
+
+/* A bubble that opened by itself (unfinished step) sits in the bottom strip right of Mori, between the footer buttons, so it never covers the activity. */
+#app #main.mission-page .guide-buddy.auto > p, #app #main.commission-page .commission-feedback.auto > p { left: calc(100% + 12px); bottom: 0; width: max-content; max-width: max(240px, calc(100vw - 450px)); padding: 8px 14px; font-size: clamp(16px, 1.9vh, 19px) !important; line-height: 1.35; }
+#app #main.mission-page .guide-buddy.auto > p::after, #app #main.commission-page .commission-feedback.auto > p::after { left: -13px; top: auto; bottom: 20px; width: 10px; height: 16px; clip-path: polygon(100% 0, 100% 100%, 0 50%); }
+/* Before a prediction the scene caption is empty but keeps its line, so the controls do not jump when it fills in. */
+#app .motion-observer .motion-caption:empty { visibility: hidden; }
+#app .motion-observer .motion-caption:empty::before { content: '\00a0'; }

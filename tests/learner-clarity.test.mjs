@@ -64,3 +64,9 @@ test('travel buttons pick 으로/로 by the last sound of the place name',()=>{
  const v={screen:'map',stage:3,step:0,selectedStage:3,arrived:true,mapZoom:1,canGoBack:false};
  const html=page(s,v);assert.match(html,/생태의 물가로 가기/);assert.doesNotMatch(html,/물가으로/);
 });
+
+test('a link check names one slot in one sentence but still marks every slot to fix',()=>{
+ const s=freshExpedition(),m=taskMistake(s,3,1);
+ assert.equal(m.text,'‘사는 곳’ 칸에 카드를 놓아 줘.');assert.deepEqual(m.wrong,['link:environment','link:body','link:life']);
+ s.links.frog={environment:'sea'};assert.equal(taskMistake(s,3,1).text,'‘사는 곳’을 다시 봐. 어느 장소에서 발견했는지 떠올려 봐.');
+});
