@@ -22,7 +22,7 @@ npm run preview
 
 ## 배포 상태
 
-공개 주소 `https://animal-record-recovery.yelsam.workers.dev`는 이번 변경 전 배포본이다. 2026-10-21 수정은 로컬 구현·테스트·빌드까지 했고 **운영 배포는 하지 않았다.** 배포는 `npm run deploy`(빌드 후 `wrangler deploy`)로 한다.
+2026-10-21 수정(커밋 `93a6cfb`까지)을 `npm run deploy`로 `https://animal-record-recovery.yelsam.workers.dev`에 배포했다(버전 ID `8e3e343d-0550-48bc-94ce-623b6474bdf2`). 배포된 `src/*.js`·`compact.css`에 이번 수정이 들어간 것과 첫 화면 콘솔 오류 0을 확인했다.
 
 ## 공용 태블릿 기록 보관·초기화
 
