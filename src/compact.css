@@ -828,3 +828,16 @@
   #app .map-view-controls .btn { font-size: 16px; padding-inline: 8px; }
   #app .map-view-controls input { width: 90px; }
 }
+
+/* Wrong or blocked answer: the reason sits right under the marked choice (text + "!" mark, not color alone). */
+#app .retry-note { text-wrap: pretty; display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; padding: 8px 12px; border: 2px solid #c9772c; border-left-width: 6px; border-radius: 10px; background: #fff4e3; color: #4a2f12; font-size: clamp(17px, 2vh, 20px); line-height: 1.4; text-align: left; word-break: keep-all; overflow-wrap: break-word; }
+#app .retry-note::before { content: '!'; flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #c9772c; color: #fff; font: 700 16px/1 var(--font-display, sans-serif); }
+#app .gate .retry-note, #app .compare-slot .retry-note, #app .link-slot .retry-note { font-size: 16px; }
+/* The part to look at again glows on the close-up and its part button. */
+#app .lens-notes:has(.choice.retry) .detail-crop, #app .specimen-scene:has(~ .lens-notes .choice.retry) .part-buttons .selected { outline: 4px solid #e39a45; outline-offset: 3px; }
+#app .lens-notes:has(.choice.retry) .detail-crop { animation: look-again 1.2s ease-in-out 2; }
+@keyframes look-again { 50% { outline-color: #ffd28f; } }
+/* The next place to go is easy to spot on the fitted map. */
+#app .map-page .map-marker.recommended > span { animation: next-place 1.8s ease-in-out infinite; }
+@keyframes next-place { 50% { box-shadow: 0 0 0 8px #fff1b388; } }
+@media (prefers-reduced-motion: reduce) { #app .lens-notes:has(.choice.retry) .detail-crop, #app .map-page .map-marker.recommended > span { animation: none; } }

@@ -1,8 +1,11 @@
 import {withParticle} from './korean.js';
-import {STAGES,DOME_ZONES,ANIMALS,OBSERVATIONS,DISCOVERIES,CASES,PROBLEMS,FEATURES,STRUCTURES,PRODUCTS,countStage,reportDesigns,designTrials,revisions} from './expedition.js';
+import {STAGES,DOME_ZONES,ANIMALS,OBSERVATIONS,DISCOVERIES,CASES,PROBLEMS,FEATURES,STRUCTURES,PRODUCTS,countStage,reportDesigns,designTrials,revisions,discoveryCaption,observeTry,observeSummary} from './expedition.js';
 import {EXPERIMENTS,MOTIONS,REFLECTIONS,experimentResult} from './inquiry.js';
 import {restoredPlaces,campaignReport} from './campaign.js';
 
+// How each observation was recorded; saves from before this was kept say so instead of guessing.
+const TRY_NOTE={first:' (처음 고른 설명이 맞았어)',helped:' (다시 살펴보고 고쳐 골랐어)',unknown:' (이전 기록이라 처음 맞혔는지 알 수 없어)'};
+const observeNote=s=>{const n=observeSummary(s);return `처음 고른 설명이 맞은 곳 ${n.first}곳, 다시 살펴보고 고친 곳 ${n.helped}곳${n.unknown?`, 이전 기록이라 알 수 없는 곳 ${n.unknown}곳`:''}이야.`;};
 function workLines(d,status){
  const c=EXPERIMENTS[d.problem],tests=designTrials(d),feature=FEATURES.find(x=>x[0]===d.feature)?.[1],part=STRUCTURES.find(x=>x[0]===d.structure)?.[1],spot=PRODUCTS[d.problem]?.spots.find(x=>x[0]===d.spot)?.[1];
  return [`[${status}] ${d.name||'아직 이름을 짓지 않은 발명'}`,
@@ -25,8 +28,9 @@ export function researchLines(s){
  });
  return ['나의 동물 탐험 연구 기록','하루, 모리와 함께 동물의 특징을 찾아보았어.',`지금까지 탐험 별을 ${s.activities.length}개 모았고, 마을의 장소 ${restoredPlaces(s).length}곳에 기록을 되찾아 주었어.`,'',
   ...STAGES.map(t=>`${t.name}에서 활동 ${t.tasks.length}개 중 ${countStage(s,t.id)}개를 해 보았어.`),'','[내가 관찰한 동물의 모습]',
-  ...Object.entries(OBSERVATIONS).flatMap(([id,items])=>items.filter(o=>s.observed.includes(o.id)).map(o=>`${ANIMALS[id].name}의 ${withParticle(o.label)} 살펴봤어. ${o.text}`)),
-  '','[발견한 환경]',...DISCOVERIES.filter(d=>s.discovered.includes(d.id)).map(d=>`${ANIMALS[d.animal].name}: ${d.text}`),'','[더 살펴본 움직임]',...Object.values(DOME_ZONES).filter(d=>s.inquiry.motion[d.animal]!==undefined).map(d=>`${d.animalName} · ${MOTIONS[d.animal].part}: ${d.text}`),'','[동물 안내 카드]',...CASES.filter((_,i)=>s.records.cases[i]).map(c=>c.sentence),
+  ...Object.entries(OBSERVATIONS).flatMap(([id,items])=>items.filter(o=>s.observed.includes(o.id)).map(o=>`${ANIMALS[id].name}의 ${withParticle(o.label)} 살펴봤어. ${o.text}${TRY_NOTE[observeTry(s,o.id)]}`)),
+  ...(s.observed.length?[observeNote(s)]:[]),
+  '','[발견한 환경]',...DISCOVERIES.filter(d=>s.discovered.includes(d.id)).map(d=>`${ANIMALS[d.animal].name}: ${discoveryCaption(s,d)}`),'','[더 살펴본 움직임]',...Object.values(DOME_ZONES).filter(d=>s.inquiry.motion[d.animal]!==undefined).map(d=>`${d.animalName} · ${MOTIONS[d.animal].part}: ${d.text}`),'','[동물 안내 카드]',...CASES.filter((_,i)=>s.records.cases[i]).map(c=>c.sentence),
   '','[완성해 보관한 발명]',...completed.flatMap(d=>workLines(d,'완성품')),
   ...(drafts.length?['[아직 만들고 있는 발명]',...drafts.flatMap(d=>workLines(d,'초안'))]:[]),
   ...studioLines(s),

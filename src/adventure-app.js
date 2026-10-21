@@ -6,8 +6,8 @@ import {createStoryPlayer} from './story-player.js';
 import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
-import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem} from './expedition.js';
+import {motionView,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
 import {createVillage} from './village.js';
@@ -22,15 +22,13 @@ let s,storageOK=true;
 try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
-let studentSnapshot=null,mapWalkVersion=0,mapZoom=1.6;
+let studentSnapshot=null,mapWalkVersion=0,mapZoom=1;
 let commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-// Observation parts answered wrong at least once this session (for the first-try call-out).
-const observeMissed=new Set();
 const view=()=>({screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',mapZoom,canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
@@ -117,7 +115,19 @@ function render(){
   // Right after a restore, stay by the building until it has lit up, then head to the next place.
   if(screen==='map'&&!arrived&&flashed){const m=map,intent=mapWalkVersion,destination=selectedStage;if(typeof setTimeout==='function')setTimeout(()=>{if(map===m&&mapWalkVersion===intent&&selectedStage===destination)m.move(destination);},2400);}
   if(data)[...app.querySelectorAll('[data-action]')].find(el=>Object.entries(data).every(([k,v])=>el.dataset[k]===v))?.focus({preventScroll:true});
+  placeFeedback();
   save();
+}
+// A wrong or blocked answer shows its reason beside the marked choice at once; Mori's bubble keeps the same words as extra help.
+// With nothing to mark (an unfinished step), Mori's bubble opens by itself instead of waiting for a tap.
+function placeFeedback(){
+  const main=app.querySelector?.('#main');if(!main||!feedback||feedback.good||(screen!=='mission'&&screen!=='commission'))return;
+  const target=main.querySelector('.retry:not(.deck-chip)');
+  if(!target){main.querySelector('.guide-buddy,.commission-feedback')?.classList.add('open');return;}
+  const hidden=target.closest('[hidden]');if(hidden){const host=hidden.parentElement;host.querySelector(':scope>.panel-tabs')?.children[[...host.children].filter(c=>!c.matches('.panel-tabs')).indexOf(hidden)]?.click();}
+  const note=document.createElement('p');note.className='retry-note';note.textContent=feedback.text;
+  if(target.matches('button'))target.parentElement.after(note);else target.append(note);
+  note.scrollIntoView?.({block:'nearest'});
 }
 // The 3D viewer outlives re-renders: its canvas moves into the new host, so the camera stays where the learner left it.
 function sync3d(){
@@ -135,7 +145,7 @@ function opts3d(kind){
   if(kind==='dome'){const list=DISCOVERIES.slice(round()*3,round()*3+3);
     return {zones:[...Object.keys(HABITATS),...Object.keys(DOME_ZONES)],names:Object.fromEntries([...Object.entries(HABITATS),...Object.entries(DOME_ZONES)].map(([id,h])=>[id,h.name])),active:DOME_ZONES[activeHabitat]?activeHabitat:(list.find(d=>d.habitat===activeHabitat)||list[0]).habitat,onFail:fail3d,
       extras:Object.entries(DOME_ZONES).map(([zone,z])=>({id:zone,animal:z.animal,habitat:zone,name:z.animalName,found:looked.has(zone)})),
-      onLook(zone){if(!DOME_ZONES[zone])return;stopMotion();looked.add(zone);activeHabitat=zone;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=DOME_ZONES[zone].text;},
+      onLook(zone){if(!DOME_ZONES[zone])return;stopMotion();looked.add(zone);activeHabitat=zone;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=domeCaption(s,DOME_ZONES[zone]);},
       targets:list.map(d=>({id:d.id,animal:d.animal,habitat:d.habitat,name:ANIMALS[d.animal].name,found:s.discovered.includes(d.id)})),
       onFind(id){const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;stopMotion();activeHabitat=d.habitat;playSound(s.soundEnabled,s.discovered.includes(id)?undefined:'correct');act('discover',{dataset:{id}});document.querySelector('#announcer').textContent=`${withParticle(ANIMALS[d.animal].name)} 찾았어! 움직임을 살펴봐.`;}};}
   return {onFail:fail3d};
@@ -190,7 +200,7 @@ function selectMap(id){
 }
 function explainLocked(id){
   const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))||STAGES[id-2];
-  modal('아직 들어갈 수 없어요 · '+STAGES[id-1].name,`<div class="map-lock-guide">${mori(2)}<div><h3>먼저 ${withParticle(next.name)} 복구해 줘!</h3><p>탐구 활동과 주민의 부탁을 마치면 다음 장소가 열려.</p></div></div><div class="dialog-actions">${btn('지도 둘러보기','close-dialog','quiet')}${btn(next.name+'으로 가기','locked-next','primary',`data-id="${next.id}"`)}</div>`);
+  modal('아직 들어갈 수 없어요 · '+STAGES[id-1].name,`<div class="map-lock-guide">${mori(2)}<div><h3>먼저 ${withParticle(next.name)} 복구해 줘!</h3><p>탐구 활동과 주민의 부탁을 마치면 다음 장소가 열려.</p></div></div><div class="dialog-actions">${btn('지도 둘러보기','close-dialog','quiet')}${btn(withParticle(next.name,'으로/로')+' 가기','locked-next','primary',`data-id="${next.id}"`)}</div>`);
 }
 function setQuestOpen(open){questOpen=open;const page=document.querySelector('.map-page'),panel=document.querySelector('#quest-panel');page?.classList?.toggle('quest-open',open);if(panel)panel.inert=!open;document.querySelectorAll('[data-action="quest-toggle"]').forEach(el=>el.setAttribute('aria-expanded',String(open)));if(open){autoEnter=false;map?.pause?.();panel?.querySelector?.('button')?.focus({preventScroll:true});}else map?.resume?.();document.querySelector('.map-scene')?.scrollTo?.({left:0,top:0});}
 function enter(id,replay=false){
@@ -256,7 +266,7 @@ function stopMotion(reset=true){stopMotionFrame();motionPlayer?.pause();motionPl
 function paintMotion(){
  const host=document.querySelector('.motion-observer');if(!host)return;const id=host.dataset.motion;if(!Object.hasOwn(MOTIONS,id))return;
  const frame=motionPlayer?videoFrameAt(id,motionPhase):frameAt(motionPhase),svg=host.querySelector('.motion-model');if(svg)svg.outerHTML=motionDiagram(id,motionPhase);
- const caption=host.querySelector('.motion-caption');if(caption)caption.textContent=MOTIONS[id].frames[frame];
+ const caption=host.querySelector('.motion-caption');if(caption)caption.textContent=motionCaption(id,frame,motionOpen(s,id));
  const play=host.querySelector('[data-action="motion-play"]');if(play){play.textContent=motionPlaying?'멈춤':'재생';play.classList?.toggle('selected',motionPlaying);}
  const slow=host.querySelector('[data-action="motion-slow"]');if(slow)slow.textContent=motionSlow?'보통 속도':'느리게';
  const slider=host.querySelector('#motion-phase');if(slider)slider.value=motionPhase;
@@ -350,8 +360,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'animal-tab':focusIndex=0;if(OBSERVE_PAIRS[round()].includes(id)){s.activeAnimal=id;zoom=false;feedback=null;render();}break;
     // A wrong description sends the learner to the evidence: the specimen zooms to that part. A first-try match is called out.
     case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;const owner=Object.keys(OBSERVATIONS).find(k=>OBSERVATIONS[k].includes(o));
-      if(value&&value!=='right'){observeMissed.add(id);if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}return say(can3d()?`${withParticle(o.label)} 크게 보여 줄게. 확대한 모습과 설명을 하나씩 비교해 봐.`:`렌즈로 ${withParticle(o.label)} 크게 봐. 그림과 설명을 하나씩 비교해 봐.`,false,['observe:'+value]);}
-      const first=!s.observed.includes(id)&&!observeMissed.has(id);if(!s.observed.includes(id))s.observed.push(id);feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(first)toast('한 번에 맞혔어! 눈으로 잘 확인했네.');break;}
+      if(value&&value!=='right'){const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+withParticle(o.look||o.label)+' 다시 봐!',false,['observe:'+value]);}
+      const tries=s.observeTries??={},first=!s.observed.includes(id)&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(first)toast('한 번에 맞혔어! 눈으로 잘 확인했네.');break;}
     case 'zoom':zoom=!zoom;render();break;
     case 'scan-reset':viewer?.call('reset');break;
     case 'dome-tilt':toggleTilt(el);break;
@@ -440,12 +450,13 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
   }
   save();
 }
-let toastTimer=0;
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
 const CLICK_SOUND={sound:null,enter:null,place:null,notebook:'page',settings:'page',tool:'page'};
-function toast(text,anchor,speaker){if(typeof document.createElement!=='function')return;let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),speaker?4200:2600);}
+function toast(text,anchor,speaker){if(typeof document.createElement!=='function')return;let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');}
+// A hint stays readable until the learner taps again (no timer that hides it mid-sentence).
+document.addEventListener('pointerdown',()=>document.querySelector('#hint-toast')?.classList.remove('show'),true);
 // Mori's bubble (activity instruction) opens on tap and closes when the learner taps anywhere else.
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback');}else if(!buddy.contains(e.target))buddy.classList.remove('open');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
@@ -465,6 +476,9 @@ for(const name of ['pointerup','pointercancel'])document.addEventListener(name,e
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;const direction={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down'}[e.key];if(direction){e.preventDefault();autoEnter=false;map?.walk?.(direction);}else if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 dialog.addEventListener('close',()=>{conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}});
-if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
+if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();
+  // The on-screen keyboard shrinks the visual viewport: bring the field being typed in back to the middle once it has opened.
+  const keepField=()=>{const el=document.activeElement;if(el?.matches?.('textarea,input[type=text],input:not([type])'))setTimeout(()=>el.scrollIntoView?.({block:'center',behavior:'smooth'}),250);};
+  document.addEventListener('focusin',keepField);window.visualViewport?.addEventListener('resize',keepField);document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
 enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;dropCard(action,dataset);});
 render();

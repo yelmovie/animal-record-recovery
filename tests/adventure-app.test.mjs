@@ -120,7 +120,8 @@ test('extra dome animals open their own optional videos without changing the req
   const a=appHarness({three:true});a.run("s.adminUnlocked=true;enter(3)");const before=a.run('JSON.stringify(s)');
   a.run("opts3d('dome').onLook('dry')");assert.equal(a.run('activeHabitat'),'dry');assert.equal(a.run("looked.has('dry')"),true);
   assert.equal(a.run('JSON.stringify(s)'),before,'looking records nothing');assert.equal(a.run('claimTask(s,3,0).ok'),false);
-  assert.match(a.app.innerHTML,/낙타가 넓적한 발바닥/);assert.match(a.app.innerHTML,/data-motion="camel"/);assert.doesNotMatch(a.app.innerHTML,/data-motion="rabbit"/);
+  assert.doesNotMatch(a.app.innerHTML,/넓적한 발바닥으로/,'the body part waits for a prediction');assert.match(a.app.innerHTML,/건조한 곳에서 낙타가 움직이고 있어/);assert.match(a.app.innerHTML,/data-motion="camel"/);
+  a.run("act('motion-predict',{dataset:{id:'camel',value:'other'}})");assert.match(a.app.innerHTML,/낙타가 넓적한 발바닥/);assert.doesNotMatch(a.app.innerHTML,/data-motion="rabbit"/);
   a.run("act('habitat',{dataset:{id:'cold'}})");assert.equal(a.run('activeHabitat'),'cold');a.run("opts3d('dome').onLook('cold')");assert.match(a.app.innerHTML,/data-motion="penguin"/);assert.match(a.app.innerHTML,/추가 관찰/);
   const flat=appHarness();flat.run("s.adminUnlocked=true;enter(3);act('habitat',{dataset:{id:'cold'}})");assert.equal(flat.run('activeHabitat'),'forest','without 3D the extra zones are not selectable');
 });
@@ -225,4 +226,16 @@ test('concept clips open only when unlocked, stop the village music, and setting
  a.run("act('concept-back',{dataset:{}})");assert.match(a.dialog.innerHTML,/settings-card concept-replays" open/);
  // While a player is open the village theme is asked to stop.
  a.run("conceptPlayer={destroy(){}};syncMusic()");assert.equal(a.music.at(-1),null);a.run("conceptPlayer=null;syncMusic()");assert.equal(a.music.at(-1),'village');
+});
+
+test('a wrong observation names what to look at again and is kept as a helped answer across reload',()=>{
+ const a=appHarness({three:true});a.run("s.adminUnlocked=true;stage=1;step=2;s.step[1]=2;s.activeAnimal='rabbit';enter(1)");
+ a.run("act('observe',{dataset:{id:'rabbit-ear',value:'wrong-0'}})");
+ assert.equal(a.run('feedback.text'),'‘귀가 짧고 둥글어’는 그림과 달라. 귀의 길이를 다시 봐!');assert.deepEqual([...a.run('feedback.wrong')],['observe:wrong-0']);
+ assert.equal(a.run("s.observeTries['rabbit-ear']"),'helped');assert.equal(a.run('focusIndex'),0);
+ a.run("act('observe',{dataset:{id:'rabbit-ear',value:'right'}});act('observe',{dataset:{id:'rabbit-ear',value:'right'}})");
+ assert.equal(a.run("s.observeTries['rabbit-ear']"),'helped','tapping again never turns a helped answer into a first try');
+ a.run("act('observe',{dataset:{id:'rabbit-fur',value:'right'}})");assert.equal(a.run("s.observeTries['rabbit-fur']"),'first');
+ const saved=model.restoreExpedition(a.saved);assert.deepEqual(saved.observeTries,{'rabbit-ear':'helped','rabbit-fur':'first'});
+ assert.deepEqual(saved.observed.filter(id=>id.startsWith('rabbit')),['rabbit-ear','rabbit-fur']);
 });

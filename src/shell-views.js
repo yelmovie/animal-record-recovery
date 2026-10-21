@@ -3,8 +3,8 @@ import {studioArtwork} from './studio-views.js';
 import {storyView} from './story-player.js';
 import {commissionView,galleryView,commissionPreview,commissionThanks,ownSortSummary} from './campaign-views.js';
 import {EXPERIMENTS,comparisonReady} from './inquiry.js';
-import {STAGES,ANIMALS,CRITERIA,HABITATS,DISCOVERIES,CASES,PROBLEMS,isStageOpen,countStage,availableTools,collectedAnimals,reportDesigns,designTrials} from './expedition.js';
-import {art,animal,mori,icon,btn,artURL,villageURL,progress,esc,off,toolArt} from './presentation.js';
+import {STAGES,ANIMALS,CRITERIA,HABITATS,DISCOVERIES,CASES,PROBLEMS,isStageOpen,countStage,availableTools,collectedAnimals,reportDesigns,designTrials,discoveryCaption,observeSummary} from './expedition.js';
+import {art,animal,mori,icon,btn,artURL,villageURL,progress,esc,off,toolArt,withParticle} from './presentation.js';
 import {activityView,INSTRUCTIONS,productView} from './mission-views.js';
 import {APP_NAME,APP_VERSION,SETTINGS_TEXT} from './settings-content.js';
 import {replayList} from './concept-video.js';
@@ -39,7 +39,7 @@ function mapView(s,v){
  <div class="map-view-controls" role="group" aria-label="지도 보기 크기">${btn('한눈에 보기','map-fit','quiet',`aria-pressed="${v.mapZoom===1}"`)}${btn('−','map-zoom','quiet',`data-value="-0.1" aria-label="지도 축소"`)}<label class="sr-only" for="map-zoom">지도 배율</label><input id="map-zoom" type="range" min="100" max="200" step="10" value="${Math.round((v.mapZoom||1.6)*100)}"><output id="map-zoom-value" for="map-zoom">${Math.round((v.mapZoom||1.6)*100)}%</output>${btn('+','map-zoom','quiet',`data-value="0.1" aria-label="지도 확대"`)}</div>
  <aside class="quest-panel" id="quest-panel" aria-label="선택한 장소 정보" ${v.questOpen?'':'inert'}>${questPanel(s,v)}</aside>
  <div class="map-direction" role="group" aria-label="길 따라 걷기">${[['up','↑','위로'],['left','←','왼쪽으로'],['down','↓','아래로'],['right','→','오른쪽으로']].map(([d,g,l])=>btn(g,'map-walk','direction-'+d,`data-id="${d}" aria-label="${l} 걷기"`)).join('')}</div>
- <div class="map-next">${btn(`${next?next.name+'으로 가기':'우리 전시관 보기'} ${icon('arrow')}`,next?'map-select':'gallery','primary',next?`data-id="${next.id}"`:'')}</div>
+ <div class="map-next">${btn(`${next?withParticle(next.name,'으로/로')+' 가기':'우리 전시관 보기'} ${icon('arrow')}`,next?'map-select':'gallery','primary',next?`data-id="${next.id}"`:'')}</div>
  <p id="travel-text" class="map-status" role="status">${next?'건물을 누르면 문까지 걸어가. 모리를 누르면 길을 알려 줘.':'다섯 장소가 모두 빛나고 있어. 우리 전시관을 보러 가자!'}</p>
  </main>`;
 }
@@ -63,13 +63,14 @@ function endingView(s){return `<main id="main" tabindex="-1" class="ending"><div
 const switchRow=(action,label,on)=>btn(`<span>${icon(on?'sound':'muted')}<b>${label}</b></span><strong>${on?'켜짐':'꺼짐'}</strong>`,action,'setting-row',`role="switch" aria-label="${label}" aria-checked="${on}"`);
 const card=(title,body,cls='',open=false)=>`<details class="settings-card ${cls}" ${open?'open':''}><summary>${title}</summary>${body}</details>`;
 const paras=lines=>lines.map(t=>`<p>${t}</p>`).join('');
+const observeLine=s=>{const n=observeSummary(s);return `처음 고른 설명이 맞음 ${n.first}곳 · 다시 살펴본 뒤 맞음 ${n.helped}곳 · 이전 기록이라 모름 ${n.unknown}곳`;};
 export function settingsContent(s,{replaysOpen=false}={}){const T=SETTINGS_TEXT,done=s.adminUnlocked||restoredPlaces(s).length===5,why=off(T.lockedAfterFinish),vol=Math.round((s.musicVolume??.5)*100),sfx=Math.round((s.soundVolume??.8)*100);
  return `<div class="settings-body"><div class="settings-rows">${switchRow('music-toggle','배경 음악',s.musicOn!==false)}${switchRow('sound','효과음',s.soundEnabled)}<label class="volume-row ${s.musicOn!==false?'':'muted'}" for="music-volume"><b>배경 음악 크기</b><input type="range" id="music-volume" min="0" max="100" step="5" value="${vol}" ${s.musicOn!==false?'':'disabled'}><output for="music-volume">${vol}%</output></label><label class="volume-row ${s.soundEnabled?'':'muted'}" for="sound-volume"><b>효과음 크기</b><input type="range" id="sound-volume" min="0" max="100" step="5" value="${sfx}" ${s.soundEnabled?'':'disabled'}><output for="sound-volume">${sfx}%</output></label></div>
 <div class="settings-replays">${btn(icon('bag')+' 탐험 가방 보기 · 도구와 만난 동물','notebook','secondary wide')}${btn(icon('arrow')+' '+T.replayIntro,'story-intro','secondary wide')}${btn(T.replayOutro,'story-outro','quiet',done?'':why)}${btn(T.certificate,'ending','quiet',done?'':why)}${done?'':`<p class="settings-lock">${T.lockedAfterFinish}</p>`}</div>
 ${card(T.replayVideos,`<p class="concept-note">${T.replayVideosNote}</p>${replayList(s)}`,'concept-replays',replaysOpen)}
 ${card('앱 정보 · 배움과 보상',`<dl class="settings-about">${T.about.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl><small>${APP_NAME} v${APP_VERSION} · ${T.credit}</small>`)}
 ${card('학생용 가이드',paras(T.student))}
-${card('교사용 가이드',paras(T.teacher)+card('성취기준',`<p>${T.standardsNote}</p>${T.standards.map(([c,t])=>`<p><b>[${c}]</b> ${t}</p>`).join('')}`,'inner')+card('교사용 도구',`<p>${T.teacherTools}</p>${btn(`<span>${icon('lock')}<b>${s.adminUnlocked?'전체 단계 해금 종료':T.teacherUnlock}</b></span><strong>${s.adminUnlocked?'켜짐':'꺼짐'}</strong>`,'admin','setting-row',`role="switch" aria-label="${T.teacherUnlock}" aria-checked="${s.adminUnlocked}"`)}<p class="muted">${T.teacherUnlockNote}</p><p class="muted">${T.teacherToolsNote}</p>`,'inner'))}
+${card('교사용 가이드',paras(T.teacher)+card('학습 확인 기준',paras(T.teacherChecks)+`<p class="observe-summary"><b>이 기기의 관찰 기록</b> ${observeLine(s)}</p><p class="muted">${T.teacherChecksNote}</p>`,'inner')+card('성취기준',`<p>${T.standardsNote}</p>${T.standards.map(([c,t])=>`<p><b>[${c}]</b> ${t}</p>`).join('')}`,'inner')+card('교사용 도구',`<p>${T.teacherTools}</p>${btn(`<span>${icon('lock')}<b>${s.adminUnlocked?'전체 단계 해금 종료':T.teacherUnlock}</b></span><strong>${s.adminUnlocked?'켜짐':'꺼짐'}</strong>`,'admin','setting-row',`role="switch" aria-label="${T.teacherUnlock}" aria-checked="${s.adminUnlocked}"`)}<p class="muted">${T.teacherUnlockNote}</p><p class="muted">${T.teacherToolsNote}</p>`,'inner'))}
 ${card('기록 저장 · 공용 기기 안내',paras(T.storage))}
 ${card('이미지·소리·저작권 고지',paras(T.notices)+card('자료 출처 모아 보기',`<p>${T.sourcesNote}</p>${T.sources.map(([g,items])=>`<h4>${g}</h4><ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>`).join('')}`,'inner')+`<p class="copyright">${T.copyright}</p><p>${T.ownWorks}</p><p>${T.externalWorks}</p><p>${T.contentSource}</p>`)}
 </div><footer class="settings-footer">${btn(T.reset,'reset-confirm','quiet')}${btn('닫기','close-dialog','primary')}</footer>`;}
@@ -77,7 +78,7 @@ export function notebookContent(s){return `<div class="bag-summary">${icon('star
 export function toolContent(s,id){let content='';
   if(id===1)content=`<p>관찰 렌즈로 몸의 특징을 다시 확인해 봐.</p><div class="collection-grid">${Object.entries(ANIMALS).map(([key,a])=>`<article>${animal(key)}<b>${a.name}</b><p>${a.fact}</p></article>`).join('')}</div>`;
   if(id===2)content=`<p>숲과 들 · 연못과 물가 · 바다와 갯벌, 남은 발견을 찾아가 보자!</p><ul class="tool-list">${DISCOVERIES.map(d=>`<li>${icon(s.discovered.includes(d.id)?'check':'search')}<b>${HABITATS[d.habitat].name}</b><span>${s.discovered.includes(d.id)?ANIMALS[d.animal].name+' 발견!':'아직 발견할 동물이 있어'}</span></li>`).join('')}</ul>`;
-  if(id===3)content=`<p>모리가 네가 직접 발견한 사는 곳을 적어 뒀어.</p><ul class="tool-list">${DISCOVERIES.filter(d=>s.discovered.includes(d.id)).map(d=>`<li>${animal(d.animal)}<span><b>${HABITATS[d.habitat].name}</b>${d.text}</span></li>`).join('')||'<li>환경 탐사에서 직접 만난 기록이 여기에 모여.</li>'}</ul>`;
+  if(id===3)content=`<p>모리가 네가 직접 발견한 사는 곳을 적어 뒀어.</p><ul class="tool-list">${DISCOVERIES.filter(d=>s.discovered.includes(d.id)).map(d=>`<li>${animal(d.animal)}<span><b>${HABITATS[d.habitat].name}</b>${discoveryCaption(s,d)}</span></li>`).join('')||'<li>환경 탐사에서 직접 만난 기록이 여기에 모여.</li>'}</ul>`;
   if(id===4)content=`<p>그림에서 찾은 특징을 발명품의 기능과 비교해 보자.</p><div class="scanner-records">${CASES.map((c,i)=>`<article>${animal(c.animal)}<div><h3>${ANIMALS[c.animal].name}</h3><p>${c.clues.filter(k=>(s.records.cases[i]||s.cases[i]).grounds.includes(k.id)).map(k=>k.text).join(' · ')}</p><p>${c.sentence}</p></div></article>`).join('')}<div class="tool-hint"><b>특징 → 물건에 만들 부분</b><p>물갈퀴 → 물을 미는 넓은 면</p><p>등딱지 → 머리를 감싸는 덮개</p><p>촘촘한 털 → 공기를 머금는 겹</p></div></div>`;
   // Same records as the museum, certificate and PNG: the saved artwork plus the archived practice inventions.
   if(id===5)content=`<p>${s.studioRecord?'동물의 특징을 빌려 연습한 발명과, 네가 상상해 그린 발명이야.':'동물의 특징을 빌려 만든 발명이야.'}</p><div class="badge-works">${s.studioRecord?`<article>${studioArtwork(s.studioRecord)}<div><small>내가 상상한 발명</small><b>${esc(s.studioRecord.title)}</b><p>${esc(s.studioRecord.purpose)}</p></div></article>`:''}${reportDesigns(s).map(d=>`<article>${productView(d)}<div><small>연습한 발명</small><b>${esc(d.name)}</b><p>${PROBLEMS[d.problem]?.reason||''}</p></div></article>`).join('')}</div>`;
