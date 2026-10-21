@@ -1,35 +1,35 @@
+import {withParticle} from './korean.js';
 import {STAGES,DOME_ZONES,ANIMALS,OBSERVATIONS,DISCOVERIES,CASES,PROBLEMS,FEATURES,STRUCTURES,PRODUCTS,countStage,reportDesigns,designTrials,revisions} from './expedition.js';
 import {EXPERIMENTS,MOTIONS,REFLECTIONS,experimentResult} from './inquiry.js';
 import {restoredPlaces,campaignReport} from './campaign.js';
 
 function workLines(d,status){
- const c=EXPERIMENTS[d.problem],tests=designTrials(d);
- return [`[${status}] ${d.name||PROBLEMS[d.problem]?.product||'이름 없는 초안'}`,
-  `문제: ${PROBLEMS[d.problem]?.name||'선택 전'}`,
-  `동물 특징: ${FEATURES.find(x=>x[0]===d.feature)?.[1]||'선택 전'}`,
-  `구조: ${STRUCTURES.find(x=>x[0]===d.structure)?.[1]||'선택 전'}`,
-  `부품 위치: ${PRODUCTS[d.problem]?.spots.find(x=>x[0]===d.spot)?.[1]||'배치 전'}`,
-  `시험 ${tests.length}회 · 수정이 필요했던 시험 ${revisions(d)}회 · 설계선 ${d.strokes.length}개`,
-  ...tests.map((t,i)=>`설계 시험 ${i+1}: ${STRUCTURES.find(x=>x[0]===t.structure)?.[1]||'부품 없음'} / ${PRODUCTS[t.problem]?.spots.find(x=>x[0]===t.spot)?.[1]||'배치 전'} → ${t.passed?'특징·구조·위치 연결됨':'조건을 다시 확인하고 수정 필요'}`),
-  `비교 시험 조건: ${c?.condition||'선택 전'}`,
-  ...d.experiment.trials.filter(t=>t.problem===d.problem).map((t,i)=>`비교 시험 ${i+1}: ${c.levels[t.level-1]} · 예상: ${c.predictions.find(x=>x[0]===t.prediction)?.[1]||''} · 모형 결과: ${experimentResult(d.problem,t.level)}`),
-  `예상과 비교: ${REFLECTIONS.find(([value])=>value===d.experiment.reflection)?.[1]||'아직 정리하지 않음'}`,
-  `알게 된 점: ${d.experiment.note||'작성 전'}`,
-  `발명 이유: ${d.explanation==='match'?c?.reason||'':'아직 설명하지 않음'}`,
-  `친구 의견(선택): ${d.experiment.peer||'입력하지 않음 — 협력 활동의 증거로 판정하지 않음'}`,''];
+ const c=EXPERIMENTS[d.problem],tests=designTrials(d),feature=FEATURES.find(x=>x[0]===d.feature)?.[1],part=STRUCTURES.find(x=>x[0]===d.structure)?.[1],spot=PRODUCTS[d.problem]?.spots.find(x=>x[0]===d.spot)?.[1];
+ return [`[${status}] ${d.name||'아직 이름을 짓지 않은 발명'}`,
+  `내가 해결하고 싶은 문제는 “${PROBLEMS[d.problem]?.name||'아직 고르지 않았어'}”야.`,
+  feature?`나는 동물의 “${feature}” 특징에서 아이디어를 얻었어.`:'어떤 동물의 특징을 빌릴지 더 생각하고 있어.',
+  part&&spot?`“${part}” 부품을 ${spot}에 붙여 봤어.`:'어떤 부품을 어디에 붙일지 더 생각하고 있어.',
+  ...(tests.length?[`잘 작동하는지 ${tests.length}번 시험했어.`,...(revisions(d)?[`처음에는 잘 맞지 않는 부분이 있어서 ${revisions(d)}번 다시 살펴봤어.`]:[])]:['아직 시험해 보지는 않았어.']),
+  ...tests.map((t,i)=>`${i+1}번째 설계 시험: ${STRUCTURES.find(x=>x[0]===t.structure)?.[1]||'부품을 아직 고르지 않았어'} / ${PRODUCTS[t.problem]?.spots.find(x=>x[0]===t.spot)?.[1]||'자리를 아직 고르지 않았어'}. ${t.passed?'이 특징과 부품을 함께 쓸 수 있었어.':'어떤 부분을 고치면 좋을지 다시 생각했어.'}`),
+  ...(d.experiment.trials.some(t=>t.problem===d.problem)?[({swim:'공평하게 비교하려고 길이와 재료, 미는 빠르기는 그대로 두고 폭만 바꿨어.',protect:'같은 재료와 두께로 만들고, 덮개가 머리를 감싸는 곳만 바꿨어.',warm:'같은 재료와 같은 온도에서, 공기를 머금는 겹의 수만 바꿨어.'})[d.problem]]:[]),
+  ...d.experiment.trials.filter(t=>t.problem===d.problem).map((t,i)=>`${i+1}번째 모양 비교: ${c.levels[t.level-1]}. 나는 “${c.predictions.find(x=>x[0]===t.prediction)?.[1]||''}”라고 예상했어. 설명 그림에서는 ${experimentResult(d.problem,t.level)}을 볼 수 있었어.`),
+  ...(d.experiment.reflection?[`결과를 보고 든 생각: ${REFLECTIONS.find(([value])=>value===d.experiment.reflection)?.[1]||''}`]:[]),
+  ...(d.experiment.note?[`내가 알게 된 점: ${d.experiment.note}`]:[]),
+  ...(d.explanation==='match'?[`이 특징을 빌린 까닭: ${c.reason}`]:[]),
+  ...(d.experiment.peer?[`친구와 나눈 이야기: ${d.experiment.peer}`]:[]),''];
 }
 export function researchLines(s){
  const completed=reportDesigns(s),drafts=[0,1].flatMap(i=>{
   const bank={...s.designDrafts?.[i]};if(s.designs[i].problem)bank[s.designs[i].problem]=s.designs[i];
   return Object.values(bank).filter(d=>!completed.some(c=>JSON.stringify(c)===JSON.stringify(d)));
  });
- return ['동물기록 복구작전 — 하루와 모리의 탐험 기록','이 기기 브라우저에 저장된 기록의 사본',`탐험 별 ${s.activities.length}/${STAGES.flatMap(t=>t.tasks).length} · 복구 장소 ${restoredPlaces(s).length}/5`,'',
-  ...STAGES.map(t=>`${t.name}: ${countStage(s,t.id)}/${t.tasks.length} 활동`),'','[관찰한 특징]',
-  ...Object.entries(OBSERVATIONS).flatMap(([id,items])=>items.filter(o=>s.observed.includes(o.id)).map(o=>`${ANIMALS[id].name} · ${o.label}: ${o.text}`)),
+ return ['나의 동물 탐험 연구 기록','하루, 모리와 함께 동물의 특징을 찾아보았어.',`지금까지 탐험 별을 ${s.activities.length}개 모았고, 마을의 장소 ${restoredPlaces(s).length}곳에 기록을 되찾아 주었어.`,'',
+  ...STAGES.map(t=>`${t.name}에서 활동 ${t.tasks.length}개 중 ${countStage(s,t.id)}개를 해 보았어.`),'','[내가 관찰한 동물의 모습]',
+  ...Object.entries(OBSERVATIONS).flatMap(([id,items])=>items.filter(o=>s.observed.includes(o.id)).map(o=>`${ANIMALS[id].name}의 ${withParticle(o.label)} 살펴봤어. ${o.text}`)),
   '','[발견한 환경]',...DISCOVERIES.filter(d=>s.discovered.includes(d.id)).map(d=>`${ANIMALS[d.animal].name}: ${d.text}`),'','[더 살펴본 움직임]',...Object.values(DOME_ZONES).filter(d=>s.inquiry.motion[d.animal]!==undefined).map(d=>`${d.animalName} · ${MOTIONS[d.animal].part}: ${d.text}`),'','[동물 안내 카드]',...CASES.filter((_,i)=>s.records.cases[i]).map(c=>c.sentence),
   '','[완성해 보관한 발명]',...completed.flatMap(d=>workLines(d,'완성품')),
-  ...(drafts.length?['[작업 중인 초안 — 완성품 인증에 포함되지 않음]',...drafts.flatMap(d=>workLines(d,'초안'))]:[]),
+  ...(drafts.length?['[아직 만들고 있는 발명]',...drafts.flatMap(d=>workLines(d,'초안'))]:[]),
   ...studioLines(s),
-  '[내 전시관 의뢰 기록]',...campaignReport(s),'[친구와 나눠 볼 이야기]','어디에서 발명 아이디어를 얻었어?','누구를 도와주고 싶어?','친구의 발명과 내 발명은 어떻게 다를까?'];
+  '[내가 도와준 일]',...campaignReport(s,true),'[친구와 나눠 볼 이야기]','어디에서 발명 아이디어를 얻었어?','누구를 도와주고 싶어?','친구의 발명과 내 발명은 어떻게 다를까?'];
 }
-function studioLines(s){const record=s.studioRecord||s.studio;if(!record)return [];return ['[내가 상상하고 그린 발명 — '+(s.studioRecord?'완성 작품':'작업 중')+']',`작품 이름: ${record.title||'아직 이름을 짓지 않았어'}`,`누구를 위한 발명: ${record.audience||'작성 전'}`,`쓰는 방법: ${record.purpose||'작성 전'}`,`아이디어를 얻은 곳: ${record.inspiration||'작성 전'}`,`내가 그린 선: ${record.strokes?.length||0}개`,'작품 그림과 소개는 공방 또는 전시관의 ‘작품 카드 저장’에서 PNG 파일로 저장할 수 있어.',''];}
+function studioLines(s){const record=s.studioRecord||s.studio;if(!record)return [];return ['[내가 상상하고 그린 발명 — '+(s.studioRecord?'완성했어':'만들고 있어')+']',`내 작품 이름은 “${record.title||'아직 생각 중'}”야.`,...(record.audience?[`이 발명으로 도와주고 싶은 사람: ${record.audience}`]:[]),...(record.purpose?[`이렇게 쓰면 돼: ${record.purpose}`]:[]),...(record.inspiration?[`아이디어는 여기서 얻었어: ${record.inspiration}`]:[]),s.studioRecord?'내가 그린 그림과 소개 글을 전시했어.':'그림과 소개 글을 더 다듬고 있어.',''];}

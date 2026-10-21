@@ -9,7 +9,7 @@ import {normalizeExperiment,addExperimentTrial,comparisonReady,EXPERIMENTS,frame
 import {motionView,motionDiagram,experimentDiagram,anatomy} from './inquiry-views.js';
 import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
-import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter} from './shell-views.js';
+import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
@@ -22,7 +22,7 @@ let s,storageOK=true;
 try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
-let studentSnapshot=null,mapWalkVersion=0;
+let studentSnapshot=null,mapWalkVersion=0,mapZoom=1.6;
 let commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,exportURL=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
@@ -31,7 +31,7 @@ const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
 // Observation parts answered wrong at least once this session (for the first-try call-out).
 const observeMissed=new Set();
-const view=()=>({screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',mapZoom,canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
@@ -43,17 +43,25 @@ function save(){
 }
 // Keep long sets of records on named, persistent pages instead of stacking them.
 const panelPages=new Map();
+const panelKey=(selector,group=0)=>[screen,stage,step,commissionIndex,selector,group].join(':');
 function setupPanels(){
   const tabs=(selector,childSelector,labels)=>{
     app.querySelectorAll(selector).forEach((host,group)=>{
       const panels=[...host.querySelectorAll(childSelector)];if(panels.length<2)return;
-      const key=[screen,stage,step,commissionIndex,selector,group].join(':');
+      const key=panelKey(selector,group);
       let current=Math.min(panelPages.get(key)||0,panels.length-1);
       const nav=document.createElement('nav');nav.className='panel-tabs';nav.setAttribute('aria-label','내용 선택');
       panels.forEach((panel,i)=>{const button=document.createElement('button');button.type='button';button.className='btn quiet';const num=document.createElement('span');num.className='tab-num';num.textContent=String(i+1);button.append(num,labels?.[i]||panel.querySelector('h2,h3,b,legend')?.textContent||`${i+1}번 기록`);button.addEventListener('click',()=>{current=i;panelPages.set(key,i);update();});nav.append(button);});
       // Steps read as a sequence: finished panels get a check, and once the open one is finished the next tab says "다음".
-      const finished=p=>p.classList.contains('done')||(()=>{const groups=[...p.querySelectorAll('.choices,.problem-options,.design-choices')];return groups.length>0&&groups.every(g=>g.querySelector('.selected'));})();
-      function update(){const done=panels.map(finished),next=done[current]?done.findIndex((d,i)=>i>current&&!d):-1;panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));nav.children[i].classList.toggle('tab-done',done[i]);nav.children[i].classList.toggle('tab-next',i===next);});}
+      const finished=p=>p.classList.contains('done')||(()=>{const groups=[...p.querySelectorAll('.choices,.problem-options,.design-choices')],name=p.querySelector('#invention-name');return groups.length>0&&groups.every(g=>g.querySelector('.selected'))&&(!name||!!name.value.trim());})();
+      function update(){const done=panels.map(finished),next=done[current]?done.findIndex((d,i)=>i>current&&!d):-1;panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));nav.children[i].classList.toggle('tab-done',done[i]);nav.children[i].classList.toggle('tab-next',i===next);});
+        if(selector==='.case-activity'&&stage===4&&step%2===0){
+          const a=s.cases[round()],next=investigationNext(a,current===1),button=app.querySelector?.('.mission-footer > .primary'),hint=app.querySelector?.('.investigation-next');
+          if(button){button.innerHTML=esc(next.label)+' '+icon('arrow');button.dataset.action=next.action;button.classList.toggle('action-cue',!!a.candidate&&!next.why);if(next.why){button.setAttribute('aria-disabled','true');button.dataset.why=next.why;}else{button.removeAttribute('aria-disabled');delete button.dataset.why;}}
+          if(hint)hint.innerHTML=icon('arrow')+' '+esc(next.hint);
+        }
+      }
+      if(selector==='.design-options')host.addEventListener('input',update);
       host.prepend(nav);host.classList.add('paged-panel');update();
     });
   };
@@ -61,7 +69,7 @@ function setupPanels(){
   tabs('.final-inventions',':scope > article');
   tabs('.case-activity',':scope > section',step%2?['사는 곳','움직이는 방법']:['동물 선택','근거 연결']);
   tabs('.verify-steps',':scope > .verify-step',['검증','이유 찾기','기준 고치기']);
-  tabs('.design-options',':scope > section',['문제 고르기','특징 관찰','부품 붙이기']);
+  tabs('.design-options',':scope > section',['문제·이름 정하기','특징 관찰','부품 붙이기']);
   // A compact viewport switches the two complete lab panels without losing any inputs.
   if(typeof matchMedia==='function'&&matchMedia('(max-height: 600px), (max-width: 700px)').matches){
     tabs('.experiment-lab',':scope > section',['모양 시험','결과 비교']);
@@ -100,7 +108,7 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,zoom:mapZoom,completed:restoredPlaces(s),flash:flashed,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.
@@ -189,7 +197,7 @@ function enter(id,replay=false){
   if(!isStageOpen(s,id)){if(screen==='map'&&STAGES[id-1])explainLocked(id);return;}playSound(s.soundEnabled,'door');stage=id;step=s.step[id]??Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
   if(replay)step=0;
   if(step>0&&!s.activities.includes(`${id}-${step-1}`))step=Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
-  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem){d.problem='swim';d.name=PROBLEMS.swim.product;}}go('mission');
+  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem)d.problem='swim';}go('mission');
 }
 function reviewActivities(id){
   if(!isStageOpen(s,id))return;const t=STAGES[id-1];
@@ -204,7 +212,7 @@ function reviewOpen(id,index){
 }
 function advance(){
   stopMotion();
-  const result=claimTask(s,stage,step);if(!result.ok){const m=isStageOpen(s,stage)?taskMistake(s,stage,step):null;return say(m?.text||taskHint(stage,step),false,m?.wrong);}
+  const result=claimTask(s,stage,step);if(!result.ok){const m=isStageOpen(s,stage)?taskMistake(s,stage,step):null;if(stage===4&&step%2===0&&m?.wrong?.some(k=>k.startsWith('case:')))panelPages.set(panelKey('.case-activity'),m.wrong.includes('case:candidate')?0:1);return say(m?.text||taskHint(stage,step),false,m?.wrong);}
   playSound(s.soundEnabled,true);
   if(step===STAGES[stage-1].tasks.length-1){save();render();requestCommission(stage);return;}
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
@@ -257,10 +265,15 @@ function paintMotion(){
  host.querySelectorAll('[data-action="motion-frame"]').forEach(b=>{b.classList.toggle('selected',Number(b.dataset.frame)===frame);b.setAttribute?.('aria-pressed',String(Number(b.dataset.frame)===frame));});
 }
 function startMotionFrame(){if(typeof window.requestAnimationFrame!=='function')return;motionRAF=window.requestAnimationFrame(time=>{if(!motionPlaying||screen!=='mission'||stage!==3)return;const delta=motionTime?time-motionTime:0;motionTime=time;const old=frameAt(motionPhase);motionPhase=(motionPhase+delta/(motionSlow?100:40))%101;const slider=document.querySelector('#motion-phase');if(slider)slider.value=motionPhase;if(frameAt(motionPhase)!==old)paintMotion();startMotionFrame();});}
+function setMapZoom(value){
+ mapZoom=Math.round(Math.max(1,Math.min(2,value))*10)/10;map?.setZoom?.(mapZoom);
+ const input=document.querySelector('#map-zoom'),output=document.querySelector('#map-zoom-value'),fit=document.querySelector('[data-action="map-fit"]');
+ if(input)input.value=String(Math.round(mapZoom*100));if(output)output.textContent=Math.round(mapZoom*100)+'%';fit?.setAttribute('aria-pressed',String(mapZoom===1));
+}
 function download(){
   const lines=researchLines(s);
   const text=lines.join('\n');if(exportURL)URL.revokeObjectURL(exportURL);exportURL=URL.createObjectURL(new Blob(['\uFEFF'+text],{type:'text/plain;charset=utf-8'}));
-  modal('나의 연구 기록 저장',`<p>모은 관찰과 작품별 발명 기록을 파일로 챙겨 가자!</p><textarea class="report-text" readonly aria-label="나의 연구 기록">${esc(text)}</textarea><div class="dialog-actions">${btn('닫기','close-dialog','secondary')}<a class="btn primary" id="report-download" download="하루와-모리-탐험기록.txt">${icon('download')} TXT 파일 받기</a></div>`);document.querySelector('#report-download').href=exportURL;
+  modal('나의 연구 기록 저장',`<p>내가 관찰하고 알아낸 이야기를 읽고, 파일로 간직해 봐.</p><textarea class="report-text" readonly aria-label="나의 연구 기록">${esc(text)}</textarea><div class="dialog-actions">${btn('닫기','close-dialog','secondary')}<a class="btn primary" id="report-download" download="하루와-모리-탐험기록.txt">${icon('download')} TXT 파일 받기</a></div>`);document.querySelector('#report-download').href=exportURL;
 }
 function openCommission(id,index=0){
   if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;stage=id;commissionIndex=index;evidenceOpen=false;go('commission');
@@ -351,6 +364,13 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;
     case 'place':{if(!picked){playSound(s.soundEnabled);toast('먼저 옮길 카드를 눌러 줘.',el);break;}const {action,dataset}=dropData(picked,el.dataset);dropCard(action,dataset);return;}
     case 'case-animal':s.cases[round()].candidate=id;feedback=null;render();break;
+    case 'case-continue':{
+      if(stage!==4||step%2!==0)break;
+      const a=s.cases[round()];
+      if(a.opened.length<2){feedback={text:'왼쪽 단서 카드를 고르고 ‘이 단서 조사하기’를 눌러 줘. 서로 다른 단서 두 개 이상이 필요해.',good:false};render();document.querySelector('.clue-board .clue-card:not(.opened)')?.focus();break;}
+      panelPages.set(panelKey('.case-activity'),a.candidate?1:0);render();
+      document.querySelector(a.candidate?'.grounds-pick .choice':'.candidate-grid .candidate')?.focus();break;
+    }
     case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:''});clueIndex=0;feedback=null;render();break;
     case 'case-ground':{const a=s.cases[round()];if(!a.opened.includes(value))break;a.grounds=a.grounds.includes(value)?a.grounds.filter(g=>g!==value):[...a.grounds,value];feedback=null;render();break;}
     // Spent energy stays spent even when the answer changes (screen 08); 'case-reset' starts a fresh investigation.
@@ -388,6 +408,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       if(frame!==m.target)return say(`이 장면은 ‘${m.frames[frame]}’ 장면이야. ${m.goal}을 찾아 멈춰 봐. 이전에 남긴 기록은 그대로야.`);
       s.inquiry.motion[id]=MOTION_KEY_FRAME;s.inquiry.motionEvidence[id]={frame,phase:motionPhase,source:motionPlayer?'video':'diagram'};save();say(`찾았어! 내 예상과 관찰한 몸 부분을 비교해 봐.`,true);
     }break;
+    case 'map-fit':setMapZoom(1);break;
+    case 'map-zoom':setMapZoom(mapZoom+Number(value));break;
     case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=true;feedback=null;render();break;
     case 'lab-back':labSummary=false;render();break;
     case 'experiment-level':s.designs[round()].experiment.level=Math.max(1,Math.min(3,Number(value)||1));s.designs[round()].experiment.reflection='';render();break;
@@ -428,6 +450,7 @@ function toast(text,anchor,speaker){if(typeof document.createElement!=='function
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback');}else if(!buddy.contains(e.target))buddy.classList.remove('open');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{
+  if(e.target.id==='map-zoom'){setMapZoom(Number(e.target.value)/100);return;}
   if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);save();return;}
   if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setMusicVolume(s.musicVolume);syncMusic();save();return;}
   if(e.target.id==='experiment-note'||e.target.id==='peer-note'){s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();return;}

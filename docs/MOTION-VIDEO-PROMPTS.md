@@ -30,10 +30,37 @@ Use the reference only for this rabbit's appearance: preserve its fur color, ear
 영상 프롬프트:
 
 ```text
-Preserve the single rabbit, anatomy, fur, lighting and environment from the starting image throughout. No new animals or objects.
-[CAMERA] Locked-off camera, zero camera movement, ground-level side angle, full-body framing for the entire 5-second single shot. No pan or zoom. End on the same composition with the rabbit fully visible slightly right of center.
-[SCENE] The forest-edge path, rear tree trunks, ferns and leaf litter remain recognizable and gently softened throughout; keep the ground contact sharp and unobstructed. Only very slight distant leaf movement. 0–1 seconds: the rabbit lowers its body and bends its long hind legs. 1–2.5 seconds: in clear gentle slow motion, the hind feet stay in contact with the ground while the hind legs extend and push backward against the ground, propelling the body forward and slightly upward. 2.5–4 seconds: one short natural hop to the right and a soft forefoot-then-hindfoot landing. 4–5 seconds: settle quietly with all feet visible. Exactly one hop. Keep the push-off moment clear around 2 seconds. No sliding feet, hovering, extra legs, cuts, text or audio.
+Preserve the reference rabbit's brown-gray fur, upright ears, proportions and identity. Exactly one rabbit with natural rabbit anatomy throughout. Preserve the starting image's lighting and environment.
+
+[CAMERA]
+One continuous 5-second shot, 16:9. Locked camera, no movement.
+Strict 90-degree side view, camera at the rabbit's hind-knee height.
+Full body including ear tips, hind feet and ground contact must remain in frame.
+The rabbit occupies about half the image width, starting left of center, facing right.
+Keep the near hind leg clearly visible against the background.
+End with the entire rabbit slightly right of center, resting after landing.
+
+[SCENE]
+A realistic rabbit on a flat, unobstructed mossy forest path.
+Soft daylight; the brown rabbit separates clearly from the softly blurred green background.
+No plants or stones in front of its legs.
+Show ONE short forward hop in clear educational slow motion.
+The main subject is the long hind leg folding, extending and pushing against the ground.
+
+0.0–1.5 seconds: The rabbit lowers its rump and deeply folds its long hind legs beneath its body. The near hind foot rests firmly on the ground. Make the folded thigh, lower leg and long hind foot readable in silhouette. At 1.2 seconds, clearly show the crouched preparation pose.
+
+1.5–3.15 seconds: Show the complete push-off slowly and continuously. The hind feet press against the ground while the hips, knees and ankles extend in sequence. The rump rises and moves forward as the hind legs straighten backward. At 2.8 seconds, show the near hind leg almost fully extended, with the hind toes still visibly pushing against the ground. The forefeet have lifted; propulsion visibly comes from the hind legs.
+
+3.15–3.9 seconds: The hind toes leave the ground and the body travels forward in a low natural arc. At 3.5 seconds, clearly show forward flight with the extended hind legs trailing behind.
+
+3.9–4.6 seconds: The forefeet touch down first, then the hind legs swing forward beneath the body and land naturally.
+
+4.6–5.0 seconds: Hold a calm resting pose. Keep the full rabbit and its feet visible.
+
+Avoid: walking or running cycles, tiny shuffling steps, jumping in place, feet sliding on the ground, floating without a push-off, legs hidden by the body or vegetation, extra or fused limbs, camera rotation, zoom, cuts, heavy motion blur, text, arrows, watermarks or audio.
 ```
+
+2026-10-21 수정: 뒷다리 접기 → 펴며 지면 밀기 → 도약을 분리했다. 앱의 기존 장면 선택 시점(1.2 / 2.8 / 3.5초)과 땅 밀기 구간(2.45–3.1초)에 맞춘 5초 영상이다. 생성 후 실제 프레임이 지시한 동작과 일치하는지 확인한다.
 
 ## 2. 개구리
 

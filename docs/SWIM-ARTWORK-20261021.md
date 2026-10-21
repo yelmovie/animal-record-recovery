@@ -1,0 +1,14 @@
+# 수영 오리발 그림 교체 · 2026-10-21
+
+생성 방식: 기본 image_gen 도구. 투명 배경을 유지한 WebP로 변환해 프로젝트에 저장했다.
+
+- `assets/adventure/swim-shoe-v2.webp`: 발끝에 넓고 납작한 면을 붙인 경우에만 완성 신발로 전환한다. 다른 부품이나 자리는 기존 모형으로 보여 준다.
+- `assets/adventure/swim-blade-v2.webp`: 위에서 본 오리발. 비교 그림의 높이는 116으로 고정하고 가로 폭만 70 / 100 / 130으로 바꾼다. 같은 이미지와 길이를 쓰므로 세 단계에서 길이가 변하지 않는다.
+
+## 신발 생성 프롬프트
+
+Use case: precise-object-edit / product-mockup. Create ONE photorealistic cutout product asset for a children's biomimicry invention game, based on the teal neoprene ankle boot in the TOP LEFT of the reference atlas. The reference atlas is a style and boot identity reference only: output just one completed boot, no grid. Transform it into a believable swimming fin shoe: keep the same teal neoprene ankle boot, olive rubber sole, stitching and open ankle, heel at left and toe pointing right. Add a broad ochre orange flexible rubber swimming-fin blade physically integrated with and extending forward from the entire toe/forefoot sole. The blade must look securely molded into the shoe, with a broad rounded fan shape and subtle longitudinal ribs; no gap, no separate floating accessory, no nozzle or connector stem. Camera slightly above the outer side at a three-quarter angle so the fin's width and attachment to the toe are clearly visible. Real neoprene texture, rubber edges, realistic product photography, soft neutral studio light. All product visible, centered, fit in a landscape 4:3 composition with small safe margins. Transparent background, no scene, no text, no labels, no people, no extra products. Match the reference boot's teal and olive colors and orange fin material. Final completed design should unmistakably be one wearable boot with an attached swimming fin.
+
+## 폭 비교용 생성 프롬프트
+
+Use case: scientific-educational product-mockup. Generate ONE isolated swimming-fin BLADE cutout, using the ochre orange flexible rubber fin blade in the reference image for matching material, color and realism. Output the fin blade alone, no boot. Exact orthographic top-down view, long axis vertical, narrow attachment end at the TOP, broad rounded fan-shaped tip at the BOTTOM. Symmetric left and right, clearly broad blade that gradually fans out with 4 subtle straight longitudinal structural ribs. Product photography with realistic matte orange rubber grain, gentle consistent studio light, crisp silhouette. The entire fin fits comfortably within a square canvas with safe margins. Transparent background, no text, labels, arrows, ruler, shadows outside the fin, water, scene or other objects. It will be used in a fair-comparison elementary science diagram: code will adjust its horizontal width only while keeping vertical length exactly constant. Avoid perspective foreshortening, angled or horizontal orientation, and any nozzle-like stem.

@@ -2,6 +2,12 @@ import {COMMISSIONS} from './campaign.js';
 // Main map: a top-down pixel village (screen 01). Same contract as createTrailMap: {move(id), destroy()}.
 // Layout (map size, building rects and doors, walk nodes/edges, sprite cells) comes from assets/village/village.json.
 const BASE=new URL('../assets/village/',import.meta.url).href;
+export const villageZoom=value=>Math.max(1,Math.min(2,Number(value)||1));
+// 100% fits the complete map between the corner controls and walking buttons.
+export function villageCamera(sw,sh,W,H,zoom,x,y){
+ const fit=Math.max(1,Math.min(sw-24,Math.max(1,sh-168)*W/H)),width=fit*villageZoom(zoom),height=width*H/W;
+ return {width,height,left:width<=sw?(sw-width)/2:Math.min(0,Math.max(sw-width,sw/2-x/W*width)),top:height<=sh-152?76+(sh-152-height)/2:Math.min(0,Math.max(sh-height,sh*.55-y/H*height))};
+}
 let loading=null;
 export function villageReady(){
   if(!loading)loading=typeof fetch==='function'?fetch(BASE+'village.json').then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{if(!j)loading=null;return j;}):Promise.resolve(null);
@@ -31,7 +37,7 @@ export const buildingAt=(buildings,[x,y])=>Object.entries(buildings).find(([id,{
 // The village json may give nodes as an array or an object; edges as index or id pairs.
 function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
 
-export function createVillage(root,{position='entrance',completed=[],flash=null,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
+export function createVillage(root,{position='entrance',completed=[],flash=null,zoom=1.6,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
   let active=true,built=false,paused=false,frame=null,api={move(){},destroy(){active=false;}};
   const pending=[];
   const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -51,7 +57,6 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       root.querySelectorAll('.map-marker[data-id]').forEach(m=>{const b=j.buildings[m.dataset.id];if(!b?.rect)return;const base=b.rect[1]+b.rect[3]*.3;m.style.setProperty('--x',(b.rect[0]+b.rect[2]/2)/W*100);m.style.setProperty('--y',base/H*100);
         if(!fh||!m.offsetHeight)return;const top=m.getBoundingClientRect().top-root.getBoundingClientRect().top,lift=(safe+6-top)/fh*H;
         if(lift>0)m.style.setProperty('--y',Math.min(base+lift,b.rect[1]+b.rect[3]*.7)/H*100);});};
-    placeMarkers();
     const sprite=(key,cls,label,talk=false)=>{const c=j.characters?.[key];if(!c)return null;const el=doc.createElement(talk?'button':'div');el.className='village-sprite '+cls;if(talk){el.type='button';const cue=doc.createElement('span');cue.className='talk-cue';cue.setAttribute('aria-hidden','true');el.append(cue);}else el.setAttribute('role','img');el.setAttribute('aria-label',label);
       const rows=Object.keys(c.rows),cols=Math.max(...Object.values(c.rows));Object.assign(el.style,{width:pct(c.cell[0],W),aspectRatio:`${c.cell[0]}/${c.cell[1]}`,backgroundImage:`url('${BASE+c.src}')`,backgroundSize:`${cols*100}% ${rows.length*100}%`});
       // The anchor (feet point inside the cell) sits on the sprite's map position.
@@ -62,19 +67,20 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       sp.el.style.left=pct(sp.x,W);sp.el.style.top=pct(sp.y,H);sp.el.style.zIndex=String(10+Math.round(sp.y));sp.el.classList.toggle('flip',sp.dir==='right'&&!sp.c.rows.right&&sp.c.flipRight!==false);};
     // Camera: the world frame is larger than its scene; slide it so Haru stays near the middle, clamped at the map edges.
     const scene=root.parentElement;let cam=null;
-    const follow=()=>{if(!haru||!scene)return;const sw=scene.clientWidth,sh=scene.clientHeight,fw=root.offsetWidth,fh=root.offsetHeight;if(!fw||!fh)return;
-      const x=Math.min(0,Math.max(sw-fw,sw/2-haru.x/W*fw)),y=Math.min(0,Math.max(sh-fh,sh*.55-haru.y/H*fh));
+    const follow=()=>{if(!haru||!scene)return;const {width,left:x,top:y}=villageCamera(scene.clientWidth,scene.clientHeight,W,H,zoom,haru.x,haru.y);
+      root.style.setProperty('--village-width',width+'px');
       if(cam&&Math.abs(cam[0]-x)<.5&&Math.abs(cam[1]-y)<.5)return;cam=[x,y];root.style.transform=`translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;clearControls();};
     // While the camera slides, a marker that would sit under a corner icon or floating button fades out until it is clear.
     let controls=null;
-    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
+    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next,.map-view-controls')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
       root.querySelectorAll('.map-marker[data-id]').forEach(m=>{const q=m.getBoundingClientRect();m.classList.toggle('under-control',q.width>0&&controls.some(r=>q.left<r.right&&q.right>r.left&&q.top<r.bottom&&q.bottom>r.top));});};
-    const onResize=()=>{cam=null;controls=null;placeMarkers();follow();};doc.defaultView?.addEventListener('resize',onResize);
+    const onResize=()=>{cam=null;controls=null;follow();placeMarkers();clearControls();};doc.defaultView?.addEventListener('resize',onResize);
+    api.setZoom=value=>{zoom=villageZoom(value);onResize();};
     const doorOf=id=>j.buildings[id]?.door;
     const start=doorOf(position)||j.spawn||j.entrance||graph.nodes[Object.keys(graph.nodes)[0]]||[W/2,H*.85];
     const haru=sprite('haru','haru','하루 탐험가'),mori=sprite('mori','mori-follow','모리에게 길 물어보기',true);
     const trail=[];
-    if(haru){haru.x=start[0];haru.y=start[1];draw(haru);follow();}
+    if(haru){haru.x=start[0];haru.y=start[1];draw(haru);follow();placeMarkers();clearControls();}
     if(mori){mori.x=start[0]-40;mori.y=start[1]+6;draw(mori);mori.el.dataset.npc='mori';}
     // NPCs face the player by their building; tapping one opens a speech bubble.
     for(const npc of NPCS){const b=j.buildings[npc.near],d=b?.npc||(b?.door&&[b.door[0]+70,b.door[1]+10]);if(!d)continue;
@@ -120,5 +126,5 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     api.destroy=()=>{active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('resize',onResize);root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
     built=true;
   }
-  return {move(id){built?api.move(id):pending.push(id);},walk(direction){api.walk?.(direction);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
+  return {move(id){built?api.move(id):pending.push(id);},setZoom(value){zoom=villageZoom(value);api.setZoom?.(zoom);},walk(direction){api.walk?.(direction);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
 }

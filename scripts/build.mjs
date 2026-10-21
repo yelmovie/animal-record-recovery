@@ -11,7 +11,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['dome-ground','nature-materials','workshop-atlas','terrain-atlas','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk'].map(f=>`assets/adventure/${f}.webp`),
   ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page'].map(f=>`assets/sfx/${f}.mp3`),
-  'assets/music/village-theme.mp3',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
+  'assets/music/village-theme.mp3','assets/adventure/swim-shoe-v2.webp','assets/adventure/swim-blade-v2.webp',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
@@ -30,7 +30,7 @@ for(const item of previous){
 const manifest=[];
 // Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
 files.push('src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
-files.push('src/stage-map.css','src/layout.css','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
+files.push('src/stage-map.css','src/layout.css','src/compact.css','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
   await mkdir(path.dirname(dest),{recursive:true});

@@ -147,7 +147,7 @@ export function selectDesignProblem(s,round,problem){
   const current=s.designs[round];if(current.problem===problem)return false;
   s.designDrafts??=[{},{}];s.designArchive??=[{},{}];
   if(current.problem)s.designDrafts[round][current.problem]=normalizeDesign(current);
-  s.designs[round]=normalizeDesign(s.designDrafts[round][problem]||{problem,name:PROBLEMS[problem].product});
+  s.designs[round]=normalizeDesign(s.designDrafts[round][problem]||{problem});
   return true;
 }
 const validDesignRecord=d=>Boolean(testDesign(d).passed&&d.explanation==='match'&&designTrials(d).some(t=>t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&t.passed));

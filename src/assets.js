@@ -15,6 +15,7 @@ export const ASSETS = Object.freeze({
 });
 export const assetURL = id => new URL(`../assets/generated/${ASSETS[id].src}.webp`, import.meta.url).href;
 export const sheetURL = sheet => new URL(`../assets/${sheet}.webp`, import.meta.url).href;
+export const swimArtwork = kind => new URL(`../assets/adventure/swim-${kind}-v2.webp`, import.meta.url).href;
 // A single transparent atlas keeps workshop objects consistent and shares one download.
 export function workshopSprite(kind,x=0,y=0,width=100,height=100){
   const cells={swim:0,protect:1,warm:2,wide:3,dome:4,layer:5,web:6,shell:7,fur:8},cell=cells[kind];

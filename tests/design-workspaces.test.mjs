@@ -8,7 +8,7 @@ import {withParticle} from '../src/korean.js';
 
 function finish(s,round,problem,note){
  selectDesignProblem(s,round,problem);const d=s.designs[round],p=PROBLEMS[problem];
- Object.assign(d,{feature:p.feature,structure:p.structure,spot:PRODUCTS[problem].spot,explanation:'match'});
+ Object.assign(d,{name:d.name||p.product,feature:p.feature,structure:p.structure,spot:PRODUCTS[problem].spot,explanation:'match'});
  Object.assign(d.experiment,{sourceSeen:true,prediction:'same'});
  for(const level of [1,3]){d.experiment.level=level;recordTrial(s,round);addExperimentTrial(d);}
  Object.assign(d.experiment,{reflection:'changed',note});
@@ -47,9 +47,9 @@ test('draft choices, misplaced parts, failure, prediction, lines and notes survi
 
 test('TXT joins animal, part and fact; completed and draft works have isolated histories and optional peer evidence',()=>{
  const s=campaignFixture(['swim','warm']);finish(s,1,'protect','안전모만의 성찰');selectDesignProblem(s,1,'warm');s.designs[1].experiment.note='외투 초안의 새 생각';
- const text=researchLines(s).join('\n');assert.match(text,/개구리 · 눈:/);assert.match(text,/게 ·/);assert.match(text,/완성품.*안전모|완성품.*보호/);assert.match(text,/안전모만의 성찰/);assert.match(text,/초안 — 완성품 인증에 포함되지 않음/);assert.match(text,/협력 활동의 증거로 판정하지 않음/);
- const helmet=text.slice(text.indexOf('[완성품] 안전모'),text.indexOf('[작업 중인 초안'));
- assert.match(helmet,/시험 2회/);assert.ok(!helmet.includes('외투 초안의 새 생각'));
+ const text=researchLines(s).join('\n');assert.match(text,/개구리의 눈을 살펴봤어/);assert.match(text,/게의/);assert.match(text,/완성품.*안전모|완성품.*보호/);assert.match(text,/안전모만의 성찰/);assert.match(text,/아직 만들고 있는 발명/);assert.doesNotMatch(text,/인증|증거로 판정|설계선/);
+ const helmet=text.slice(text.indexOf('[완성품] 안전모'),text.indexOf('[아직 만들고 있는 발명'));
+ assert.match(helmet,/2번 시험했어/);assert.ok(!helmet.includes('외투 초안의 새 생각'));
 });
 
 test('Korean particles fit the final syllable in animal, feature and cover labels',()=>{
@@ -61,11 +61,11 @@ test('export preserves the chosen reflection and the result of each individual s
  const s=campaignFixture(['swim','warm']);
  for(const [key,label]of [['changed','예상과 같았어'],['surprised','예상과 달랐어'],['same','다시 살펴보고 싶어']]){
   s.designs[0].experiment.reflection=key;
-  assert.ok(researchLines(s).includes('예상과 비교: '+label));
+  assert.ok(researchLines(s).includes('결과를 보고 든 생각: '+label));
  }
  const text=researchLines(s).join('\n');
- assert.match(text,/비교 시험 1: 좁게[^\n]+모형 결과: 물을 적게 미는 모습/);
- assert.match(text,/비교 시험 2: 넓게[^\n]+모형 결과: 물을 많이 미는 모습/);
- assert.match(text,/비교 시험 1: 한 겹[^\n]+모형 결과: 열이 많이 빠져나가는 모습/);
- assert.match(text,/비교 시험 2: 세 겹[^\n]+모형 결과: 열이 적게 빠져나가는 모습/);
+ assert.match(text,/1번째 모양 비교: 좁게[^\n]+물을 적게 미는 모습/);
+ assert.match(text,/2번째 모양 비교: 넓게[^\n]+물을 많이 미는 모습/);
+ assert.match(text,/1번째 모양 비교: 한 겹[^\n]+열이 많이 빠져나가는 모습/);
+ assert.match(text,/2번째 모양 비교: 세 겹[^\n]+열이 적게 빠져나가는 모습/);
 });

@@ -1,6 +1,7 @@
 // Museum commissions extend the core investigations. Awarded evidence is
 // snapshotted separately from editable drafts, so replay cannot rewrite an exhibit.
 import {studioReady} from './studio.js';
+import {withParticle} from './korean.js';
 const row=(key,label,options,answer,hint,animal='')=>({key,label,options,answer,hint,animal});
 const yesNo=[['yes','O'],['no','X']];
 export const COMMISSIONS=[
@@ -131,7 +132,7 @@ export function normalizeCampaign(raw,s){
  }
  return out;
 }
-export function campaignReport(s){return COMMISSIONS.flatMap(c=>[0,1,2].filter(i=>campaignDone(s,c.id,i)).flatMap(i=>{if(c.id===5&&i<2&&s.studioRecord)return i===0?['우리 생활 발명품 전시 · '+s.studioRecord.title,'자유 발명 그림과 작품 소개를 전시했어.','']:[];const d=s.campaign.records[missionKey(c.id,i)],m=commission(c.id,i);return [`${c.title} · ${m.title}`, ...(m.kind==='own-sort'?[`내 기준: ${SORT_KEYS[d.answers.criterion]}`]:m.kind==='sort'?[m.criterion]:[]), ...missionRows(s,c.id,i,d).map(r=>`${r.label}: ${r.options.find(o=>o[0]===d.answers[r.key])?.[1]||''}`),...(m.kind==='retest'?[`시험: ${d.trials.map(t=>RETEST[t.problem].levels[t.level-1]).join(' / ')}`,`선택 이유: ${RETEST[designProblem(s,i)]?.reason||''}`]:[]),''];}));}
+export function campaignReport(s,narrative=false){return COMMISSIONS.flatMap(c=>[0,1,2].filter(i=>campaignDone(s,c.id,i)).flatMap(i=>{if(c.id===5&&i<2&&s.studioRecord)return i===0?(narrative?[`나는 “${s.studioRecord.title}”라는 발명을 상상했어.`,'직접 그린 그림과 소개 글을 전시했어.','']:['우리 생활 발명품 전시 · '+s.studioRecord.title,'자유 발명 그림과 작품 소개를 전시했어.','']):[];const d=s.campaign.records[missionKey(c.id,i)],m=commission(c.id,i);if(narrative)return [`${c.npc}의 부탁을 도와주었어. ${m.title} 활동을 했어.`,...missionRows(s,c.id,i,d).map(r=>`${r.label}에 대해 ${withParticle('“'+(r.options.find(o=>o[0]===d.answers[r.key])?.[1]||'')+'”','이라고/라고')} 기록했어.`),...(m.kind==='own-sort'?[`나는 “${SORT_KEYS[d.answers.criterion]}” 기준으로 동물을 나눠 봤어.`]:[]),...(m.kind==='retest'?[`모양을 ${withParticle(d.trials.map(t=>RETEST[t.problem].levels[t.level-1]).join(', '),'으로/로')} 바꾸며 비교했어.`]:[]),''];return [`${c.title} · ${m.title}`, ...(m.kind==='own-sort'?[`내 기준: ${SORT_KEYS[d.answers.criterion]}`]:m.kind==='sort'?[m.criterion]:[]), ...missionRows(s,c.id,i,d).map(r=>`${r.label}: ${r.options.find(o=>o[0]===d.answers[r.key])?.[1]||''}`),...(m.kind==='retest'?[`시험: ${d.trials.map(t=>RETEST[t.problem].levels[t.level-1]).join(' / ')}`,`선택 이유: ${RETEST[designProblem(s,i)]?.reason||''}`]:[]),''];}));}
 // A request is answered one card at a time: one animal's chain, one lost record, or a whole sort/test.
 export const requestParts=(stage,index)=>index===2?[2]:stage===5?[1,0]:[0,1];
 export function requestCards(s,stage,parts){return parts.flatMap(i=>{const m=commission(stage,i),rows=missionRows(s,stage,i);
