@@ -48,7 +48,8 @@ test('observation tries survive reload; older observations stay unknown instead 
  assert.deepEqual(observeSummary(restoreExpedition(JSON.stringify(legacy))),{first:0,helped:0,unknown:3});
  const report=researchLines(back).join('\n');
  assert.match(report,/머리 위쪽에 튀어나온 눈이 있어\. \(처음 고른 설명이 맞았어\)/);
- assert.match(report,/다시 살펴보고 고쳐 골랐어/);assert.match(report,/이전 기록이라 처음 맞혔는지 알 수 없어/);
+ assert.match(report,/다시 살펴보고 고쳐 골랐어/);assert.match(report,/이전 기록이라 알 수 없는 곳 1곳/);
+ assert.match(report,/자루 끝에 달린 눈이 있어\.$/m,'an unknown try adds no guessed label to its line');
 });
 
 test('teacher guide gives the three talk-based checks and does not call the free invention a score',()=>{

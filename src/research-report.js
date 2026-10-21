@@ -3,13 +3,13 @@ import {STAGES,DOME_ZONES,ANIMALS,OBSERVATIONS,DISCOVERIES,CASES,PROBLEMS,FEATUR
 import {EXPERIMENTS,MOTIONS,REFLECTIONS,experimentResult} from './inquiry.js';
 import {restoredPlaces,campaignReport} from './campaign.js';
 
-// How each observation was recorded; saves from before this was kept say so instead of guessing.
-const TRY_NOTE={first:' (처음 고른 설명이 맞았어)',helped:' (다시 살펴보고 고쳐 골랐어)',unknown:' (이전 기록이라 처음 맞혔는지 알 수 없어)'};
+// How each observation was recorded; saves from before this was kept are only counted in the summary line, never guessed.
+const TRY_NOTE={first:' (처음 고른 설명이 맞았어)',helped:' (다시 살펴보고 고쳐 골랐어)',unknown:''};
 const observeNote=s=>{const n=observeSummary(s);return `처음 고른 설명이 맞은 곳 ${n.first}곳, 다시 살펴보고 고친 곳 ${n.helped}곳${n.unknown?`, 이전 기록이라 알 수 없는 곳 ${n.unknown}곳`:''}이야.`;};
 function workLines(d,status){
  const c=EXPERIMENTS[d.problem],tests=designTrials(d),feature=FEATURES.find(x=>x[0]===d.feature)?.[1],part=STRUCTURES.find(x=>x[0]===d.structure)?.[1],spot=PRODUCTS[d.problem]?.spots.find(x=>x[0]===d.spot)?.[1];
  return [`[${status}] ${d.name||'아직 이름을 짓지 않은 발명'}`,
-  `내가 해결하고 싶은 문제는 “${PROBLEMS[d.problem]?.name||'아직 고르지 않았어'}”야.`,
+  `내가 해결하고 싶은 문제는 ${withParticle(`“${PROBLEMS[d.problem]?.name||'아직 고르지 않았어'}”`,'이야/야')}.`,
   feature?`나는 동물의 “${feature}” 특징에서 아이디어를 얻었어.`:'어떤 동물의 특징을 빌릴지 더 생각하고 있어.',
   part&&spot?`“${part}” 부품을 ${spot}에 붙여 봤어.`:'어떤 부품을 어디에 붙일지 더 생각하고 있어.',
   ...(tests.length?[`잘 작동하는지 ${tests.length}번 시험했어.`,...(revisions(d)?[`처음에는 잘 맞지 않는 부분이 있어서 ${revisions(d)}번 다시 살펴봤어.`]:[])]:['아직 시험해 보지는 않았어.']),
@@ -36,4 +36,4 @@ export function researchLines(s){
   ...studioLines(s),
   '[내가 도와준 일]',...campaignReport(s,true),'[친구와 나눠 볼 이야기]','어디에서 발명 아이디어를 얻었어?','누구를 도와주고 싶어?','친구의 발명과 내 발명은 어떻게 다를까?'];
 }
-function studioLines(s){const record=s.studioRecord||s.studio;if(!record)return [];return ['[내가 상상하고 그린 발명 — '+(s.studioRecord?'완성했어':'만들고 있어')+']',`내 작품 이름은 “${record.title||'아직 생각 중'}”야.`,...(record.audience?[`이 발명으로 도와주고 싶은 사람: ${record.audience}`]:[]),...(record.purpose?[`이렇게 쓰면 돼: ${record.purpose}`]:[]),...(record.inspiration?[`아이디어는 여기서 얻었어: ${record.inspiration}`]:[]),s.studioRecord?'내가 그린 그림과 소개 글을 전시했어.':'그림과 소개 글을 더 다듬고 있어.',''];}
+function studioLines(s){const record=s.studioRecord||s.studio;if(!record)return [];return ['[내가 상상하고 그린 발명 — '+(s.studioRecord?'완성했어':'만들고 있어')+']',`내 작품 이름은 ${withParticle(`“${record.title||'아직 생각 중'}”`,'이야/야')}.`,...(record.audience?[`이 발명으로 도와주고 싶은 사람: ${record.audience}`]:[]),...(record.purpose?[`이렇게 쓰면 돼: ${record.purpose}`]:[]),...(record.inspiration?[`아이디어는 여기서 얻었어: ${record.inspiration}`]:[]),s.studioRecord?'내가 그린 그림과 소개 글을 전시했어.':'그림과 소개 글을 더 다듬고 있어.',''];}
