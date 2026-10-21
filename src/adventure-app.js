@@ -126,7 +126,7 @@ function placeFeedback(){
   if(!target){main.querySelector('.guide-buddy,.commission-feedback')?.classList.add('open');return;}
   const hidden=target.closest('[hidden]');if(hidden){const host=hidden.parentElement;host.querySelector(':scope>.panel-tabs')?.children[[...host.children].filter(c=>!c.matches('.panel-tabs')).indexOf(hidden)]?.click();}
   const note=document.createElement('p');note.className='retry-note';note.textContent=feedback.text;
-  if(target.matches('button'))target.parentElement.after(note);else target.append(note);
+  if(target.matches('textarea,input,select'))target.after(note);else if(target.matches('button'))target.parentElement.after(note);else target.append(note);
   note.scrollIntoView?.({block:'nearest'});
 }
 // The 3D viewer outlives re-renders: its canvas moves into the new host, so the camera stays where the learner left it.

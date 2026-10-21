@@ -239,3 +239,54 @@ test('a wrong observation names what to look at again and is kept as a helped an
  const saved=model.restoreExpedition(a.saved);assert.deepEqual(saved.observeTries,{'rabbit-ear':'helped','rabbit-fur':'first'});
  assert.deepEqual(saved.observed.filter(id=>id.startsWith('rabbit')),['rabbit-ear','rabbit-fur']);
 });
+
+test('a fresh learner reaches the certificate with the actions the buttons send; repeated taps never add stars or records',()=>{
+ const a=appHarness(),act=(action,dataset={})=>a.run(`act(${JSON.stringify(action)},{dataset:${JSON.stringify(dataset)}})`),stars=()=>a.run('s.activities.length');
+ const tapTwice=code=>{a.run(code);a.run(code);};
+ const answerRequest=stage=>{for(let pass=0;pass<3;pass++)for(const i of [0,1]){const rows=JSON.parse(a.run(`JSON.stringify(missionRows(s,${stage},${i},campaignDraft(s,${stage},${i})).map(r=>[r.key,r.answer]))`));
+   for(const [key,value] of rows)act('commission-choice',{key,value:String(value),commissionIndex:String(i)});}
+  if(stage===2)act('commission-choice',{key:'criterion',value:'six',commissionIndex:'1'});};
+ const finishRequest=stage=>{act('commission-accept',{id:String(stage)});assert.equal(a.run('screen'),'commission');answerRequest(stage);answerRequest(stage);tapTwice('submitCommission()');
+  assert.equal(a.run('screen'),'reward',`request ${stage}`);assert.ok(a.run(`restoredPlaces(s).includes(${stage})`));};
+ a.run('s.introSeen=true;enter(1)');
+ for(const r of [0,1]){
+  for(const id of model.OBSERVE_PAIRS[r])for(const [i,o] of model.OBSERVATIONS[id].entries()){act('animal-tab',{id});act('inspect',{value:String(i)});act('observe',{id:o.id,value:'right'});}
+  tapTwice('advance()');
+  for(const q of model.COMPARES[r]){const ref=`${q.key}-${q.answer}`;act('pick',{ref,value:ref});act('place',{dropAction:'compare',key:q.key});}
+  a.run('advance()');
+ }
+ assert.equal(stars(),4);assert.equal(a.dialog.open,true,'the first letter arrives');finishRequest(1);
+ a.run('enter(2)');for(const id of model.SORT_ANIMALS){act('pick',{ref:'sort-'+id,id});act('place',{dropAction:'sort',zone:model.ANIMALS[id].wings?'yes':'no'});}
+ tapTwice('advance()');act('verify-run');act('verify-cause',{value:'opinion'});act('verify-fix',{value:'wings'});act('verify-recheck');a.run('advance()');
+ assert.equal(stars(),6);finishRequest(2);
+ a.run('enter(3)');
+ for(const r of [0,1]){
+  for(const d of model.DISCOVERIES.slice(r*3,r*3+3)){act('habitat',{id:d.habitat});act('discover',{id:d.id});
+   assert.doesNotMatch(a.app.innerHTML,new RegExp(d.text.slice(0,12)),'the answer sentence waits for the prediction');
+   act('motion-predict',{id:d.animal,value:'part'});assert.match(a.app.innerHTML,new RegExp(d.text.slice(0,12)));
+   a.run(`motionPlayer={ready:true,pause(){},seek(){},destroy(){}};motionPhase=motionFramePhase('${d.animal}',MOTIONS.${d.animal}.target)`);act('motion-capture',{id:d.animal});}
+  tapTwice('advance()');
+  const id=r?'crab':'frog';for(const [i,key] of ['environment','body','life'].entries()){const v=model.LINKS[id].answer[i];act('pick',{ref:'link-'+v,value:v,kind:key});act('place',{dropAction:'link',key,id});}
+  a.run('advance()');
+ }
+ assert.equal(stars(),10);finishRequest(3);
+ a.run('enter(4)');
+ for(const r of [0,1]){const c=model.CASES[r],g=r?['place','move']:['place','cover'];
+  for(const id of g){const v=String(c.clues.findIndex(k=>k.id===id));act('clue-open',{value:v});act('clue-spend',{value:v});}
+  act('case-animal',{id:c.animal});for(const v of g)act('case-ground',{value:v});tapTwice('advance()');
+  act('case-habitat',{value:c.habitat});act('case-reason',{value:c.reason});a.run('advance()');
+ }
+ assert.equal(stars(),14);finishRequest(4);
+ a.run('enter(5)');act('design-problem',{value:'swim'});act('design-choice',{key:'feature',value:'web'});act('source-seen');
+ act('pick',{ref:'part-wide',value:'wide'});act('place',{dropAction:'design-part',key:'toe',anchorX:'262',anchorY:'196'});a.input('물살 쌩쌩 오리발');tapTwice('advance()');
+ for(const level of ['1','3']){act('experiment-level',{value:level});act('prediction',{value:'more'});act('experiment-run');}
+ act('lab-summary');act('reflection',{value:'changed'});a.inputControl({id:'experiment-note',value:'폭을 넓게 바꾸니 물을 더 많이 밀었어.'});act('explain',{value:'match'});a.run('advance()');
+ assert.equal(stars(),16);
+ a.run('s.studio={...s.studio,title:"날개 우산",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:400,y:300}]}]};advance()');
+ a.run('s.studio.audience="비 오는 날 걷는 친구";s.studio.purpose="날개처럼 넓게 덮어 줘";s.studio.inspiration="오리 날개";advance()');
+ assert.equal(stars(),18);assert.equal(a.dialog.open,true);finishRequest(5);
+ const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,18);assert.equal(Object.keys(saved.campaign.records).length,10);
+ assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
+ act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.match(a.app.innerHTML,/18개 탐험 별/);
+ act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/처음 고른 설명이 맞은 곳 12곳/);
+});

@@ -877,3 +877,5 @@
 #app .creative-studio .studio-introduction > .studio-field { min-height: 100px !important; }
 /* Portrait requests: the last answer row can scroll clear of Mori in the bottom-left corner. */
 @media (orientation: portrait) and (max-width: 900px) { #app .commission-page .request-part { padding-bottom: 72px; } }
+/* Results summary pieces that a failed check points at. */
+#app .reflection-options.retry, #app .invention-explanation.retry, #app .lab-results.retry, #app textarea.retry { border-radius: 12px; box-shadow: 0 0 0 3px #e9a46a; }
