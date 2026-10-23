@@ -1,0 +1,346 @@
+[
+  {
+    "s": 3,
+    "p": 0,
+    "requested": [
+      1024,
+      768
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 568,
+          "s": 568
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 568,
+          "s": 568
+        }
+      ],
+      "size": [
+        1024,
+        768
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 2,
+    "requested": [
+      1024,
+      768
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 568,
+          "s": 568
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 568,
+          "s": 568
+        }
+      ],
+      "size": [
+        1024,
+        768
+      ]
+    }
+  },
+  {
+    "s": 5,
+    "p": 1,
+    "requested": [
+      1024,
+      768
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 572,
+          "s": 572
+        },
+        {
+          "c": "lab-controls",
+          "h": 544,
+          "s": 544
+        },
+        {
+          "c": "lab-results",
+          "h": 544,
+          "s": 544
+        }
+      ],
+      "size": [
+        1024,
+        768
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 0,
+    "requested": [
+      1180,
+      757
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 561,
+          "s": 561
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 561,
+          "s": 561
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 2,
+    "requested": [
+      1180,
+      757
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 561,
+          "s": 561
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 561,
+          "s": 561
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ]
+    }
+  },
+  {
+    "s": 5,
+    "p": 1,
+    "requested": [
+      1180,
+      757
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 561,
+          "s": 561
+        },
+        {
+          "c": "lab-controls",
+          "h": 533,
+          "s": 533
+        },
+        {
+          "c": "lab-results",
+          "h": 533,
+          "s": 533
+        }
+      ],
+      "size": [
+        1180,
+        757
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 0,
+    "requested": [
+      1280,
+      800
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 604,
+          "s": 604
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 604,
+          "s": 604
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 2,
+    "requested": [
+      1280,
+      800
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 604,
+          "s": 604
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 604,
+          "s": 604
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ]
+    }
+  },
+  {
+    "s": 5,
+    "p": 1,
+    "requested": [
+      1280,
+      800
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 604,
+          "s": 604
+        },
+        {
+          "c": "lab-controls",
+          "h": 576,
+          "s": 576
+        },
+        {
+          "c": "lab-results",
+          "h": 576,
+          "s": 576
+        }
+      ],
+      "size": [
+        1280,
+        800
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 0,
+    "requested": [
+      1366,
+      768
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 572,
+          "s": 572
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 572,
+          "s": 572
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ]
+    }
+  },
+  {
+    "s": 3,
+    "p": 2,
+    "requested": [
+      1366,
+      768
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 572,
+          "s": 572
+        },
+        {
+          "c": "field-notes habitat-notes",
+          "h": 572,
+          "s": 572
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ]
+    }
+  },
+  {
+    "s": 5,
+    "p": 1,
+    "requested": [
+      1366,
+      768
+    ],
+    "data": {
+      "outside": [],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 572,
+          "s": 572
+        },
+        {
+          "c": "lab-controls",
+          "h": 544,
+          "s": 544
+        },
+        {
+          "c": "lab-results",
+          "h": 544,
+          "s": 544
+        }
+      ],
+      "size": [
+        1366,
+        768
+      ]
+    }
+  }
+]

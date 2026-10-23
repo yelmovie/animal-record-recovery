@@ -4,6 +4,14 @@ import {normalizeExperiment,normalizeInquiry,addExperimentTrial,experimentReady,
 import {freshExpedition,restoreExpedition,taskReady,recordTrial,PROBLEMS,DISCOVERIES} from '../src/expedition.js';
 import {activityView} from '../src/mission-views.js';
 import {experimentDiagram,motionDiagram} from '../src/inquiry-views.js';
+
+test('a freely chosen photo and its real timestamp survive reload, while unsafe or oversized images are dropped',()=>{
+ const s=freshExpedition(),photo={dataURL:'data:image/webp;base64,AAAA',width:480,height:270,time:.5,duration:5};
+ s.inquiry.motion.rabbit=1;s.inquiry.motionEvidence.rabbit={frame:0,phase:10,source:'video'};s.inquiry.motionPhotos.rabbit=photo;
+ const restored=restoreExpedition(JSON.stringify(s));assert.deepEqual(restored.inquiry.motionPhotos.rabbit,photo);assert.equal(restored.inquiry.motionEvidence.rabbit.frame,0);
+ const bad=normalizeInquiry({motion:{rabbit:1},motionPhotos:{rabbit:{...photo,dataURL:'data:image/svg+xml;base64,AAAA'},frog:{...photo,dataURL:'data:image/webp;base64,'+'A'.repeat(64001)},duck:{...photo,time:6},unknown:photo}});
+ assert.deepEqual(bad.motionPhotos,{});assert.equal(bad.motion.rabbit,1,'losing a corrupt thumbnail must not erase earlier progress');
+});
 function design(){return {...freshExpedition().designs[0],problem:'swim',feature:'web',structure:'wide',spot:'toe',name:'물살 오리발'};}
 function finish(d){d.experiment.sourceSeen=true;d.experiment.prediction='less';addExperimentTrial(d);d.experiment.level=3;addExperimentTrial(d);d.experiment.reflection='surprised';d.experiment.note='넓게 바꾸니 물을 더 많이 밀었어.';}
 test('prediction and source observation are required before an experiment records a trial',()=>{const d=design();assert.equal(addExperimentTrial(d),false);d.experiment.sourceSeen=true;assert.equal(addExperimentTrial(d),false);d.experiment.prediction='same';assert.ok(addExperimentTrial(d));});
@@ -19,7 +27,7 @@ test('invention completion needs observation, compared settings, reflection, not
 test('all three learning models support comparison with no numeric physical performance claims',()=>{for(const problem of Object.keys(EXPERIMENTS)){const d={...design(),problem,feature:PROBLEMS[problem].feature,structure:PROBLEMS[problem].structure};finish(d);assert.equal(experimentReady(d),true);assert.notEqual(experimentDiagram(problem,1),experimentDiagram(problem,3));assert.doesNotMatch(experimentDiagram(problem,1,false),/class="(?:water-push|heat-flow)"/);}});
 test('motion timeline is bounded and every animal has a different explanation drawing',()=>{assert.equal(frameAt(-20),0);assert.equal(frameAt(1000),2);assert.equal(frameAt(NaN),0);const ids=['frog','duck','rabbit','marine','crab','butterfly'];assert.equal(new Set(ids.map(id=>motionDiagram(id,34))).size,6);});
 
-test('unknown clues, extra energy and unopened grounds are dropped during restore before rendering',()=>{const s=freshExpedition();s.cases[0].opened=['ears','place','cover','foot','move'];s.cases[0].grounds=['move','place'];s.cases[1].opened=['web','fur'];const restored=restoreExpedition(JSON.stringify(s));assert.deepEqual(restored.cases[0].opened,['place','cover','foot']);assert.deepEqual(restored.cases[0].grounds,['place']);assert.deepEqual(restored.cases[1].opened,['fur']);assert.doesNotThrow(()=>activityView(restored,{stage:4,step:0,clueIndex:0}));assert.doesNotThrow(()=>activityView(restored,{stage:4,step:2,clueIndex:0}));});
+test('unknown clues and unopened grounds are dropped, while all discovered features survive restore',()=>{const s=freshExpedition();s.cases[0].opened=['ears','place','cover','foot','move'];s.cases[0].grounds=['move','place'];s.cases[1].opened=['web','fur'];const restored=restoreExpedition(JSON.stringify(s));assert.deepEqual(restored.cases[0].opened,['place','cover','foot','move']);assert.deepEqual(restored.cases[0].grounds,['move','place']);assert.deepEqual(restored.cases[1].opened,['fur']);assert.doesNotThrow(()=>activityView(restored,{stage:4,step:0,clueIndex:0}));assert.doesNotThrow(()=>activityView(restored,{stage:4,step:2,clueIndex:0}));});
 
 test('optional camel and penguin motion records restore but do not replace required animals',()=>{
  const s=freshExpedition();s.inquiry.motion.camel=1;s.inquiry.motion.penguin=1;

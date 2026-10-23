@@ -810,25 +810,6 @@
   #app .mission-page .experiment-lab .prediction-options .choice { min-height: 48px; }
 }
 
-/* Map zoom changes the shared map frame, so art, markers and walking stay aligned. */
-#app .map-page .world-frame { width: var(--village-width, calc(max(100cqw, 100cqh*16/9)*1.35)); }
-#app .map-view-controls {
-  position: absolute; z-index: 4000; left: 50%; top: 12px; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 5px; padding: 5px;
-  border: 2px solid #8a7854; border-radius: 12px; background: #fffbedf5;
-  box-shadow: 0 3px 0 #493b2540;
-}
-#app .map-view-controls .btn { min-height: 44px; padding: 5px 12px; font-size: 18px; white-space: nowrap; }
-#app .map-view-controls [data-action="map-zoom"] { width: 44px; min-width: 44px; padding: 0; font-size: 24px; }
-#app .map-view-controls [aria-pressed="true"] { background: #e5edcf; border-color: #86a25f; }
-#app .map-view-controls input { width: clamp(90px, 12vw, 160px); min-height: 44px; margin: 0; accent-color: #315e48; }
-#app .map-view-controls output { min-width: 46px; font-size: 16px; color: #516045; text-align: center; }
-@media (max-width: 700px) {
-  #app .map-view-controls { top: 68px; }
-  #app .map-view-controls .btn { font-size: 16px; padding-inline: 8px; }
-  #app .map-view-controls input { width: 90px; }
-}
-
 /* Wrong or blocked answer: the reason sits right under the marked choice (text + "!" mark, not color alone). */
 #app .retry-note { text-wrap: pretty; display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; padding: 8px 12px; border: 2px solid #c9772c; border-left-width: 6px; border-radius: 10px; background: #fff4e3; color: #4a2f12; font-size: clamp(17px, 2vh, 20px); line-height: 1.4; text-align: left; word-break: keep-all; overflow-wrap: break-word; }
 #app .retry-note::before { content: '!'; flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #c9772c; color: #fff; font: 700 16px/1 var(--font-display, sans-serif); }
@@ -886,3 +867,105 @@
 /* Before a prediction the scene caption is empty but keeps its line, so the controls do not jump when it fills in. */
 #app .motion-observer .motion-caption:empty { visibility: hidden; }
 #app .motion-observer .motion-caption:empty::before { content: '\00a0'; }
+
+/* Resident requests read as correspondence, with an unboxed, scrollable body. */
+dialog:has(.resident-letter) .resident-letter {
+  font-family: var(--font-display);
+  aspect-ratio: auto;
+  max-height: calc(100dvh - 24px);
+  padding: 10% 17% 18%;
+  gap: clamp(8px, 1dvh, 12px);
+}
+dialog:has(.resident-letter) .resident-letter > :is(.letter-sender, h3, .letter-greeting, .letter-signature) { flex: none; }
+dialog:has(.resident-letter) .resident-letter .letter-sender small { font-size: clamp(16px, 4cqw, 22px); }
+dialog:has(.resident-letter) .resident-letter .letter-sender b { font-size: clamp(22px, 6.2cqw, 34px); }
+dialog:has(.resident-letter) .resident-letter > h3 { font-size: clamp(24px, 7.2cqw, 40px); }
+dialog:has(.resident-letter) .resident-letter > .letter-greeting { font-size: clamp(20px, 6.2cqw, 30px); }
+dialog:has(.resident-letter) .resident-letter .letter-signature {
+  margin: 8px 0 0;
+  font-size: clamp(20px, 5.8cqw, 28px);
+}
+dialog:has(.resident-letter) .letter-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+dialog:has(.resident-letter) .letter-body > p {
+  margin: 0 0 .65em;
+  font-size: clamp(20px, 6.2cqw, 30px);
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+dialog:has(.resident-letter) .letter-body > p:last-child { margin-bottom: 0; }
+dialog:has(.resident-letter) .letter-body:focus-visible { outline: 2px solid var(--ui-brass); outline-offset: 4px; }
+
+/* Center activity panels between the floating HUD and footer. Equal safe edges
+   keep their midpoint on the viewport; safe alignment preserves scroll access
+   when a panel is taller than the available space. */
+#app { --activity-edge: max(calc(var(--hud-top) + 4px), 84px); }
+#app .mission-page :is(.compare-board, .verify-lab),
+#app .mission-page .activity-workspace > .experiment-lab {
+  padding-block: var(--activity-edge);
+  align-content: safe center;
+}
+#app .mission-page .verify-lab { align-items: safe center; }
+#app .mission-page .compare-board {
+  grid-template-rows: auto auto !important;
+  align-content: safe center !important;
+}
+#app .mission-page .experiment-lab > :is(.lab-controls, .lab-results) {
+  align-self: safe center;
+}
+#app .mission-page .experiment-lab.paged-panel { justify-content: safe center; }
+
+#app .mission-page .activity-workspace > .field-notes {
+  align-self: safe center;
+  margin-block: 0;
+  max-height: calc(var(--app-height, 100dvh) - 2 * var(--activity-edge));
+  padding-bottom: 14px !important;
+}
+#app .mission-page .activity-workspace:has(> .investigation) {
+  padding-block: var(--activity-edge) !important;
+  align-items: safe center;
+}
+#app .mission-page .activity-workspace > .design-options.paged-panel,
+#app .mission-page .activity-workspace > .case-photo-panel:not(.evidence-panel) ~ .case-activity.paged-panel {
+  top: var(--activity-edge) !important;
+  bottom: var(--activity-edge);
+  height: fit-content;
+  max-height: calc(var(--app-height, 100dvh) - 2 * var(--activity-edge)) !important;
+  margin-block: auto;
+  overflow-y: auto;
+}
+#app .mission-page .studio-drawing .studio-notebook { align-self: safe center; }
+
+#app main.commission-page,
+#app main.museum-page,
+#app main.ending { padding-block: var(--activity-edge) !important; }
+#app .commission-page .commission-layout { align-items: safe center; }
+#app .commission-page .client-card { align-self: safe center; }
+#app .museum-page .museum-exhibits {
+  justify-content: safe center;
+  overflow-y: auto;
+}
+#app main.ending { align-content: safe center; }
+
+/* Stacked portrait layouts keep a single scroll direction and the space already
+   reserved for the scene above the panel and the navigation below it. */
+@media (orientation: portrait) and (max-width: 900px) {
+  #app .mission-page .activity-workspace > .habitat-notes {
+    align-self: stretch;
+    margin: 0 12px 84px;
+    max-height: none;
+  }
+  #app .mission-page .activity-workspace > .design-options.paged-panel {
+    top: auto !important;
+    bottom: auto;
+    height: auto;
+    max-height: none !important;
+    margin: 0 12px 84px;
+  }
+}

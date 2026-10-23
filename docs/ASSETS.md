@@ -87,3 +87,9 @@ WebP 변환: `scripts/prepare-assets.mjs`에 설치된 sharp 모듈 경로를 �
 - `assets/videos/story/{intro,outro}.mp4`: Kling 3.0 8컷을 각 24초로 편집. `STORY-VIDEO-JOBS-20261018.json`, `STORY-VIDEO-ENCODE-20261018.json`에 요청·변환 기록. 시작 이미지 8장은 `assets/story/`.
 - `assets/videos/motion/{camel,penguin}.{mp4,webp}`: Kling 3.0으로 생성한 5초 1080p·무음 영상과 포스터. `EXTRA-MOTION-VIDEO-JOBS-20261018.json`에 완료 작업과 프롬프트 기록. 기본 6종과 함께 선택 관찰에 연결.
 - 위쪽 초기 PNG 보관 설명은 당시 이력이다. 이후 사용자 요청에 따른 정리 내역은 `ASSET-CLEANUP-20261018.json`, 현재 배포 포함 여부는 `dist/build-manifest.json`이 기준이다.
+
+## 전시관 재구성 (2026-10-22)
+
+- `assets/scenes/museum-gallery-v2.webp`: OpenAI 기본 image_gen으로 생성한 자연사 전시관 실내. 녹색 벽·호두나무·황동·유리 전시대 조명과 석양이 있는 배경. 기존 표본과 글자는 HTML/CSS로 별도 표시한다.
+- 정확한 프롬프트·원본 경로·WebP 변환 정보: `MUSEUM-GALLERY-ASSET-20261022.json`. sharp WebP quality 86. 전시관 입장 시에만 배경을 읽는다.
+- 3장 관찰 사진은 생성 이미지가 아니다. 학습자가 재생한 기존 동물 영상의 실제 프레임을 canvas로 저장한다. 동물마다 한 장, 최대 480×360 및 64,000자, 브라우저 로컬 저장. 다시 찍기는 해당 사진만 교체한다.

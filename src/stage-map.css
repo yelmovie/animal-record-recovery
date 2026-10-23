@@ -64,3 +64,26 @@
 /* village.js marks a marker that the sliding camera has pushed under a corner icon or floating button. */
 #app .map-page .map-marker{transition:filter .18s,opacity .18s}
 #app .map-page .map-marker.under-control{opacity:0;pointer-events:none}
+
+/* The completed village is a final reward: fit the whole artwork inside the view.
+   Walking retains its original camera; no zoom controls are added to exploration. */
+#app .map-page.map-overview .map-scene{inset:86px 12px 94px;background:radial-gradient(ellipse,#436c4b,#203e32 75%)}
+#app .map-page.map-overview .world-frame{width:min(100cqw,100cqh * 16/9);height:auto;aspect-ratio:16/9;border-radius:16px;box-shadow:0 12px 40px #0d281c88;overflow:visible}
+.map-complete-banner{position:absolute;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 310px);text-align:center;z-index:3900;color:#fff8dc;text-shadow:0 2px 5px #112c20;word-break:keep-all}
+.map-complete-banner>span{font-size:clamp(16px,1vw,20px);color:#c7ebc2}
+.map-complete-banner h1{margin:3px 0 0;font-size:clamp(24px,2vw,34px);line-height:1.2}
+.map-complete-actions{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:12px;right:12px;z-index:4000;display:flex;justify-content:center;gap:12px}
+#app .map-complete-actions>.btn{min-height:56px;padding:12px 24px;font-size:clamp(20px,1.5vw,28px);word-break:keep-all}
+.map-page .map-next{display:grid;justify-items:end;gap:10px}
+#app .map-next>[data-action="map-overview"]{min-height:48px;padding:8px 16px;font-size:18px;background:#fff9e9}
+#app .map-overview .map-marker{min-height:48px;min-width:96px;max-width:20cqw;transform:translate(-50%,-10%)}
+#app .map-overview .map-marker>b{min-height:48px;max-width:100%;margin:0;border-radius:10px;padding:8px 10px;white-space:normal;word-break:keep-all;font-size:clamp(16px,1.1vw,22px);text-align:center;justify-content:center}
+#app .map-overview .map-marker>span,#app .map-overview .node-state,#app .map-overview .node-progress{display:none}
+#app .map-overview .village-resident,.map-overview .mori-follow .talk-cue{display:none}
+.village-core-light{position:absolute;pointer-events:none}
+.village-core-light::before{content:'';position:absolute;inset:-10%;background:radial-gradient(ellipse at 50% 42%,#dfffff70 0%,#86edff44 20%,#4edbea20 40%,transparent 65%);mix-blend-mode:screen;animation:core-breathe 3.6s ease-in-out infinite alternate}
+.village-core-light.just-lit::after{content:'';position:absolute;left:50%;top:44%;width:70%;aspect-ratio:1;border:3px solid #adf9ff;border-radius:50%;box-shadow:0 0 24px #8ff5ff;opacity:0;animation:core-awaken 2s ease-out .6s both}
+@keyframes core-breathe{from{opacity:.5}to{opacity:1}}
+@keyframes core-awaken{0%{opacity:.9;transform:translate(-50%,-50%) scale(.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+@media(max-width:700px){.map-complete-banner{top:72px;max-width:calc(100% - 24px)}#app .map-page.map-overview .map-scene{inset:146px 8px 150px}.map-complete-actions{flex-wrap:wrap;gap:8px}#app .map-complete-actions>.btn{min-height:48px;padding:10px 18px}.map-complete-banner h1{font-size:24px}#app .map-overview .map-marker>b{font-size:14px;padding:6px;gap:3px}.map-overview .map-marker>b>small{display:none}}
+@media(prefers-reduced-motion:reduce){.village-core-light::before,.village-core-light.just-lit::after{animation:none}.village-core-light::before{opacity:.8}}

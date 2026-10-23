@@ -180,3 +180,7 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 ## 수영 오리발 그림 · 2026-10-21
 
 `adventure/swim-shoe-v2.webp`, `adventure/swim-blade-v2.webp`: 기본 image_gen 도구(OpenAI 이미지 생성)로 만든 투명 배경 그림. 참고 이미지는 이 프로젝트의 `adventure/workshop-atlas.webp`. 프롬프트 원문과 적용 방식은 `docs/SWIM-ARTWORK-20261021.md`. 상업 이용 판단은 위 검토표의 OpenAI 이미지 생성 항목과 같고, 생성 계정·요금제 기록은 없다.
+
+## 자연사 전시관 실내 (2026-10-22)
+
+`scenes/museum-gallery-v2.webp`는 OpenAI 기본 image_gen으로 생성했다. 원본 PNG를 유지하고 기존 sharp로 WebP quality 86 변환했다. 생성 프롬프트와 원본 경로는 `docs/MUSEUM-GALLERY-ASSET-20261022.json`에 기록했다. 전시 표본·인물·글꼴·동물 영상은 기존 자산을 재사용한다. 학습자의 전시 사진은 재생 중인 동물 영상의 프레임이며 외부 서버로 전송하지 않는다.

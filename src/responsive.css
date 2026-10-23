@@ -1,0 +1,613 @@
+/* Shared last-layer sizing: keep the activity above the fixed navigation. */
+#app :is(.activity-workspace, .commission-work, .museum-exhibits) {
+  min-width: 0;
+  min-height: 0;
+}
+#app :is(.choice, .commission-choice, .panel-tabs > .btn) {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* The reference photo must retain its height; flex centering used to clip its top. */
+#app #main .activity-workspace > .lens-notes {
+  display: grid !important;
+  grid-template-columns: minmax(120px, .8fr) minmax(0, 1.2fr);
+  grid-template-rows: auto auto auto auto auto;
+  align-content: start;
+  align-items: center;
+  justify-items: stretch;
+  gap: 8px 14px;
+  overflow: auto;
+}
+#app #main .lens-notes > .notes-title { grid-column: 1 / -1; }
+#app #main .lens-notes > .detail-crop {
+  grid-column: 1;
+  grid-row: 2 / 4;
+  justify-self: center;
+  width: 100% !important;
+  max-width: 320px;
+  height: clamp(120px, 19dvh, 210px) !important;
+  min-height: 120px;
+  margin: 0;
+  border-radius: 16px;
+  --crop-size: clamp(330px, 42dvh, 460px);
+}
+#app #main .lens-notes > .detail-crop > .animal {
+  width: var(--crop-size) !important;
+  height: var(--crop-size) !important;
+}
+#app #main .lens-notes > h2 { grid-column: 2; grid-row: 2; align-self: end; }
+#app #main .lens-notes > .observe-ask { grid-column: 2; grid-row: 3; align-self: start; }
+#app #main .lens-notes > :is(.observe-options, .pair-status, .observe-next, .observe-complete) {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+#app #main .lens-notes > .observe-options { grid-row: 4; }
+#app #main .lens-notes > .observe-done { grid-column: 2; grid-row: 4; }
+#app #main .lens-notes > :is(.observe-next, .observe-complete) { grid-row: 5; }
+#app #main .lens-notes > .pair-status { grid-row: 6; }
+#app #main .lens-notes > p:not([class]) { grid-column: 2; grid-row: 3; margin: 0; }
+#app #main .lens-notes > .pair-status { margin: 0 !important; }
+#app #main .lens-notes .observe-options { min-width: 0; gap: 8px; }
+#app #main .lens-notes .observe-options > .choice { min-height: 48px; }
+#app #main .part-buttons > .btn { min-width: 48px; }
+
+/* Five clues form a short notebook grid, including before any clue is found. */
+#app #main.stage-4 .flashlight-clue-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+#app #main.stage-4 .flashlight-note { height: 100%; min-height: 68px; padding: 8px; gap: 7px; }
+#app #main.stage-4 .flashlight-note.locked { min-height: 48px; }
+#app #main.stage-4 .flashlight-note.locked b { display: none; }
+#app #main.stage-4 .flashlight-note small { margin: 0; }
+#app #main.stage-4 .flashlight-find-progress { padding-block: 6px; }
+#app #main.stage-4 .flashlight-guess { margin-block: 8px; }
+#app #main.stage-4 .flashlight-guess > p { margin-top: 6px; }
+#app #main.stage-4 .grounds-pick h3 { margin-block: 8px; }
+#app #main.stage-4 .journey-evidence-summary {
+  display: grid;
+  grid-template-columns: minmax(110px, 34%) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+#app #main.stage-4 .journey-evidence-summary > figure { margin: 0; min-width: 0; }
+#app #main.stage-4 .journey-evidence-summary .biome-photo { height: 110px; width: 100%; }
+#app #main.stage-4 .journey-evidence-summary .journey-evidence-photo .biome-photo { height: 100px; }
+#app #main.stage-4 .journey-evidence-summary .journey-evidence-text:empty { display: none; }
+#app #main.stage-4 .journey-movement h3 { margin-top: 10px; }
+#app #main.stage-4 .journey-movement p { margin-block: 6px; }
+#app #main.stage-4 .journey-check-note { margin-block: 10px 0; }
+#app #main.stage-4 .journey-evidence-photo figcaption { display: none; }
+
+/* A broadcast photo follows the available height instead of setting the whole page height. */
+#app #main.broadcast-request-page .broadcast-subject-visual {
+  height: clamp(100px, 19dvh, 230px);
+  min-height: 0;
+}
+#app #main.broadcast-request-page .broadcast-subject { padding: 12px; }
+#app #main.broadcast-request-page .broadcast-subject h2 { margin-block: 8px; }
+#app #main.broadcast-request-page .broadcast-subject p { margin-block: 8px; }
+#app #main.broadcast-request-page .deck-chip,
+#app #main.broadcast-request-page .deck-nav > .btn { min-height: 48px; }
+#app #main.broadcast-request-page .commission-evidence > summary { min-height: 44px; }
+#app #main.broadcast-request-page .request-card {
+  display: grid !important;
+  grid-template-columns: minmax(180px, 30%) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  align-items: start;
+  column-gap: 14px;
+}
+#app #main.broadcast-request-page .request-card > .commission-evidence { grid-column: 1; grid-row: 1; min-width: 0; }
+#app #main.broadcast-request-page .broadcast-workspace { display: contents !important; }
+#app #main.broadcast-request-page .broadcast-subject { grid-column: 1; grid-row: 2; }
+#app #main.broadcast-request-page .broadcast-selection { grid-column: 2; grid-row: 1 / 3; min-width: 0; }
+#app #main.broadcast-request-page .record-row {
+  position: relative;
+  min-width: 0;
+  padding: 6px 8px 9px 124px;
+}
+#app #main.broadcast-request-page .record-row > legend {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 110px;
+  margin: 0;
+  padding: 0;
+  white-space: normal;
+  line-height: 1.3;
+}
+#app #main.broadcast-request-page .broadcast-row-state { display: none; }
+#app #main.broadcast-request-page .record-row .commission-choice { min-height: 48px; }
+
+/* All five rooms stay available, with ordinary two-line labels on a small tablet. */
+#app #main.museum-page .museum-exhibits > .panel-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  flex: none;
+}
+#app #main.museum-page .museum-exhibits > .panel-tabs > .btn {
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
+  padding: 6px;
+  gap: 5px;
+  white-space: normal;
+  line-height: 1.25;
+  font-size: clamp(18px, 1.35vw, 23px) !important;
+}
+#app #main.museum-page .museum-exhibit { align-content: start; gap: 12px 20px; }
+#app #main.museum-page .museum-exhibits { overflow: hidden; }
+#app #main.museum-page .museum-exhibit {
+  flex: 1 1 0;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  margin-block: 0;
+}
+#app #main.museum-page .museum-exhibit > .museum-display { min-height: 0; max-height: 100%; }
+#app #main.museum-page .museum-exhibit > .museum-display:not(.museum-studio) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+  height: 100%;
+}
+#app #main.museum-page .museum-vitrine { min-height: 0; height: 100%; padding: 32px 12px 12px; }
+#app #main.museum-page .museum-vitrine-content { height: 100%; min-height: 0; }
+#app #main.museum-page .museum-specimens { height: 100%; min-height: 0; }
+#app #main.museum-page .museum-specimens figure { flex: 1 1 0; height: 100%; min-height: 0; max-height: 100%; }
+#app #main.museum-page .museum-specimens .animal { flex: 1 1 0; height: 0; min-height: 0; width: 100%; object-fit: contain; }
+#app #main.museum-page .museum-specimens figcaption { flex: none; }
+#app #main.museum-page .museum-sort-groups { height: 100%; min-height: 0; }
+#app #main.museum-page .museum-sort-group { display: flex; flex-direction: column; min-height: 0; }
+#app #main.museum-page .museum-sort-group .museum-specimens { flex: 1; }
+#app #main.museum-page .museum-sort-group .museum-specimens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 4px; }
+#app #main.museum-page .museum-sort-group .museum-specimens figure { height: 100%; min-height: 0; }
+#app #main.museum-page .museum-model { height: 100%; min-height: 0; }
+#app #main.museum-page .museum-model svg { height: 100%; max-height: 100%; }
+#app #main.museum-page .museum-exhibit .museum-label { min-height: 0; max-height: 100%; overflow: auto; overscroll-behavior: contain; }
+#app #main.museum-page .museum-label .broadcast-copy { max-height: none; overflow: visible; }
+#app #main.museum-page .museum-exhibit:has(> :is(.museum-first-invention, .museum-motion-collection)) {
+  grid-template-rows: auto minmax(260px, 1fr) auto auto;
+  overflow: auto;
+}
+#app #main.museum-page .museum-exhibit > .museum-studio {
+  height: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 16px;
+}
+#app #main.museum-page .museum-studio > .museum-art-frame {
+  display: grid;
+  grid-column: 1;
+  grid-row: 1;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+}
+#app #main.museum-page .museum-art-frame .studio-artwork { height: 100%; min-height: 0; object-fit: contain; }
+#app #main.museum-page .museum-studio > .museum-art-label {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  height: 100%;
+  overflow: hidden;
+}
+#app #main.museum-page .museum-art-label .studio-introduction { min-height: 0; overflow: auto; }
+#app #main.museum-page .museum-art-label .btn { justify-self: start; }
+#app #main.museum-page .museum-first-invention { max-height: 28dvh; overflow: auto; padding-block: 4px; }
+#app #main.museum-page .museum-motion-collection { max-height: 40dvh; overflow: auto; margin: 0; padding: 6px 12px; }
+#app #main.museum-page .museum-motion-collection > summary { min-height: 44px; cursor: pointer; color: #fff3d2; font: 400 21px/1.3 var(--font-display); }
+#app #main.museum-page .museum-exhibit:has(> :is(.museum-first-invention[open], .museum-motion-collection[open])) {
+  grid-template-rows: auto minmax(260px, 1fr) auto auto;
+  overflow: auto;
+}
+#app #main.museum-page .museum-exhibit > .museum-room-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: #18372ff2;
+}
+#app #main.museum-page .museum-exhibit:has(> :is(.museum-first-invention, .museum-motion-collection)) > .museum-room-footer { width: fit-content; justify-self: end; }
+#app #main.museum-page .museum-exhibit:has(> :is(.museum-first-invention, .museum-motion-collection)) > .museum-room-footer blockquote { display: none; }
+#app #main .studio-note { padding: 8px; }
+#app #main .studio-note > summary { min-height: 44px; cursor: pointer; font-size: 18px; line-height: 1.35; }
+#app #main .studio-note[open] > p { margin-top: 8px; }
+
+@media (max-height: 950px) and (min-width: 850px), (min-width: 701px) and (max-width: 849px) {
+  #app #main.museum-page .museum-room-heading .museum-curator > img { height: 48px; width: auto; }
+  #app #main.museum-page .museum-room-heading { padding: 8px 12px; }
+  #app #main.museum-page .museum-room-heading .museum-room-number { font-size: 36px !important; }
+  #app #main.museum-page .museum-exhibit > .museum-display:not(.museum-studio) {
+    display: grid;
+    grid-template-columns: minmax(110px, 30%) minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    height: 100%;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  #app #main.museum-page .museum-exhibit > .museum-display:has(.museum-sort-groups) { grid-template-columns: minmax(160px, 45%) minmax(0, 1fr); }
+  #app #main.museum-page .museum-display > .museum-label { margin: 0; padding: 12px; }
+  #app #main.museum-page .museum-display > .museum-vitrine { grid-column: 1; grid-row: 1; }
+  #app #main.museum-page .museum-display > .museum-plinth { grid-column: 1; grid-row: 2; min-width: 0; }
+  #app #main.museum-page .museum-display > .museum-label { grid-column: 2; grid-row: 1 / 3; }
+  #app #main.museum-page .museum-vitrine { min-height: 0; padding: 32px 8px 10px; }
+  #app #main.museum-page .museum-vitrine-content { min-height: 0; max-height: 100%; overflow: hidden; }
+  #app #main.museum-page .museum-specimens { flex-direction: column; align-items: center; gap: 10px; }
+  #app #main.museum-page .museum-specimens figure { width: 100%; }
+  #app #main.museum-page .museum-specimens figcaption { font-size: 20px !important; }
+  #app #main.museum-page .museum-label h3 { margin-block: 6px 10px; }
+  #app #main.museum-page .museum-room-footer { gap: 10px; }
+  #app #main.museum-page .museum-room-footer blockquote { padding: 6px 10px; }
+}
+
+@media (min-width: 701px) and (max-width: 820px) {
+  #app #main.museum-page .museum-exhibit { grid-template-rows: auto repeat(2, minmax(0, 1fr)) auto; }
+  #app #main.museum-page .museum-exhibit > .museum-display { max-width: none; }
+  #app #main.museum-page .museum-exhibit:has(> .museum-motion-collection) { grid-template-rows: auto repeat(2, minmax(280px, 1fr)) auto auto; }
+  #app #main.museum-page .museum-exhibit:has(> .museum-motion-collection[open]) { grid-template-rows: auto repeat(2, minmax(240px, 1fr)) auto auto; }
+}
+
+@media (max-height: 650px) and (min-width: 701px) {
+  #app #main.museum-page .museum-exhibit {
+    grid-template-rows: auto minmax(260px, 1fr) auto;
+    overflow: auto;
+  }
+  #app #main.museum-page .museum-room-2 { grid-template-rows: auto minmax(320px, 1fr) auto; }
+  #app #main.museum-page .museum-room-footer blockquote { display: none; }
+  #app #main.museum-page .museum-room-footer { width: fit-content; justify-self: end; }
+  #app #main.museum-page .museum-exhibit:has(> .museum-empty-display) { grid-template-rows: auto minmax(0, 1fr) auto; }
+  #app #main.museum-page .museum-empty-display { min-height: 0; padding: 8px; }
+  #app #main.museum-page .museum-empty-dome { width: 44px; height: 44px; margin: 0 auto; }
+  #app #main.museum-page .museum-empty-display h3 { margin-block: 4px; }
+  #app #main.museum-page .museum-empty-display p { margin-block: 4px; }
+  #app #main .activity-workspace > .lens-notes { gap: 6px 12px; }
+  #app #main .lens-notes > .detail-crop { height: 120px !important; }
+  #app #main .lens-notes > .observe-ask { margin: 0; }
+  #app #main .lens-notes .observe-options > .choice { padding-block: 7px; }
+  #app .mission-page .activity-workspace > .experiment-lab:not(:has(> .panel-tabs)) { padding-bottom: 76px; }
+  #app .mission-page .experiment-lab > .lab-controls { gap: 6px; }
+  #app .mission-page .experiment-lab > .lab-controls > input { min-height: 44px; }
+  #app .mission-page .experiment-lab .prediction-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #app .mission-page .experiment-lab.paged-panel .trial-pair > article > svg { height: 140px !important; min-height: 0; }
+  #app .mission-page .experiment-lab.paged-panel .trial-pair > article { padding: 8px; }
+  #app .mission-page .experiment-lab.paged-panel .lab-status { padding: 8px; margin-top: 0; }
+  #app .mission-page .experiment-lab.paged-panel > .lab-controls > .current-model {
+    display: flex;
+    grid-column: 2;
+    grid-row: 2 / 5;
+    height: 100%;
+    min-height: 120px;
+  }
+  #app .mission-page .experiment-lab.paged-panel > .lab-controls > :is(.level-buttons, .condition, .prediction-question) { grid-column: 1; }
+  #app #main.stage-4 :is(.flashlight-notebook, .journey-journal) { padding: 12px; }
+  #app #main.broadcast-request-page .broadcast-workspace { gap: 10px; }
+  #app #main.broadcast-request-page .broadcast-subject-visual { height: 100px; }
+  #app #main.broadcast-request-page .broadcast-selection-heading { display: none; }
+  #app #main.broadcast-request-page .broadcast-subject { padding: 8px; }
+  #app #main.broadcast-request-page .broadcast-subject p { margin-block: 4px; }
+  #app #main.broadcast-request-page .broadcast-subject-progress { display: none; }
+  #app #main.broadcast-request-page .record-row { padding-block: 2px 4px; }
+  #app #main.broadcast-request-page .card-questions { gap: 6px; }
+  #app #main.stage-4 .flashlight-notebook > header p { margin-bottom: 6px; }
+  #app #main.stage-4 .flashlight-find-progress { padding-block: 4px; }
+  #app #main.stage-4 .flashlight-guess { margin-block: 4px; }
+  #app #main.stage-4 .grounds-pick h3 { margin-block: 4px; }
+  #app #main.stage-4 .flashlight-ground-count { margin-top: 4px; }
+  #app #main.stage-4 .journey-evidence-summary { margin-top: 4px; }
+  #app #main.stage-4 .journey-movement h3 { margin-top: 6px; }
+  #app #main.stage-4 .journey-check-note { margin-top: 4px; }
+  #app #main.stage-4 .journey-evidence-summary .journey-evidence-photo .biome-photo { height: 76px; }
+  #app #main.stage-4 .journey-evidence-photo figcaption { display: none; }
+  #app #main.stage-4 .journey-movement .choice { margin-top: 6px; min-height: 48px; }
+  #app #main .studio-showcase .studio-introduction {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 10px 12px;
+    padding: 10px 12px;
+  }
+  #app #main .studio-showcase .studio-introduction textarea { min-height: 84px; }
+  #app #main .studio-showcase .studio-introduction > :is(.btn, .studio-download-note, .studio-status) { grid-column: 1 / -1; }
+}
+
+@media (min-width: 851px) and (max-width: 1100px) {
+  #app #main .creative-studio.studio-drawing { grid-template-columns: minmax(0, 1fr) minmax(240px, 30%); }
+}
+
+@media (min-width: 701px) and (max-width: 850px) and (min-height: 851px) {
+  #app #main.stage-4 .activity-workspace {
+    height: 100dvh;
+    min-height: 0;
+    grid-template-rows: minmax(0, .45fr) minmax(0, .55fr);
+    padding: 84px 14px 100px !important;
+    overflow: hidden;
+  }
+  #app #main.stage-4 :is(.flashlight-field, .animal-journey) { min-height: 0; padding: 12px; }
+  #app #main.stage-4 :is(.flashlight-surface, .journey-scene) { min-height: 0; }
+  #app #main.stage-4 :is(.flashlight-notebook, .journey-journal) { max-height: 100%; overflow: auto; padding: 12px; }
+  #app #main.stage-4 .journey-destinations { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  #app #main.stage-4 .journey-portal { min-height: 70px; }
+  #app #main.stage-4 .journey-place-art { height: 32px; }
+  #app #main.stage-4 .flashlight-notebook > header p { display: none; }
+  #app #main.stage-4 .grounds-pick h3 { margin-block: 4px; }
+  #app #main.stage-4 .journey-evidence-summary .journey-evidence-photo .biome-photo { height: 76px; }
+  #app #main.stage-4 .journey-movement .choice { min-height: 48px; margin-top: 6px; }
+  #app #main.stage-4 .journey-check-note { margin-top: 4px; }
+}
+
+/* Reading hierarchy and content-sized work cards across all activities. */
+#app {
+  --activity-copy: clamp(22px, 1.55vw, 32px);
+  --activity-card-copy: clamp(24px, 1.8vw, 36px);
+  --activity-label: clamp(18px, 1.1vw, 23px);
+  --activity-gap: clamp(10px, 1vw, 18px);
+}
+#app #main :is(.observe-options, .choices, .problem-options, .design-choices, .record-options, .prediction-options, .reflection-options) > :is(.choice, .commission-choice) {
+  min-height: 52px;
+  padding: 8px 14px;
+  gap: 10px;
+  font-size: var(--activity-copy) !important;
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+#app #main :is(.observe-options, .choices, .problem-options, .design-choices, .record-options, .prediction-options, .reflection-options) > :is(.choice, .commission-choice) > span:not(.choice-mark) {
+  font-size: inherit !important;
+  line-height: inherit;
+}
+#app #main :is(.observe-options, .reflection-options, .problem-options, .design-choices, .case-activity .choices, .commission-page .record-options) {
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: wrap !important;
+  align-content: start;
+  align-items: start;
+  gap: 10px;
+}
+#app #main :is(.observe-options, .reflection-options, .problem-options, .design-choices, .case-activity .choices, .commission-page .record-options) > :is(.choice, .commission-choice) {
+  flex: 0 1 auto !important;
+  width: fit-content !important;
+  max-width: 100%;
+  min-width: 0;
+}
+#app #main .statement-card {
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  min-height: 56px;
+  padding: 10px 16px;
+}
+#app #main .statement-card > span {
+  font-size: var(--activity-card-copy) !important;
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+#app #main .statement-card > small { font-size: var(--activity-label) !important; }
+#app #main .activity-workspace > .lens-notes { width: min(100%, 800px); justify-self: center; }
+#app #main .lens-notes > :is(h2, .observe-ask) { text-align: left; }
+#app #main .lens-notes > h2 { font-size: clamp(26px, 1.8vw, 36px) !important; }
+#app #main .lens-notes > .observe-ask { font-size: var(--activity-label) !important; }
+
+/* A relation is a short row of three records, not three full-height columns. */
+#app #main .activity-workspace > .link-activity {
+  justify-content: safe center;
+  align-items: center;
+  gap: var(--activity-gap);
+  padding-block: var(--activity-edge);
+  overflow: auto;
+}
+#app #main .link-activity > .link-animal { margin: 0; padding: 8px 16px; gap: 12px; }
+#app #main .link-activity > .link-animal h2 { font-size: clamp(27px, 1.9vw, 38px) !important; }
+#app #main .link-activity > .link-chain {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0;
+  gap: 12px;
+}
+#app #main .link-activity .link-slot {
+  flex: 0 1 auto;
+  width: fit-content;
+  min-width: min(190px, 100%);
+  max-width: min(30vw, 520px);
+  height: auto;
+  min-height: 126px;
+  padding: 12px;
+  gap: 10px;
+  border-width: 2px;
+  border-radius: 16px;
+}
+#app #main .link-activity .link-slot > h3 { margin: 0; font-size: var(--activity-label) !important; }
+#app #main .link-activity .link-slot > .slot-empty { flex: none; min-height: 52px; margin: 0; padding: 4px; }
+#app #main .link-activity .link-slot > .statement-card { margin: 0; }
+#app #main .link-activity .link-slot > .statement-card > small { display: none; }
+#app #main .link-activity > .card-tray {
+  flex: none;
+  width: fit-content;
+  max-width: min(1360px, 100%);
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 12px 16px 16px;
+  border-width: 2px;
+  border-radius: 16px;
+}
+#app #main .link-activity > .card-tray > h3 { margin: 0 0 12px; font-size: clamp(24px, 1.5vw, 30px) !important; }
+#app #main .link-activity > .card-tray > h3::after { font-size: var(--activity-label); }
+#app #main .link-activity .card-pool {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, max-content));
+  justify-content: center;
+  justify-items: start;
+  align-items: start;
+  align-content: start;
+  min-height: 52px;
+  gap: 12px;
+}
+#app #main .link-activity .statement-card {
+  flex: 0 1 auto;
+  width: fit-content;
+  max-width: min(520px, 100%);
+  height: auto;
+  min-height: 56px;
+  padding: 10px 34px 10px 14px;
+  gap: 4px;
+  border-width: 2px;
+}
+#app #main .link-activity .statement-card > span { font-size: var(--activity-card-copy) !important; }
+#app #main .link-activity .statement-card::after { right: 10px; }
+
+/* Keep the scene full size while the reading panels occupy a comfortable width. */
+@media (min-width: 1101px) {
+  #app #main .activity-workspace > :is(.compare-board, .verify-lab, .experiment-lab) { padding-inline: max(14px, calc((100vw - 1440px) / 2)); }
+  #app #main.commission-page .commission-layout { width: min(100%, 1520px); margin-inline: auto; }
+}
+#app #main .compare-board .compare-slot { align-self: start; justify-self: start; width: fit-content; max-width: 100%; height: auto; min-height: 104px; padding: 12px; }
+#app #main .compare-board .compare-slot > .statement-card { margin: 0; }
+#app #main .compare-board > .card-tray { width: fit-content; max-width: 100%; }
+#app #main .compare-photo > div > div > .animal { height: clamp(90px, 13dvh, 160px); }
+#app #main .compare-board > .card-tray > .card-pool {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-items: start;
+  align-items: start;
+  align-content: start;
+  min-height: 52px;
+  gap: 12px;
+}
+#app #main .compare-board .card-pool .statement-card { flex: 0 1 auto; width: fit-content; height: auto; max-height: none; }
+#app #main.commission-page:not(.broadcast-request-page) .request-card .card-body:not(.request-lab) {
+  width: min(100%, 1000px);
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr);
+  justify-content: start;
+}
+#app #main.commission-page:not(.broadcast-request-page) .card-questions > .record-row {
+  width: fit-content;
+  max-width: min(100%, 560px);
+  align-self: start;
+}
+#app #main.commission-page:not(.broadcast-request-page) .record-row > legend { font-size: clamp(23px, 1.5vw, 30px) !important; }
+#app #main.broadcast-request-page .record-row { padding-left: 144px; }
+#app #main.broadcast-request-page .record-row > legend { width: 130px; gap: 6px; font-size: var(--activity-label) !important; word-break: keep-all; }
+#app #main.broadcast-request-page .record-row .record-options > .choice { grid-column: auto; }
+@media (min-width: 1001px) {
+  #app #main.broadcast-request-page .record-row .record-options { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px; }
+}
+@media (max-width: 1000px) and (max-height: 800px) {
+  #app #main.broadcast-request-page .broadcast-selection-heading small { display: none; }
+  #app #main.broadcast-request-page .broadcast-selection-heading { padding-block: 6px; }
+}
+#app #main.commission-page .request-card .card-result:not(.kind-broadcast) {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  align-self: start;
+  gap: 12px;
+  width: fit-content;
+  min-width: min(100%, 280px);
+  max-width: min(100%, 360px);
+  min-height: 0;
+  height: auto;
+  aspect-ratio: auto;
+  container-type: normal;
+  margin: 0;
+  padding: 14px 16px !important;
+  border: 2px solid #a48b58 !important;
+  border-radius: 16px;
+  background: #fffbedf5 !important;
+  box-shadow: var(--panel-shadow) !important;
+  filter: none;
+}
+#app #main.commission-page .card-result:not(.kind-broadcast)::before,
+#app #main.commission-page .card-result:not(.kind-broadcast)::after { content: none; }
+#app #main.commission-page .card-result:not(.kind-broadcast) > h3 {
+  position: static;
+  margin: 0;
+  padding: 0 0 8px;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid #d4c397;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+  text-shadow: none;
+  text-align: left !important;
+  font-size: clamp(23px, 1.5vw, 30px) !important;
+  color: var(--ui-ink);
+}
+#app #main.commission-page .card-result:not(.kind-broadcast) > .card-result-animal { display: flex; flex-direction: row; align-items: center; justify-content: start; gap: 12px; margin: 0; }
+#app #main.commission-page .card-result:not(.kind-broadcast) .card-result-animal > .animal { width: 76px; height: 76px; object-fit: contain; }
+#app #main.commission-page .card-result:not(.kind-broadcast) .card-result-animal > b { font-size: var(--activity-copy) !important; }
+#app #main.commission-page .card-result:not(.kind-broadcast) > ol { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; width: 100%; margin: 0; padding: 0; }
+#app #main.commission-page .card-result:not(.kind-broadcast) li { padding: 0 0 8px; }
+#app #main.commission-page .card-result:not(.kind-broadcast) li small { font-size: var(--activity-label) !important; }
+#app #main.commission-page .card-result:not(.kind-broadcast) li b { font-size: clamp(22px, 1.4vw, 30px) !important; line-height: 1.35; }
+#app #main.commission-page .request-card .card-result:not(.kind-broadcast) > .card-stamp {
+  position: static !important;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #e9efdd;
+  color: #456044;
+  font-size: var(--activity-label) !important;
+  line-height: 1.35;
+  transform: none;
+}
+#app #main .museum-label .museum-fact > p,
+#app #main .museum-label .museum-object-note { font-size: clamp(22px, 1.3vw, 28px); }
+
+@media (min-width: 1101px) and (min-height: 801px) {
+  #app #main.stage-4 .flashlight-note b { font-size: clamp(20px, 1.35vw, 28px) !important; }
+  #app #main.stage-4 .journey-movement > .choice { width: fit-content; max-width: 100%; font-size: var(--activity-copy) !important; }
+  #app #main :is(.design-name, .studio-field) :is(input, textarea) { font-size: clamp(22px, 1.5vw, 30px) !important; }
+}
+
+@media (max-width: 850px) {
+  #app #main .link-activity > .link-chain { width: 100%; gap: 8px; }
+  #app #main .link-activity .link-slot { flex: 1; min-width: 0; max-width: none; padding: 10px; }
+  #app #main .link-activity > .link-chain > .icon { display: none; }
+}
+@media (max-width: 700px) {
+  #app #main .link-activity > .link-chain { flex-direction: column; }
+  #app #main .link-activity .link-slot { width: 100%; min-height: 100px; }
+  #app #main .link-activity .card-pool { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #app #main.commission-page:not(.broadcast-request-page) .request-card .card-body:not(.request-lab) { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 851px) and (max-height: 800px) {
+  #app #main.broadcast-request-page .record-row { padding-block: 2px 4px; }
+  #app #main .activity-workspace > .link-activity {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.6fr);
+    align-content: safe center;
+    align-items: center;
+    padding-inline: max(14px, calc((100vw - 1440px) / 2));
+  }
+  #app #main .link-activity > .link-animal { display: none; }
+  #app #main .link-activity > .link-chain { flex-direction: column; width: 100%; gap: 8px; }
+  #app #main .link-activity > .link-chain > .icon { display: none; }
+  #app #main .link-activity .link-slot { width: 100%; max-width: none; min-height: 100px; padding: 8px; gap: 6px; }
+  #app #main .link-activity .link-slot > h3 { font-size: 18px !important; }
+  #app #main .link-activity .link-slot .statement-card { padding-block: 8px; }
+  #app #main .link-activity > .card-tray { padding: 10px 12px 12px; }
+  #app #main .link-activity .card-pool { gap: 8px; }
+  #app #main .link-activity .statement-card { padding: 8px 26px 8px 10px; }
+  #app #main .link-activity > .card-tray > h3::after { display: none; }
+}

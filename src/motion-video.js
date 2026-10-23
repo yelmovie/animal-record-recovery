@@ -19,10 +19,21 @@ export function videoFrameAt(id,phase){
  return time<clip.push[0][0]||clip.prepare?.some(([from,to])=>time>=from&&time<to)?0:2;
 }
 
+// Fullscreen the existing player so the media clock and photo controls stay intact.
+export async function toggleMotionFullscreen(player){
+ if(!player)throw new Error('No video player');
+ const doc=player.ownerDocument;
+ if(doc.fullscreenElement===player){await doc.exitFullscreen();return;}
+ if(player.requestFullscreen){await player.requestFullscreen();return;}
+ const video=player.querySelector('.motion-video');
+ if(video?.webkitEnterFullscreen){video.webkitEnterFullscreen();return;}
+ throw new Error('Fullscreen unavailable');
+}
+
 // Keep the media clock authoritative. A stalled or seeking video cannot grant a record.
 export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpdate=()=>{},onError=()=>{}}={}){
  const video=host?.querySelector('.motion-video');if(!video)return null;
- let alive=true,pendingPhase=phase;
+ let alive=true,pendingPhase=phase,viewed=false;
  const events=[];
  const listen=(name,fn)=>{video.addEventListener(name,fn);events.push([name,fn]);};
  const duration=()=>Number.isFinite(video.duration)&&video.duration>0?video.duration:0;
@@ -37,11 +48,22 @@ export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpda
  }
  video.muted=true;video.playbackRate=slow?.45:1;
  listen('loadedmetadata',()=>{if(!alive)return;seek(pendingPhase);if(playing)play();});
+ listen('playing',()=>{viewed=true;update();});
  for(const name of ['timeupdate','play','pause','seeking','seeked','ended','loadeddata','canplay','waiting'])listen(name,update);
  listen('error',()=>{if(alive)onError();});
  if(video.readyState>=1){seek(pendingPhase);if(playing)play();}
  return {
-  get phase(){return percent();},get ready(){return video.readyState>=2&&!video.seeking;},
+  get phase(){return percent();},get ready(){return video.readyState>=2&&!video.seeking;},get viewed(){return viewed;},
+  capture(){
+   if(!alive||!viewed||video.readyState<2||video.seeking||!duration()||!video.videoWidth||!video.videoHeight)return null;
+   try{
+    const canvas=video.ownerDocument.createElement('canvas');
+    const draw=(width,quality)=>{const scale=Math.min(width/video.videoWidth,360/video.videoHeight,1);canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);const context=canvas.getContext('2d');if(!context)return '';context.drawImage(video,0,0,canvas.width,canvas.height);return canvas.toDataURL('image/webp',quality);};
+    let dataURL=draw(480,.72);if(dataURL.length>64000)dataURL=draw(320,.62);
+    if(!/^data:image\/(webp|png|jpeg);base64,/.test(dataURL)||dataURL.length>64000)return null;
+    return {dataURL,width:canvas.width,height:canvas.height,time:video.currentTime,duration:duration(),phase:percent()};
+   }catch{return null;}
+  },
   play,pause(){playing=false;video.pause();update();},seek,
   setSlow(value){video.playbackRate=value?.45:1;},
   destroy(){alive=false;for(const [name,fn]of events)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.load();}

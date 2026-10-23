@@ -2,6 +2,7 @@ import * as researchReport from '../src/research-report.js';
 import * as studioModel from '../src/studio.js';
 import * as studioRuntime from '../src/studio-runtime.js';
 import * as motionVideo from '../src/motion-video.js';
+import * as flashlight from '../src/flashlight.js';
 import * as storyPlayer from '../src/story-player.js';
 import * as campaign from '../src/campaign.js';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
@@ -28,9 +29,9 @@ function appHarness({fail=false,motion=false,three=false}={}){
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
-  return {run,app,dialog,music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
+  return {run,app,dialog,music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
 test('current controller reports storage failure immediately and recovers without losing progress',()=>{
   const a=appHarness({fail:true});assert.equal(a.run('storageOK'),false);assert.match(a.warning.text,/role="alert"/);assert.match(a.status.textContent,/저장/);a.run("s.observed.push('frog-eye');render()");assert.ok(a.warning);a.setFail(false);a.run('save()');assert.equal(a.warning,null);assert.deepEqual(JSON.parse(a.saved).observed,['frog-eye']);
@@ -41,6 +42,27 @@ test('intro can be skipped without losing learning progress and replay does not 
 });
 test('outro is locked before completion and opens the personal gallery when finished',()=>{
  const a=appHarness();a.run("act('story-outro',{dataset:{}})");assert.equal(a.run('screen'),'home');a.run("s=restoreExpedition("+JSON.stringify(JSON.stringify(campaignFixture()))+");s.campaign=freshCampaign([1,2,3,4,5]);act('story-outro',{dataset:{}})");assert.equal(a.run('screen'),'outro');a.run('finishStory()');assert.equal(a.run('screen'),'gallery');assert.equal(a.run('restoredPlaces(s).length'),5);
+});
+
+test('the village overview unlocks only after all five places are restored, including resident requests',()=>{
+ const a=appHarness();a.run('s.adminUnlocked=true;go("map");act("map-overview",{dataset:{}})');
+ assert.equal(a.run('mapOverview'),false);assert.doesNotMatch(a.app.innerHTML,/map-complete-banner|data-action="map-overview"/);
+ a.run('s=restoreExpedition('+JSON.stringify(JSON.stringify(campaignFixture()))+');go("map");act("map-overview",{dataset:{}})');
+ assert.equal(a.run('s.completed.length'),5);assert.equal(a.run('restoredPlaces(s).length'),0);assert.equal(a.run('mapOverview'),false);
+ a.run('s.campaign=freshCampaign([1,2,3,4]);go("map")');assert.equal(a.run('mapOverview'),false);
+ a.run('s.campaign=freshCampaign([1,2,3,4,5]);stage=5;go("reward")');
+ assert.match(a.app.innerHTML,/data-action="map"[^>]*>복구된 마을 한눈에 보기/);
+ a.run('act("map",{dataset:{}})');assert.equal(a.run('screen'),'map');assert.equal(a.run('mapOverview'),true);assert.match(a.app.innerHTML,/중앙 코어 점등/);
+ assert.doesNotMatch(a.app.innerHTML,/class="map-direction"/);
+ a.run('act("story-outro",{dataset:{}});finishStory()');assert.equal(a.run('screen'),'gallery');
+});
+
+test('walking after the finale preserves the saved map position and stages remain revisitable',()=>{
+ const a=appHarness();a.run('s=restoreExpedition('+JSON.stringify(JSON.stringify(campaignFixture()))+');s.campaign=freshCampaign([1,2,3,4,5]);s.mapPosition="3";go("map")');
+ const before=JSON.parse(a.saved);
+ a.run('act("map-explore",{dataset:{}})');assert.equal(a.run('mapOverview'),false);assert.match(a.app.innerHTML,/class="map-direction"/);assert.match(a.app.innerHTML,/data-action="map-overview"/);
+ a.run('act("map-overview",{dataset:{}})');assert.equal(a.run('mapOverview'),true);assert.deepEqual(JSON.parse(a.saved),before);
+ a.run('selectMap(2)');assert.equal(a.run('mapOverview'),false);assert.equal(a.run('selectedStage'),2);assert.equal(a.run('autoEnter'),true);assert.equal(a.run('s.mapPosition'),'3');
 });
 test('current reset clears all new records and previous completed routes',()=>{
   const a=appHarness();a.run("s.adminUnlocked=true;s.activities=STAGES.flatMap(t=>[0,1,2,3].map(n=>`${t.id}-${n}`));s.completed=[1,2,3,4,5];stage=5;step=3;go('ending');act('reset',{dataset:{}})");assert.equal(a.run('screen'),'home');assert.equal(a.run('navigation.canGoBack'),false);assert.equal(a.run('s.activities.length'),0);assert.equal(a.run('s.completed.length'),0);assert.equal(a.run('s.adminUnlocked'),false);assert.equal(a.run('stage'),1);
@@ -67,14 +89,14 @@ test('locked map selection stops pending entry and points to the actual next unf
  assert.match(a.dialog.innerHTML,/관찰의 숲으로 가기/);assert.equal(a.run('screen'),'map');
  a.run("act('locked-next',{dataset:{id:'1'}})");assert.equal(a.dialog.open,false);assert.equal(a.run('selectedStage'),1);assert.equal(a.run('autoEnter'),true);
 });
-test('current input and export escape markup and include both independent inventions',async()=>{
-  const a=appHarness();a.run("s.adminUnlocked=true;stage=5;step=0;s.designs[0].problem='swim';s.designs[1].problem='warm';s.designs[1].name='포근 외투';screen='mission';render()");a.input('<script>alert(1)</script>');a.run('render()');assert.ok(!a.app.innerHTML.includes('<script>alert'));a.run('download()');assert.ok(!a.dialog.innerHTML.includes('<script>alert'));const text=await a.exported.text();assert.match(text,/\[초안\] <script>/);assert.match(text,/\[초안\] 포근 외투/);assert.match(text,/아직 만들고 있는 발명/);assert.match(a.dialog.innerHTML,/&lt;script&gt;/);
+test('the diary escapes learner writing, keeps both draft inventions and offers no TXT export',()=>{
+  const a=appHarness();a.run("s.adminUnlocked=true;stage=5;step=0;s.designs[0].problem='swim';s.designs[1].problem='warm';s.designs[1].name='포근 외투';screen='mission';render()");a.input('<script>alert(1)</script>');a.run('render()');assert.ok(!a.app.innerHTML.includes('<script>alert'));a.run('download()');assert.ok(!a.dialog.innerHTML.includes('<script>alert'));assert.equal(a.exported,null);assert.match(a.dialog.innerHTML,/포근 외투/);assert.match(a.dialog.innerHTML,/만들고 있는/);assert.match(a.dialog.innerHTML,/&lt;script&gt;/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|report-download|textarea/);
 });
 
 test('controller records prediction and comparison, preserves input and prevents one-trial completion',()=>{
  const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('source-seen',{dataset:{}});act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'wide'}});s.designs[0].name='내 수영 오리발';act('advance',{dataset:{}})");assert.equal(a.run('step'),1);a.run("act('experiment-run',{dataset:{}})");assert.equal(a.run('s.designs[0].experiment.trials.length'),0);a.run("act('prediction',{dataset:{value:'less'}});act('experiment-run',{dataset:{}})");assert.equal(a.run('s.designs[0].experiment.trials.length'),1);a.run("act('advance',{dataset:{}})");assert.equal(a.run('step'),1);a.run("act('experiment-level',{dataset:{value:'3'}});act('experiment-run',{dataset:{}});act('lab-summary',{dataset:{}});act('reflection',{dataset:{value:'surprised'}});s.designs[0].experiment.note='넓이를 바꾸니 미는 물이 달라졌어.';act('explain',{dataset:{value:'match'}});act('advance',{dataset:{}})");assert.equal(a.run('step'),2);assert.equal(a.run('s.records.designs[0].experiment.trials.length'),2);assert.equal(a.run('labSummary'),false);
 });
-test('investigation spends at most three clues, keeps spent energy, and needs proving grounds',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('clue-spend',{dataset:{value:'1'}});act('clue-spend',{dataset:{value:'3'}});act('clue-spend',{dataset:{value:'4'}});act('clue-spend',{dataset:{value:'0'}})");assert.deepEqual(a.run('s.cases[0].opened'),['cover','move','life']);a.run("act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'move'}});advance()");assert.equal(a.run('step'),0);assert.match(a.run('feedback.text'),/닭/);a.run("act('case-animal',{dataset:{id:'frog'}});act('case-animal',{dataset:{id:'duck'}})");assert.equal(a.run('s.cases[0].opened.length'),3,'changing the answer keeps spent energy');a.run("act('case-reset',{dataset:{}});act('clue-spend',{dataset:{value:'0'}});act('clue-spend',{dataset:{value:'1'}});act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});advance()");assert.equal(a.run('step'),1);});
+test('investigation can collect more clues while still requiring grounds that distinguish the chosen animal',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('clue-spend',{dataset:{value:'1'}});act('clue-spend',{dataset:{value:'3'}});act('clue-spend',{dataset:{value:'4'}});act('clue-spend',{dataset:{value:'0'}})");assert.deepEqual(a.run('s.cases[0].opened'),['cover','move','life','place']);a.run("act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'move'}});advance()");assert.equal(a.run('step'),0);assert.match(a.run('feedback.text'),/닭/);a.run("act('case-animal',{dataset:{id:'frog'}});act('case-animal',{dataset:{id:'duck'}})");assert.equal(a.run('s.cases[0].opened.length'),4,'changing the answer keeps found clues');a.run("act('case-reset',{dataset:{}});act('clue-spend',{dataset:{value:'0'}});act('clue-spend',{dataset:{value:'1'}});act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});advance()");assert.equal(a.run('step'),1);});
 
 test('investigation navigation opens the evidence step and failed checks return to the relevant panel',()=>{
  const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('case-continue',{dataset:{}})");
@@ -88,7 +110,23 @@ test('investigation navigation opens the evidence step and failed checks return 
  a.run("act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});advance()");assert.equal(a.run('step'),1);
 });
 
+test('a flashlight discovery is only saved on attaching, replay does not duplicate it, and guesses still need grounds',()=>{
+ const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('flashlight-clue',{dataset:{value:'1'}})");
+ assert.equal(a.run('s.cases[0].opened.length'),0);assert.match(a.dialog.innerHTML,/몸이 깃털로 덮여 있어/);
+ a.run("act('flashlight-collect',{dataset:{value:'1'}});act('flashlight-collect',{dataset:{value:'1'}})");
+ assert.deepEqual([...a.run('s.cases[0].opened')],['cover']);assert.equal(a.run('s.activities.length'),0);
+ a.run("act('flashlight-collect',{dataset:{value:'2'}});act('flashlight-guess',{dataset:{}})");assert.match(a.dialog.innerHTML,/flashlight-candidates/);
+ a.run("act('case-animal',{dataset:{id:'duck'}});advance()");assert.equal(a.run('step'),0);
+ a.run("act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'foot'}});advance()");assert.equal(a.run('step'),1);
+});
+
 test('motion range keeps the newly entered value when stopping playback repaints the same slider',()=>{const a=appHarness({motion:true});a.run('motionPhase=0');a.slider.value=68;a.inputControl(a.slider);assert.equal(a.run('motionPhase'),68);assert.equal(a.slider.value,68);});
+
+test('finishing a video seek keeps the decoded player and its playback permission to take a photo',()=>{
+ const a=appHarness({motion:true});a.run('motionPlayer={viewed:true,ready:true,pause(){},seek(){}}');
+ a.slider.value=10;a.inputControl(a.slider);a.changeControl(a.slider);
+ assert.equal(a.run('motionPlayer.viewed'),true);assert.equal(a.run('motionPlayer.ready'),true);assert.equal(a.run('motionPhase'),10);
+});
 test('summary entry and footer reject an untested current setting and explain the next action',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(5);s.designs[0].experiment.sourceSeen=true;s.designs[0].experiment.prediction='same';addExperimentTrial(s.designs[0]);s.designs[0].experiment.level=2;addExperimentTrial(s.designs[0]);step=1;s.designs[0].experiment.level=3;render();act('lab-summary',{dataset:{}})");assert.equal(a.run('labSummary'),false);assert.match(a.app.innerHTML,/지금 고른 모양도 시험/);assert.match(a.app.innerHTML,/data-action="lab-summary"[^>]*disabled/);a.run("addExperimentTrial(s.designs[0]);act('lab-summary',{dataset:{}})");assert.equal(a.run('labSummary'),true);});
 test('a win immediately updates stars and shows the new task instruction; replay never grants another star',()=>{
   const a=appHarness();a.run("s.observed=['frog-eye','frog-leg','frog-skin','crab-eye','crab-leg','crab-shell'];enter(1);advance()");
@@ -159,15 +197,14 @@ test('body part buttons record correct observations without any pin, reject wron
  assert.deepEqual([...a.run('s.observed')],['frog-leg']);assert.equal(a.run('pinned.size'),0);
  a.run("act('inspect',{dataset:{id:'crab',value:'2'}})");assert.equal(a.run('s.activeAnimal'),'crab');assert.equal(a.run('focusIndex'),2);
 });
-test('animal-specific video goals reject a repeated second-scene strategy; wrong predictions have no penalty',()=>{
+test('any decoded chosen moment is accepted without a prediction; failed retakes preserve the saved photo',()=>{
  const a=appHarness();
  for(const id of ['rabbit','frog','duck','butterfly','crab','marine']){
-  a.run(`s.inquiry.motion={};act('motion-predict',{dataset:{id:'${id}',value:'other'}});motionPlayer={ready:true,pause(){},destroy(){}};motionPhase=motionFramePhase('${id}',1);act('motion-capture',{dataset:{id:'${id}'}})`);
-  assert.equal(a.run(`s.inquiry.motion.${id}===1`),inquiry.MOTIONS[id].target===1,`${id}: repeated scene two`);
-  a.run(`motionPlayer={ready:true,pause(){},destroy(){}};motionPhase=motionFramePhase('${id}',MOTIONS.${id}.target);act('motion-capture',{dataset:{id:'${id}'}})`);
-  assert.equal(a.run(`s.inquiry.motion.${id}`),1);assert.equal(a.run(`s.inquiry.motionPredictions.${id}`),'other');assert.equal(a.run(`s.inquiry.motionEvidence.${id}.frame`),inquiry.MOTIONS[id].target);
-  a.run(`motionPlayer={ready:true,pause(){},destroy(){}};motionPhase=motionFramePhase('${id}',(MOTIONS.${id}.target+1)%3);act('motion-capture',{dataset:{id:'${id}'}})`);
-  assert.equal(a.run(`s.inquiry.motion.${id}`),1,'a wrong retry preserves previously awarded evidence');
+  a.run(`motionPhase=10;motionPlayer={ready:true,viewed:true,pause(){},destroy(){},capture(){return {dataURL:'data:image/webp;base64,AAAA',width:480,height:270,time:.5,duration:5,phase:10}}};act('motion-capture',{dataset:{id:'${id}'}})`);
+  assert.equal(a.run(`s.inquiry.motion.${id}`),1);assert.equal(a.run(`s.inquiry.motionPredictions.${id}`),undefined);assert.equal(a.run(`s.inquiry.motionEvidence.${id}.frame`),motionVideo.videoFrameAt(id,10));assert.equal(a.run(`s.inquiry.motionPhotos.${id}.time`),.5);
+  const previous=a.run(`JSON.stringify(s.inquiry.motionPhotos.${id})`);
+  a.run(`motionPlayer={ready:false,pause(){},destroy(){},capture(){return null}};act('motion-capture',{dataset:{id:'${id}'}})`);
+  assert.equal(a.run(`JSON.stringify(s.inquiry.motionPhotos.${id})`),previous,'a stalled retake preserves the photo');
  }
 });
 
@@ -205,7 +242,7 @@ test('request cards move with the deck buttons and a blank reply jumps to the ca
  a.run("act('request-card',{dataset:{value:'9'}})");assert.equal(a.run('requestCard'),2);
  a.run("for(const r of missionRows(s,3,0))chooseCommission(s,3,0,r.key,r.answer);for(const r of missionRows(s,3,1))if(r.key!=='butterfly-life')chooseCommission(s,3,1,r.key,r.answer);requestCard=0;act('commission-submit',{dataset:{}})");
  assert.equal(a.run('screen'),'commission');assert.equal(a.run('requestCard'),3);assert.match(a.app.innerHTML,/data-row="butterfly-life"/);assert.match(a.run('feedback.text'),/나비 · 움직임/);
- assert.match(a.app.innerHTML,/record-row\s+retry" data-row="butterfly-life"|retry" data-row="butterfly-life"/);
+ assert.match(a.app.innerHTML,/class="record-row[^\"]*\bretry\b[^\"]*" data-row="butterfly-life"/);
 });
 
 
@@ -264,7 +301,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
   for(const d of model.DISCOVERIES.slice(r*3,r*3+3)){act('habitat',{id:d.habitat});act('discover',{id:d.id});
    assert.doesNotMatch(a.app.innerHTML,new RegExp(d.text.slice(0,12)),'the answer sentence waits for the prediction');
    act('motion-predict',{id:d.animal,value:'part'});assert.match(a.app.innerHTML,new RegExp(d.text.slice(0,12)));
-   a.run(`motionPlayer={ready:true,pause(){},seek(){},destroy(){}};motionPhase=motionFramePhase('${d.animal}',MOTIONS.${d.animal}.target)`);act('motion-capture',{id:d.animal});}
+   a.run(`motionPhase=10;motionPlayer={ready:true,viewed:true,pause(){},seek(){},destroy(){},capture(){return {dataURL:'data:image/webp;base64,AAAA',width:480,height:270,time:.5,duration:5,phase:10}}}`);act('motion-capture',{id:d.animal});}
   tapTwice('advance()');
   const id=r?'crab':'frog';for(const [i,key] of ['environment','body','life'].entries()){const v=model.LINKS[id].answer[i];act('pick',{ref:'link-'+v,value:v,kind:key});act('place',{dropAction:'link',key,id});}
   a.run('advance()');
@@ -288,5 +325,5 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,18);assert.equal(Object.keys(saved.campaign.records).length,10);
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.match(a.app.innerHTML,/18개 탐험 별/);
- act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/처음 고른 설명이 맞은 곳 12곳/);
+ act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|처음 고른 설명이 맞은 곳 12곳/);
 });

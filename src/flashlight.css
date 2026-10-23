@@ -1,0 +1,120 @@
+/* Night investigation uses real animal artwork under a pointer-controlled beam. */
+#app #main.stage-4 .activity-workspace {
+  display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(330px, .85fr);
+  gap: clamp(12px, 1.5vw, 24px); height: 100%; min-height: 0;
+  padding: var(--activity-edge, 84px) 14px !important; align-items: stretch; overflow: hidden;
+}
+#app #main.stage-4 :is(.flashlight-field,.animal-journey) { display: flex; flex-direction: column; min-width: 0; min-height: 0; margin: 0; padding: clamp(12px, 1.4vw, 22px); border: 2px solid #8c976d; border-radius: 24px; background: #102d28f5; box-shadow: 0 6px 0 #14261e66, 0 12px 24px #0c21164d; color: #fff2cd; }
+#app #main.stage-4 :is(.flashlight-heading,.animal-journey>header) { flex: none; padding: 0 4px 12px; }
+#app #main.stage-4 :is(.flashlight-heading,.animal-journey>header)>span { display: flex; align-items: center; gap: 7px; color: #d8c98f; font: 400 18px/1.2 var(--font-display); }
+#app #main.stage-4 :is(.flashlight-heading,.animal-journey>header) h2 { margin: 7px 0; font: 400 clamp(26px, 2vw, 37px)/1.2 var(--font-display) !important; color: #fff5d9; }
+#app #main.stage-4 :is(.flashlight-heading,.animal-journey>header) p { margin: 0; font-size: 18px !important; line-height: 1.3; color: #c9d4b6; }
+.flashlight-surface { --beam-size: clamp(72px, 7.5vw, 125px); position: relative; isolation: isolate; flex: 1; width: 100%; min-height: 240px; overflow: hidden; border: 1px solid #8ba88755; border-radius: 18px; background: radial-gradient(circle at 12% 24%, #c4cc6e44 0 1px, transparent 3px), radial-gradient(circle at 86% 65%, #c4cc6e44 0 1px, transparent 3px), radial-gradient(ellipse at center, #1e3933, #071714 75%); touch-action: none; cursor: crosshair; }
+.flashlight-shadow,.flashlight-lit { position: absolute; inset: 0; pointer-events: none; }
+.flashlight-shadow > img,.flashlight-lit > img { position: absolute; left: 9%; top: 7%; width: 82%; height: 86%; object-fit: contain; }
+.flashlight-shadow > img { filter: brightness(.035) saturate(.25); opacity: .9; }
+.flashlight-lit { z-index: 1; clip-path: circle(var(--beam-size) at var(--beam-x, 50%) var(--beam-y, 50%)); background: radial-gradient(circle at var(--beam-x, 50%) var(--beam-y, 50%), #fff5bf20, transparent 35%); }
+.flashlight-beam { position: absolute; z-index: 2; left: var(--beam-x,50%); top: var(--beam-y,50%); width: calc(var(--beam-size) * 2); height: calc(var(--beam-size) * 2); transform: translate(-50%,-50%); border: 2px solid #f9dfa766; border-radius: 50%; box-shadow: inset 0 0 35px #ffecac22, 0 0 24px #ffed9c20; pointer-events: none; }
+#app #main.stage-4 .flashlight-hotspot { position: absolute; z-index: 3; display: grid; place-items: center; width: 48px; min-height: 48px; height: 48px; padding: 0; margin: 0; border: 0; border-radius: 50%; background: #061b1644; color: #ffe58d; box-shadow: none; transform: translate(-50%,-50%); }
+.flashlight-spark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #f8de8e88; border-radius: 50%; background: #243e2a88; font-size: 25px; text-shadow: 0 0 12px #f4d772; opacity: .6; }
+.flashlight-spark .icon { width: 23px; height: 23px; }
+.flashlight-spot-label { position: absolute; top: 46px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 5px 9px; border: 1px solid #dece8a; border-radius: 8px; background: #fff3d7; color: #38563c; font: 400 18px/1.2 var(--font-display); opacity: 0; pointer-events: none; }
+#app #main.stage-4 .flashlight-hotspot:is(.in-light,:focus-visible,:hover) .flashlight-spark { opacity: 1; background: #466e3df2; box-shadow: 0 0 0 5px #f9e3a72a, 0 0 18px #ffe38855; }
+#app #main.stage-4 .flashlight-hotspot:is(.in-light,:focus-visible,:hover) .flashlight-spot-label { opacity: 1; }
+#app #main.stage-4 .flashlight-hotspot.found .flashlight-spark { opacity: 1; color: #dcf2c6; border-color: #bfd59c; background: #416d49; }
+#app #main.stage-4 .flashlight-hotspot:focus-visible { outline: 3px solid #ffe6a0; outline-offset: 4px; }
+.flashlight-tip { position: absolute; z-index: 2; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; max-width: calc(100% - 20px); white-space: nowrap; padding: 7px 12px; border-radius: 999px; background: #051b16d9; color: #f1e5b8; font: 400 17px/1.2 var(--font-display); pointer-events: none; }
+#app #main.stage-4 .flashlight-next { display: flex; gap: 8px; align-items: center; flex: none; margin: 12px 0 0; color: #e6ebca; font: 400 19px/1.4 var(--font-display) !important; }
+#app #main.stage-4 :is(.flashlight-notebook,.journey-journal) { min-width: 0; min-height: 0; max-height: 100%; overflow: auto; overscroll-behavior: contain; margin: 0; padding: clamp(14px,1.5vw,24px); border: 2px solid #8d7c51; border-left: 8px solid #927957; border-radius: 20px; background: linear-gradient(90deg, #d1bb8738, transparent 22px), #fff8e8f7; box-shadow: 0 5px 0 #4c462e66, 0 12px 24px #26391d33; scrollbar-width: thin; }
+#app #main.stage-4 :is(.flashlight-notebook,.journey-journal)>header>span { color: #88734b; font: 400 18px/1.2 var(--font-display); }
+#app #main.stage-4 :is(.flashlight-notebook,.journey-journal) h2 { margin: 4px 0 7px; font: 400 clamp(26px, 1.9vw, 34px)/1.2 var(--font-display) !important; color: #34583e; }
+#app #main.stage-4 .flashlight-notebook>header p { margin: 0 0 12px; font-size: 17px !important; line-height: 1.4; color: #786b4e; }
+.flashlight-find-progress { display: flex; align-items: center; gap: 7px; padding: 10px 0; border-block: 1px dashed #c9b888; }
+.flashlight-find-progress > i { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid #c7bb92; border-radius: 50%; background: #e8e2ce; color: #9a947d; }
+.flashlight-find-progress > i .icon { width: 17px; height: 17px; }
+.flashlight-find-progress > i.found { color: #fff7d7; border-color: #527546; background: #5f814c; }
+.flashlight-find-progress > span { margin-left: auto; font: 400 18px/1.2 var(--font-display); color: #587041; }
+#app #main.stage-4 .flashlight-guess { margin: 12px 0; }
+#app #main.stage-4 .flashlight-guess > .btn { width: 100%; min-height: 48px; padding: 8px 12px; font: 400 22px/1.2 var(--font-display); }
+#app #main.stage-4 .flashlight-guess > .btn:disabled { background: #e0e4d0; color: #6d765e; border-color: #b2b79b; box-shadow: 0 3px 0 #a4aa91; opacity: 1; }
+#app #main.stage-4 .flashlight-guess > p { margin: 9px 0 0; font-size: 17px !important; line-height: 1.35; color: #756c51; }
+.flashlight-picked { display: flex; align-items: center; gap: 10px; padding: 8px; border: 2px solid #9cae77; border-radius: 14px; background: #eff2d8; }
+.flashlight-picked > .animal { width: 72px; height: 72px; object-fit: contain; }
+.flashlight-picked > div { flex: 1; }
+.flashlight-picked small { display: block; color: #7d795d; font-size: 16px; }
+.flashlight-picked b { font: 400 27px/1.3 var(--font-display); color: #395c3e; }
+#app #main.stage-4 .flashlight-picked .btn { min-height: 44px; padding: 5px 9px; font-size: 17px; }
+#app #main.stage-4 .grounds-pick { min-width: 0; padding: 0; border: 0; background: transparent; }
+#app #main.stage-4 .grounds-pick h3 { margin: 12px 0 9px; font: 400 21px/1.3 var(--font-display) !important; color: #526647; }
+.flashlight-clue-list { display: flex; flex-direction: column; gap: 7px; }
+#app #main.stage-4 .flashlight-note { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; min-height: 59px; margin: 0; padding: 9px 10px; border: 1px solid #cbbc91; border-radius: 12px; background: #fffdf4; box-shadow: 0 3px 0 #d2c8a86b; color: #405c42; text-align: left; }
+.flashlight-note .clue-pin { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: #e8edcf; color: #5f7549; }
+.flashlight-note .clue-pin .icon { width: 20px; height: 20px; }
+.flashlight-note > span:last-child { min-width: 0; }
+#app #main.stage-4 .flashlight-note small { display: block; margin-bottom: 2px; color: #8c805e; font: 400 16px/1.2 var(--font-display) !important; }
+#app #main.stage-4 .flashlight-note b { display: block; font: 400 clamp(18px,1.3vw,22px)/1.3 var(--font-display) !important; }
+#app #main.stage-4 .flashlight-note.selected { border: 2px solid #648349; padding: 8px 9px; background: #e5edcf; }
+#app #main.stage-4 .flashlight-note.selected .clue-pin { background: #5e7e4d; color: #fff7dc; }
+#app #main.stage-4 .flashlight-note.locked { min-height: 50px; padding-block: 7px; background: #ede8d885; border-style: dashed; color: #9b957e; box-shadow: none; }
+#app #main.stage-4 .flashlight-note.locked b { font-size: 16px !important; font-family: var(--font-body) !important; }
+#app #main.stage-4 .flashlight-ground-count { margin: 10px 0 0; font-size: 17px !important; line-height: 1.4; color: #74794f; }
+dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: min(700px,94vw); max-height: 94dvh; border: 3px solid #7a714a; border-radius: 22px; background: #fff9e8; }
+.flashlight-discovery { text-align: center; font-family: var(--font-display); }
+.discovery-sticker { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid #dacb8b; border-radius: 999px; background: #f6e6a7; color: #6a6138; font-size: 19px; }
+.flashlight-discovery > h3 { margin: 14px 0 8px; color: #385d3e; font: 400 32px/1.2 var(--font-display); }
+.flashlight-found-photo { width: 100%; height: min(29dvh,270px); overflow: hidden; border-radius: 14px; background: #e5e8d6; }
+.flashlight-found-photo > .animal { display: block; width: 100%; height: 100%; object-fit: contain; }
+.flashlight-found-photo.closeup > .animal { transform: scale(2); transform-origin: var(--clue-x) var(--clue-y); }
+.flashlight-discovery > .biome-photo { display: block; width: 100%; height: min(29dvh,240px); margin: 0; border-radius: 14px; }
+.flashlight-discovery > p { margin: 18px 6px 8px; color: #3b5d40; font: 400 clamp(24px,2.4vw,32px)/1.4 var(--font-display); }
+.flashlight-discovery > small { display: block; color: #8a7d58; font-size: 17px; line-height: 1.4; }
+.flashlight-discovery .dialog-actions { justify-content: center; margin-top: 20px; }
+.flashlight-discovery .dialog-actions .btn { min-height: 50px; font: 400 23px/1.3 var(--font-display); }
+.flashlight-guess-dialog > p { color: #59704d; font: 400 22px/1.5 var(--font-display); }
+.flashlight-candidates { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.flashlight-candidate { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 190px; padding: 12px; border: 2px solid #c7b784; border-radius: 18px; background: #fffdf1; color: #3d603f; box-shadow: 0 4px 0 #c2b280; }
+.flashlight-candidate .animal { width: 100%; height: 125px; object-fit: contain; }
+.flashlight-candidate b { font: 400 27px/1.2 var(--font-display); }
+.flashlight-candidate.selected { background: #e5efd0; border-color: #64814b; }
+
+/* Once identified, send the animal to a habitat and try its movement. */
+.journey-scene { position: relative; flex: 1; min-height: 240px; overflow: hidden; border: 1px solid #c5cca355; border-radius: 18px; background: linear-gradient(#a9c5b8,#e0e6cb 64%,#839663 65%,#556a42); }
+.journey-scene[data-journey-habitat=pond],.journey-scene[data-journey-habitat=sea] { background: linear-gradient(#98bfc7,#c8e1d8 62%,#6faaa9 63%,#337b83); }
+.journey-scene[data-journey-habitat=dry] { background: linear-gradient(#d7cdab,#f4dfaa 64%,#c6a66a 65%,#a58852); }
+.journey-scene[data-journey-habitat=cold] { background: linear-gradient(#a8c8d7,#eff7ee 64%,#c8dce0 65%,#a0becb); }
+.journey-animal { position: absolute; inset: 7% 12% 10%; }
+.journey-animal .animal { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 8px #2e4d3b44); }
+.journey-name { position: absolute; left: 14px; top: 14px; padding: 6px 12px; border-radius: 999px; background: #fff8e6ed; color: #45613d; font: 400 22px/1.2 var(--font-display); }
+.journey-motion-note { position: absolute; right: 12px; bottom: 12px; max-width: calc(100% - 24px); padding: 7px 12px; border-radius: 10px; background: #fff8e7e8; color: #46613e; font: 400 20px/1.3 var(--font-display); }
+.journey-destinations { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); flex: none; gap: 8px; margin-top: 12px; }
+#app #main.stage-4 .journey-portal { display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 105px; padding: 7px; border: 2px solid #8f9d71; border-radius: 14px; background: #f0f2dbe8; color: #415d3d; font: 400 18px/1.2 var(--font-display); box-shadow: 0 3px 0 #71845a; }
+.journey-place-art { display: block; width: 100%; height: 54px; border-radius: 8px; background-image: var(--sheet); background-size: 300% 400%; background-position: calc(var(--col) * 100% / 2) calc(var(--row) * 100% / 3); }
+#app #main.stage-4 .journey-portal.selected { border-color: #f6d16c; background: #fff1bb; box-shadow: 0 0 0 3px #f8dfa755; }
+.journey-evidence-photo { margin: 14px 0; }
+.journey-evidence-photo .biome-photo { display: block; width: 100%; height: clamp(120px,18dvh,220px); border-radius: 14px; }
+.journey-evidence-photo figcaption { margin-top: 6px; color: #8a7c58; font: 400 17px/1.3 var(--font-display); }
+#app #main.stage-4 .journey-evidence-text { margin: 14px 0; padding: 10px 12px; border-left: 3px solid #8b9c68; background: #ebeed9; color: #526a46; font: 400 19px/1.5 var(--font-display) !important; }
+#app #main.stage-4 .journey-movement h3 { margin: 18px 0 5px; color: #3c6040; font: 400 24px/1.3 var(--font-display) !important; }
+#app #main.stage-4 .journey-movement p,.journey-check-note { font-size: 17px !important; line-height: 1.4; color: #7a7555; }
+#app #main.stage-4 .journey-movement .choice { width: 100%; min-height: 54px; margin-top: 9px; padding: 8px 12px; font: 400 21px/1.3 var(--font-display); text-align: left; }
+@media (prefers-reduced-motion:no-preference) {
+  .journey-scene.jump .journey-animal { animation: animal-hop 1.5s ease-in-out 2; }
+  .journey-scene.swim .journey-animal { animation: animal-swim 2s ease-in-out 2; }
+  @keyframes animal-hop { 0%,100% { transform: translate(0,0); } 45% { transform: translate(18px,-32px) rotate(-3deg); } }
+  @keyframes animal-swim { 0%,100% { transform: translate(-12px,0) rotate(-2deg); } 50% { transform: translate(15px,5px) rotate(2deg); } }
+}
+@media(max-height:760px) and (min-width:901px) { #app #main.stage-4 .flashlight-heading h2 { margin-block:4px; } #app #main.stage-4 .flashlight-heading p { font-size:17px !important; } #app #main.stage-4 .flashlight-note { min-height:52px; padding-block:6px; } .flashlight-clue-list { gap:5px; } #app #main.stage-4 .flashlight-notebook>header p { display:none; } #app #main.stage-4 .flashlight-note.locked { min-height:44px; } .journey-destinations { gap:5px; } #app #main.stage-4 .journey-portal { font-size:16px; min-height:92px; } }
+@media(max-width:1050px) and (min-width:851px) { #app #main.stage-4 .activity-workspace { grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr); } .journey-destinations { grid-template-columns:repeat(3,minmax(0,1fr)); } #app #main.stage-4 .journey-portal { min-height:70px; } .journey-place-art { height:32px; } }
+@media(max-width:850px) { #app #main.stage-4 .activity-workspace { grid-template-columns:minmax(0,1fr); height:auto; min-height:100%; overflow:auto; padding-bottom:100px !important; } #app #main.stage-4 :is(.flashlight-field,.animal-journey) { min-height:490px; } .flashlight-surface,.journey-scene { min-height:330px; } #app #main.stage-4 :is(.flashlight-notebook,.journey-journal) { max-height:none; overflow:visible; } .journey-destinations { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+.flashlight-discovery > .biome-photo,.journey-evidence-photo .biome-photo { position: relative; inset: auto; }
+.journey-destinations { grid-template-columns: repeat(3,minmax(0,1fr)); }
+@media (max-height:760px) and (min-width:851px) {
+  .journey-evidence-summary { display:grid; grid-template-columns:130px minmax(0,1fr); gap:12px; align-items:center; margin-top:8px; }
+  .journey-evidence-photo { margin:0; }
+  .journey-evidence-photo .biome-photo { height:85px; }
+  .journey-evidence-photo figcaption { font-size:16px; }
+  #app #main.stage-4 .journey-evidence-text { margin:0; padding:8px; font-size:18px !important; }
+  #app #main.stage-4 .journey-movement h3 { margin-top:14px; }
+  #app #main.stage-4 .journey-movement > p { margin:6px 0; }
+  #app #main.stage-4 .journey-movement .choice { min-height:50px; margin-top:7px; font-size:20px; }
+}

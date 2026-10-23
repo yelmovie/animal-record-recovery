@@ -1,0 +1,306 @@
+[
+  {
+    "stage": 1,
+    "step": 0,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "개구리와 게 관찰"
+        },
+        {
+          "font": "34px",
+          "text": "눈"
+        },
+        {
+          "font": "26px",
+          "text": "머리 위쪽에 튀어나온 눈이 있어."
+        },
+        {
+          "font": "26px",
+          "text": "자루 끝에 달린 눈이 있어."
+        },
+        {
+          "font": "26px",
+          "text": "털 사이에 작은 눈이 숨어 있어."
+        },
+        {
+          "font": "26px",
+          "text": "지도"
+        },
+        {
+          "font": "26px",
+          "text": "다음으로"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        },
+        {
+          "c": "field-notes lens-notes",
+          "h": 884,
+          "s": 884
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 1,
+    "step": 1,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "첫 번째 비교"
+        },
+        {
+          "font": "26px",
+          "text": "이전"
+        },
+        {
+          "font": "26px",
+          "text": "다음으로"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 2,
+    "step": 1,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "다 함께 쓸 기준 고치기"
+        },
+        {
+          "font": "26px",
+          "text": "이전"
+        },
+        {
+          "font": "26px",
+          "text": "탐구 마치기"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 3,
+    "step": 0,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "첫 동물 세 마리"
+        },
+        {
+          "font": "26px",
+          "text": "지도"
+        },
+        {
+          "font": "26px",
+          "text": "기록 확인 · 0/3"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 4,
+    "step": 0,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "단서로 동물 찾기"
+        },
+        {
+          "font": "34px",
+          "text": "단서에 맞는 동물은?"
+        },
+        {
+          "font": "26px",
+          "text": "지도"
+        },
+        {
+          "font": "26px",
+          "text": "다음으로"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 5,
+    "step": 0,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "동물에게 아이디어 빌리기"
+        },
+        {
+          "font": "34px",
+          "text": "새 발명"
+        },
+        {
+          "font": "34px",
+          "text": "① 해결할 문제"
+        },
+        {
+          "font": "26px",
+          "text": "물에서 힘차게 나아가고 싶어"
+        },
+        {
+          "font": "26px",
+          "text": "지도"
+        },
+        {
+          "font": "26px",
+          "text": "모양 비교하기"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        },
+        {
+          "c": "design-options paged-panel",
+          "h": 293,
+          "s": 293
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 5,
+    "step": 2,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "내 발명 그리기"
+        },
+        {
+          "font": "26px",
+          "text": "이전"
+        },
+        {
+          "font": "26px",
+          "text": "작품 소개하기"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        },
+        {
+          "c": "studio-notebook",
+          "h": 689,
+          "s": 689
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  },
+  {
+    "stage": 5,
+    "step": 3,
+    "data": {
+      "fonts": [
+        {
+          "font": "40px",
+          "text": "작품 소개하기"
+        },
+        {
+          "font": "34px",
+          "text": "내 생각을 들려줘!"
+        },
+        {
+          "font": "26px",
+          "text": "이전"
+        },
+        {
+          "font": "26px",
+          "text": "전시관에 보내기"
+        }
+      ],
+      "panels": [
+        {
+          "c": "activity-workspace",
+          "h": 884,
+          "s": 884
+        },
+        {
+          "c": "studio-introduction",
+          "h": 852,
+          "s": 852
+        }
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    }
+  }
+]

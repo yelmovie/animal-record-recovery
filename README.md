@@ -112,7 +112,12 @@ npm run preview
   9. `readability.css` — 전자칠판용 최소 글자 크기(16px 이하 금지)
   10. `stage-map.css` — 화면을 꽉 채우는 걸어 다니는 마을 지도, 카메라 따라가기, 모서리에 뜬 아이콘
   11. `layout.css` — 상·하단 줄 없는 화면 틀, 떠 있는 아이콘 4개, 활동 화면 최대 크기
-  12. `compact.css` — **마지막 덮어쓰기 층.** 작은 화면 여백, 오답 안내 칸(`.retry-note`), 768×1024 세로 배치, 그림판 도구 두 줄
+  12. `compact.css` — 작은 화면 여백, 오답 안내 칸(`.retry-note`), 768×1024 세로 배치, 그림판 도구 두 줄
+  13. `gallery.css` — 자연사 전시관 배경, 유리 전시대와 작품 설명판
+  14. `motion-player.css` — 3장 영상 재생·실제 사진 촬영과 전시관 사진벽
+  15. `broadcast.css` — 생태 방송 의뢰의 큰 동물 사진·선택 순서·다음 동물 안내
+  16. `research-diary.css` — 실제 관찰로 엮은 주아체 연구 일기 공책
+  17. `flashlight.css` — 4장 손전등 조사·특징 발견 팝업·추리 수첩과 생활 연결
   - 화면 모양을 고칠 때는 보통 `layout.css`(전체 틀)·`compact.css`(작은 화면·세로)나 해당 화면 파일을 고친다. 순서를 바꾸면 덮어쓰기 결과가 달라진다.
 - `assets/adventure/`: 동물·탐험가·작업대·새 전시관 메인의 PNG 원본·WebP
 - `docs/ADVENTURE-PLAN-20261015.md`: 이번 활동·역할·보상 설계

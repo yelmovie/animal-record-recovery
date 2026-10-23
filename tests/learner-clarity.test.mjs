@@ -9,7 +9,7 @@ import {campaignFixture} from './fixtures/campaign-state.mjs';
 
 const text=html=>html.replace(/<[^>]+>/g,' ');
 
-test('before a prediction, chapter 3 shows only the animal, the place and the question',()=>{
+test('chapter 3 plays without a prediction form and reveals scene captions through playback',()=>{
  const s=freshExpedition(),rabbit=DISCOVERIES.find(d=>d.animal==='rabbit');s.discovered.push(rabbit.id);
  assert.equal(motionOpen(s,'rabbit'),false);
  assert.doesNotMatch(discoveryCaption(s,rabbit),/뒷다리/);assert.match(discoveryCaption(s,rabbit),/숲과 들에서 토끼가 움직이고 있어/);
@@ -18,12 +18,13 @@ test('before a prediction, chapter 3 shows only the animal, the place and the qu
  for(const frame of MOTIONS.rabbit.frames)assert.ok(!before.includes(frame),`caption or label leaks “${frame}”`);
  assert.doesNotMatch(before,/긴 뒷다리의 움직임 관찰 영상/);
  assert.doesNotMatch(before,/뒷다리를 굽혀 준비하는 순간/);
- // The two prediction choices are the question itself, so they stay.
- assert.match(before,/긴 뒷다리/);assert.match(before,/귀/);
- // A wrong prediction still opens the observation and the comparison afterwards.
+ assert.doesNotMatch(before,/motion-prediction|motion-predict|내 예상|긴 뒷다리/);
+ assert.match(before,/data-action="motion-fullscreen"/);assert.match(before,/동영상 전체화면 보기/);
+ const playing=motionView('rabbit',{motionPlaying:true});assert.match(playing,/뒷다리를 굽혀/);
+ // Existing prediction records remain readable, but do not add the removed UI.
  s.inquiry.motionPredictions.rabbit='other';
  assert.equal(motionOpen(s,'rabbit'),true);assert.match(discoveryCaption(s,rabbit),/뒷다리로 뛰어다녔어/);
- const after=motionView('rabbit',{motionPrediction:'other'});assert.match(after,/뒷다리를 굽혀 준비하는 순간/);
+ const after=motionView('rabbit',{motionPrediction:'other'});assert.doesNotMatch(after,/motion-prediction|motion-predict|내 예상/);assert.match(after,/전시 사진 찍기/);assert.doesNotMatch(after,/data-action="motion-frame"/);
  // Reload keeps the same reveal state.
  assert.equal(motionOpen(restoreExpedition(JSON.stringify(s)),'rabbit'),true);
  // A record from an older save (motion without a saved prediction) counts as already observed.
@@ -32,11 +33,11 @@ test('before a prediction, chapter 3 shows only the animal, the place and the qu
 
 test('unfinished chapter 3 hints, the notebook, the tool and the report do not name the moving part early',()=>{
  const s=freshExpedition();s.adminUnlocked=true;for(const d of DISCOVERIES.slice(0,3))s.discovered.push(d.id);
- const hint=taskMistake(s,3,0).text;assert.doesNotMatch(hint,/순간/);assert.match(hint,/먼저 무엇이 움직임을 도울지 예상해 봐/);
+ const hint=taskMistake(s,3,0).text;assert.doesNotMatch(hint,/예상|순간/);assert.match(hint,/영상을 재생하고 전시 사진 한 장/);
  assert.ok(!collectedAnimals(s).includes('marine'),'a found animal joins the notebook after the prediction');
  const report=researchLines(s).join('\n');assert.doesNotMatch(report,/지느러미로 바닷물/);
  s.inquiry.motionPredictions.marine='part';assert.ok(collectedAnimals(s).includes('marine'));
- assert.match(taskMistake(s,3,0).text,/바다 물고기: 꼬리가 물을 옆으로 미는 순간을 찾아 기록해 봐/);
+ assert.match(taskMistake(s,3,0).text,/바다 물고기: 영상을 재생하고 전시 사진 한 장을 찍어 봐/);
 });
 
 test('observation tries survive reload; older observations stay unknown instead of guessed',()=>{
@@ -52,11 +53,11 @@ test('observation tries survive reload; older observations stay unknown instead 
  assert.match(report,/자루 끝에 달린 눈이 있어\.$/m,'an unknown try adds no guessed label to its line');
 });
 
-test('teacher guide gives the three talk-based checks and does not call the free invention a score',()=>{
+test('teacher guide keeps the three standards without the removed assessment section or preamble',()=>{
  const html=text(settingsContent(campaignFixture()));
- for(const check of ['동물 특징과 기능 연결','쓰임 설명','친구 의견 반영'])assert.match(html,new RegExp(check));
- assert.match(html,/학습 성취 점수로 보지 말고/);assert.match(html,/친구 의견 칸을 비워도 진행돼요/);
- assert.match(html,/이 기기의 관찰 기록/);
+ assert.doesNotMatch(html,/학습 확인 기준|이 기기의 관찰 기록|2022 개정|수업·토론·후속 평가/);
+ for(const code of ['4과02-01','4과02-02','4과02-03'])assert.ok(html.includes(code));
+ assert.match(html,/교사용 도구/);
 });
 
 test('travel buttons pick 으로/로 by the last sound of the place name',()=>{

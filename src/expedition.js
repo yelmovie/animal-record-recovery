@@ -88,8 +88,8 @@ export const LINKS={
   frog:{animal:'frog',environment:[['pond','연못과 물가'],['sea','짠 바닷물 속'],['desert','건조한 모래 사막']],body:[['web','뒷발의 물갈퀴'],['fin','지느러미와 꼬리'],['claw','단단한 집게다리']],life:[['swim','물을 밀며 헤엄쳐'],['wiggle','몸과 꼬리를 흔들며 헤엄쳐'],['side','옆으로 걸어 다녀']],answer:['pond','web','swim'],sentence:'개구리는 물가에서 살며 물갈퀴로 물을 밀어 헤엄쳐.'},
   crab:{animal:'crab',environment:[['coast','바다와 갯벌'],['forest','숲과 들'],['pond','연못과 물가']],body:[['legs','집게다리와 여러 개의 걷는 다리'],['web','발가락 사이 물갈퀴'],['fin','지느러미와 꼬리']],life:[['walk','여러 다리로 갯벌을 걸어 다녀'],['swim','물을 밀며 헤엄쳐'],['jump','땅을 박차고 뛰어']],answer:['coast','legs','walk'],sentence:'게는 바다와 갯벌에서 여러 개의 다리로 걸어 다녀.'},
 };
-// Screen 08: each clue fits two or three candidates, so one clue never decides; the learner picks clues worth the energy.
-export const CLUE_ENERGY=3;
+// The flashlight can discover all five clues. A valid inference still needs distinct proving grounds.
+export const CLUE_ENERGY=5;
 export const CASES=[
   {id:'duck',animal:'duck',title:'물가에서 만난 친구',candidates:['duck','frog','fish','hen'],clues:[
     {id:'place',kind:'발견 장소',icon:'leaf',place:'pond',text:'연못 물 위와 물가에서 발견됐어.',fits:['duck','frog','fish']},
@@ -282,12 +282,12 @@ export function taskMistake(s,stage,step){
     if(!OBSERVABLE.includes(v.fix))return {text:v.fix?`‘${CRITERIA[v.fix]}’도 사람마다 답이 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`:'누가 봐도 같은 답이 나오는 기준으로 고쳐 줘.',wrong:['verify:fix']};
     if(!splitsAnimals(v.fix))return {text:`‘${CRITERIA[v.fix]}’로 나누면 여섯 마리가 모두 ${SORT_ANIMALS.some(id=>ANIMALS[id][v.fix])?'O':'X'} 칸에 들어가. 동물이 두 무리로 나뉘는 기준을 골라 봐.`,wrong:['verify:fix']};
     if(v.checked!==v.fix)return {text:'고친 기준으로 ‘다시 검증’을 눌러 세 결과가 같은지 확인해 봐.',wrong:[]};return null;}
-  if(stage===3&&step%2===0){const list=DISCOVERIES.slice(round*3,round*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>motionOpen(s,d.animal)?`${ANIMALS[d.animal].name}: ${MOTIONS[d.animal].goal}을 찾아 기록해 봐.`:`${ANIMALS[d.animal].name}: 먼저 무엇이 움직임을 도울지 예상해 봐.`).join(' '),wrong:[]}:null;}
+  if(stage===3&&step%2===0){const list=DISCOVERIES.slice(round*3,round*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>`${ANIMALS[d.animal].name}: 영상을 재생하고 전시 사진 한 장을 찍어 봐.`).join(' '),wrong:[]}:null;}
   if(stage===3){const id=round?'crab':'frog',keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);// One short sentence about the first slot to fix; every slot still to fix stays marked.
     const first=bad[0];return bad.length?{text:s.links[id][first?.k]?`‘${cols[first.i]}’을 다시 봐. ${tips[first.i]}`:`‘${cols[first.i]}’ 칸에 카드를 놓아 줘.`,wrong:bad.map(({k})=>'link:'+k)}:null;}
   if(stage===4){const c=CASES[round],a=s.cases[round],names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');
     if(step%2===0||!groundsReady(c,a)){
-      if(!a.opened.length)return {text:`단서 카드를 눌러 조사해 봐. 조사 에너지는 ${CLUE_ENERGY}개야.`,wrong:[]};
+      if(!a.opened.length)return {text:'손전등으로 반짝이는 곳을 비추고, 발견한 특징을 수첩에 붙여 봐.',wrong:[]};
       const left=CLUE_ENERGY-a.opened.length,open=fitting(c,a.opened);
       if(!a.candidate)return {text:'열어 본 단서와 맞는 동물을 골라 줘.',wrong:[]};
       if(a.candidate!==c.animal){const k=a.opened.map(id=>clueOf(c,id)).find(x=>!x.fits.includes(a.candidate));return {text:k?`${withParticle(ANIMALS[a.candidate].name,'은/는')} ‘${k.kind}: ${k.text}’ 단서와 맞지 않아.`:`지금 단서로는 ${names(open)} 중 누구인지 알 수 없어. ${left?'다른 단서를 더 조사해 봐.':'‘다시 조사’로 다른 단서를 골라 봐.'}`,wrong:['case:candidate']};}

@@ -20,9 +20,19 @@ http.createServer(async(req,res)=>{try{
    if(!claimCommission(state,stage,index).ok)throw Error(`Invalid review award ${stage}-${index}`);
   }
   state.stage=Number(url.searchParams.get('stage'))||1;state.step[state.stage]=Number(url.searchParams.get('step'))||0;
+  if(['frog','crab','duck','rabbit'].includes(url.searchParams.get('animal')))state.activeAnimal=url.searchParams.get('animal');
+  if(url.searchParams.has('creative')){
+   state.studio={version:1,title:'날개 달린 우산',audience:'비 오는 날 걸어가는 친구',purpose:'나비처럼 넓은 날개가 우산을 들어 주면 두 손으로 가방을 잡을 수 있어. 바람이 불 때는 날개를 접을 수도 있어.',inspiration:'나비의 넓은 날개와 오리의 물갈퀴를 관찰하고 생각했어. 넓은 면을 접었다 펼 수 있도록 만들었어.',strokes:[{color:'#e69b24',width:8,points:[{x:120,y:100},{x:300,y:250},{x:600,y:140}]}]};
+   state.studioRecord=structuredClone(state.studio);
+  }
+  if(url.searchParams.has('photos'))for(const id of ['frog','crab','duck','rabbit','butterfly','fish'])state.inquiry.motionPhotos[id]={dataURL:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j0ioAAAAASUVORK5CYII=',width:320,height:180,time:1,duration:5};
   data=data.toString().replace('<script type="module"',`<script>localStorage.setItem('animal-record-recovery:v1',${JSON.stringify(JSON.stringify(state))});</script><script type="module"`);
  }
- if(rel.replaceAll('\\','/')==='src/adventure-app.js')data=data.toString().replace("let screen='home'", "let screen=new URLSearchParams(location.search).get('screen')||'home'");
+ if(rel.replaceAll('\\','/')==='src/adventure-app.js')data=data.toString()
+  .replace("let screen='home'", "let screen=new URLSearchParams(location.search).get('screen')||'home'")
+  .replace('let commissionIndex=0',"let commissionIndex=Math.min(2,Math.max(0,Number(new URLSearchParams(location.search).get('index'))||0))")
+  .replace('focusIndex=0,clueIndex=0',"focusIndex=Math.min(2,Math.max(0,Number(new URLSearchParams(location.search).get('focus'))||0)),clueIndex=0")
+  .replace('labSummary=false,focusIndex=',"labSummary=new URLSearchParams(location.search).has('summary'),focusIndex=");
  const headers={'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store','Accept-Ranges':'bytes'};
  if(req.headers.range&&Buffer.isBuffer(data)){
   const match=req.headers.range.match(/^bytes=(\d+)-(\d*)$/),start=Number(match?.[1]),end=match?.[2]?Math.min(Number(match[2]),data.length-1):data.length-1;

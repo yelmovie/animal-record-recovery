@@ -20,7 +20,8 @@ export function addExperimentTrial(design){
 }
 export function comparisonReady(d){const e=d.experiment;if(!e)return false;const trials=e.trials.filter(t=>t.problem===d.problem);return e.sourceSeen&&new Set(trials.map(t=>t.level)).size>=2&&trials.some(t=>t.level===e.level);}
 export function experimentReady(d){return comparisonReady(d)&&Boolean(d.experiment.reflection)&&Boolean(d.experiment.note.trim());}
-// goal: the frame where the body part does the work; only that scene can be recorded.
+// Completion marker retained for existing saves. New observations accept any
+// chosen moment; motionEvidence stores its real frame and motionPhotos its pixels.
 export const MOTION_KEY_FRAME=1;
 export const MOTIONS={
  camel:{optional:true,target:1,guess:['넓적한 발바닥','혹'],part:'넓적한 발바닥',goal:'넓적한 발바닥이 모래를 딛는 순간',frames:['발을 들어 앞으로 옮겨','넓적한 발바닥으로 모래를 디뎌','몸이 앞으로 나아가'],kind:'walk'},
@@ -33,4 +34,9 @@ export const MOTIONS={
  marine:{target:1,guess:['지느러미와 꼬리','입'],part:'지느러미와 꼬리',goal:'꼬리가 물을 옆으로 미는 순간',frames:['몸과 꼬리를 굽혀','몸과 꼬리를 반대로 움직여','물속에서 앞으로 나아가'],kind:'swim'}
 };
 export const frameAt=value=>Math.min(2,Math.floor(Math.max(0,Math.min(100,Number(value)||0))/34));
-export function normalizeInquiry(raw={}){const x=raw&&typeof raw==='object'?raw:{};return {motionPredictions:Object.fromEntries(Object.entries(x.motionPredictions||{}).filter(([id,p])=>Object.hasOwn(MOTIONS,id)&&['part','other'].includes(p))),motionEvidence:Object.fromEntries(Object.entries(x.motionEvidence||{}).filter(([id,e])=>Object.hasOwn(MOTIONS,id)&&e&&e.frame===MOTIONS[id].target&&Number.isFinite(e.phase)&&e.phase>=0&&e.phase<=100).map(([id,e])=>[id,{frame:e.frame,phase:e.phase,source:e.source==='video'?'video':'diagram'}])),motion:Object.fromEntries(Object.entries(x.motion||{}).filter(([id,f])=>Object.hasOwn(MOTIONS,id)&&f===MOTION_KEY_FRAME)),reclass:[0,1].map(i=>({prediction:['yes','no'].includes(x.reclass?.[i]?.prediction)?x.reclass[i].prediction:'',revealed:x.reclass?.[i]?.revealed===true})),verify:[0,1].map(i=>{const v=x.verify?.[i]||{},keys=['wings','legs','four','web','fin','six','cute','scary','fast'];return {ran:v.ran===true,cause:['opinion','few','mistake'].includes(v.cause)?v.cause:'',fix:keys.includes(v.fix)?v.fix:'',checked:keys.includes(v.checked)?v.checked:''};})};}
+export function normalizeMotionPhoto(value){
+ const p=value&&typeof value==='object'?value:{};
+ if(typeof p.dataURL!=='string'||p.dataURL.length>64000||!/^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/]+=*$/.test(p.dataURL)||!Number.isInteger(p.width)||p.width<1||p.width>480||!Number.isInteger(p.height)||p.height<1||p.height>360||!Number.isFinite(p.time)||!Number.isFinite(p.duration)||p.duration<=0||p.duration>120||p.time<0||p.time>p.duration)return null;
+ return {dataURL:p.dataURL,width:p.width,height:p.height,time:p.time,duration:p.duration};
+}
+export function normalizeInquiry(raw={}){const x=raw&&typeof raw==='object'?raw:{};return {motionPredictions:Object.fromEntries(Object.entries(x.motionPredictions||{}).filter(([id,p])=>Object.hasOwn(MOTIONS,id)&&['part','other'].includes(p))),motionEvidence:Object.fromEntries(Object.entries(x.motionEvidence||{}).filter(([id,e])=>Object.hasOwn(MOTIONS,id)&&e&&[0,1,2].includes(e.frame)&&Number.isFinite(e.phase)&&e.phase>=0&&e.phase<=100).map(([id,e])=>[id,{frame:e.frame,phase:e.phase,source:e.source==='video'?'video':'diagram'}])),motionPhotos:Object.fromEntries(Object.entries(x.motionPhotos||{}).filter(([id])=>Object.hasOwn(MOTIONS,id)).map(([id,p])=>[id,normalizeMotionPhoto(p)]).filter(([,p])=>p)),motion:Object.fromEntries(Object.entries(x.motion||{}).filter(([id,f])=>Object.hasOwn(MOTIONS,id)&&f===MOTION_KEY_FRAME)),reclass:[0,1].map(i=>({prediction:['yes','no'].includes(x.reclass?.[i]?.prediction)?x.reclass[i].prediction:'',revealed:x.reclass?.[i]?.revealed===true})),verify:[0,1].map(i=>{const v=x.verify?.[i]||{},keys=['wings','legs','four','web','fin','six','cute','scary','fast'];return {ran:v.ran===true,cause:['opinion','few','mistake'].includes(v.cause)?v.cause:'',fix:keys.includes(v.fix)?v.fix:'',checked:keys.includes(v.checked)?v.checked:''};})};}

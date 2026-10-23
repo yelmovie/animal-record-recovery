@@ -28,9 +28,10 @@ for(const item of previous){
   await unlink(target).catch(error=>{if(error.code!=='ENOENT')throw error;});
 }
 const manifest=[];
+files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css');
 // Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
 files.push('src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
-files.push('src/stage-map.css','src/layout.css','src/compact.css','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
+files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.css','src/motion-player.css','assets/scenes/museum-gallery-v2.webp','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
   await mkdir(path.dirname(dest),{recursive:true});

@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
-import {freshExpedition,restoreExpedition,isStageOpen,availableTools} from '../src/expedition.js';
+import {freshExpedition,restoreExpedition,isStageOpen,availableTools,PROBLEMS} from '../src/expedition.js';
 import {COMMISSIONS,RETEST,freshCampaign,claimRequest,requestCount,ensureCampaign,campaignDraft,missionRows,chooseCommission,claimCommission,campaignReady,campaignOpen,campaignDone,restoredPlaces,commissionCount,runCommissionTrial,campaignReport} from '../src/campaign.js';
 import {commissionView,galleryView,commissionLetter,requestMission} from '../src/campaign-views.js';
 function solve(s,stage,index){
@@ -65,10 +65,37 @@ test('invention requests continue the latest finished product first and label bo
  for(const second of ['protect','warm']){const s=campaignFixture(['swim',second]),html=[0,1].map(requestCard=>commissionView(s,{stage:5,commissionIndex:0,requestCard})).join(''),letter=commissionLetter(s,5);
   assert.ok(html.indexOf('data-request-part="1"')<html.indexOf('data-request-part="0"'));
   assert.match(requestMission(s,5,1).intro,/방금 완성한/);assert.match(requestMission(s,5,0).intro,/먼저 만들었던/);
-  assert.ok(letter.includes(requestMission(s,5,1).title));assert.ok(html.includes(RETEST[second].request));assert.ok(html.includes(RETEST.swim.request));
+  const latest=letter.indexOf('방금 완성한 '+PROBLEMS[second].product),earlier=letter.indexOf('먼저 만들었던 '+PROBLEMS.swim.product);
+  assert.ok(latest>=0&&earlier>latest);
+  assert.ok(html.includes(RETEST[second].request));assert.ok(html.includes(RETEST.swim.request));
  }
 });
 test('all commissions come from distinct village residents, while Mori is addressed as a companion',()=>{
  assert.equal(new Set(COMMISSIONS.map(c=>c.portrait)).size,5);assert.ok(COMMISSIONS.every(c=>!c.npc.includes('모리')));
  const html=commissionLetter(campaignFixture(),4);assert.match(html,/기록 안내원 나라/);assert.match(html,/하루, 모리, 그리고 탐험대에게/);assert.doesNotMatch(html,/기록 보조원 모리/);
+});
+
+test('museum labels preserve submitted observations when a replay draft is changed',()=>{
+ const s=campaignFixture();solve(s,1,0);solve(s,1,1);assert.equal(claimRequest(s,1).ok,true);
+ chooseCommission(s,1,0,'frog-label','fur');
+ const room=galleryView(s).split('data-room="1"')[1].split('data-room="2"')[0];
+ assert.match(room,/털과 깃털 없이 맨살이 드러나 있어/);
+ assert.doesNotMatch(room,/부드러운 털로 덮여 있어/);
+});
+
+test('museum classification showcases keep the archived O and X placements',()=>{
+ const s=campaignFixture();solve(s,2,0);solve(s,2,1);assert.equal(claimRequest(s,2).ok,true);
+ chooseCommission(s,2,1,'criterion','legs');
+ const room=galleryView(s).split('data-room="2"')[1].split('data-room="3"')[0];
+ const yes=room.split('aria-label="기준에 맞는 동물"')[1].split('museum-sort-group')[0];
+ assert.match(room,/다리가 여섯 개인가요/);assert.match(yes,/>벌<\/figcaption>/);
+ assert.doesNotMatch(yes,/>닭<\/figcaption>|>박쥐<\/figcaption>/);
+});
+
+test('museum photo wall keeps one real saved frame after restore without inventing photos for legacy records',()=>{
+ const s=campaignFixture();s.inquiry.motionPhotos={rabbit:{dataURL:'data:image/webp;base64,AAAA',width:480,height:270,time:.5,duration:5}};
+ const room=galleryView(restoreExpedition(JSON.stringify(s))).split('data-room="3"')[1].split('data-room="4"')[0];
+ assert.match(room,/내가 직접 고른 순간들/);assert.match(room,/내가 고른 0.5초/);
+ assert.equal((room.match(/data-action="motion-photo"/g)||[]).length,1);
+ assert.doesNotMatch(galleryView(campaignFixture()),/museum-photo-grid/);
 });

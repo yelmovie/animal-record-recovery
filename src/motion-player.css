@@ -1,0 +1,119 @@
+/* Stage 3: familiar video-player controls, then one chosen photo per animal. */
+#app #main.mission-page .activity-workspace > .habitat-notes {
+  padding: 14px !important;
+  background: #fffcf1f5;
+  border-color: #8b9678;
+}
+#app #main .habitat-notes > .notes-title { display: none; }
+#app #main .habitat-notes .motion-observer {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#app #main .motion-channel { display: flex; align-items: center; gap: 10px; min-width: 0; }
+#app #main .motion-channel-icon { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: #315d49; color: #fff0b8; box-shadow: 0 3px 0 #1f3d2e; }
+#app #main .motion-channel-icon > .icon { width: 28px; height: 28px; }
+#app #main .motion-channel > div { min-width: 0; }
+#app #main .motion-channel > div > span { display: block; font-size: 16px !important; color: #6c785e; line-height: 1.2; }
+#app #main .motion-channel h2 { margin: 4px 0 0; font: 400 clamp(24px, 1.8vw, 32px)/1.2 var(--font-display) !important; color: #2a493b; }
+#app #main .motion-channel .motion-photo-count { margin-left: auto; flex: none; padding: 6px 10px; border: 1px solid #d4c58e; border-radius: 999px; background: #fff1bc; font: 400 16px/1.2 var(--font-display) !important; color: #705c28; }
+
+#app #main .motion-player { position: relative; isolation: isolate; width: 100%; height: clamp(190px, calc(var(--app-height, 100dvh) - 500px), 400px); flex: none; overflow: hidden; border: 2px solid #253d34; border-radius: 16px; background: #121b1b; box-shadow: 0 5px 0 #243b2c, 0 10px 18px #253b2924; }
+#app #main .motion-player > .motion-video,
+#app #main .motion-player > .motion-model { position: absolute; inset: 0 0 50px; display: block; width: 100%; height: calc(100% - 50px); max-height: none !important; max-width: none; margin: 0; border: 0; border-radius: 0; object-fit: contain; }
+#app #main .motion-player > .motion-video { background: #121b1b; }
+#app #main .motion-player > .motion-model { background: #e6eddc; }
+#app #main .motion-player > .motion-fullscreen { position: absolute; top: 8px; right: 8px; z-index: 6; display: grid; place-items: center; width: 46px; min-height: 46px; margin: 0; padding: 10px; border: 1px solid #fff5cd80; border-radius: 10px; background: #10231aeb; color: #fff5d1; box-shadow: 0 2px 6px #0005; }
+#app #main .motion-fullscreen .icon { display: block; width: 24px; height: 24px; }
+#app #main .motion-player > .motion-fullscreen:hover { background: #3c614b; }
+#app #main .motion-player > .motion-fullscreen:focus-visible { outline: 3px solid #ffe083; outline-offset: 2px; }
+#app #main .motion-player-badge { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 5px 10px; border: 1px solid #ffffff26; border-radius: 6px; background: #10231ad9; color: #fff5d1; font: 400 16px/1.2 var(--font-display) !important; pointer-events: none; }
+#app #main .motion-start-button { position: absolute; inset: 0 0 50px; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; height: auto; margin: 0; padding: 0; border: 0; border-radius: 0; background: #00130d1a; box-shadow: none; color: #fff; transform: none; }
+#app #main .motion-start-button[hidden] { display: none !important; }
+#app #main .motion-play-disc { display: grid; place-items: center; width: clamp(76px, 7vw, 112px); height: clamp(54px, 5vw, 76px); padding-left: 4px; border: 2px solid #ffcfb780; border-radius: 18px; background: linear-gradient(#e75c41, #c9372f); box-shadow: 0 5px 0 #80271d, 0 10px 25px #0007; transition: transform .15s, background-color .15s; }
+#app #main .motion-play-disc > .icon { width: 38px; height: 38px; fill: currentColor; stroke-width: 1; }
+#app #main .motion-start-button > span:last-child { padding: 5px 12px; border-radius: 999px; background: #091c16cc; color: #fff9e8; font: 400 clamp(18px, 1.5vw, 25px)/1.2 var(--font-display) !important; }
+#app #main .motion-start-button:hover .motion-play-disc { transform: scale(1.06); }
+#app #main .motion-start-button:active .motion-play-disc { transform: translateY(3px); box-shadow: 0 2px 0 #80271d; }
+#app #main .motion-start-button:focus-visible { outline: 4px solid #ffe083; outline-offset: -5px; }
+#app #main .motion-player-controls { position: absolute; bottom: 0; left: 0; right: 0; z-index: 4; display: flex; align-items: center; gap: 8px; min-height: 50px; padding: 2px 8px; background: linear-gradient(#10221ae0, #08130ff5); color: #fff; }
+#app #main .motion-player-controls .btn { flex: none; min-height: 44px; margin: 0; padding: 5px 10px; border: 0; border-radius: 8px; background: transparent; color: #fff9e7; box-shadow: none; font: 400 18px/1.2 var(--font-display); }
+#app #main .motion-control-play { display: grid; place-items: center; width: 44px; padding: 0 !important; }
+#app #main .motion-control-play .icon { display: block; width: 26px; height: 26px; }
+#app #main .motion-player-controls .btn:hover { background: #ffffff20; }
+#app #main .motion-player-controls #motion-phase { flex: 1; min-width: 32px; width: 100%; min-height: 44px; height: 44px; padding: 0; margin: 0; accent-color: #f0c75d; direction: ltr; cursor: pointer; }
+#app #main .motion-time { display: flex; flex: none; gap: 4px; font-size: 16px !important; font-variant-numeric: tabular-nums; white-space: nowrap; color: #f4eddd; }
+#app #main .motion-observer > .motion-caption { grid-area: auto; min-height: 26px; margin: 2px 0 0; color: #425b45; font-size: 19px !important; line-height: 1.35; }
+#app #main .motion-photo-toolbar { padding: 8px 10px; border: 1px solid #dcc784; border-radius: 10px; background: #fff3ce; }
+#app #main .motion-photo-toolbar p { margin: 0; color: #6e674d; font-size: 17px !important; line-height: 1.35; }
+#app #main .motion-photo-capture { display: inline-flex; flex: none; gap: 9px; align-items: center; justify-content: center; min-height: 56px; max-width: 100%; padding: 10px 18px; border: 2px solid #263f30; border-radius: 12px; background: linear-gradient(#447450, #315740); color: #fff9de; font: 400 clamp(20px, 1.5vw, 26px)/1.2 var(--font-display); box-shadow: 0 4px 0 #243d2b; }
+#app #main .motion-photo-capture .icon { width: 26px; height: 26px; }
+#app #main .motion-player > .motion-photo-capture { position: absolute; bottom: 62px; right: 12px; z-index: 5; min-height: 46px; padding: 8px 12px; font-size: 20px; border-color: #fff1b9; background: linear-gradient(#f2d57c, #d6ad4c); color: #2e4631; box-shadow: 0 3px 0 #755d2a, 0 6px 12px #0004; }
+#app #main .motion-photo-capture:disabled { opacity: 1; border-color: #c3c5b7; background: #e1e3d6; color: #707764; box-shadow: 0 3px 0 #bfc3b1; cursor: default; }
+#app #main .motion-photo-result { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 10px; border: 2px solid #92ad78; border-radius: 14px; background: #edf4df; }
+#app #main .motion-photo-thumb { flex: none; width: clamp(110px, 12vw, 190px); min-height: 0; margin: 0; padding: 5px 5px 12px; border: 1px solid #d4c8a3; border-radius: 3px; background: #fffbed; box-shadow: 0 3px 6px #2b3f2430; transform: rotate(-2deg); }
+#app #main .motion-photo-thumb img { display: block; width: 100%; height: auto; border-radius: 2px; }
+#app #main .motion-photo-result > div { min-width: 0; }
+#app #main .motion-photo-result b { display: flex; align-items: center; gap: 6px; color: #385f3c; font: 400 22px/1.25 var(--font-display) !important; }
+#app #main .motion-photo-result p { margin: 6px 0; color: #435d3b; font-size: 18px !important; line-height: 1.4; }
+#app #main .motion-photo-result small { font-size: 16px !important; line-height: 1.3; color: #6e785c; }
+#app #main .motion-legacy-record { margin: 0; padding: 10px; border-radius: 10px; background: #e7eeda; font-size: 17px !important; line-height: 1.4; color: #5b6d4b; }
+#app #main .motion-error h2 { font: 400 26px/1.2 var(--font-display); }
+#app #main .motion-error > img { display: block; width: 100%; max-height: 250px; object-fit: contain; }
+#app #main .motion-error > p { font-size: 19px; line-height: 1.45; }
+.motion-photo-review { margin: 0; text-align: center; }
+.motion-photo-review img { display: block; width: 100%; max-height: 68dvh; object-fit: contain; border: 8px solid #fff8e4; background: #152d25; box-shadow: 0 6px 18px #24352233; }
+.motion-photo-review figcaption { margin-top: 12px; color: var(--ui-ink); font: 400 22px/1.3 var(--font-display); }
+
+#app #main.museum-page .museum-captured-photo { display: block; width: 100%; height: clamp(90px, 13dvh, 160px); object-fit: cover; border: 5px solid #fff1cb; border-radius: 4px; box-shadow: 0 4px 12px #0005; }
+#app #main.museum-page .museum-motion-collection { grid-column: 1 / -1; width: 100%; margin-top: 12px; padding: clamp(16px, 2vw, 30px); border: 1px solid #bca57677; border-radius: 14px; background: #173b30eb; box-shadow: 0 14px 25px #0003; }
+#app #main.museum-page .museum-motion-collection > header { margin-bottom: 22px; text-align: center; }
+#app #main.museum-page .museum-motion-collection header > span { display: inline-flex; align-items: center; gap: 8px; color: #dec88e; font: 400 18px/1.2 var(--font-display); }
+#app #main.museum-page .museum-motion-collection h3 { margin: 6px 0; color: #fff3d2; font: 400 clamp(26px, 2vw, 36px)/1.2 var(--font-display); }
+#app #main.museum-page .museum-motion-collection header p { margin: 6px 0 0; font-size: 18px; color: #dfddc9; }
+#app #main.museum-page .museum-photo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+#app #main.museum-page .museum-photo-grid figure { min-width: 0; margin: 0; padding: 10px 10px 14px; border-radius: 3px; background: #fff6df; box-shadow: 0 6px 12px #0005; transform: rotate(-1deg); }
+#app #main.museum-page .museum-photo-grid figure:nth-child(even) { transform: rotate(1deg); }
+#app #main.museum-page .museum-photo-open { display: block; width: 100%; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+#app #main.museum-page .museum-photo-open img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+#app #main.museum-page .museum-photo-grid figcaption { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; color: #365643; font: 400 22px/1.25 var(--font-display); }
+#app #main.museum-page .museum-photo-grid figcaption span { font: 400 16px/1.3 var(--font-body); color: #817553; }
+#app #main.museum-page .museum-photo-preparing { grid-column: 1 / -1; padding: 12px 18px; border-radius: 10px; background: #183c2ceb; color: #f2e5c4; font-size: 20px; line-height: 1.4; }
+
+@media (prefers-reduced-motion: no-preference) {
+  #app #main .motion-photo-result { animation: photo-arrive .3s ease-out; }
+  @keyframes photo-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+}
+@media (max-width: 1100px) {
+  #app #main .motion-photo-count { display: none; }
+  #app #main .motion-photo-toolbar { gap: 10px; }
+  #app #main .motion-photo-capture { flex: 1 1 100%; }
+  #app #main .motion-player-controls { gap: 4px; padding-inline: 4px; }
+  #app #main .motion-time { gap: 2px; }
+  #app #main .motion-player-controls .motion-speed { padding-inline: 6px; font-size: 16px; }
+}
+@media (max-width: 820px) {
+  #app #main.museum-page .museum-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  #app #main .motion-photo-result { align-items: flex-start; gap: 10px; }
+}
+@media (orientation: portrait) and (max-width: 900px) {
+  #app #main .motion-player { height: clamp(190px, 24dvh, 260px); }
+  #app #main .motion-start-button > span:last-child { display: none; }
+}
+@media (max-height: 800px) { #app #main .motion-start-button > span:last-child { display: none; } }
+@media (max-width: 480px) {
+  #app #main.museum-page .museum-photo-grid { grid-template-columns: minmax(0, 1fr); }
+  #app #main .motion-channel h2 { font-size: 23px !important; }
+}
+
+/* Keep playback, seeking and photo capture inside the same native fullscreen player. */
+#app #main .motion-player:fullscreen { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: #080e0b; }
+#app #main .motion-player:fullscreen > .motion-fullscreen { top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); }
+#app #main .motion-player:fullscreen .motion-start-button > span:last-child { display: block; }

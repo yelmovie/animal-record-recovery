@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-22",
+  "tool": "built-in image_gen",
+  "prompt": "Use case: stylized-concept. Asset type: production 16:9 landscape background for a Korean elementary science exploration game's natural-history museum, no UI. Create a premium immersive hand-painted 3D storybook natural history gallery interior at golden-hour evening: elegant deep forest-green walls, carved walnut architectural arches and brass details, warm amber museum spotlights and a subtle cool teal glow, vaulted wooden ceiling, upper clerestory windows with distant forest, polished dark parquet floor reflecting soft light. Camera straight-on eye level, wide symmetrical composition with architectural depth and inviting atmosphere. Central 75 percent of frame is an uncluttered calm dark green exhibit alcove and spacious floor, suitable for overlaying actual game animal glass showcases and readable museum labels. Put fine specimen storage drawers, small plants and subtle scientific curiosities at far left/right edges and distant back only. No large foreground furniture, no whiteboards, no giant signs or empty picture frames in the center, no people, no animals, no text, no symbols pretending to be text, no logos, no watermark. Rich refined tactile materials, atmospheric lighting, crafted educational adventure-game art, age-appropriate sophistication and wonder, not a flat cartoon, not a horror scene. The background itself must look like a real lovingly curated museum room rather than a classroom. Render a high quality widescreen 16:9 image.",
+  "source": "C:/Users/user/.codex/generated_images/01a161b2-ea38-7bd2-88fa-cc5fbaef4398/exec-d549dd49-2d36-46a8-b246-fc1dfb17a1b3.png",
+  "runtime": "assets/scenes/museum-gallery-v2.webp",
+  "encoding": "sharp WebP quality 86",
+  "usage": "Background loaded only while the museum gallery is visible. Display cases and all text remain HTML/CSS; animal and saved artwork assets are reused."
+}
