@@ -2,6 +2,10 @@ import {COMMISSIONS} from './campaign.js';
 // Main map: a top-down pixel village (screen 01). Same contract as createTrailMap: {move(id), destroy()}.
 // Layout (map size, building rects and doors, walk nodes/edges, sprite cells) comes from assets/village/village.json.
 const BASE=new URL('../assets/village/',import.meta.url).href;
+export function markerSafeOffset(q,b,visible=b){
+ if(q.right<=visible.left||q.left>=visible.right||q.bottom<=visible.top||q.top>=visible.bottom)return [0,0];
+ return [Math.max(b.left-q.left,Math.min(0,b.right-q.right)),Math.max(b.top-q.top,Math.min(0,b.bottom-q.bottom))];
+}
 let loading=null;
 export function villageReady(){
   if(!loading)loading=typeof fetch==='function'?fetch(BASE+'village.json').then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{if(!j)loading=null;return j;}):Promise.resolve(null);
@@ -72,7 +76,8 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     // While the camera slides, a marker that would sit under a corner icon or floating button fades out until it is clear.
     let controls=null;
     const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
-      root.querySelectorAll('.map-marker[data-id]').forEach(m=>{const q=m.getBoundingClientRect();m.classList.toggle('under-control',q.width>0&&controls.some(r=>q.left<r.right&&q.right>r.left&&q.top<r.bottom&&q.bottom>r.top));});};
+      const bounds=scene.getBoundingClientRect(),safe=parseFloat(doc.defaultView?.getComputedStyle(root).getPropertyValue('--hud-top'))||76;
+      root.querySelectorAll('.map-marker[data-id]').forEach(m=>{m.style.translate='0px 0px';const initial=m.getBoundingClientRect(),[dx,dy]=markerSafeOffset(initial,{left:bounds.left+8,right:bounds.right-8,top:bounds.top+safe+6,bottom:bounds.bottom-8},bounds);m.style.translate=`${dx}px ${dy}px`;const q=m.getBoundingClientRect();m.classList.toggle('under-control',q.width>0&&controls.some(r=>q.left<r.right&&q.right>r.left&&q.top<r.bottom&&q.bottom>r.top));});};
     const onResize=()=>{cam=null;controls=null;follow();placeMarkers();clearControls();};doc.defaultView?.addEventListener('resize',onResize);
     const doorOf=id=>j.buildings[id]?.door;
     const start=doorOf(position)||j.spawn||j.entrance||graph.nodes[Object.keys(graph.nodes)[0]]||[W/2,H*.85];

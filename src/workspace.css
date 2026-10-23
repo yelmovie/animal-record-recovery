@@ -153,8 +153,7 @@ img.restore-photo{display:block;width:100%;height:100%;object-fit:contain;backgr
 
 }
 /* Settings dialog (iscream layout): title and footer stay put, only the body scrolls. */
-dialog:has(.settings-body){display:flex;flex-direction:column;overflow:hidden}
-dialog:has(.settings-body)[open]{display:flex}
+dialog:has(.settings-body)[open]{display:flex;flex-direction:column;overflow:hidden}
 .settings-body{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:2px 4px 8px;margin:0 -4px}
 .settings-footer{display:flex;justify-content:space-between;gap:12px;padding-top:14px;margin-top:4px;border-top:1px solid var(--line)}
 .settings-replays{display:flex;flex-wrap:wrap;gap:10px}.settings-replays>.btn.wide{flex-basis:100%}.settings-replays>.btn.quiet{flex:1 1 200px}

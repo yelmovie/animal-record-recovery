@@ -160,7 +160,7 @@ export function selectDesignProblem(s,round,problem){
   return true;
 }
 const validDesignRecord=d=>Boolean(testDesign(d).passed&&d.explanation==='match'&&designTrials(d).some(t=>t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&t.passed));
-export function restoreExpedition(raw){
+export function restoreExpedition(raw,{strict=false}={}){
   const base=freshExpedition();if(!raw)return base;
   try{
     const input=JSON.parse(raw);if(!input||typeof input!=='object')return base;
@@ -220,7 +220,7 @@ export function restoreExpedition(raw){
     if(input.legacy&&typeof input.legacy==='object')out.legacy=restoreLegacy(JSON.stringify(input.legacy));
     if(input.campaign)out.campaign=normalizeCampaign(input.campaign,out);
     return out;
-  }catch{return base;}
+  }catch(error){if(strict)throw error;return base;}
 }
 function migrateLegacy(raw){
   const previous=restoreLegacy(raw),out=freshExpedition();out.legacy=previous;out.soundEnabled=previous.soundEnabled;out.musicOn=previous.soundEnabled;out.introSeen=true;

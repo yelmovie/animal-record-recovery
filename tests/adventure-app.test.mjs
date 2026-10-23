@@ -1,4 +1,5 @@
 import * as researchReport from '../src/research-report.js';
+import * as recordStorage from '../src/record-storage.js';
 import * as studioModel from '../src/studio.js';
 import * as studioRuntime from '../src/studio-runtime.js';
 import * as motionVideo from '../src/motion-video.js';
@@ -21,20 +22,33 @@ import * as conceptVideo from '../src/concept-video.js';
 import * as concepts from '../src/concepts.js';
 
 const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
-function appHarness({fail=false,motion=false,three=false}={}){
-  let stored=null,warning=null,writeFailure=fail,exported=null;const music=[];
+function appHarness({fail=false,motion=false,three=false,storedRecord=null}={}){
+  let stored=storedRecord,warning=null,writeFailure=fail,exported=null;const music=[];
   const listeners=new Map(),heading={textContent:''},status={textContent:''},announcer={textContent:''},link={href:''},quest={innerHTML:'',inert:true},travel={textContent:''};
   const app={_html:'',get innerHTML(){return this._html;},set innerHTML(v){this._html=v;warning=null;},querySelectorAll(){return [];},insertAdjacentHTML(_,text){warning={text,remove(){warning=null;}};}};
   const dialog={open:false,innerHTML:'',showModal(){this.open=true;},close(){this.open=false;},addEventListener(){}};
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
 test('current controller reports storage failure immediately and recovers without losing progress',()=>{
   const a=appHarness({fail:true});assert.equal(a.run('storageOK'),false);assert.match(a.warning.text,/role="alert"/);assert.match(a.status.textContent,/저장/);a.run("s.observed.push('frog-eye');render()");assert.ok(a.warning);a.setFail(false);a.run('save()');assert.equal(a.warning,null);assert.deepEqual(JSON.parse(a.saved).observed,['frog-eye']);
+});
+
+test('opening and navigating the real controller never overwrites a corrupt or future original',()=>{
+ for(const raw of ['{손상된 원본',JSON.stringify({version:99,record:'원본'})]){
+  const a=appHarness({storedRecord:raw});assert.equal(a.saved,raw);assert.ok(a.warning);
+  a.run("settings();go('map');go('home');render();save()");assert.equal(a.saved,raw);assert.equal(a.dialog.open,false);assert.ok(a.warning);
+ }
+});
+
+test('an explicit reset that cannot save retains the work and opens preservation help',()=>{
+ const original=model.freshExpedition();original.observed=['frog-eye'];const a=appHarness({storedRecord:JSON.stringify(original)});a.setFail(true);
+ a.run("act('reset-confirm',{dataset:{}})");assert.equal(a.run('s.observed.length'),1);
+ a.run("act('reset',{dataset:{}})");assert.equal(a.run('s.observed.length'),1);assert.match(a.dialog.innerHTML,/기록 보존|백업/);assert.deepEqual(JSON.parse(a.saved).observed,['frog-eye']);
 });
 
 test('intro can be skipped without losing learning progress and replay does not reset it',()=>{

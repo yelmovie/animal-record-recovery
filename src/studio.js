@@ -2,6 +2,17 @@
 export const STUDIO_WIDTH=1000,STUDIO_HEIGHT=650;
 export const STUDIO_LIMITS={title:48,audience:100,purpose:300,inspiration:200,strokes:160,points:250};
 export const createStudio=()=>({version:1,title:'',audience:'',purpose:'',inspiration:'',strokes:[],tools:{color:'#294b3e',width:10,tool:'pen'}});
+// Shapes use the existing portable stroke format: old artwork, PNG and history
+// need no migration and remain editable with the same undo/redo controls.
+export function studioShape(kind,{x=500,y=325,size=160,color='#294b3e',width=10}={}){
+ let pairs;
+ if(kind==='circle')pairs=Array.from({length:33},(_,i)=>[Math.cos(i*Math.PI/16),Math.sin(i*Math.PI/16)]);
+ else if(kind==='triangle')pairs=[[0,-1],[1,1],[-1,1],[0,-1]];
+ else if(kind==='arrow')pairs=[[-1,0],[1,0],[.4,-.6],[1,0],[.4,.6]];
+ else if(kind==='wide')pairs=[[-1,-.5],[1,-.5],[.65,.5],[-.65,.5],[-1,-.5]];
+ else pairs=[[-1,-.65],[1,-.65],[1,.65],[-1,.65],[-1,-.65]];
+ return {tool:'pen',color,width,points:pairs.map(([dx,dy])=>({x:Math.max(0,Math.min(1000,x+dx*size)),y:Math.max(0,Math.min(650,y+dy*size))}))};
+}
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
 const object=value=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};
 export function normalizeStudio(value){

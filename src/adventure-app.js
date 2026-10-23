@@ -1,4 +1,5 @@
 import {researchDiaryView} from './research-report.js';
+import {createRecordStorage,recordBackup,openRecordBackup,saveRecordFile,storageMessage} from './record-storage.js';
 import {mountFlashlight,clueFoundView,flashlightGuessView} from './flashlight.js';
 import {normalizeStudio} from './studio.js';
 import {mountStudio,downloadStudioArtwork} from './studio-runtime.js';
@@ -19,8 +20,9 @@ import {can3d,mount3d,disable3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
 
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
-let s,storageOK=true;
-try{s=restoreExpedition(localStorage.getItem(STORAGE_KEY));}catch{s=freshExpedition();storageOK=false;}
+const recordStore=createRecordStorage({getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
+const loadedRecord=recordStore.read();
+let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(loadedRecord.status),pendingImport=null;
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
 let studentSnapshot=null,mapWalkVersion=0;
@@ -35,10 +37,10 @@ const view=()=>({screen,stage,step,commissionIndex,requestCard,caseHint,evidence
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));storageOK=true;}catch{storageOK=false;}
+  storageOK=recordStore.write(s);
   const status=document.querySelector('.save-label');if(status)status.textContent=storageOK?'이 기기 브라우저에 저장됨':'저장 공간 확인';
   const warning=document.querySelector('#storage-warning');
-  if(!storageOK&&!warning)app.insertAdjacentHTML('afterbegin','<p id="storage-warning" role="alert">지금은 기록을 저장할 수 없어. 이 창을 닫지 말고 저장 공간을 확인해 줘.</p>');
+  if(!storageOK){warning?.remove();app.insertAdjacentHTML('afterbegin','<div id="storage-warning" role="alert"><span>'+esc(storageMessage(recordStore.status))+'</span>'+btn('기록 보존 안내','storage-help','secondary')+'</div>');}
   if(storageOK)warning?.remove();
 }
 // Keep long sets of records on named, persistent pages instead of stacking them.
@@ -176,7 +178,7 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 // One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
@@ -290,6 +292,8 @@ function startMotionFrame(){if(typeof window.requestAnimationFrame!=='function')
 function download(){
   modal('나의 탐험 일기',researchDiaryView(s)+'<div class="dialog-actions">'+btn('노트 덮기','close-dialog','primary')+'</div>');
 }
+function recordControls(){return `<p>탐험 일기는 화면에서 읽는 노트야. 백업 JSON에는 진도·관찰·주민 답장·찍은 사진·그림·발명 소개·소리 설정이 들어가. 앱의 공통 그림·영상·음악은 포함하지 않아. 작품 PNG는 그림과 소개만 담아.</p><div class="dialog-actions">${btn(['corrupt','unsupported','conflict'].includes(recordStore.status)?'이 창의 임시 활동 백업':'현재 기록 백업 파일 저장','record-export','primary')}${recordStore.raw!==null?btn('저장 원본 파일 보관','record-raw','secondary'):''}</div><label class="record-file">백업 파일 다시 열기<input type="file" id="record-import" accept=".json,application/json"></label><p>파일을 열면 내용을 먼저 확인해. 현재 기록을 바꾸기 전에는 한 번 더 확인해. 읽기 오류가 난 원본은 ‘저장 원본 파일 보관’으로 먼저 보관해 줘. 임시 활동 백업에는 읽지 못한 원본이 포함되지 않아. 원본을 보관하고 선생님에게 복구를 부탁해 줘.</p>`;}
+function storageHelp(){modal('기록 보존 안내',`<p role="status">${esc(storageMessage(recordStore.status)||'기록은 현재 브라우저에 자동 저장돼.')}</p>`+recordControls()+`<div class="dialog-actions">${btn('닫기','close-dialog','secondary')}</div>`);}
 function openCommission(id,index=0){
   if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;stage=id;commissionIndex=index;evidenceOpen=false;go('commission');
 }
@@ -456,9 +460,14 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'preview-end':if(studentSnapshot)togglePreview();break;
     case 'close-dialog':dialog.close();break;
     case 'reset-confirm':modal('탐험 기록을 초기화할까요?',`<p>관찰 기록·탐험 별·탐사 도구·주민 답장·발명 작품과 그림·이전 버전 기록이 이 기기에서 모두 지워져요. 소리 설정은 그대로 남아요.</p><div class="dialog-actions">${btn('취소','close-dialog','secondary','autofocus')}${btn('기록 지우기','reset','danger')}</div>`);break;
-    case 'reset':{const sound={soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,musicOn:s.musicOn,musicVolume:s.musicVolume};stopMotion();focusIndex=0;clueIndex=0;s=Object.assign(freshExpedition(),sound);if(studentSnapshot)s.adminUnlocked=true;}ensureCampaign(s);commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;
+    case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
+    case 'dome-look':if(DOME_ZONES[el.dataset.id]){stopMotion();looked.add(el.dataset.id);activeHabitat=el.dataset.id;feedback=null;render();}break;
+    case 'storage-help':storageHelp();break;
+    case 'record-export':saveRecordFile(recordBackup(studentSnapshot||s),'동물기록-탐험백업.json');break;
+    case 'record-raw':if(recordStore.raw!==null)saveRecordFile(recordStore.raw,'동물기록-복구용원본.json');break;
+    case 'record-import-confirm':if(pendingImport){if(studentSnapshot){modal('학생 기록을 먼저 확인해 줘','<p>교사용 미리보기를 끝낸 뒤 백업을 열어 줘.</p>');break;}if(!recordStore.write(pendingImport,{replace:true})){storageHelp();break;}s=pendingImport;pendingImport=null;ensureCampaign(s);stage=s.stage;step=s.step[stage]||0;selectedStage=stage;navigation.reset();go('home');}break;
     case 'retry-images':render();break;
   }
   save();
@@ -481,6 +490,7 @@ document.addEventListener('input',e=>{
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();save();return;}
   if(e.target.id==='invention-name'){const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
 document.addEventListener('change',e=>{if(e.target.id==='experiment-level')render();});
+document.addEventListener('change',async e=>{if(e.target.id!=='record-import')return;const file=e.target.files?.[0];if(!file)return;pendingImport=null;try{if(file.size>16*1024*1024)throw new Error('파일이 너무 커. 탐험 백업 JSON 파일인지 확인해 줘.');const candidate=openRecordBackup(await file.text());pendingImport=candidate;modal('이 백업으로 이어갈까?',`<p>탐험 별 ${candidate.activities.length}개 · 관찰 ${candidate.observed.length}개 · ${candidate.studioRecord?'발명 작품 있음':'보관한 자유 발명 없음'}. 사진과 그림도 함께 불러와.</p><p>확인하면 현재 브라우저 기록을 이 백업으로 바꿔. 먼저 현재 기록을 보관할 수 있어.</p><div class="dialog-actions">${btn('현재 기록 백업','record-export','secondary')}${btn('취소','close-dialog','secondary','autofocus')}${btn('백업으로 이어하기','record-import-confirm','primary')}</div>`);}catch(error){modal('백업 파일 확인',`<p>${esc(error instanceof SyntaxError?'JSON 파일을 읽지 못했어. 원본 파일은 그대로야.':error.message)}</p><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);}});
 document.addEventListener('fullscreenchange',paintMotion);
 function sketchPoint(e,svg){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return [Math.round(Math.max(0,Math.min(320,p.x))),Math.round(Math.max(0,Math.min(260,p.y)))];}
 document.addEventListener('pointerdown',e=>{const surface=e.target.closest?.('#lens-surface');if(surface&&!e.target.closest('[data-action]')){e.preventDefault();lensPointer={surface,id:e.pointerId};try{surface.setPointerCapture(e.pointerId);}catch{}moveLens(e,surface);return;}if(e.target.id==='motion-phase')stopMotion(false);if(e.target.id!=='drawing-surface'||!sketching||stage!==5||step%2!==0)return;e.preventDefault();const svg=e.target.closest('svg'),d=s.designs[round()];if(d.strokes.length>=30)return say('선은 30개까지야. 마지막 선을 지우고 다시 그려 줘.');const points=[sketchPoint(e,svg)],line=document.createElementNS('http://www.w3.org/2000/svg','polyline');d.strokes.push(points);line.setAttribute('points',points[0].join(','));svg.querySelector('#sketch-lines').append(line);try{svg.setPointerCapture(e.pointerId);}catch{}stroke={svg,points,line,id:e.pointerId};});

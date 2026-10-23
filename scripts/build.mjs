@@ -1,5 +1,7 @@
 import { mkdir, copyFile, readFile, writeFile, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { ASSETS } from '../src/assets.js';
 import { STORIES } from '../src/story-player.js';
@@ -28,6 +30,8 @@ for(const item of previous){
   await unlink(target).catch(error=>{if(error.code!=='ENOENT')throw error;});
 }
 const manifest=[];
+const buildInfo={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),builtAt:new Date().toISOString(),dirty:Boolean(execFileSync('git',['diff','HEAD','--','src','scripts','index.html'],{cwd:root,encoding:'utf8'}).trim())};
+files.push('src/record-storage.js','src/build-info.js');
 files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css');
 // Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
 files.push('src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
@@ -35,8 +39,8 @@ files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.c
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
   await mkdir(path.dirname(dest),{recursive:true});
-  await copyFile(source,dest);
-  manifest.push({file,bytes:(await stat(source)).size});
+  if(file==='src/build-info.js')await writeFile(dest,'export const BUILD_INFO='+JSON.stringify(buildInfo)+';\n');else await copyFile(source,dest);
+  manifest.push({file,bytes:(await stat(dest)).size,sha256:createHash('sha256').update(await readFile(dest)).digest('hex')});
 }
 // Check image paths in every stylesheet index.html links, so a newly added sheet can't ship a missing asset.
 const sheets=[...(await readFile(path.join(root,'index.html'),'utf8')).matchAll(/<link[^>]+rel="stylesheet"[^>]+href="\.\/(src\/[^"]+\.css)"/g)].map(m=>m[1]);
@@ -47,5 +51,5 @@ for(const css of sheets){
     if(!files.includes(asset))throw new Error(`Missing build asset: ${asset}`);
   }
 }
-await writeFile(path.join(root,'dist','build-manifest.json'),JSON.stringify({version:JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version,files:manifest},null,2));
+await writeFile(path.join(root,'dist','build-manifest.json'),JSON.stringify({...buildInfo,version:JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version,files:manifest},null,2));
 console.log(`Built ${files.length} runtime files, ${(manifest.reduce((n,f)=>n+f.bytes,0)/1024/1024).toFixed(2)} MiB → dist/`);

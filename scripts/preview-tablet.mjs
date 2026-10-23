@@ -9,6 +9,7 @@ const root=process.cwd(),mime={'.html':'text/html; charset=utf-8','.js':'text/ja
 http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost'),file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname)),rel=path.relative(root,file);
  if(rel.startsWith('..')||path.isAbsolute(rel)||!['index.html','src','assets'].includes(rel.split(path.sep)[0])){res.writeHead(404);return res.end();}
+ if(rel.replaceAll('\\','/').startsWith('assets/videos/')&&req.headers.referer?.includes('videoFail')){res.writeHead(404);return res.end('QA video failure');}
  let data=await readFile(file);
  if(rel==='index.html'){
   const state=url.searchParams.has('fresh')?freshExpedition():campaignFixture();state.adminUnlocked=true;state.introSeen=true;state.soundEnabled=false;
@@ -26,7 +27,10 @@ http.createServer(async(req,res)=>{try{
    state.studioRecord=structuredClone(state.studio);
   }
   if(url.searchParams.has('photos'))for(const id of ['frog','crab','duck','rabbit','butterfly','fish'])state.inquiry.motionPhotos[id]={dataURL:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j0ioAAAAASUVORK5CYII=',width:320,height:180,time:1,duration:5};
-  data=data.toString().replace('<script type="module"',`<script>localStorage.setItem('animal-record-recovery:v1',${JSON.stringify(JSON.stringify(state))});</script><script type="module"`);
+  if(url.searchParams.has('long')&&state.studio){state.studio.purpose='넓은 면을 펼치고 접어 친구를 도와주는 발명이야. '.repeat(6);state.studioRecord=structuredClone(state.studio);}
+  const fault=url.searchParams.get('fault'),raw=fault==='corrupt'?'{손상된 원본':fault==='future'?JSON.stringify({version:99,original:'미래 버전의 한글 기록'}):JSON.stringify(state);
+  const failure=fault==='quota'?`const originalSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='animal-record-recovery:v1')throw new DOMException('Full','QuotaExceededError');return originalSet.call(this,k,v);};`:fault==='blocked'?`Storage.prototype.getItem=function(){throw new DOMException('Blocked','SecurityError');};`:'';
+  data=data.toString().replace('<script type="module"',`<script>localStorage.setItem('animal-record-recovery:v1',${JSON.stringify(raw)});${failure}</script><script type="module"`);
  }
  if(rel.replaceAll('\\','/')==='src/adventure-app.js')data=data.toString()
   .replace("let screen='home'", "let screen=new URLSearchParams(location.search).get('screen')||'home'")
@@ -41,4 +45,4 @@ http.createServer(async(req,res)=>{try{
  }
  res.writeHead(200,headers);res.end(data);
  }catch(e){res.writeHead(404);res.end(String(e));}
-}).listen(4187,'127.0.0.1',()=>console.log('Tablet review: http://127.0.0.1:4187'));
+}).listen(Number(process.env.PORT)||4187,'127.0.0.1',()=>console.log(`Tablet review: http://127.0.0.1:${Number(process.env.PORT)||4187}`));
