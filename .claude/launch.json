@@ -18,6 +18,15 @@
       ],
       "port": 4187,
       "url": "http://127.0.0.1:4187"
+    },
+    {
+      "name": "campaign-qa",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/preview-campaign.mjs"
+      ],
+      "port": 4178,
+      "url": "http://127.0.0.1:4178"
     }
   ]
 }

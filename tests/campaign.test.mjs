@@ -99,3 +99,10 @@ test('museum photo wall keeps one real saved frame after restore without inventi
  assert.equal((room.match(/data-action="motion-photo"/g)||[]).length,1);
  assert.doesNotMatch(galleryView(campaignFixture()),/museum-photo-grid/);
 });
+test('museum placards show home and general facts instead of the practice proof rows',()=>{
+ const s=campaignFixture();solve(s,1,0);solve(s,1,1);claimCommission(s,1,0);claimCommission(s,1,1);
+ const room=galleryView(s).split('data-room="1"')[1].split('data-room="2"')[0];
+ assert.doesNotMatch(room,/이 설명을 확인한 부분/);
+ assert.match(room,/사는 곳<\/b>논, 연못, 냇가/);
+ assert.match(room,/museum-case/);
+});

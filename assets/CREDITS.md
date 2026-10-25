@@ -184,3 +184,7 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 ## 자연사 전시관 실내 (2026-10-22)
 
 `scenes/museum-gallery-v2.webp`는 OpenAI 기본 image_gen으로 생성했다. 원본 PNG를 유지하고 기존 sharp로 WebP quality 86 변환했다. 생성 프롬프트와 원본 경로는 `docs/MUSEUM-GALLERY-ASSET-20261022.json`에 기록했다. 전시 표본·인물·글꼴·동물 영상은 기존 자산을 재사용한다. 학습자의 전시 사진은 재생 중인 동물 영상의 프레임이며 외부 서버로 전송하지 않는다.
+
+## 관찰 노트·전시대·설명판 (2026-10-26)
+- `assets/museum/observation-notebook.webp`, `museum-placard.webp`, `museum-pedestal.webp` — Higgsfield(gpt_image_2_5)로 생성, 전시대는 배경만 지움. 원본 PNG: `D:\iscreammedia_sc34\_scratch\hf-museum\`.
+- `assets/fonts/research-hand-400.woff2` — 나눔손글씨 펜(Nanum Pen Script), SIL OFL 1.1 (`NanumPenScript-OFL.txt`). 4 lifecycle 프로젝트에서 복사.
