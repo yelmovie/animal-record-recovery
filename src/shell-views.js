@@ -7,7 +7,6 @@ import {STAGES,ANIMALS,CRITERIA,HABITATS,DISCOVERIES,CASES,PROBLEMS,isStageOpen,
 import {art,animal,mori,icon,btn,artURL,villageURL,progress,esc,off,toolArt,withParticle} from './presentation.js';
 import {activityView,INSTRUCTIONS,productView} from './mission-views.js';
 import {APP_NAME,APP_VERSION,SETTINGS_TEXT} from './settings-content.js';
-import {BUILD_INFO} from './build-info.js';
 import {replayList} from './concept-video.js';
 export {commissionLetter} from './campaign-views.js';
 
@@ -67,7 +66,7 @@ export function settingsContent(s,{replaysOpen=false}={}){const T=SETTINGS_TEXT,
  return `<div class="settings-body"><div class="settings-rows">${switchRow('music-toggle','배경 음악',s.musicOn!==false)}${switchRow('sound','효과음',s.soundEnabled)}<label class="volume-row ${s.musicOn!==false?'':'muted'}" for="music-volume"><b>배경 음악 크기</b><input type="range" id="music-volume" min="0" max="100" step="5" value="${vol}" ${s.musicOn!==false?'':'disabled'}><output for="music-volume">${vol}%</output></label><label class="volume-row ${s.soundEnabled?'':'muted'}" for="sound-volume"><b>효과음 크기</b><input type="range" id="sound-volume" min="0" max="100" step="5" value="${sfx}" ${s.soundEnabled?'':'disabled'}><output for="sound-volume">${sfx}%</output></label></div>
 <div class="settings-replays">${btn(icon('bag')+' 탐험 가방 보기 · 도구와 만난 동물','notebook','secondary wide')}${btn(icon('arrow')+' '+T.replayIntro,'story-intro','secondary wide')}${btn(T.replayOutro,'story-outro','quiet',done?'':why)}${btn(T.certificate,'ending','quiet',done?'':why)}${done?'':`<p class="settings-lock">${T.lockedAfterFinish}</p>`}</div>
 ${card(T.replayVideos,`<p class="concept-note">${T.replayVideosNote}</p>${replayList(s)}`,'concept-replays',replaysOpen)}
-${card('앱 정보 · 배움과 보상',`<dl class="settings-about">${T.about.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl><small>${APP_NAME} v${APP_VERSION} · ${T.credit}</small><p class="build-info">빌드 ${esc(BUILD_INFO.sha)}${BUILD_INFO.dirty?" · 로컬 수정 포함":""}<br>빌드 시각: ${BUILD_INFO.builtAt?esc(new Date(BUILD_INFO.builtAt).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}))+" (한국 시각)":"개발 소스 · 빌드 전"}</p>`)}
+${card('앱 정보 · 배움과 보상',`<dl class="settings-about">${T.about.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl><small>${APP_NAME} v${APP_VERSION} · ${T.credit}</small>`)}
 ${card('학생용 가이드',paras(T.student))}
 ${card('교사용 가이드',paras(T.teacher)+card('성취기준',`${T.standards.map(([c,t])=>`<p><b>[${c}]</b> ${t}</p>`).join('')}`,'inner')+card('교사용 도구',`<p>${T.teacherTools}</p>${btn(`<span>${icon('lock')}<b>${s.adminUnlocked?'전체 단계 해금 종료':T.teacherUnlock}</b></span><strong>${s.adminUnlocked?'켜짐':'꺼짐'}</strong>`,'admin','setting-row',`role="switch" aria-label="${T.teacherUnlock}" aria-checked="${s.adminUnlocked}"`)}<p class="muted">${T.teacherUnlockNote}</p><p class="muted">${T.teacherToolsNote}</p>`,'inner'))}
 ${card('기록 저장 · 공용 기기 안내',paras(T.storage)+btn('기록 백업 · 다시 열기','storage-help','secondary wide'))}
