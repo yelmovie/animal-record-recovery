@@ -90,6 +90,7 @@ function render(){
   const route=[screen,stage,step,activeHabitat,s.activeAnimal,screen==='commission'?requestCard:''].join(':');
   const scroll=route===renderedRoute?[...app.querySelectorAll('.request-part,.motion-observer,.lens-notes')].map(el=>el.scrollTop):[];
   const expanded=route===renderedRoute?[...app.querySelectorAll('.commission-evidence')].map(el=>el.open):[];
+  const notePages=route===renderedRoute?[...app.querySelectorAll('.note-book')].map(el=>[...el.querySelectorAll('.note-page')].findIndex(p=>p.classList.contains('on'))):[];
   renderedRoute=route;
   syncMusic();
   storyPlayer?.destroy();storyPlayer=null;
@@ -105,6 +106,7 @@ function render(){
   if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{s.studio=next;save();}});
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
+  app.querySelectorAll('.note-book').forEach((el,i)=>{if(notePages[i]>0)turnNotePage(el,notePages[i],false);});
   const storyHost=app.querySelector?.('[data-story]');
   if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.musicOn!==false?s.musicVolume??.5:0});
   // Every close-up photo opens large on tap (all animals, every screen that shows one).
@@ -320,6 +322,10 @@ function submitCommission(){
   if(commissionIndex===1){restoredFlash=stage;go('reward');return;}
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
 }
+// Flips the observation notebook in place so the page-turn animation is not lost to a re-render.
+function turnNotePage(book,index,animate=true){if(!book)return;const pages=[...book.querySelectorAll('.note-page')];if(!pages[index]||pages[index].classList.contains('on'))return;
+  pages.forEach((p,i)=>{p.classList.toggle('on',i===index);p.hidden=i!==index;});if(animate){pages[index].classList.remove('turning');void pages[index].offsetWidth;pages[index].classList.add('turning');}
+  book.querySelectorAll('.note-tabs .btn').forEach((b,i)=>{b.classList.toggle('on',i===index);b.setAttribute('aria-pressed',String(i===index));})}
 function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dataset.key;
   if(screen==='commission'&&el.dataset.commissionIndex!==undefined){
     const part=Number(el.dataset.commissionIndex);if(![0,1,2].includes(part)||!campaignOpen(s,stage,part))return;
@@ -355,6 +361,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'commission-sort':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,id,value)){picked=null;feedback=null;render();}break;
     case 'commission-submit':if(screen==='commission')submitCommission();break;
     case 'commission-next':if(screen==='commission'){if(commissionIndex<2&&campaignDone(s,stage,0)&&campaignDone(s,stage,1))go('reward');else if(commissionIndex===2)go('gallery');}break;
+    case 'note-page':turnNotePage(el.closest('.note-book'),Number(value));return;
     case 'commission-evidence':if(screen==='commission'){evidenceOpen=!evidenceOpen;campaignDraft(s,stage,commissionIndex).usedTool=true;const toolId=stage===2?1:stage-1;if(restoredPlaces(s).includes(toolId)&&!s.toolUses.includes(String(toolId)))s.toolUses.push(String(toolId));save();}break;
     case 'commission-level':if(screen==='commission'&&[1,2,3].includes(Number(value))){const d=campaignDraft(s,stage,commissionIndex);d.level=Number(value);d.prediction='';feedback=null;render();}break;
     case 'commission-predict':if(screen==='commission'&&['more','same','less'].includes(value)){campaignDraft(s,stage,commissionIndex).prediction=value;feedback=null;render();}break;
@@ -475,7 +482,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
-const CLICK_SOUND={sound:null,enter:null,place:null,notebook:'page',settings:'page',tool:'page'};
+const CLICK_SOUND={sound:null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){if(typeof document.createElement!=='function')return;let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');}
 // A hint stays readable until the learner taps again (no timer that hides it mid-sentence).
 const hideToast=()=>document.querySelector('#hint-toast')?.classList.remove('show');document.addEventListener('pointerdown',hideToast,true);if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{hideToast();fitBubble();});

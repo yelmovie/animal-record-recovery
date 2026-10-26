@@ -256,6 +256,9 @@
 #app #main.museum-page .museum-room-footer blockquote p { margin: 4px 0 0; font-size: clamp(17px, 1.1vw, 21px); line-height: 1.45; word-break: keep-all; }
 #app #main.museum-page .museum-room-footer > .btn { flex: none; min-height: 48px; padding: 10px 20px; background: #263d31f2; border: 1px solid #cfb57c; color: #f5e5bd; font: 400 20px/1.2 var(--font-display); box-shadow: 0 3px 0 #12241b; }
 #app #main.museum-page > footer > .btn { background: linear-gradient(#476d53, #2c4d3e); border-color: #c3ab70; color: #fff1cf; }
+/* Diary and the way onward sit side by side; the way onward is the brass button that draws the eye. */
+#app #main.museum-page > footer { display: flex; gap: 10px; }
+#app #main.museum-page > footer > .btn.primary { background: linear-gradient(#f4dc95, #d6ae58); border-color: #8a6a2c; color: #3a2a10; }
 #app #main.museum-page .museum-empty-display { grid-column: 1 / -1; justify-self: center; display: flex; flex-direction: column; align-items: center; gap: 12px; width: min(100%, 650px); padding: 24px; text-align: center; color: #efe6c9; }
 #app #main.museum-page .museum-empty-dome { display: grid; place-items: center; width: 180px; height: 160px; border: 1px solid #dfd4aa77; border-radius: 90px 90px 0 0; border-bottom: 12px solid #755734; background: radial-gradient(ellipse at top, #ffffde22, transparent 70%), #e2efda08; box-shadow: 0 12px 25px #0005; }
 #app #main.museum-page .museum-empty-dome .icon { width: 56px; height: 56px; color: #dac79677; }
