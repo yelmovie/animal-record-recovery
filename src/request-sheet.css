@@ -2,7 +2,7 @@
    Loaded last: the sheet is drawn once on .commission-layout and every inner panel drops its own
    fill, border and shadow, keeping only thin rules to show where one part ends. */
 #app #main#main.commission-page .commission-layout{
-  height:fit-content;max-height:100%;align-self:start;
+  height:100%;max-height:100%;align-self:stretch;
   padding:10px clamp(12px,1.4vw,24px);gap:clamp(12px,1.4vw,24px);
   border:1px solid #d6c595;border-radius:20px;
   background:#fffaeb;box-shadow:0 18px 40px -18px #2a1d0b88,0 2px 0 #e7d9b2;
@@ -60,3 +60,23 @@ dialog .scan-links p b{font-weight:400;font-family:var(--font-display);color:#2c
 dialog .scan-links p span{color:#5f8a5a}
 @media (max-width:760px){dialog .scanner-device .note-page{grid-template-columns:1fr}dialog .scan-window{min-height:180px}}
 @media (prefers-reduced-motion:reduce){dialog .scan-window .scan-line{animation:none;top:40%}}
+
+/* The sheet fills the room above the footer, so its activity grows with it (tablet: larger cards, text and touch targets). */
+#app #main#main.commission-page .request-card{display:flex;flex-direction:column;min-height:0}
+#app #main#main.commission-page .request-card>.arrival-sort{flex:1 1 auto;min-height:0;grid-template-rows:auto auto minmax(0,1fr);align-items:stretch}
+#app #main#main.commission-page .arrival-pool{grid-auto-rows:minmax(0,1fr);align-content:stretch;gap:10px}
+#app #main#main.commission-page .arrival-card{align-items:center;gap:4px 10px;padding:10px 12px}
+#app #main#main.commission-page .arrival-card>.animal{width:clamp(56px,7vw,110px);height:clamp(56px,10vh,110px)}
+#app #main#main.commission-page .arrival-card>b{font-size:clamp(22px,2.8vh,30px)!important}
+#app #main#main.commission-page .arrival-card>small{font-size:clamp(16px,2vh,20px)!important;line-height:1.35}
+#app #main#main.commission-page .criterion-chooser .btn{min-height:56px;font-size:clamp(19px,2.3vh,24px)!important}
+#app #main#main.commission-page .arrival-bins h3,#app #main#main.commission-page .arrival-bin>h3{font-size:clamp(28px,3.6vh,40px)!important}
+#app #main#main.commission-page .request-lab{gap:8px}#app #main#main.commission-page .request-lab>blockquote{margin:0;padding-block:2px}
+/* Tablet: a sort card is the picture and the name only (the description squeezed into unreadable fragments). */
+@media (max-width:1100px){
+ #app #main#main.commission-page .arrival-card{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;justify-items:center;text-align:center;padding:8px}
+ #app #main#main.commission-page .arrival-card>small{display:none}
+ #app #main#main.commission-page .arrival-card>.animal{width:100%;height:100%;min-height:48px;object-fit:contain}
+ #app #main#main.commission-page .criterion-chooser .btn{min-height:50px;padding-inline:12px}
+ #app #main#main.commission-page .commission-layout{padding-block:8px}
+}
