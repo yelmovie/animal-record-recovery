@@ -11,6 +11,8 @@
 | `src/hub.js` | 5,150 B | `src/app.js`만 import함. 배포·`index.html`에 없음 | **안 옮김** — 남겨 둔 `app.js`가 import하므로 같이 움직여야 함 |
 | `_unused/sfx/drop.mp3` | 58,514 B | 2026-10-20 카드 놓기 소리가 틀린 소리처럼 들려 합성음으로 교체(커밋 `77dde1d`). 배포 목록에서 빠짐 | 이미 옮겨져 있음 |
 | `_unused/music/workshop-theme.mp3` | 3,185,049 B | 2026-10-19 배경음을 Curious Little Step 하나로 통일하면서 뺀 활동 배경음(커밋 `bdcdb2d`) | 이미 옮겨져 있음 |
+| `_unused/root-videos-20261026/gemini_generated_video_17df1dd6.mp4` | 9,797,673 B | 2026-10-26 프로젝트 루트에 남아 있던 생성 영상. 코드·`files/videos/source-20261018/` 어디에도 없음. 내용 미확인 | 이미 옮겨져 있음 (git 제외) |
+| `_unused/root-videos-20261026/gemini_generated_video_1eb429da.mp4` | 3,897,286 B | 위와 같음 | 이미 옮겨져 있음 (git 제외) |
 
 ## 되돌리는 법
 
