@@ -84,3 +84,31 @@ dialog .scan-links p span{color:#5f8a5a}
  #app #main#main.commission-page .arrival-card{height:100%;min-height:0;overflow:hidden}
  #app #main#main.commission-page .arrival-card>.animal{height:auto;max-height:100%;min-height:0;width:auto;max-width:100%}
 }
+
+/* Classification compass popup: a brass dial whose needle swings to the place still hiding animals, then one big card per place. */
+dialog .compass-tool{display:flex;align-items:center;gap:20px;margin:0 0 14px;padding:14px 18px;border-radius:18px;background:linear-gradient(#3b4f45,#26352d);color:#f3ead0}
+dialog .compass-dial{position:relative;flex:none;width:clamp(96px,12vw,130px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fbf3dc 0 58%,#e6d6a8 59% 63%,#b98d3e 64% 72%,#7b5a22 73%);box-shadow:0 6px 14px #0006,inset 0 0 0 2px #fff6}
+dialog .compass-n{position:absolute;top:13%;left:50%;translate:-50% 0;color:#a3341f;font:700 clamp(15px,1.4vw,19px)/1 var(--font-display)}
+dialog .compass-needle{position:absolute;inset:18%;background:linear-gradient(to bottom,#c0392b 0 50%,#2f3b2a 50% 100%);clip-path:polygon(50% 0,58% 50%,50% 100%,42% 50%);transform:rotate(var(--needle));animation:compass-swing 1.4s cubic-bezier(.3,1.6,.5,1) both}
+dialog .compass-hub{position:absolute;left:50%;top:50%;width:12%;aspect-ratio:1;border-radius:50%;background:#b98d3e;translate:-50% -50%}
+@keyframes compass-swing{0%{transform:rotate(calc(var(--needle) - 200deg))}100%{transform:rotate(var(--needle))}}
+dialog .compass-reading{display:grid;gap:2px;margin:0}
+dialog .compass-reading small{color:#bcd3b4;font:400 clamp(17px,1.3vw,20px)/1.2 var(--font-display)}
+dialog .compass-reading b{font:400 clamp(30px,2.6vw,40px)/1.15 var(--font-display);color:#fff6da}
+dialog .compass-reading span{font-size:clamp(18px,1.4vw,22px);color:#f0dca2}
+dialog .compass-places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+dialog .compass-places article{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 10px 12px;border:2px solid #dccb9f;border-radius:16px;background:#fffaeb}
+dialog .compass-places article.target{border-color:#d9a634;box-shadow:0 0 0 4px #e6bd5666}
+dialog .compass-places article.done{opacity:.85}
+dialog .compass-place-art{display:block;width:100%;aspect-ratio:483/272;background-image:var(--sheet);background-size:300% 400%;background-position:calc(var(--col) * 100% / 2) calc(var(--row) * 100% / 3)}
+dialog .compass-places h3{margin:0;color:#2c5236;font:400 clamp(22px,1.8vw,28px)/1.2 var(--font-display)}
+dialog .compass-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+dialog .compass-slots>span{display:grid;justify-items:center;width:clamp(64px,6vw,84px)}
+dialog .compass-slots .animal{width:100%;aspect-ratio:1;object-fit:contain}
+dialog .compass-slots b{font-size:clamp(16px,1.3vw,19px);color:#3a3a2a}
+dialog .compass-slots .unknown i{display:grid;place-items:center;width:100%;aspect-ratio:1;border:2px dashed #c9b98d;border-radius:50%;color:#a8925c;font:700 clamp(26px,2.4vw,34px)/1 var(--font-display);font-style:normal}
+@media (max-width:760px){dialog .compass-places{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){dialog .compass-needle{animation:none}}
+dialog:has(.compass-tool){width:min(1000px,94vw)}
+dialog .compass-slots>span{width:clamp(70px,6.5vw,92px);flex:none}
+dialog .compass-slots .animal,dialog .compass-slots .unknown i{width:clamp(70px,6.5vw,92px);height:clamp(70px,6.5vw,92px);aspect-ratio:auto}
