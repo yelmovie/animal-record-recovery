@@ -188,3 +188,18 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 ## 관찰 노트·전시대·설명판 (2026-10-26)
 - `assets/museum/observation-notebook.webp`, `museum-placard.webp`, `museum-pedestal.webp` — Higgsfield(gpt_image_2_5)로 생성, 전시대는 배경만 지움. 원본 PNG: `D:\iscreammedia_sc34\_scratch\hf-museum\`.
 - `assets/fonts/research-hand-400.woff2` — 나눔손글씨 펜(Nanum Pen Script), SIL OFL 1.1 (`NanumPenScript-OFL.txt`). 4 lifecycle 프로젝트에서 복사.
+
+### 2026-10-26 새 동물 7종 (1·2·4장)
+
+사용자가 내장 이미지 생성 도구(built-in image_gen)로 만들어 전달했다. 화풍 참고 이미지는 `generated/frog.webp`, `adventure/bat.webp`. 프롬프트 원문은 원본 폴더의 `generation-prompts.json`과 `docs/new-animal-prompts.html`에 있다.
+투명 PNG의 반투명 가장자리에 남은 붉은·노란 테두리를 프로젝트 스크립트로 주변 불투명 색으로 다시 칠하고(그림 내용은 손대지 않음), 1024px WebP(q80)로 줄였다.
+
+| 원본 (`D:/iscreammedia_sc34/_scratch/new-animals/`) | 정리본 (`_cleaned/`) | 배포본 | 쓰는 곳 |
+|---|---|---|---|
+| `sparrow.png` 1254px | `sparrow.png` | `adventure/sparrow.webp` 190KB | 1장 박쥐와 참새 관찰 |
+| `spider.png` 1254px | `spider.png` | `adventure/spider.webp` 258KB | 1장 거미와 개미 관찰 |
+| `ant.png` 1254px | `ant.png` | `adventure/ant.webp` 181KB | 1장 거미와 개미 관찰 |
+| `penguin.png` 1254px | `penguin.png` | `adventure/penguin.webp` 142KB | 2장 분류 카드 |
+| `ostrich.png` 1254px | `ostrich.png` | `adventure/ostrich.webp` 139KB | 2장 분류 카드 |
+| `dolphin.png` 1254px | `dolphin.png` | `adventure/dolphin.webp` 78KB | 2장 분류 카드 |
+| `mole.png` 1254px | `mole.png` | `adventure/mole.webp` 174KB | 4장 땅속 친구 찾기 |
