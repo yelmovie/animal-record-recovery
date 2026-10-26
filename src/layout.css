@@ -11,6 +11,8 @@
    the "?" help sits with the corner icons, and Mori speaks only as a feedback bubble. */
 #app .mission-page{position:relative;height:var(--app-height,100dvh)!important;max-width:none;margin:0;padding:0!important;display:block!important;overflow:hidden}
 #app .mission-page .activity-workspace{position:absolute;inset:0;height:auto;min-height:0;margin:0;border-radius:0;padding:0;gap:0;background:#e9e3cf url('../assets/adventure/field-desk.webp') center/cover}
+/* The workspace art is the one background; a second cover-sized copy on the half-width scene crops differently and shows a seam. */
+#app .mission-page .activity-workspace>.specimen-scene{background:transparent}
 /* Each activity board runs edge to edge (its art behind the corner icons) and starts its content below them. */
 #app .mission-page .activity-workspace>*{min-height:0;border-radius:0;margin:0;padding-top:calc(var(--hud-top) + 4px)}
 #app .mission-page .mission-guide{position:fixed;top:12px;left:var(--hud-left);right:auto;z-index:3950;display:flex!important;align-items:center;gap:8px;min-height:0;padding:0!important;margin:0;background:none;border:0;border-radius:0;box-shadow:none;pointer-events:none}
