@@ -203,3 +203,7 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 | `ostrich.png` 1254px | `ostrich.png` | `adventure/ostrich.webp` 139KB | 2장 분류 카드 |
 | `dolphin.png` 1254px | `dolphin.png` | `adventure/dolphin.webp` 78KB | 2장 분류 카드 |
 | `mole.png` 1254px | `mole.png` | `adventure/mole.webp` 174KB | 4장 땅속 친구 찾기 |
+
+### 2026-10-26 생태돔용 가벼운 모델
+
+`models/dome/*.glb` 8종은 위 Meshy 모델(`models/*.glb`)을 `scripts/prepare-dome-models.py`(Blender 5.2, 창 없이)로 삼각형 1만5천 개·텍스처 512px WebP로 줄인 사본이다. 새로 생성한 모델이 아니다. 돔 안에서는 동물이 작게 보여 이 크기로 충분하고, 8종 합계 47.6MB → 5.3MB. 가까이 보는 관찰 화면은 기존 모델을 그대로 쓴다. 나비·바다 물고기·낙타·펭귄 원본 모델은 이제 돔 사본의 원본으로만 저장소에 두고 배포에는 넣지 않는다.

@@ -15,7 +15,9 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page'].map(f=>`assets/sfx/${f}.mp3`),
   'assets/music/village-theme.mp3','assets/adventure/swim-shoe-v2.webp','assets/adventure/swim-blade-v2.webp',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
-  ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/${f}.glb`),
+  // Full models are for the close-up scanner only; the dome loads the light copies in models/dome/.
+  ...['frog','crab','duck','rabbit'].map(f=>`assets/models/${f}.glb`),
+  ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/dome/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
   ...['jua-korean-400.woff2','jua-latin-400.woff2','Jua-OFL.txt','Pretendard-Regular.subset.woff2','Pretendard-Bold.subset.woff2','Pretendard-OFL.txt'].map(f=>`assets/fonts/${f}`)];
 files.push('src/workspace.css',...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/residents/${id}-v2.webp`),...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/village/npc-${id}.webp`),...[1,2,3,4,5].flatMap(id=>[`assets/tools/${id}-v2.webp`,`assets/village/recovery-${id}-v2.webp`]),'src/landing.css','assets/adventure/title-logo-v1.webp','src/story-player.js','src/story.css',...Object.keys(STORIES).map(kind=>`assets/videos/story/${kind}.mp4`),...['intro','outro'].flatMap(kind=>[1,2,3,4].map(i=>`assets/story/${kind}-0${i}.webp`)));

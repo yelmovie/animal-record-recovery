@@ -114,7 +114,7 @@ export function create(host,opts){
     const g=new T.Group(),model=new T.Group(),s=SCALE[t.animal]||.4,home=spots[t.animal]||at(angle(t.habitat),3);
     model.scale.setScalar(s);g.add(model);
     // Keep the entire scene covered until all real models for this visit are ready.
-    const ready=loadAnimal(t.animal).then(glb=>{if(dead||!animals.some(x=>x.model===model))return;model.add(glb);model.userData.glb=true;stage.request();});
+    const ready=loadAnimal(t.animal,{dome:true}).then(glb=>{if(dead||!animals.some(x=>x.model===model))return;model.add(glb);model.userData.glb=true;stage.request();});
     if(t.animal!=='marine'&&t.animal!=='butterfly')g.add(blobShadow(1.1*s/.4,.22));
     const hit=new T.Mesh(new T.SphereGeometry(1.1,10,8),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.position.y=.5;hit.userData.find=t.id;g.add(hit);
     g.position.copy(home);// Models face +x; turn them outward toward the camera, three-quarter on (the crab straight on).
