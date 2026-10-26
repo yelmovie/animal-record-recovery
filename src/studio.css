@@ -61,3 +61,22 @@
 @media(max-width:700px){.studio-drawing .studio-toolbar{flex-wrap:wrap;gap:3px 8px}.studio-color-button{margin-right:auto}.studio-tools-scroll{order:3;flex-basis:100%;width:100%}.studio-history{margin-left:auto}.studio-pen-types .studio-button{min-width:55px}.studio-width input[type=range]{width:110px}.studio-brush-preview{width:80px}}
 .studio-swatches{display:flex;gap:4px;flex:none}.studio-swatch{width:42px;height:42px;min-width:42px;border-radius:50%;border:3px solid #fff;background:var(--swatch);box-shadow:0 0 0 1px #b9bfa8;cursor:pointer;padding:0}.studio-swatch[aria-pressed="true"]{box-shadow:0 0 0 3px #2f5a2c;transform:scale(1.06)}.studio-swatch:focus-visible{outline:3px solid #e6bd56;outline-offset:2px}@media(max-width:1100px){.studio-swatch{width:38px;height:38px;min-width:38px}}
 .studio-toolbar .studio-swatch,.creative-studio .studio-swatch{width:44px;height:44px;min-width:44px;min-height:44px;flex:none}
+
+/* Showcase guide: four numbered jobs, a sample to read, and each example picker beside its own question. */
+#app .studio-showcase .studio-steps{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none;counter-reset:step}
+#app .studio-showcase .studio-steps li{counter-increment:step;display:flex;align-items:center;gap:6px;padding:4px 12px 4px 4px;border-radius:999px;background:#e8efd6;color:#2f4a35;font:400 clamp(17px,1.2vw,21px)/1.2 var(--font-display)}
+#app .studio-showcase .studio-steps li::before{content:counter(step);display:grid;place-items:center;width:1.5em;height:1.5em;border-radius:50%;background:#3d6a4a;color:#fffbe8;font-size:.85em}
+#app .studio-showcase .studio-steps-tip{margin:6px 0 2px;color:#5b5236;font-size:clamp(16px,1.1vw,19px)}
+#app .studio-showcase .studio-sample-button{align-self:flex-start;min-height:46px;margin:2px 0 4px;padding:6px 14px;border:2px dashed #c9b98d;border-radius:12px;background:#fffdf4;color:#3d6a4a;font:400 clamp(18px,1.3vw,22px)/1.2 var(--font-display)}
+#app .studio-sample[popover]{width:min(640px,92vw);margin:auto;padding:18px 20px;border:2px solid #c9b98d;border-radius:18px;background:#fffaeb;box-shadow:0 20px 50px #2a1d0b66}
+#app .studio-sample[popover]::backdrop{background:#1d2a1f55}
+#app .studio-sample .studio-sample-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#2f4a35;font:400 clamp(22px,1.6vw,28px)/1.2 var(--font-display)}
+#app .studio-sample dl{margin:0;display:grid;gap:10px}
+#app .studio-sample dl>div{display:grid;grid-template-columns:9em minmax(0,1fr);gap:10px;padding-bottom:8px;border-bottom:1px dashed #dccb9f}
+#app .studio-sample dt{color:#8a7a52;font-size:18px}
+#app .studio-sample dd{margin:0;color:#2f3b2a;font-size:clamp(20px,1.5vw,26px);line-height:1.4;word-break:keep-all}
+#app .studio-sample>p{margin:10px 0 0;color:#7a6a45;font-size:17px}
+#app .studio-showcase .studio-field-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#app .studio-showcase .studio-field-head>label{font-weight:700}
+#app .studio-showcase .studio-assist-mini{flex:none;max-width:44%;min-height:40px;padding:2px 8px;border:1px solid #c9b98d;border-radius:10px;background:#fffaeb;color:#5b5236;font-size:16px}
+#app .studio-showcase .studio-poster-empty{margin:6px 0 0;padding:8px 12px;border-radius:10px;background:#fff1c9;color:#6b4a12;font-size:clamp(17px,1.2vw,20px);text-align:center}
