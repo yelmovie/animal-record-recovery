@@ -23,7 +23,7 @@ export const CONCEPTS=[
   unlock:s=>labCompared(s),captions:[[0,3,'몸에서는 따뜻한 열이 계속 나와.'],[3,6.5,'털이 없으면 열이 금방 밖으로 빠져나가.'],[6.5,10,'촘촘한 털 사이에는 공기가 머물러서 열이 천천히 빠져나가.'],[10,12,'털이 열을 만드는 게 아니야. 빠져나가는 열을 줄여 주는 거야.']]},
  {id:'sort-criteria',title:'좋은 분류 기준은 무엇일까?',seconds:12,hint:'2장 ‘다 함께 쓸 기준 고치기’에서 기준을 고쳐 다시 검증하면 열려',
   unlock:s=>s.activities?.includes('2-1')||taskReady(s,2,1),captions:[[0,4,'‘빨리 달리나요?’로 나누면 세 연구원의 결과가 서로 달라.'],[4,8,'‘날개가 있나요?’는 몸을 보면 누구나 똑같이 확인할 수 있어.'],[8,12,'누구나 같은 결과가 나오고, 동물이 두 무리로 나뉘는 기준이 좋은 분류 기준이야.']]},
- {id:'habitat-life',title:'사는 곳과 알맞은 생김새',seconds:12.9,hint:'3장 선택 도전을 마치거나, 낙타·펭귄 움직임까지 기록하면 열려',
+ {id:'habitat-life',title:'사는 곳과 알맞은 생김새',seconds:12.9,hint:'3장 마지막 도전을 마치거나, 낙타·펭귄 움직임까지 기록하면 열려',
   unlock:s=>campaignDone(s,3,2)||(s.activities?.includes('3-3')&&motionSeen(s,'camel')&&motionSeen(s,'penguin')),captions:[[0,4.3,'낙타는 모래가 많은 건조한 곳에 살아. 넓적한 발바닥으로 모래를 디뎌.'],[4.3,8.6,'펭귄은 추운 바다에 살아. 짧은 날개로 물을 밀며 헤엄쳐.'],[8.6,12.9,'오리는 연못에 살아. 물갈퀴로 물을 밀어. 사는 곳에 알맞은 생김새를 가졌어.']]}
 ].map(c=>({...c,kind:'concept',sources:[[BASE+c.id+'.webm','video/webm'],[BASE+c.id+'.mp4','video/mp4']],poster:BASE+c.id+'.webp',endFrame:true}));
 

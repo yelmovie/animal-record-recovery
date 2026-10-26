@@ -310,16 +310,20 @@ function requestCommission(id,index=0){
 function showGap(){const parts=requestParts(stage,commissionIndex),gap=requestGap(s,stage,parts);picked=null;if(!gap)return say(campaignHint(s,stage,commissionIndex));
   const cards=requestCards(s,stage,parts),k=cards.findIndex(c=>c.part===gap.index&&(c.kind==='own-sort'||c.kind==='retest'||c.rows.some(r=>r.key===gap.key)));
   if(commissionIndex<2)commissionIndex=gap.index;if(k>=0)requestCard=k;say(gap.text,false,gap.key?['row:'+gap.key]:[]);}
+// The last challenge is part of every place: the two requests lead straight into it, and the reward waits until it is done.
+const challengeLeft=()=>campaignOpen(s,stage,2)&&!campaignDone(s,stage,2);
+function toChallenge(){openCommission(stage,2);say('부탁을 해결했어! 이제 마지막 도전으로 이 장소를 완성하자.',true);}
 function submitCommission(){
   if(commissionIndex<2){
     const result=claimRequest(s,stage);
     if(!result.ok)return showGap();
-    playSound(s.soundEnabled,result.fresh?'stamp':'correct');restoredFlash=stage;go('reward');return;
+    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return toChallenge();restoredFlash=stage;go('reward');return;
   }
   const result=claimCommission(s,stage,commissionIndex);
   if(!result.ok)return showGap();
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
-  if(commissionIndex===1){restoredFlash=stage;go('reward');return;}
+  if(commissionIndex===1&&challengeLeft())return toChallenge();
+  if(commissionIndex>=1){restoredFlash=stage;go('reward');return;}
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
 }
 // Flips the observation notebook in place so the page-turn animation is not lost to a re-render.
@@ -360,7 +364,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'commission-choice':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,key,value)){feedback=null;render();}break;
     case 'commission-sort':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,id,value)){picked=null;feedback=null;render();}break;
     case 'commission-submit':if(screen==='commission')submitCommission();break;
-    case 'commission-next':if(screen==='commission'){if(commissionIndex<2&&campaignDone(s,stage,0)&&campaignDone(s,stage,1))go('reward');else if(commissionIndex===2)go('gallery');}break;
+    case 'commission-next':if(screen==='commission'){if(commissionIndex<2&&campaignDone(s,stage,0)&&campaignDone(s,stage,1)){if(challengeLeft())toChallenge();else go('reward');}else if(commissionIndex===2)go('reward');}break;
     case 'note-page':turnNotePage(el.closest('.note-book'),Number(value));return;
     case 'commission-evidence':if(screen==='commission'){evidenceOpen=!evidenceOpen;campaignDraft(s,stage,commissionIndex).usedTool=true;const toolId=stage===2?1:stage-1;if(restoredPlaces(s).includes(toolId)&&!s.toolUses.includes(String(toolId)))s.toolUses.push(String(toolId));save();}break;
     case 'commission-level':if(screen==='commission'&&[1,2,3].includes(Number(value))){const d=campaignDraft(s,stage,commissionIndex);d.level=Number(value);d.prediction='';feedback=null;render();}break;

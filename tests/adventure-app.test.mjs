@@ -185,7 +185,8 @@ test('exploration delivers a dismissible letter and one reply atomically restore
  for(const [key,value]of Object.entries({'frog-label':'bare','frog-proof':'skin','crab-label':'claw','crab-proof':'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value,commissionIndex:'0'})}})`);
  a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'commission');assert.equal(a.run('campaignDone(s,1,0)'),false);
  for(const [key,value]of Object.entries({duck:'feather',rabbit:'fur',same:'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value,commissionIndex:'1'})}})`);
- a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'reward');assert.deepEqual([...a.run('restoredPlaces(s)')],[1]);assert.equal(a.run('s.activities.length'),18);assert.match(a.app.innerHTML,/연구원 소라의 답장/);
+ a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'commission','the reply leads straight into the last challenge');assert.equal(a.run('commissionIndex'),2);assert.deepEqual([...a.run('restoredPlaces(s)')],[1]);
+ a.run("for(const r of missionRows(s,1,2,campaignDraft(s,1,2)))act('commission-choice',{dataset:{key:r.key,value:String(r.answer),commissionIndex:'2'}});act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'reward');assert.equal(a.run('s.activities.length'),18);assert.match(a.app.innerHTML,/연구원 소라의 답장/);
  a.run("act('map',{dataset:{}})");assert.equal(a.run('selectedStage'),2);a.run("act('gallery',{dataset:{}})");assert.match(a.app.innerHTML,/주민의 부탁 1\/5/);assert.ok(!a.app.innerHTML.includes('발명과 탐험 인증서'));
 });
 
@@ -241,7 +242,7 @@ test('guided invention leads to an empty creative studio, then preserves artwork
  a.run('advance()');assert.equal(a.dialog.open,false);
  a.run('s.studio.audience="산책하는 친구";s.studio.purpose="발을 따뜻하게 감싸 줘";s.studio.inspiration="토끼의 털";advance()');
  assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/전시/);assert.equal(a.run('s.studioRecord.title'),'구름 신발');
- a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'reward');
+ a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);
  const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,18);
 });
 test('reset keeps the teacher\'s sound settings',()=>{
@@ -298,6 +299,9 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
    for(const [key,value] of rows)act('commission-choice',{key,value:String(value),commissionIndex:String(i)});}
   if(stage===2)act('commission-choice',{key:'criterion',value:'six',commissionIndex:'1'});};
  const finishRequest=stage=>{act('commission-accept',{id:String(stage)});assert.equal(a.run('screen'),'commission');answerRequest(stage);answerRequest(stage);tapTwice('submitCommission()');
+  assert.equal(a.run('screen'),'commission',`request ${stage} leads into its last challenge`);assert.equal(a.run('commissionIndex'),2);
+  a.run(`for(const r of missionRows(s,${stage},2,campaignDraft(s,${stage},2)))act('commission-choice',{dataset:{key:r.key,value:String(r.answer),commissionIndex:'2'}});`);
+  tapTwice('submitCommission()');
   assert.equal(a.run('screen'),'reward',`request ${stage}`);assert.ok(a.run(`restoredPlaces(s).includes(${stage})`));};
  a.run('s.introSeen=true;enter(1)');
  for(const r of [0,1]){
@@ -336,7 +340,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  a.run('s.studio={...s.studio,title:"날개 우산",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:400,y:300}]}]};advance()');
  a.run('s.studio.audience="비 오는 날 걷는 친구";s.studio.purpose="날개처럼 넓게 덮어 줘";s.studio.inspiration="오리 날개";advance()');
  assert.equal(stars(),18);assert.equal(a.dialog.open,true);finishRequest(5);
- const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,18);assert.equal(Object.keys(saved.campaign.records).length,10);
+ const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,18);assert.equal(Object.keys(saved.campaign.records).length,15,'two requests and the last challenge for every place');
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.match(a.app.innerHTML,/18개 탐험 별/);
  act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|처음 고른 설명이 맞은 곳 12곳/);
