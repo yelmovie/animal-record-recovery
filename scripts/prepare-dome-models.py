@@ -1,6 +1,7 @@
 """Light copies of the animal models for the eco dome, where each animal is only ~100-200px on screen.
 
-blender -b --python scripts/prepare-dome-models.py -- <project-root> [animal ...]
+blender -b --python scripts/prepare-dome-models.py -- <project-root> [--scan] [animal ...]
+--scan writes assets/models/scan/<id>.glb for the close-up scanner (40k triangles, 1024px textures).
 Reads assets/models/<id>.glb (the close-up observation models stay as they are) and writes
 assets/models/dome/<id>.glb with fewer triangles and 512px WebP textures.
 """
@@ -10,10 +11,12 @@ from pathlib import Path
 
 args = sys.argv[sys.argv.index('--') + 1:]
 root = Path(args[0]).resolve()
-ANIMALS = ['frog', 'crab', 'duck', 'rabbit', 'butterfly', 'marine', 'camel', 'penguin']
-TRIANGLES = 15000
-TEXTURE = 512
-out_dir = root / 'assets/models/dome'
+scan = '--scan' in args
+args = [a for a in args if a != '--scan']
+ANIMALS = ['frog', 'crab', 'duck', 'rabbit'] if scan else ['frog', 'crab', 'duck', 'rabbit', 'butterfly', 'marine', 'camel', 'penguin']
+TRIANGLES = 40000 if scan else 15000
+TEXTURE = 1024 if scan else 512
+out_dir = root / ('assets/models/scan' if scan else 'assets/models/dome')
 out_dir.mkdir(parents=True, exist_ok=True)
 
 for animal in args[1:] or ANIMALS:

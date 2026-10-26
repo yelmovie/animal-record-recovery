@@ -78,6 +78,9 @@ const ZONES={
 const SCALE={rabbit:.42,frog:.38,duck:.4,crab:.36,butterfly:.42,marine:.45,camel:.7,penguin:.6};
 
 // opts: {zones:[id], names:{id:name}, targets:[{id,animal,habitat,name,found}], extras (same, look only), active, onFind(id), onLook(id), onFail}
+// Fetch the dome scenery and this round's models before the screen opens; the browser cache serves them again.
+const SCENERY=['../assets/adventure/dome-ground.webp','../assets/adventure/terrain-atlas.webp','../assets/adventure/nature-materials.webp','../assets/generated/reed.webp','../assets/generated/lotus_leaf.webp'];
+export function warm(ids){for(const path of SCENERY)new Image().src=new URL(path,import.meta.url).href;for(const id of ids)loadAnimal(id,{dome:true}).catch(()=>{});}
 export function create(host,opts){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let animals=[],key='',active=null,aimed=null,tilt=null,dead=false;

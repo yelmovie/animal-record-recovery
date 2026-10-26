@@ -221,3 +221,8 @@ dialog:has(.resident-letter) .letter-more>p{margin:0 0 .65em;font-size:clamp(17p
 #app #main#main.commission-page .arrival-sort>.sort-detail{font-size:clamp(17px,2.2vh,26px)!important}
 #app #main#main.commission-page .arrival-sort .arrival-bin .arrival-card{height:auto}
 #app #main#main.commission-page .arrival-sort .arrival-bin .arrival-card>.animal{max-height:clamp(44px,8vh,110px)}
+/* 2D fallback: the optional camel and penguin places show the video still as a big tappable picture. */
+#app .habitat-diorama.extra-zone{display:grid;place-items:center;background:#e8eedc;border-radius:18px}
+#app .habitat-diorama.extra-zone .extra-look{position:relative;inset:auto;transform:none;translate:none;width:min(92%,640px);padding:0;border:4px solid #fff;border-radius:16px;overflow:hidden;background:none;box-shadow:0 8px 20px #2a3a2640}
+#app .habitat-diorama.extra-zone .extra-look img{display:block;width:100%;height:auto}
+#app .habitat-diorama.extra-zone .extra-look>span{position:absolute;right:10px;top:10px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#fff;color:#355b3d}

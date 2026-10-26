@@ -9,14 +9,14 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
-import {can3d,mount3d,disable3d} from './view3d.js';
+import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
 
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
@@ -206,12 +206,16 @@ function finishStory(){
 }
 // Village NPCs (and Mori) speak in a bubble above them and in the tip line.
 function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 복구하면 ${withParticle(next.reward,'을/를')} 받아! 건물이나 길을 누르면 같이 걸어갈게.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;playSound(s.soundEnabled,'talk');toast(line,el,npc.name);}
+// 3D screens start downloading while Haru walks to the door, so the scanner and dome open sooner.
+function warmStage(id){const r=Math.floor((s.step[id]||0)/2);
+  if(id===1)warm3d('scanner',(OBSERVE_PAIRS[r]||[]).filter(a=>SCAN_3D.includes(a)));
+  if(id===3)warm3d('dome',[...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.animal),...Object.values(DOME_ZONES).map(z=>z.animal)]);}
 function selectMap(id){
   if(screen==='map'&&mapOverview&&Number.isInteger(id)&&STAGES[id-1]){mapOverview=false;render();}
   if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;mapWalkVersion++;map?.stop?.();autoEnter=false;selectedStage=id;arrived=false;
   document.querySelectorAll('.map-marker[data-action="map-select"]').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});
   document.querySelector('#quest-panel').innerHTML=questPanel(s,view());
-  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
+  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;warmStage(id);document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
   else explainLocked(id);
 }
 function explainLocked(id){
@@ -399,7 +403,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       // A card that breaks the everyday guess (a bird that cannot fly, a sea animal that is not a fish) explains itself once it lands in the right place.
       const key=round()?s.criteria[1]:'wings';if(value===(ANIMALS[id][key]?'yes':'no')&&ANIMALS[id].aha)toast('알고 보니! '+ANIMALS[id].aha,document.querySelector(`.drag-card[data-id="${id}"]`)||el);break;}
     case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;
-    case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id)||(can3d()&&Object.hasOwn(DOME_ZONES,id)))activeHabitat=id;feedback=null;render();break;
+    case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id)||Object.hasOwn(DOME_ZONES,id))activeHabitat=id;feedback=null;render();break;
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();break;}
     case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;

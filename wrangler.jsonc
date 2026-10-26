@@ -1,5 +1,7 @@
 {
   "name": "animal-record-recovery",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./dist" }
+  "main": "./worker.js",
+  // Only media goes through worker.js (Range support for iPad Safari); everything else is served as plain assets.
+  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/assets/videos/*", "/assets/concepts/*"] }
 }

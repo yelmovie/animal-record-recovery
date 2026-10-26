@@ -1,6 +1,7 @@
 import {flashlightCaseView} from './flashlight.js';
 import {anatomy,sourceView,labView,motionView} from './inquiry-views.js';
 import {EXPERIMENTS} from './inquiry.js';
+import {motionVideoURL} from './motion-video.js';
 import {SCAN_3D,ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,compareCards,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
 import {art,animal,icon,sprite,btn,choice,esc,off,withParticle} from './presentation.js';
 import {assetURL,workshopSprite,swimArtwork} from './assets.js';
@@ -84,13 +85,15 @@ function sortView(s,v){const r=v.round,own=s.criteria[1];
 function habitatView(s,v){const r=v.round;
  if(v.step%2===1)return linkView(s,r?'crab':'frog',v);
  const list=DISCOVERIES.slice(r*3,r*3+3),d=list.find(x=>x.habitat===v.activeHabitat)||list[0],h=HABITATS[d.habitat],found=s.discovered.includes(d.id);
- const tabs='<div class="scene-tabs">'+Object.entries(HABITATS).map(([id,x])=>btn(x.name,'habitat',id===d.habitat?'active':'','data-id="'+id+'"')).join('')+'</div>';
- const extra=v.use3d?DOME_ZONES[v.activeHabitat]:null,motionId=extra?extra.animal:d.animal,motionFound=extra?v.looked?.includes(v.activeHabitat)||s.inquiry.motion[motionId]!==undefined:found;
+ const extra=DOME_ZONES[v.activeHabitat]||null;
+ // 2D keeps the two optional places (camel, penguin) as tabs too, so their videos are reachable without WebGL.
+ const tabs='<div class="scene-tabs">'+[...Object.entries(HABITATS),...Object.entries(DOME_ZONES)].map(([id,x])=>btn(x.name,'habitat',id===(extra?v.activeHabitat:d.habitat)?'active':'','data-id="'+id+'"')).join('')+'</div>';
+ const motionId=extra?extra.animal:d.animal,motionFound=extra?v.looked?.includes(v.activeHabitat)||s.inquiry.motion[motionId]!==undefined:found;
  const remaining=list.filter(x=>s.inquiry.motion[x.animal]===undefined),recorded=s.inquiry.motion[motionId]!==undefined;
  const next=remaining.find(x=>x.animal!==motionId)||remaining[0];
  const checklist='<div class="motion-checklist"><b>이번 활동 · '+(3-remaining.length)+'/3마리 기록</b><div>'+list.map(x=>btn((s.inquiry.motion[x.animal]!==undefined?'✓ ':'○ ')+ANIMALS[x.animal].name,'habitat',x.animal===motionId?'selected':'quiet','data-id="'+x.habitat+'"')).join('')+'</div></div>';
  const nextAction=recorded||extra?(next?btn('다음 관찰 · '+ANIMALS[next.animal].name+' →','habitat','primary motion-next','data-id="'+next.habitat+'"'):btn('세 마리 기록 완료 · 다음 활동 →','advance','primary motion-next')):'';
- const discoveryButton=v.use3d?(extra?btn('이곳의 동물 살펴보기','dome-look','secondary wide','data-id="'+v.activeHabitat+'"'):btn(found?'찾은 동물 다시 보기':'이곳의 동물 찾기','discover','secondary wide','data-id="'+d.id+'"')):'';
+ const discoveryButton=extra?btn('이곳의 동물 살펴보기','dome-look','secondary wide','data-id="'+v.activeHabitat+'"'):v.use3d?btn(found?'찾은 동물 다시 보기':'이곳의 동물 찾기','discover','secondary wide','data-id="'+d.id+'"'):'';
  const notes=empty=>'<aside class="field-notes habitat-notes">'+checklist+discoveryButton+'<div class="notes-title">'+(extra?'추가 관찰 사진 · 완료에 꼭 필요하지 않아':'전시관에 보낼 동물 사진')+'</div>'+(motionFound?motionView(motionId,{...v,motionEvidence:s.inquiry.motionEvidence[motionId],motionPhoto:s.inquiry.motionPhotos?.[motionId],motionNext:next?ANIMALS[next.animal].name:'',motionAllDone:!remaining.length,motionExtra:!!extra},s.inquiry.motion[motionId]):'<div class="empty-experiment"><b>'+icon('back')+' 먼저 '+withParticle(extra?extra.animalName:ANIMALS[motionId].name)+' 눌러 봐.</b><p>'+empty+'</p><p>영상을 재생하고 · 사진 한 장 찍기</p></div>')+nextAction+'</aside>';
 
  // Screen 06 in 3D: swipe round the dome and tap the animal; tilting the tablet is an optional extra.
@@ -98,6 +101,7 @@ function habitatView(s,v){const r=v.round;
  if(v.use3d){const look=DOME_ZONES[v.activeHabitat],zones=[...Object.entries(HABITATS),...Object.entries(DOME_ZONES)];
   const caption=look?'<b>'+look.name+'</b><p>'+(v.looked?.includes(v.activeHabitat)?domeCaption(s,look):'돔을 돌려 '+look.name+'에 사는 동물을 찾아 눌러 봐. 기록하지 않아도 돼.')+'</p>':'<b>'+h.name+'</b><p>'+(found?discoveryCaption(s,d):'돔을 돌려 '+h.name+'에 사는 동물을 찾아 눌러 봐.')+'</p>';
   return '<div class="habitat-scene dome-scene"><div class="scene-tabs">'+zones.map(([id,x])=>btn(x.name,'habitat',id===(look?v.activeHabitat:d.habitat)?'active':'','data-id="'+id+'"')).join('')+'</div><div class="scan3d dome3d" data-3d="dome" data-habitat="'+(look?v.activeHabitat:d.habitat)+'"><p class="scan-loading">생태 돔을 준비하고 있어…</p></div><div class="habitat-caption"><div>'+caption+'</div>'+(v.tiltable?btn(icon('compass')+(v.tilt?'기울여 보기 끄기':'기울여 보기'),'dome-tilt',v.tilt?'selected':'quiet','aria-pressed="'+!!v.tilt+'"'):'')+'</div></div>'+notes('돔에서 동물을 찾아 눌러 줘.');}
+ if(extra){const seen=v.looked?.includes(v.activeHabitat);return '<div class="habitat-scene">'+tabs+'<div class="habitat-diorama extra-zone"><button class="discover-animal extra-look '+(seen?'found':'')+'" data-action="dome-look" data-id="'+v.activeHabitat+'" aria-label="'+extra.animalName+' 살펴보기"><img src="'+motionVideoURL(extra.animal,'webp')+'" alt=""><span>'+icon(seen?'check':'search')+'</span></button></div><div class="habitat-caption"><b>'+extra.name+'</b><p>'+(seen?domeCaption(s,extra):withParticle(extra.animalName)+' 눌러 사는 모습을 살펴봐. 기록하지 않아도 돼.')+'</p></div></div>'+notes(withParticle(extra.animalName)+' 눌러 줘.');}
  return '<div class="habitat-scene">'+tabs+'<div class="habitat-diorama '+d.habitat+'">'+sprite('biomes',h.sheet[0],h.sheet[1],'biome-photo',h.name)+'<button class="discover-animal '+(found?'found':'')+'" data-action="discover" data-id="'+d.id+'" aria-label="'+ANIMALS[d.animal].name+' 발견">'+animal(d.animal)+'<span>'+icon(found?'check':'search')+'</span></button></div><div class="habitat-caption"><b>'+h.name+'</b><p>'+(found?discoveryCaption(s,d):'동물을 눌러 움직임을 살펴봐.')+'</p></div></div>'+notes('그림에서 동물을 찾아 눌러 줘.');
 }
 const LINK_COLS=['environment','body','life'],LINK_NAMES=['사는 곳','몸의 특징','움직이는 방법'];

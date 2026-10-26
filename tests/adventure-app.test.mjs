@@ -30,7 +30,7 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null}={}){
   const slider={id:'motion-phase',value:0},motionParts={'.motion-model':{outerHTML:''},'.motion-caption':{textContent:''},'[data-action="motion-play"]':{textContent:''},'#motion-phase':slider};
   const motionHost={dataset:{motion:'rabbit'},querySelector:s=>motionParts[s],querySelectorAll:()=>[]};
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
-  const context=vm.createContext({...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -65,7 +65,7 @@ test('the village overview unlocks only after all five places are restored, incl
  assert.equal(a.run('s.completed.length'),5);assert.equal(a.run('restoredPlaces(s).length'),0);assert.equal(a.run('mapOverview'),false);
  a.run('s.campaign=freshCampaign([1,2,3,4]);go("map")');assert.equal(a.run('mapOverview'),false);
  a.run('s.campaign=freshCampaign([1,2,3,4,5]);stage=5;go("reward")');
- assert.match(a.app.innerHTML,/data-action="map"[^>]*>복구된 마을 한눈에 보기/);
+ assert.match(a.app.innerHTML,/data-action="story-outro"[^>]*>전시관 문 열기 영상 보기/,'the last restoration leads straight to the finale video');assert.match(a.app.innerHTML,/data-action="map"[^>]*>복구된 마을 먼저 보기/);
  a.run('act("map",{dataset:{}})');assert.equal(a.run('screen'),'map');assert.equal(a.run('mapOverview'),true);assert.match(a.app.innerHTML,/중앙 코어 점등/);
  assert.doesNotMatch(a.app.innerHTML,/class="map-direction"/);
  a.run('act("story-outro",{dataset:{}});finishStory()');assert.equal(a.run('screen'),'gallery');
@@ -175,7 +175,8 @@ test('extra dome animals open their own optional videos without changing the req
   assert.doesNotMatch(a.app.innerHTML,/넓적한 발바닥으로/,'the body part waits for a prediction');assert.match(a.app.innerHTML,/건조한 곳에서 낙타가 움직이고 있어/);assert.match(a.app.innerHTML,/data-motion="camel"/);
   a.run("act('motion-predict',{dataset:{id:'camel',value:'other'}})");assert.match(a.app.innerHTML,/낙타가 넓적한 발바닥/);assert.doesNotMatch(a.app.innerHTML,/data-motion="rabbit"/);
   a.run("act('habitat',{dataset:{id:'cold'}})");assert.equal(a.run('activeHabitat'),'cold');a.run("opts3d('dome').onLook('cold')");assert.match(a.app.innerHTML,/data-motion="penguin"/);assert.match(a.app.innerHTML,/추가 관찰/);
-  const flat=appHarness();flat.run("s.adminUnlocked=true;enter(3);act('habitat',{dataset:{id:'cold'}})");assert.equal(flat.run('activeHabitat'),'forest','without 3D the extra zones are not selectable');
+  const flat=appHarness(),flatBefore=flat.run("s.adminUnlocked=true;enter(3);JSON.stringify(s)");flat.run("act('habitat',{dataset:{id:'cold'}})");assert.equal(flat.run('activeHabitat'),'cold','without 3D the extra zones are still tabs');assert.match(flat.app.innerHTML,/data-action="dome-look" data-id="cold"/);
+  flat.run("act('dome-look',{dataset:{id:'cold'}})");assert.match(flat.app.innerHTML,/data-motion="penguin"/);assert.equal(flat.run('JSON.stringify(s)'),flatBefore,'looking in 2D records nothing either');
 });
 
 test('exploration delivers a dismissible letter and one reply atomically restores both records',()=>{

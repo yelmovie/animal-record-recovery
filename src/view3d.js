@@ -21,3 +21,5 @@ export function mount3d(kind,host,opts){
   (kind==='dome'?import('./dome3d.js'):import('./scanner3d.js')).then(m=>{if(!dead)viewer=m.create(host,last);}).catch(error=>{if(!dead)last.onFail?.(error);});
   return handle;
 }
+// Start downloading a 3D screen (module, three.js, models) ahead of time; failures are ignored here.
+export function warm3d(kind,ids){if(!can3d())return;(kind==='dome'?import('./dome3d.js'):import('./scanner3d.js')).then(m=>m.warm(ids)).catch(()=>{});}
