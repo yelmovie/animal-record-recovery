@@ -1285,3 +1285,17 @@ dialog .settings-card.concept-replays .concept-thumb .icon{width:26px;height:26p
 #app .mission-page .inquiry-specimen .part-buttons{gap:8px;justify-content:center}
 #app #main.mission-page .inquiry-specimen .part-buttons .btn{min-height:clamp(48px,6vh,66px);padding:6px clamp(12px,1.2vw,22px);border:3px solid var(--ui-line);border-radius:14px;background:var(--ui-paper-strong);color:var(--ui-ink);font-size:max(var(--btn-fs,18px),2.3vh)!important;box-shadow:0 4px 0 var(--ui-line)}
 #app #main.mission-page .inquiry-specimen .part-buttons .btn.selected{background:var(--ui-green);border-color:var(--ui-edge);color:#fffbed;box-shadow:0 4px 0 var(--ui-edge)}
+/* The specimen lies on the canvas mat of field-desk.webp (1400×933, drawn center/cover).
+   Mat inside the stitching: y 230–750, left edge ≈ x 150 at mid height. These vars map it to the screen. */
+#app .mission-page .activity-workspace{--fd-s:max(100vw / 1400,var(--app-height,100dvh) / 933);--fd-ox:calc((100vw - 1400 * var(--fd-s)) / 2);--fd-oy:calc((var(--app-height,100dvh) - 933 * var(--fd-s)) / 2);--mat-top:calc(var(--fd-oy) + 236 * var(--fd-s));--mat-bottom:min(calc(var(--fd-oy) + 744 * var(--fd-s)),calc(var(--app-height,100dvh) - 150px));--mat-left:calc(var(--fd-ox) + 170 * var(--fd-s))}
+#app #main.mission-page :is(.inquiry-specimen,.scan-scene){justify-content:flex-end}
+/* Photo lens: a square box on the mat, centred between the mat's left edge and the notes. */
+#app #main.mission-page .inquiry-specimen .specimen{position:absolute;flex:none;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));width:auto;aspect-ratio:1/1;max-width:calc(100% - var(--mat-left) - 12px);left:calc((var(--mat-left) + 100%) / 2);transform:translateX(-50%)}
+/* 3D scanner: same mat area; the canvas has no backdrop of its own so the model rests on the cloth. */
+#app #main.mission-page .scan-scene .scan3d{position:absolute;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));left:var(--mat-left);right:12px;min-height:0;background:none!important;border:0;box-shadow:none}
+#app #main.mission-page .inquiry-specimen .specimen-photo{filter:drop-shadow(0 16px 14px #3a2a1038)}
+/* "Press this next": a gold ring that breathes on the next part/animal, and on 다음으로 once the step is done. */
+@keyframes next-cue-ring{0%,100%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 0 #e6bd5600}50%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 7px #e6bd5699}}
+#app #main.mission-page .btn.next-cue{border-color:#d9a634!important;animation:next-cue-ring 1.6s ease-in-out infinite}
+#app #main.mission-page .mission-footer>.btn.action-cue{animation:next-cue-ring 1.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){#app #main.mission-page .btn.next-cue,#app #main.mission-page .mission-footer>.btn.action-cue{animation:none;box-shadow:0 0 0 4px #e6bd5699}}

@@ -113,8 +113,8 @@ export function create(host,opts){
     pickables:()=>model?[model]:[],onTap,onKey:()=>{if(focus>=0)pick(focus);},onFail:e=>opts.onFail?.(e)});
   const {scene}=stage,sun=new T.DirectionalLight('#fff6e0',2.4),fill=new T.DirectionalLight('#dfe9ff',.7);
   sun.position.set(3,6,4);fill.position.set(-4,2,-3);
-  const base=new T.Mesh(new T.CylinderGeometry(1.75,1.85,.1,48),mat('#ece6d2'));base.position.y=-.05;base.raycast=()=>{};
-  scene.add(new T.HemisphereLight('#fffbe8','#6b7a52',1.5),sun,fill,base,blobShadow(1.6));
+  // No plinth: the specimen rests on the desk mat behind the canvas, with only its soft shadow.
+  scene.add(new T.HemisphereLight('#fffbe8','#6b7a52',1.5),sun,fill,blobShadow(1.6));
 
   // Fit the actual specimen to this canvas, including narrow phone viewports.
   // Using a fixed distance/low target made short animals tiny and tall ears crop.

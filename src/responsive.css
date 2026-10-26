@@ -689,3 +689,5 @@
   #app #main .activity-workspace > .studio-showcase { grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; }
   #app #main .studio-showcase .studio-introduction { display: flex; flex-direction: column; }
 }
+/* The recorded description stays beside the photo crop (a full-width row slid under the crop on shorter screens). */
+#app #main .lens-notes > p:not([class]) { grid-column: 2; grid-row: 3; justify-self: start; width: auto; text-align: left; }
