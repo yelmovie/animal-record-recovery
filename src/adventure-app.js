@@ -51,7 +51,8 @@ function setupPanels(){
     app.querySelectorAll(selector).forEach((host,group)=>{
       const panels=[...host.querySelectorAll(childSelector)];if(panels.length<2)return;
       const key=panelKey(selector,group);
-      let current=Math.min(panelPages.get(key)||0,panels.length-1);
+      // The gallery opens on the room of the place the learner just finished, not always room 1.
+      let current=Math.min(panelPages.get(key)??(selector==='.museum-exhibits'?Math.max(0,stage-1):0),panels.length-1);
       const nav=document.createElement('nav');nav.className='panel-tabs';nav.setAttribute('aria-label','내용 선택');
       panels.forEach((panel,i)=>{const button=document.createElement('button');button.type='button';button.className='btn quiet';const num=document.createElement('span');num.className='tab-num';num.textContent=String(i+1);button.append(num,labels?.[i]||panel.querySelector('h2,h3,b,legend')?.textContent||`${i+1}번 기록`);button.addEventListener('click',()=>{current=i;panelPages.set(key,i);update();if(selector==='.museum-exhibits')host.scrollTop=0;});nav.append(button);});
       // Steps read as a sequence: finished panels get a check, and once the open one is finished the next tab says "다음".
