@@ -47,6 +47,6 @@ test('effect volume restores zero, defaults older saves, rejects invalid values,
  const {soundVolume,...old}=s;
  assert.equal(restoreExpedition(JSON.stringify(old)).soundVolume,.8);
  for(const v of [-1,2,'0.5',null])assert.equal(restoreExpedition(JSON.stringify({...old,soundVolume:v})).soundVolume,.8);
- assert.match(html(),/기록 저장 · 공용 기기 안내/);
- assert.match(html(),/다른 기기·브라우저·주소/);
+ // Backup and storage guidance were removed from settings at the teacher's request (2026-10-26).
+ assert.doesNotMatch(html(),/기록 저장 · 공용 기기 안내|기록 백업/);
 });
