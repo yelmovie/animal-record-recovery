@@ -1299,3 +1299,5 @@ dialog .settings-card.concept-replays .concept-thumb .icon{width:26px;height:26p
 #app #main.mission-page .btn.next-cue{border-color:#d9a634!important;animation:next-cue-ring 1.6s ease-in-out infinite}
 #app #main.mission-page .mission-footer>.btn.action-cue{animation:next-cue-ring 1.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){#app #main.mission-page .btn.next-cue,#app #main.mission-page .mission-footer>.btn.action-cue{animation:none;box-shadow:0 0 0 4px #e6bd5699}}
+/* 9 sort cards make 3 rows: shrink the pool so all rows fit above the footer (each 4:5 card row is 5/12 of the pool width). */
+#app .sorting-workspace>.card-tray>.card-pool:has(>:nth-child(7)){width:min(40vw,calc((100dvh - var(--hud-top) - 280px) / 1.3))}
