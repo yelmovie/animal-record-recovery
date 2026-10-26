@@ -60,6 +60,12 @@ await writeFile(path.join(root,'dist','src','app.css'),bundle);
 manifest.push({file:'src/app.css',bytes:Buffer.byteLength(bundle),sha256:createHash('sha256').update(bundle).digest('hex')});
 const html=await readFile(path.join(root,'dist','index.html'),'utf8'),links=[...html.matchAll(/[ \t]*<link[^>]+rel="stylesheet"[^>]+href="\.\/src\/[^"]+\.css"[^>]*>\r?\n?/g)];
 let built=html.replace(links[0][0],'<link rel="stylesheet" href="./src/app.css?v='+buildInfo.sha.slice(0,8)+'">\n');for(const m of links.slice(1))built=built.replace(m[0],'');
+// Modules otherwise load as a chain (each import found only after its parent arrives). Preload the entry's
+// static import graph so they download in parallel; dynamic imports (3D) stay lazy.
+const preload=new Set(),walk=async file=>{if(preload.has(file))return;preload.add(file);
+  for(const m of (await readFile(path.join(root,file),'utf8')).matchAll(/^\s*import\s[^'"]*?from\s*['"](\.\/[^'"]+)['"]/gm))await walk(path.posix.join(path.posix.dirname(file),m[1]));};
+await walk('src/adventure-app.js');
+built=built.replace('</head>',[...preload].map(f=>`<link rel="modulepreload" href="./${f}">`).join('\n')+'\n</head>');
 await writeFile(path.join(root,'dist','index.html'),built);
 manifest.find(f=>f.file==='index.html').bytes=Buffer.byteLength(built);
 await writeFile(path.join(root,'dist','build-manifest.json'),JSON.stringify({...buildInfo,version:JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version,files:manifest},null,2));
