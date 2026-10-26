@@ -128,22 +128,30 @@
 /* The page stays in the right-hand column so it never covers the answer choices. */
 #app #main .commission-evidence[open]{width:min(520px,36vw,92vw)}
 #app #main .commission-evidence[open] .evidence-photos,#app #main .commission-evidence[open] .evidence-list{font-size:clamp(18px,5.5cqw,28px)}
-#app #main.broadcast-request-page .commission-evidence[open]{width:100%;max-width:440px;justify-self:start}
+#app #main.broadcast-request-page .commission-evidence[open]{width:100%;max-width:660px;justify-self:start}
 
-/* ---------- One animal per page: index tabs + a page that flips up over the spiral ---------- */
-#app #main .commission-evidence[open]{width:min(600px,40vw,92vw)}
-#app #main .commission-evidence[open] .evidence-photos.note-book{display:block;position:relative;perspective:900px;font-size:clamp(20px,6cqw,32px);overflow-x:hidden}
+/* ---------- Notebook pages: index tabs + a page that flips up over the spiral ---------- */
+/* 1.5x the old sheet so the hand-written lines read from a desk; every page is sized to fit without scrolling. */
+#app #main .commission-evidence[open]{width:min(900px,max(47vw,560px),94vw)}
+#app #main .commission-evidence[open] .note-book{display:block;position:relative;perspective:900px;font-size:5.4cqw;overflow:hidden}
+#app #main .commission-evidence[open] .note-book .note-lines{grid-column:auto;margin:0;padding:0}
+#app #main .commission-evidence[open] .note-book li{font-size:inherit}
 #app #main .commission-evidence[open] .note-tabs{display:flex;gap:2cqw;height:var(--rule);align-items:end;margin:0 0 calc(var(--rule) * .2)}
-#app #main#main .commission-evidence[open] .note-tabs .btn{min-height:0;height:calc(var(--rule) * 1.05);padding:0 3.4cqw;border:0;border-radius:3px 3px 0 0;background:#e8dcb7;color:#5b5236;font:400 clamp(20px,5.6cqw,30px)/1 var(--font-hand)!important;box-shadow:0 1px 2px #0002;transform:rotate(-1.5deg)}
+#app #main#main .commission-evidence[open] .note-tabs .btn{min-height:0;height:calc(var(--rule) * 1.05);padding:0 3.4cqw;border:0;border-radius:3px 3px 0 0;background:#e8dcb7;color:#5b5236;font:400 5.4cqw/1 var(--font-hand)!important;box-shadow:0 1px 2px #0002;transform:rotate(-1.5deg)}
 #app #main#main .commission-evidence[open] .note-tabs .btn:nth-child(even){transform:rotate(1.5deg)}
 #app #main#main .commission-evidence[open] .note-tabs .btn.on{background:#dfe7c7;color:#2c5236;box-shadow:0 2px 0 #8fa86a}
 #app #main .commission-evidence[open] .note-page[hidden]{display:none}
-#app #main .commission-evidence[open] .note-book .note-page{grid-template-columns:auto minmax(0,1fr);grid-template-rows:calc(var(--rule) * 3) auto;align-items:center;gap:0 4cqw}
-#app #main .commission-evidence[open] .note-book .note-page .animal{height:calc(var(--rule) * 3 - 6px);max-width:30cqw}
-#app #main .commission-evidence[open] .note-book .note-page b{align-self:center;font-size:clamp(28px,9cqw,44px);line-height:1}
+#app #main .commission-evidence[open] .evidence-photos .note-page{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:calc(var(--rule) * 2) auto;align-items:center;gap:0 3cqw}
+#app #main .commission-evidence[open] .evidence-photos .note-page .note-lines{grid-column:1/-1}
+#app #main .commission-evidence[open] .note-book .note-page .animal{height:calc(var(--rule) * 2 - 4px);max-width:24cqw}
+#app #main .commission-evidence[open] .note-book .note-page>b{align-self:center;font-size:7.5cqw;line-height:1}
 /* The old sheet lifts up and over the rings while the new page settles underneath. */
 #app #main .commission-evidence[open] .note-page.turning::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;transform-origin:top center;background:repeating-linear-gradient(#0000 0 calc(var(--rule) - 1px),#9fb3c855 calc(var(--rule) - 1px) var(--rule)),#f8f1dc;box-shadow:0 6px 12px #3a2a1033;animation:note-sheet-lift .55s ease-in both}
 #app #main .commission-evidence[open] .note-page.turning{animation:note-page-settle .55s ease-out both}
 @keyframes note-sheet-lift{from{transform:rotateX(0);opacity:1}to{transform:rotateX(-95deg);opacity:0}}
 @keyframes note-page-settle{from{opacity:.2}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){#app #main .commission-evidence[open] .note-page.turning,#app #main .commission-evidence[open] .note-page.turning::after{animation:none}#app #main .commission-evidence[open] .note-page.turning::after{display:none}}
+#app #main.broadcast-request-page .commission-evidence[open]{width:min(660px,100%)}
+/* The open notebook floats over the room instead of inside the request card, so the card never grows a scrollbar for it. */
+#app #main:not(.broadcast-request-page) .request-card>.commission-evidence[open],#app #main:not(.broadcast-request-page) .commission-work .commission-evidence[open]{position:fixed!important;inset:50% 2vw auto auto!important;margin:0;transform:translateY(-46%) rotate(-1deg);z-index:3800}
+#app #main#main.broadcast-request-page .commission-evidence[open]{position:fixed!important;inset:50% 2vw auto auto!important;width:min(900px,max(47vw,560px),94vw);max-width:none;margin:0;transform:translateY(-46%) rotate(-1deg);z-index:3800}
