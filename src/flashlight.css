@@ -118,3 +118,18 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
   #app #main.stage-4 .journey-movement > p { margin:6px 0; }
   #app #main.stage-4 .journey-movement .choice { min-height:50px; margin-top:7px; font-size:20px; }
 }
+
+/* Habitat choice: tall cards down the left, and the scene turns into the chosen place (its ground under the animal, its sky and water behind). */
+#app #main#main.stage-4 .journey-stage { display: grid; grid-template-columns: clamp(150px, 15vw, 230px) minmax(0, 1fr); gap: 12px; flex: 1; min-height: 0; }
+#app #main#main.stage-4 .journey-stage > .journey-destinations { display: flex; flex-direction: column; gap: 10px; margin: 0; min-height: 0; }
+#app #main#main.stage-4 .journey-stage .journey-portal { flex: 1; min-height: 0; justify-content: center; padding: 8px; font-size: clamp(19px, 1.4vw, 24px); }
+#app #main#main.stage-4 .journey-stage .journey-place-art { flex: 1; height: auto; min-height: 60px; max-height: 150px; background-size: 300% 400%; }
+#app #main#main.stage-4 .journey-stage > .journey-scene { min-height: 0; transition: background .6s ease; }
+.journey-scene[data-journey-habitat=forest] { background: linear-gradient(#b9d7e6, #e6efd9 58%, #9cb877 59%, #5f7f3f); }
+.journey-scene[data-journey-habitat=pond] { background: linear-gradient(#a9cfd9, #dcecdf 58%, #79b3ad 59%, #3f7f77); }
+.journey-scene[data-journey-habitat=coast] { background: linear-gradient(#9fcbe6, #e3f1f4 52%, #5fa6c4 53%, #2c6f8f 72%, #c9b48a 73%, #a48b5e); }
+/* The chosen place's ground (same art as the card) spreads under the animal and grows in as the place changes. */
+.journey-ground { position: absolute; left: 50%; bottom: -4%; width: 92%; height: auto; aspect-ratio: 483 / 272; translate: -50% 0; background-image: var(--sheet); background-size: 300% 400%; background-position: calc(var(--col) * 100% / 2) calc(var(--row) * 100% / 3); background-repeat: no-repeat; filter: drop-shadow(0 12px 10px #1d2e1f44); animation: journey-ground-in .6s ease-out both; }
+.journey-scene .journey-animal { z-index: 1; inset: 4% 18% 22%; }
+@keyframes journey-ground-in { from { opacity: 0; transform: translateY(14%) scale(.92); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .journey-ground { animation: none; } #app #main#main.stage-4 .journey-stage > .journey-scene { transition: none; } }
