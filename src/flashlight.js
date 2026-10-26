@@ -1,8 +1,7 @@
 import {CASES,ANIMALS,HABITATS,clueOf} from './expedition.js';
 import {animal,icon,btn,esc,sprite,choice} from './presentation.js';
 
-// ponytail: mole spots follow the planned pose (paws low-left, eyes at the snout); re-check once mole.webp is the real art.
-export const CLUE_SPOTS={duck:[[14,73],[58,48],[48,80],[65,71],[36,30]],rabbit:[[14,73],[52,50],[47,21],[67,77],[81,38]],mole:[[14,73],[28,68],[20,42],[62,45],[82,72]]};
+export const CLUE_SPOTS={duck:[[14,73],[58,48],[48,80],[65,71],[36,30]],rabbit:[[14,73],[52,50],[47,21],[67,77],[81,38]],mole:[[14,80],[49,71],[62,39],[42,42],[71,47]]};
 const marked=(v,key)=>v.feedback?.wrong?.includes(key)?'retry':'';
 const hiddenAnimal=id=>animal(id).replace(/alt="[^"]*"/,'alt="어둠 속에서 조사할 동물"');
 export function flashlightCaseView(s,v){
