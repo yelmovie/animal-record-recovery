@@ -451,7 +451,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       if(photo)(s.inquiry.motionPhotos??={})[id]=photo;
       save();say(photo?'찰칵! 전시관에 보낼 사진 한 장을 골랐어. 사진 속 동물의 몸과 움직임을 살펴봐.':'설명 그림의 관찰 기록을 남겼어. 영상이 다시 열리면 전시 사진도 찍어 봐.',true);
     }break;
-    case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=true;feedback=null;render();break;
+    case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=1;feedback=null;render();break;
+    case 'summary-page':if(labSummary&&['1','2'].includes(value)){labSummary=Number(value);feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}break;
     case 'lab-back':labSummary=false;render();break;
     case 'experiment-level':s.designs[round()].experiment.level=Math.max(1,Math.min(3,Number(value)||1));s.designs[round()].experiment.reflection='';render();break;
     case 'prediction':s.designs[round()].experiment.prediction=value;render();break;
