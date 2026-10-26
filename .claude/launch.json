@@ -27,6 +27,16 @@
       ],
       "port": 4178,
       "url": "http://127.0.0.1:4178"
+    },
+    {
+      "name": "dist-preview",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set PORT=4190&& node server.mjs dist"
+      ],
+      "port": 4190,
+      "url": "http://127.0.0.1:4190"
     }
   ]
 }

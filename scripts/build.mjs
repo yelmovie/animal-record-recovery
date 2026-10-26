@@ -51,5 +51,14 @@ for(const css of sheets){
     if(!files.includes(asset))throw new Error(`Missing build asset: ${asset}`);
   }
 }
+// One stylesheet instead of ~20: each separate request cost a round trip on classroom Wi-Fi before the first screen.
+// Same cascade order as index.html; every sheet lives in src/, so relative url() paths stay valid.
+const bundle=(await Promise.all(sheets.map(async css=>`/* ${css} */\n`+await readFile(path.join(root,css),'utf8')))).join('\n');
+await writeFile(path.join(root,'dist','src','app.css'),bundle);
+manifest.push({file:'src/app.css',bytes:Buffer.byteLength(bundle),sha256:createHash('sha256').update(bundle).digest('hex')});
+const html=await readFile(path.join(root,'dist','index.html'),'utf8'),links=[...html.matchAll(/[ \t]*<link[^>]+rel="stylesheet"[^>]+href="\.\/src\/[^"]+\.css"[^>]*>\r?\n?/g)];
+let built=html.replace(links[0][0],'<link rel="stylesheet" href="./src/app.css?v='+buildInfo.sha.slice(0,8)+'">\n');for(const m of links.slice(1))built=built.replace(m[0],'');
+await writeFile(path.join(root,'dist','index.html'),built);
+manifest.find(f=>f.file==='index.html').bytes=Buffer.byteLength(built);
 await writeFile(path.join(root,'dist','build-manifest.json'),JSON.stringify({...buildInfo,version:JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version,files:manifest},null,2));
 console.log(`Built ${files.length} runtime files, ${(manifest.reduce((n,f)=>n+f.bytes,0)/1024/1024).toFixed(2)} MiB → dist/`);

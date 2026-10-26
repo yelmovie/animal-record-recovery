@@ -112,3 +112,54 @@ dialog .compass-slots .unknown i{display:grid;place-items:center;width:100%;aspe
 dialog:has(.compass-tool){width:min(1000px,94vw)}
 dialog .compass-slots>span{width:clamp(70px,6.5vw,92px);flex:none}
 dialog .compass-slots .animal,dialog .compass-slots .unknown i{width:clamp(70px,6.5vw,92px);height:clamp(70px,6.5vw,92px);aspect-ratio:auto}
+
+/* Shorter screens (laptops, landscape tablets): panels fit without an inner scrollbar.
+   Secondary hints step aside first; the task, the choices and the inputs keep their size. */
+@media (max-height:900px){
+ #app .studio-showcase .studio-steps-tip,#app .studio-showcase .studio-download-note{display:none}
+ #app .studio-showcase .studio-steps li{padding-block:2px}
+ #app .studio-showcase .studio-intro-field textarea{min-height:0;height:calc(2.6em + 8px);rows:2}
+ #app .studio-showcase .studio-introduction{gap:6px}
+ #app .studio-notebook .studio-next-hint{display:none}
+ #app .studio-notebook{gap:8px}
+ #app #main.stage-4 .flashlight-notebook>header>p{display:none}
+ #app #main.stage-4 .flashlight-notebook>header h2{margin-bottom:2px}
+ #app .quest-panel .quest-art{max-height:72px;object-fit:contain}
+ #app .quest-panel .quest-art :is(img,.sprite,.tool-art){max-height:72px}
+ #app #main.stage-3 .habitat-notes .motion-checklist{padding-block:4px}
+ #app #main.stage-3 .habitat-notes{gap:6px}
+}
+@media (max-height:900px){
+ /* The numbered fields (①–④) already show the order; the chip row repeats it. */
+ #app .studio-showcase .studio-steps{display:none}
+ #app .studio-notebook>.studio-eyebrow{display:none}
+ #app #main.stage-3 .habitat-notes .motion-player{max-height:240px}
+ #app #main.stage-3 .habitat-notes .motion-player :is(video,img,canvas){max-height:240px;object-fit:contain}
+}
+/* 44px touch floor for the few controls that sat at 40–41px. */
+#app dialog .dialog-heading .icon-btn,#app dialog .btn.icon-btn{min-width:44px;min-height:44px}
+#app dialog input[type=range]{min-height:44px}
+#app .studio-showcase .studio-assist-mini{min-height:44px}
+/* Very short landscape (fold, in-app browsers ~580px tall): portrait steps aside, answer choices flow in rows. */
+@media (max-height:640px){
+ #app #main#main.commission-page .client-card>.commission-npc{display:none}
+ #app #main#main.commission-page .client-card{gap:6px}
+ #app #main#main.commission-page .record-row .record-options,#app #main#main.commission-page .record-row>.choices{display:flex!important;flex-wrap:wrap;gap:6px}
+ #app #main#main.commission-page .record-row .commission-choice{width:auto!important;min-height:44px;padding-block:4px}
+ #app #main#main.commission-page .record-row>legend{margin-bottom:4px}
+ #app #main#main.commission-page .commission-feedback{display:none}
+}
+@media (max-height:640px){
+ #app #main#main.commission-page .record-row .record-options>.commission-choice{flex:0 1 auto!important;max-width:100%}
+ /* The exhibit preview needs width the choices need more; on these screens the answers fill the card. */
+ #app #main#main.commission-page .card-body{grid-template-columns:minmax(0,1fr)!important}
+ #app #main#main.commission-page .card-body .card-result{display:none!important}
+}
+@media (max-height:640px){
+ #app #main#main.commission-page .request-lab .inline-options{display:flex!important;flex-wrap:wrap;gap:6px}
+ #app #main#main.commission-page .request-lab .inline-options>.btn,#app #main#main.commission-page .retest-results .record-options>.commission-choice{flex:0 1 auto!important;width:auto!important;min-height:44px}
+ #app #main#main.commission-page .retest-results .record-options{display:flex!important;flex-wrap:wrap;gap:6px}
+ #app #main#main.broadcast-request-page .broadcast-subject-visual{max-height:64px}
+ #app #main#main.broadcast-request-page .broadcast-subject-visual :is(img,.animal){max-height:64px;width:auto}
+ #app #main#main.broadcast-request-page .broadcast-subject-heading{padding-block:2px}
+}

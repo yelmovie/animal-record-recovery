@@ -67,14 +67,18 @@ export function stopMusic(){
   if(el)fade(el,0,()=>{el.pause();el.removeAttribute('src');el.load();});
 }
 // key: 'village' | null (silence).
+// Browsers block sound until the first tap, so the 2.3MB track waits for it instead of loading with the first screen.
+let pendingMusic=null;
 export function playMusic(key){
-  if(!key||!MUSIC[key]||!musicVolume||typeof Audio!=='function'){stopMusic();return;}
+  if(!key||!MUSIC[key]||!musicVolume||typeof Audio!=='function'){pendingMusic=null;stopMusic();return;}
+  if(typeof navigator!=='undefined'&&navigator.userActivation&&!navigator.userActivation.hasBeenActive){pendingMusic=key;return;}
   if(key===musicKey&&music){if(music.paused)start(music);return;}
   stopMusic();
   const el=new Audio(new URL(`../assets/music/${MUSIC[key]}.mp3`,import.meta.url).href);
   el.loop=true;el.preload='auto';el.volume=0;music=el;musicKey=key;start(el);
 }
 if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
-  document.addEventListener('pointerdown',()=>{if(music?.paused&&!document.hidden)start(music);});
+  const resume=()=>{if(pendingMusic){const key=pendingMusic;pendingMusic=null;playMusic(key);}else if(music?.paused&&!document.hidden)start(music);};
+  document.addEventListener('pointerdown',resume);document.addEventListener('keydown',resume);
   document.addEventListener('visibilitychange',()=>{if(!music)return;if(document.hidden)music.pause();else start(music);});
 }
