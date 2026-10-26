@@ -691,3 +691,7 @@
 }
 /* The recorded description stays beside the photo crop (a full-width row slid under the crop on shorter screens). */
 #app #main .lens-notes > p:not([class]) { grid-column: 2; grid-row: 3; justify-self: start; width: auto; text-align: left; }
+/* Prediction / aha result sits right under "기록했어", before the next-part button. */
+#app #main .lens-notes > :is(.aha-predict,.aha-note) { grid-row: 5; }
+#app #main .lens-notes > :is(.observe-next,.observe-complete) { grid-row: 6; }
+#app #main .lens-notes > .pair-status { grid-row: 7; }

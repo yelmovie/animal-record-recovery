@@ -345,3 +345,18 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.match(a.app.innerHTML,/24개 탐험 별/);
  act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|처음 고른 설명이 맞은 곳 12곳/);
 });
+
+test('after a wrong observation the choices stay closed until that part is looked at again; aha facts wait for a prediction',()=>{
+ const a=appHarness({three:true});a.run("s.introSeen=true;enter(1);act('inspect',{dataset:{value:'2'}})");
+ a.run("act('observe',{dataset:{id:'frog-skin',value:'wrong-0'}})");
+ assert.equal(a.run('relook'),'frog-skin');assert.match(a.app.innerHTML,/다시 살펴보면 다시 고를 수 있어/);assert.match(a.app.innerHTML,/data-action="observe"[^>]*disabled/);
+ const tries=a.run("JSON.stringify(s.observeTries)");a.run("act('observe',{dataset:{id:'frog-skin',value:'wrong-1'}})");assert.equal(a.run("JSON.stringify(s.observeTries)"),tries,'a second wrong tap while closed changes nothing');
+ a.run("act('inspect',{dataset:{value:'1'}})");assert.equal(a.run('relook'),'frog-skin','looking at another part keeps it closed');
+ a.run("act('inspect',{dataset:{value:'2'}})");assert.equal(a.run('relook'),null,'looking at the skin again opens the choices');
+ a.run("act('observe',{dataset:{id:'frog-skin',value:'right'}})");
+ assert.match(a.app.innerHTML,/예상해 봐!/);assert.doesNotMatch(a.app.innerHTML,/피부로도 숨을 쉬어\. 그래서/,'the fact waits for the guess');
+ a.run("act('aha-pick',{dataset:{id:'frog-skin',value:'1'}})");
+ assert.match(a.app.innerHTML,/예상과 달랐어!/);assert.match(a.app.innerHTML,/피부로도 숨을 쉬어\. 그래서/);
+ assert.equal(model.restoreExpedition(a.saved).ahaPicks['frog-skin'],1);
+ assert.deepEqual(model.restoreExpedition(JSON.stringify({...JSON.parse(a.saved),ahaPicks:{'frog-skin':5,'nope':0,'frog-eye':0}})).ahaPicks,{},'only known questions and their two options survive');
+});

@@ -1327,3 +1327,12 @@ dialog .settings-card.concept-replays .concept-thumb .icon{width:26px;height:26p
 #app #main .lab-summary > section{flex:1 1 auto;min-height:0;height:auto}
 #app #main .lab-compare .trial-pair article{height:100%}
 #app #main .activity-workspace > .lab-summary,#app #main .activity-workspace > .lab-summary > section{width:100%;max-width:none;justify-self:stretch;align-self:stretch}
+/* Predict-then-reveal for 'aha' facts, and the closed choices after a wrong pick. */
+#app .mission-page .lens-notes>.aha-predict{grid-column:1/-1;display:grid;gap:8px;margin:0;padding:10px 12px;border:2px dashed #d9a634;border-radius:12px;background:#fffaeb}
+#app .mission-page .lens-notes>.aha-predict p{margin:0;font-size:clamp(18px,2.3vh,24px)!important;color:#3a3a2a;word-break:keep-all}
+#app .mission-page .lens-notes>.aha-predict p b{margin-right:6px;color:#8a5a14}
+#app .mission-page .aha-options{display:flex;flex-wrap:wrap;gap:8px}
+#app #main.mission-page .aha-options .btn{min-height:50px;padding:6px 16px;border:3px solid var(--ui-line,#c9b98d);border-radius:14px;background:#fffdf4;font-size:clamp(18px,2.2vh,24px)!important;animation:next-cue-ring 1.6s ease-in-out infinite}
+#app .mission-page .lens-notes>.relook-note{grid-column:1/-1;display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border-radius:10px;background:#fff1c9;color:#6b4a12;font-size:clamp(17px,2.1vh,22px)!important;word-break:keep-all}
+#app .mission-page .observe-options .choice[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+@media (prefers-reduced-motion:reduce){#app #main.mission-page .aha-options .btn{animation:none}}

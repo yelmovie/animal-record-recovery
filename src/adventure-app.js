@@ -26,14 +26,15 @@ let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(lo
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
 let studentSnapshot=null,mapWalkVersion=0;
-let commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
+// relook: an observation id whose choices stay closed after a wrong pick until that part is looked at again.
+let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
 let mapOverview=restoredPlaces(s).length===STAGES.length;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
@@ -154,7 +155,7 @@ const tapAnchor=pt=>({getBoundingClientRect:()=>({left:pt.x,top:pt.y,width:0,hei
 function opts3d(kind){
   if(kind==='scanner'){const pair=OBSERVE_PAIRS[round()],id=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0],list=OBSERVATIONS[id],idx=f=>list.flatMap((o,i)=>f(o)?[i]:[]);
     return {animal:id,parts:list.map(o=>o.label),found:idx(o=>s.observed.includes(o.id)),pinned:idx(o=>pinned.has(o.id)),focus:focusIndex,onFail:fail3d,
-      onPick(i){focusIndex=i;pinned.add(list[i].id);feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=`${list[i].label}에 관찰핀을 꽂았어.`;},
+      onPick(i){focusIndex=i;pinned.add(list[i].id);if(list[i].id===relook)relook=null;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=`${list[i].label}에 관찰핀을 꽂았어.`;},
       onMiss(hint,pt){playSound(s.soundEnabled,'retry');toast(hint,tapAnchor(pt));}};}
   if(kind==='dome'){const list=DISCOVERIES.slice(round()*3,round()*3+3);
     return {zones:[...Object.keys(HABITATS),...Object.keys(DOME_ZONES)],names:Object.fromEntries([...Object.entries(HABITATS),...Object.entries(DOME_ZONES)].map(([id,h])=>[id,h.name])),active:DOME_ZONES[activeHabitat]?activeHabitat:(list.find(d=>d.habitat===activeHabitat)||list[0]).habitat,onFail:fail3d,
@@ -377,13 +378,14 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'nav-back':back();break;
     case 'inspect':{
       if(id){if(!OBSERVE_PAIRS[round()]?.includes(id))return;s.activeAnimal=id;zoom=false;}
-      focusIndex=Math.max(0,Math.min(2,Number(value)||0));feedback=null;render();break;
+      focusIndex=Math.max(0,Math.min(2,Number(value)||0));if(relook&&OBSERVATIONS[s.activeAnimal]?.[focusIndex]?.id===relook)relook=null;feedback=null;render();break;
     }
     case 'animal-tab':focusIndex=0;if(OBSERVE_PAIRS[round()].includes(id)){s.activeAnimal=id;zoom=false;feedback=null;render();}break;
     // A wrong description sends the learner to the evidence: the specimen zooms to that part. A first-try match is called out.
     case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;const owner=Object.keys(OBSERVATIONS).find(k=>OBSERVATIONS[k].includes(o));
-      if(value&&value!=='right'){const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+withParticle(o.look||o.label)+' 다시 봐!',false,['observe:'+value]);}
-      const tries=s.observeTries??={},first=!s.observed.includes(id)&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(first)toast('한 번에 맞혔어! 눈으로 잘 확인했네.');break;}
+      if(value&&value!=='right'){if(relook===id)return;relook=id;const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+withParticle(o.look||o.label)+' 다시 봐!',false,['observe:'+value]);}
+      const tries=s.observeTries??={},first=!s.observed.includes(id)&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(first)toast('한 번에 맞혔어! 눈으로 잘 확인했네.');break;}
+    case 'aha-pick':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o?.ahaQ||!s.observed.includes(id)||![0,1].includes(Number(value)))break;(s.ahaPicks??={})[id]=Number(value);render();break;}
     case 'zoom':zoom=!zoom;render();break;
     case 'scan-reset':viewer?.call('reset');break;
     case 'dome-tilt':toggleTilt(el);break;
@@ -459,7 +461,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'reflection':s.designs[round()].experiment.reflection=value;render();break;
     case 'experiment-run':{const d=s.designs[round()];if(!d.experiment.sourceSeen||!d.experiment.prediction){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}report=recordTrial(s,round());if(!report.passed){say('시험해 보니 맞지 않는 조건이 있어. 점검표를 보고 설계를 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();break;}
     case 'feature-zoom':{if(!['web','shell','fur'].includes(el.dataset.kind))break;modal('동물 특징 크게 보기',`<div class="feature-enlargement">${anatomy(el.dataset.kind)}</div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
-    case 'photo-zoom':{const img=el.querySelector('img');if(!img)break;const x=el.style.getPropertyValue('--focus-x')||50,y=el.style.getPropertyValue('--focus-y')||50;modal('사진 크게 보기',`<div class="photo-zoom"><div class="detail-crop zoom-crop" style="--focus-x:${Number(x)};--focus-y:${Number(y)}"><img src="${esc(img.src)}" alt="${esc(img.alt)} 확대"></div><figure class="zoom-whole"><img src="${esc(img.src)}" alt="${esc(img.alt)} 전체"><span class="zoom-ring" style="left:${Number(x)}%;top:${Number(y)}%"></span><figcaption>전체 모습에서 동그라미가 확대한 곳이야.</figcaption></figure></div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
+    case 'photo-zoom':{const img=el.querySelector('img');if(!img)break;if(relook){relook=null;render();}const x=el.style.getPropertyValue('--focus-x')||50,y=el.style.getPropertyValue('--focus-y')||50;modal('사진 크게 보기',`<div class="photo-zoom"><div class="detail-crop zoom-crop" style="--focus-x:${Number(x)};--focus-y:${Number(y)}"><img src="${esc(img.src)}" alt="${esc(img.alt)} 확대"></div><figure class="zoom-whole"><img src="${esc(img.src)}" alt="${esc(img.alt)} 전체"><span class="zoom-ring" style="left:${Number(x)}%;top:${Number(y)}%"></span><figcaption>전체 모습에서 동그라미가 확대한 곳이야.</figcaption></figure></div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
     case 'lens-animal':modal('확대 관찰',lensTool(id,0));break;
     case 'lens-part':modal('확대 관찰',lensTool(id,Number(value)||0));break;
     case 'notebook':notebook();break;
