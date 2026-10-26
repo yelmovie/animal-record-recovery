@@ -7,11 +7,13 @@ import {restoreState as restoreLegacy, testDesign as testChoices, PROBLEMS} from
 export {PROBLEMS};
 export const STORAGE_KEY='animal-record-recovery:v1';
 export const VERSION=4;
+// Task counts before the 2026-10 rounds (new animals) were added; older saves finished with these.
+const LEGACY_TASKS={1:4,2:2,3:4,4:4,5:4};
 export const STAGES=[
-  {id:1,name:'관찰의 숲',short:'관찰',icon:'search',color:'#c5dc91',standard:'4과02-01',reward:'관찰 렌즈',rewardIcon:'search',benefit:'가방에서 꺼내면 동물 몸을 다시 크게 볼 수 있어.',story:'뒤섞인 동물 사진에 특징을 기록해 줘!',change:'숲 전망대의 동물 사진첩을 되찾았어.',x:19,y:48,art:'frog',tasks:['개구리와 게 관찰','첫 번째 비교','오리와 토끼 관찰','두 번째 비교']},
+  {id:1,name:'관찰의 숲',short:'관찰',icon:'search',color:'#c5dc91',standard:'4과02-01',reward:'관찰 렌즈',rewardIcon:'search',benefit:'가방에서 꺼내면 동물 몸을 다시 크게 볼 수 있어.',story:'뒤섞인 동물 사진에 특징을 기록해 줘!',change:'숲 전망대의 동물 사진첩을 되찾았어.',x:19,y:48,art:'frog',tasks:['개구리와 게 관찰','첫 번째 비교','오리와 토끼 관찰','두 번째 비교','박쥐와 참새 관찰','세 번째 비교','거미와 개미 관찰','네 번째 비교']},
   {id:2,name:'분류의 정원',short:'분류',icon:'layers',color:'#f1d799',standard:'4과02-01',reward:'분류 나침반',rewardIcon:'compass',benefit:'환경 탐사에서 아직 못 찾은 동물이 어디 있는지 알려 줘.',story:'누구나 같은 결과를 얻는 분류 표지판을 만들어 줘!',change:'정원에 두 가지 분류 표지판이 생겼어.',x:32,y:31,art:'butterfly',tasks:['날개로 나누기','다 함께 쓸 기준 고치기']},
   {id:3,name:'생태의 물가',short:'환경',icon:'leaf',color:'#b4d9d1',standard:'4과02-02',reward:'서식지 수첩',rewardIcon:'book',benefit:'동물 찾기에서 내가 발견한 사는 곳 기록을 다시 볼 수 있어.',story:'여섯 동물이 사는 곳과 생활 모습을 안내판에 담아 줘!',change:'물가의 생태 안내판에 여섯 동물이 돌아왔어.',x:63,y:32,art:'pond',tasks:['첫 동물 세 마리','개구리의 생활','새 동물 세 마리','게의 생활']},
-  {id:4,name:'동물 찾기 안내소',short:'찾기',icon:'scan',color:'#d1c9df',standard:'4과02-01 · 4과02-02',reward:'특징 스캐너',rewardIcon:'scan',benefit:'발명할 때 동물 특징이 물건의 어느 부분이 되는지 알려 줘.',story:'모리가 모은 사진에 특징과 사는 곳을 붙여 줘!',change:'안내소에 오리와 토끼의 동물 안내 카드가 완성됐어.',x:18,y:52,art:'duck',tasks:['단서로 동물 찾기','생활 안내 만들기','새 동물 찾기','생활 안내 만들기']},
+  {id:4,name:'동물 찾기 안내소',short:'찾기',icon:'scan',color:'#d1c9df',standard:'4과02-01 · 4과02-02',reward:'특징 스캐너',rewardIcon:'scan',benefit:'발명할 때 동물 특징이 물건의 어느 부분이 되는지 알려 줘.',story:'모리가 모은 사진에 특징과 사는 곳을 붙여 줘!',change:'안내소에 오리와 토끼의 동물 안내 카드가 완성됐어.',x:18,y:52,art:'duck',tasks:['단서로 동물 찾기','생활 안내 만들기','새 동물 찾기','생활 안내 만들기','땅속 친구 찾기','생활 안내 만들기']},
   {id:5,name:'발명의 공방',short:'발명',icon:'tool',color:'#edc3a4',standard:'4과02-03',reward:'발명가 배지',rewardIcon:'star',benefit:'내 발명 그림과 소개를 작품 카드로 저장할 수 있어.',story:'동물에게 아이디어를 빌려 나만의 발명품을 그려 줘!',change:'네가 그린 발명품으로 마을의 상상 전시회가 열렸어.',x:86,y:60,art:'flipper',tasks:['동물에게 아이디어 빌리기','모양 바꿔 비교하기','내 발명 그리기','작품 소개하기']},
 ];
 
@@ -27,6 +29,13 @@ export const ANIMALS={
   bee:{name:'벌',legs:true,wings:true,four:false,web:false,fur:true,fin:false,six:true,cover:'잔털',habitat:'forest',fact:'다리가 여섯 개이고 투명한 날개 두 쌍과 더듬이가 있어.'},
   snail:{name:'달팽이',legs:false,wings:false,four:false,web:false,fur:false,fin:false,six:false,cover:'껍데기',habitat:'forest',fact:'나선 모양 껍데기를 지고, 다리 없이 넓은 배발로 기어가.'},
   marine:{name:'바다 물고기',legs:false,wings:false,four:false,cover:'비늘',habitat:'coast',fact:'지느러미로 바닷물 속을 헤엄쳐.'},
+  sparrow:{name:'참새',legs:true,wings:true,four:false,web:false,fur:false,fin:false,six:false,cover:'깃털',habitat:'forest',fact:'깃털로 덮인 몸에 날개가 있고, 짧고 두툼한 부리로 씨앗을 깨 먹어.'},
+  spider:{name:'거미',legs:true,wings:false,four:false,web:false,fur:false,fin:false,six:false,cover:'겉껍질',habitat:'forest',fact:'다리가 여덟 개이고 몸이 머리가슴과 배, 두 부분으로 나뉘어. 더듬이가 없어.'},
+  ant:{name:'개미',legs:true,wings:false,four:false,web:false,fur:false,fin:false,six:true,cover:'겉껍질',habitat:'forest',fact:'다리가 여섯 개이고 몸이 머리·가슴·배, 세 부분으로 나뉘어. 꺾인 더듬이가 있어.'},
+  penguin:{name:'펭귄',legs:true,wings:true,four:false,web:true,fur:false,fin:false,six:false,cover:'깃털',habitat:'coast',fact:'날개가 있지만 날지 못해. 단단하고 납작한 날개를 저어 바닷속을 헤엄쳐.',aha:'펭귄은 날지 못해도 날개가 있어. 기준은 ‘날 수 있나요?’가 아니라 ‘날개가 있나요?’야.'},
+  ostrich:{name:'타조',legs:true,wings:true,four:false,web:false,fur:false,fin:false,six:false,cover:'깃털',habitat:'forest',fact:'날개가 있지만 날지 못해. 대신 긴 다리로 아주 빨리 달리고, 발가락은 두 개야.',aha:'타조도 깃털 날개가 있는 새야. 날지 못하는 대신 긴 다리로 빨리 달려.'},
+  dolphin:{name:'돌고래',legs:false,wings:false,four:false,web:false,fur:false,fin:true,six:false,cover:'매끈한 피부',habitat:'coast',fact:'지느러미가 있지만 물고기가 아니야. 머리 위 숨구멍으로 물 밖의 공기를 마셔.',aha:'돌고래는 물에 살고 지느러미도 있지만 물고기가 아니야. 물 위로 올라와 머리 위 숨구멍으로 숨을 쉬어.'},
+  mole:{name:'두더지',legs:true,wings:false,four:true,web:false,fur:true,fin:false,six:false,cover:'털',habitat:'forest',fact:'삽처럼 넓은 앞발로 흙을 파서 땅속 굴에서 살아. 눈은 털 속에 묻힐 만큼 작아.'},
 };
 // Sorting questions. Observable ones give everyone the same answer; the others are opinions.
 export const CRITERIA={wings:'날개가 있나요?',legs:'다리가 있나요?',four:'다리가 네 개인가요?',web:'발가락 사이에 물갈퀴가 있나요?',fur:'몸이 털로 덮였나요?',fin:'지느러미가 있나요?',six:'다리가 여섯 개인가요?',cute:'귀엽나요?',scary:'무섭게 생겼나요?',fast:'빨리 달리나요?'};
@@ -35,29 +44,39 @@ export const OWN_CRITERIA=['legs','web','fin','six'],OPINION_CRITERIA=['scary','
 export const OBSERVABLE=['wings','legs','four','web','fin','six'];
 // Researchers A/B/C answer opinion questions differently (fixed data, y/n per researcher).
 export const OPINION_ANSWERS={
- fast:{frog:'yny',duck:'nny',rabbit:'yyy',crab:'nyn',fish:'yny',butterfly:'yyn',hen:'nyn',bat:'yyy',bee:'yny',snail:'nnn'},
- cute:{frog:'nyn',duck:'yyn',rabbit:'yyy',crab:'nny',fish:'yny',butterfly:'yyn',hen:'nyn',bat:'nny',bee:'ynn',snail:'nyy'},
- scary:{frog:'nny',duck:'nnn',rabbit:'nnn',crab:'yny',fish:'nny',butterfly:'nny',hen:'nnn',bat:'yyn',bee:'yny',snail:'nyn'},
+ fast:{frog:'yny',duck:'nny',rabbit:'yyy',crab:'nyn',fish:'yny',butterfly:'yyn',hen:'nyn',bat:'yyy',bee:'yny',snail:'nnn',penguin:'nny',ostrich:'yyy',dolphin:'yny'},
+ cute:{frog:'nyn',duck:'yyn',rabbit:'yyy',crab:'nny',fish:'yny',butterfly:'yyn',hen:'nyn',bat:'nny',bee:'ynn',snail:'nyy',penguin:'yyy',ostrich:'nyn',dolphin:'yyn'},
+ scary:{frog:'nny',duck:'nnn',rabbit:'nnn',crab:'yny',fish:'nny',butterfly:'nny',hen:'nnn',bat:'yyn',bee:'yny',snail:'nyn',penguin:'nnn',ostrich:'yny',dolphin:'nnn'},
 };
 export const researcherAnswers=(key,id)=>OBSERVABLE.includes(key)?[0,1,2].map(()=>ANIMALS[id][key]?'yes':'no'):[...(OPINION_ANSWERS[key]?.[id]||'nnn')].map(c=>c==='y'?'yes':'no');
 export const disagreements=key=>SORT_ANIMALS.filter(id=>new Set(researcherAnswers(key,id)).size>1);
 export const VAGUE=['fast','scary'];
 export const CAUSES=[['opinion','‘빠르다’는 사람마다 생각하는 기준이 달라서'],['few','동물 수가 너무 적어서','동물 수를 늘려도 연구원마다 답이 달라.'],['mistake','한 연구원이 동물을 잘못 봐서','세 연구원 모두 같은 동물 그림을 봤어. 그림이 아니라 질문이 문제야.']];
-export const SORT_ANIMALS=['frog','duck','crab','hen','bat','snail'];
+// Penguin and ostrich have wings but do not fly; the dolphin has fins but is not a fish. They test the criterion, not a guess.
+export const SORT_ANIMALS=['frog','duck','crab','hen','bat','snail','penguin','ostrich','dolphin'];
 // A sorting criterion is useful only if it splits the animals into two groups (some O, some X).
 export const splitsAnimals=(key,ids=SORT_ANIMALS)=>ids.some(id=>ANIMALS[id]?.[key])&&ids.some(id=>!ANIMALS[id]?.[key]);
 export const OBSERVATIONS={
-  frog:[{id:'frog-eye',look:'눈이 머리 어디에 붙어 있는지',label:'눈',text:'머리 위쪽에 튀어나온 눈이 있어.',wrong:['자루 끝에 달린 눈이 있어.','털 사이에 작은 눈이 숨어 있어.'],x:68,y:22},{id:'frog-leg',look:'앞다리와 뒷다리의 길이',label:'뒷다리',text:'앞다리보다 긴 뒷다리가 있어.',wrong:['앞다리와 뒷다리 길이가 똑같아.','다리가 없고 지느러미가 있어.'],x:23,y:61},{id:'frog-skin',look:'몸을 덮고 있는 것',label:'몸 표면',text:'털이나 깃털 없이 맨살이 드러나 있어.',wrong:['단단한 껍데기가 몸을 감싸.','부드러운 털로 덮여 있어.'],x:47,y:40}],
-  crab:[{id:'crab-eye',look:'눈이 어떻게 달려 있는지',label:'눈',text:'자루 끝에 달린 눈이 있어.',wrong:['머리 위쪽에 튀어나온 눈이 있어.','눈이 없어.'],x:60,y:27},{id:'crab-leg',look:'다리의 개수와 모양',label:'다리',text:'집게다리와 여러 개의 걷는 다리가 있어.',wrong:['긴 뒷다리 두 개와 짧은 앞다리 두 개가 있어.','다리가 두 개뿐이야.'],x:16,y:58},{id:'crab-shell',look:'몸을 덮고 있는 것',label:'몸 표면',text:'단단한 껍데기가 몸을 감싸.',wrong:['털이나 깃털 없이 맨살이 드러나 있어.','깃털로 덮여 있어.'],x:50,y:40}],
+  frog:[{id:'frog-eye',look:'눈이 머리 어디에 붙어 있는지',label:'눈',text:'머리 위쪽에 튀어나온 눈이 있어.',wrong:['자루 끝에 달린 눈이 있어.','털 사이에 작은 눈이 숨어 있어.'],x:68,y:22},{id:'frog-leg',look:'앞다리와 뒷다리의 길이',label:'뒷다리',text:'앞다리보다 긴 뒷다리가 있어.',wrong:['앞다리와 뒷다리 길이가 똑같아.','다리가 없고 지느러미가 있어.'],x:23,y:61},{id:'frog-skin',look:'몸을 덮고 있는 것',label:'몸 표면',text:'털이나 깃털 없이 맨살이 드러나 있어.',wrong:['단단한 껍데기가 몸을 감싸.','부드러운 털로 덮여 있어.'],aha:'개구리는 피부로도 숨을 쉬어. 그래서 피부가 늘 촉촉해야 해.',x:47,y:40}],
+  crab:[{id:'crab-eye',look:'눈이 어떻게 달려 있는지',label:'눈',text:'자루 끝에 달린 눈이 있어.',wrong:['머리 위쪽에 튀어나온 눈이 있어.','눈이 없어.'],aha:'게는 눈자루를 세워 주변을 살피고, 위험하면 눈을 몸의 홈 속으로 접어 넣어.',x:60,y:27},{id:'crab-leg',look:'다리의 개수와 모양',label:'다리',text:'집게다리와 여러 개의 걷는 다리가 있어.',wrong:['긴 뒷다리 두 개와 짧은 앞다리 두 개가 있어.','다리가 두 개뿐이야.'],x:16,y:58},{id:'crab-shell',look:'몸을 덮고 있는 것',label:'몸 표면',text:'단단한 껍데기가 몸을 감싸.',wrong:['털이나 깃털 없이 맨살이 드러나 있어.','깃털로 덮여 있어.'],x:50,y:40}],
   duck:[{id:'duck-bill',look:'부리의 모양',label:'부리',text:'넓적한 부리가 있어.',wrong:['뾰족하고 짧은 부리가 있어.','부리가 없고 입술이 있어.'],x:20,y:30},{id:'duck-wing',look:'몸을 덮고 있는 것과 날개',label:'몸 표면',text:'깃털로 덮여 있고 날개가 있어.',wrong:['몸이 털로 덮여 있어.','털이나 깃털 없이 맨살이 드러나 있어.'],x:61,y:50},{id:'duck-feet',look:'발가락 사이',label:'발',text:'두 발의 발가락 사이에 물갈퀴가 있어.',wrong:['발가락이 따로 떨어져 있고 사이에 막이 없어.','발 대신 지느러미가 있어.'],x:50,y:86}],
+  // ponytail: x/y for the new animals were placed on the planned field-guide poses; re-check each once the real art is in.
+  bat:[{id:'bat-wing',look:'날개가 무엇으로 되어 있는지',label:'날개',text:'긴 손가락 사이를 얇은 피부가 이어 날개가 돼.',wrong:['깃털이 겹겹이 모여 날개가 돼.','날개가 없어.'],aha:'박쥐는 새가 아니야. 날개 속에 길게 자란 손가락뼈가 있어.',x:15,y:40},{id:'bat-fur',look:'몸을 덮고 있는 것',label:'몸 표면',text:'몸이 털로 덮여 있어.',wrong:['깃털로 덮여 있어.','단단한 껍데기가 몸을 감싸.'],x:50,y:58},{id:'bat-ear',look:'귀의 크기와 모양',label:'귀',text:'크고 뾰족한 귀가 있어.',wrong:['귀가 보이지 않고 부리가 있어.','더듬이가 두 개 있어.'],aha:'박쥐는 자기가 낸 소리가 되돌아오는 메아리를 큰 귀로 들으며 어둠 속에서 길을 찾아.',x:40,y:24}],
+  sparrow:[{id:'sparrow-wing',look:'날개가 무엇으로 되어 있는지',label:'날개',text:'깃털이 겹겹이 모여 날개가 돼.',wrong:['긴 손가락 사이를 얇은 피부가 이어 날개가 돼.','날개가 없어.'],aha:'깃털은 새에게만 있어. 깃털을 보면 새라는 걸 알 수 있어.',x:58,y:45},{id:'sparrow-bill',look:'부리의 모양',label:'부리',text:'짧고 두툼한 부리가 있어.',wrong:['넓적한 부리가 있어.','부리가 없고 이빨이 있는 입이 있어.'],aha:'짧고 두툼한 부리는 딱딱한 씨앗을 깨 먹기 좋아.',x:24,y:30},{id:'sparrow-feet',look:'발가락의 개수와 방향',label:'발',text:'발가락이 앞에 셋, 뒤에 하나 있어.',wrong:['발가락 사이에 물갈퀴가 있어.','발가락이 두 개뿐이야.'],aha:'뒤쪽 발가락 덕분에 나뭇가지를 꽉 잡고 앉을 수 있어.',x:46,y:86}],
+  spider:[{id:'spider-leg',look:'다리의 개수',label:'다리',text:'다리가 여덟 개 있어.',wrong:['다리가 여섯 개 있어.','다리가 네 개 있어.'],aha:'거미는 곤충이 아니야. 곤충은 다리가 여섯 개야.',x:18,y:40},{id:'spider-body',look:'몸이 몇 부분으로 나뉘는지',label:'몸',text:'몸이 머리가슴과 배, 두 부분으로 나뉘어.',wrong:['몸이 머리·가슴·배, 세 부분으로 나뉘어.','몸이 나뉘지 않고 한 덩어리야.'],x:52,y:55},{id:'spider-head',look:'머리에 무엇이 달려 있는지',label:'머리',text:'더듬이가 없어.',wrong:['꺾인 더듬이가 두 개 있어.','긴 귀가 두 개 있어.'],aha:'거미는 더듬이 대신 다리와 몸의 털로 떨림을 느껴.',x:50,y:28}],
+  ant:[{id:'ant-leg',look:'다리의 개수와 붙은 곳',label:'다리',text:'다리가 여섯 개 있어.',wrong:['다리가 여덟 개 있어.','다리가 네 개 있어.'],aha:'곤충의 다리 여섯 개는 모두 가운데 몸(가슴)에 붙어 있어.',x:48,y:70},{id:'ant-body',look:'몸이 몇 부분으로 나뉘는지',label:'몸',text:'몸이 머리·가슴·배, 세 부분으로 나뉘어.',wrong:['몸이 머리가슴과 배, 두 부분으로 나뉘어.','몸이 나뉘지 않고 한 덩어리야.'],x:52,y:45},{id:'ant-antenna',look:'머리에 무엇이 달려 있는지',label:'더듬이',text:'꺾인 더듬이가 두 개 있어.',wrong:['더듬이가 없어.','긴 귀가 두 개 있어.'],aha:'개미는 더듬이로 냄새를 맡아 친구와 먹이로 가는 길을 찾아.',x:20,y:28}],
   rabbit:[{id:'rabbit-ear',look:'귀의 길이',label:'귀',text:'길게 솟은 귀가 있어.',wrong:['귀가 짧고 둥글어.','귀가 거의 보이지 않아.'],x:46,y:18},{id:'rabbit-fur',look:'몸을 덮고 있는 것',label:'몸 표면',text:'몸이 털로 덮여 있어.',wrong:['깃털로 덮여 있어.','단단한 껍데기가 몸을 감싸.'],x:51,y:48},{id:'rabbit-leg',look:'다리의 개수와 길이',label:'뒷다리',text:'길고 튼튼한 뒷다리와 앞다리, 네 다리가 있어.',wrong:['다리가 여섯 개 있어.','앞다리가 뒷다리보다 훨씬 길어.'],x:33,y:76}],
 };
-export const OBSERVE_PAIRS=[['frog','crab'],['duck','rabbit']];
+// Animals the 3D scanner has models for; the rest are observed through the photo lens.
+export const SCAN_3D=['frog','crab','duck','rabbit'];
+export const OBSERVE_PAIRS=[['frog','crab'],['duck','rabbit'],['bat','sparrow'],['spider','ant']];
 // The third item of a wrong option is the observed fact that disproves it.
 // Round 2 keeps keys fur/cover for saved records; the labels use wings/bill, which children tell apart more easily than feathers vs fur.
 export const COMPARES=[
   [{key:'common',title:'같은 점은?',answer:'eyes',options:[['eyes','둘 다 눈과 다리가 있어'],['feathers','둘 다 깃털로 덮여 있어','개구리는 맨살, 게는 껍데기였어. 깃털은 못 봤어.'],['shell','둘 다 단단한 껍데기가 있어','단단한 껍데기는 게에게만 있었어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','게에게는 단단한 껍데기가 있어'],['eyes','개구리에게만 눈이 있어','게에게도 자루 끝에 달린 눈이 있었어.'],['legs','게에게는 다리가 없어','게에게는 집게다리와 걷는 다리가 있었어.']]}],
   [{key:'common',title:'같은 점은?',answer:'legs',options:[['legs','둘 다 다리로 땅을 디딜 수 있어'],['wings','둘 다 날개가 있어','토끼에게는 날개가 없었어.'],['fur','둘 다 부리가 있어','부리는 오리에게만 있었어. 토끼는 부리가 없어.']]},{key:'difference',title:'다른 점은?',answer:'cover',options:[['cover','오리에게는 날개가 있고, 토끼에게는 없어'],['ears','오리에게만 긴 귀가 있어','길게 솟은 귀는 토끼에게 있었어.'],['feet','토끼에게만 물갈퀴가 있어','물갈퀴는 오리 발에 있었어.']]}],
+  [{key:'common',title:'같은 점은?',answer:'wings',options:[['wings','둘 다 날개로 날 수 있어'],['feathers','둘 다 깃털로 덮여 있어','박쥐는 털로 덮여 있었어. 깃털은 참새에게만 있었어.'],['bill','둘 다 부리가 있어','부리는 참새에게만 있었어. 박쥐에게서는 부리를 못 봤어.']]},{key:'difference',title:'다른 점은?',answer:'wingmade',options:[['wingmade','박쥐 날개는 얇은 피부, 참새 날개는 깃털로 되어 있어'],['ears','참새에게만 큰 귀가 있어','크고 뾰족한 귀는 박쥐에게 있었어.'],['feet','박쥐에게만 발가락이 있어','참새도 앞에 셋, 뒤에 하나 발가락이 있었어.']]}],
+  [{key:'common',title:'같은 점은?',answer:'parts',options:[['parts','둘 다 다리가 여러 개이고 몸이 마디로 나뉘어'],['antenna','둘 다 더듬이가 있어','거미에게는 더듬이가 없었어.'],['wings','둘 다 날개가 있어','두 동물 모두 날개는 못 봤어.']]},{key:'difference',title:'다른 점은?',answer:'count',options:[['count','거미는 다리 8개·몸 두 부분, 개미는 다리 6개·몸 세 부분이야'],['legs','개미에게만 다리가 있어','거미에게도 다리가 여덟 개 있었어.'],['antenna','거미에게만 더듬이가 있어','더듬이는 개미 머리에 있었어.']]}],
 ];
 // Screen 03 statement cards: both questions' options in one pile; ref keeps the slot they were written for.
 export const compareCards=round=>{const all=COMPARES[round].flatMap(q=>q.options.map(([value,label,why])=>({ref:`${q.key}-${value}`,key:q.key,label,why})));return [0,3,1,4,2,5].map(i=>all[i]);};
@@ -105,6 +124,14 @@ export const CASES=[
     {id:'move',kind:'이동 모습',icon:'scan',text:'긴 뒷다리로 땅을 박차고 뛰어.',fits:['rabbit','frog']},
     {id:'life',kind:'생활 장면',icon:'book',text:'낮에는 굴이나 어두운 곳에 숨어 쉬어.',fits:['rabbit','bat']}],
    habitat:'forest',reason:'jump',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['fin','지느러미로 바닷속을 헤엄쳐']],reasonTip:'사진에서 토끼의 뒷다리 모양을 살펴봐.',sentence:'토끼는 숲과 들의 땅에서 긴 뒷다리로 뛰어다녀.',legacy:{ears:'ears',fur:'fur'}},
+  // The front paws or the tiny eyes alone point to the mole; place and fur only narrow it down.
+  {id:'mole',animal:'mole',title:'땅속에서 만난 친구',candidates:['mole','rabbit','frog','bat'],clues:[
+    {id:'place',kind:'발견 장소',icon:'leaf',place:'forest',text:'풀밭 아래 흙 속 굴에서 발견됐어.',fits:['mole','rabbit']},
+    {id:'paws',kind:'앞발',icon:'search',crop:[28,68],text:'앞발이 삽처럼 넓고, 바깥쪽으로 난 발톱이 길어.',fits:['mole']},
+    {id:'eyes',kind:'눈',icon:'search',crop:[20,42],text:'눈이 털 속에 묻힐 만큼 아주 작아.',fits:['mole']},
+    {id:'fur',kind:'몸의 모습',icon:'search',crop:[60,45],text:'짧고 촘촘한 털로 덮여 있어.',fits:['mole','rabbit','bat']},
+    {id:'life',kind:'생활 장면',icon:'book',text:'앞발로 흙을 파서 굴을 넓히며 지렁이를 찾아 먹어.',fits:['mole']}],
+   habitat:'forest',reason:'dig',reasons:[['dig','삽 같은 앞발로 흙을 파며 굴속을 다녀'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['paddle','물갈퀴로 물을 밀며 헤엄쳐']],reasonTip:'근거로 낸 단서 중 앞발 모양을 떠올려 봐.',sentence:'두더지는 숲과 들의 땅속에서 삽 같은 앞발로 흙을 파며 다녀.',aha:'눈이 작아도 괜찮아. 어두운 땅속에서는 예민한 코와 수염으로 먹이를 찾아.',legacy:{}},
 ];
 export const clueOf=(c,id)=>c.clues.find(x=>x.id===id);
 // Candidates every given clue is true for.
@@ -128,7 +155,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},activeAnimal:'frog',compares:[{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
+export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -178,7 +205,7 @@ export function restoreExpedition(raw,{strict=false}={}){
     // first = right on the first choice, helped = right after a wrong choice. Saves from before this field stay unknown.
     out.observeTries=Object.fromEntries(Object.entries(record(input.observeTries)).filter(([id,v])=>Object.values(OBSERVATIONS).flat().some(o=>o.id===id)&&['first','helped'].includes(v)));
     out.activeAnimal=safeChoice(input.activeAnimal,Object.keys(OBSERVATIONS),'frog');
-    out.compares=[0,1].map(i=>normalizedChoices(input.compares?.[i],['common','difference'],compareCards(i).map(c=>c.ref)));
+    out.compares=COMPARES.map((_,i)=>normalizedChoices(input.compares?.[i],['common','difference'],compareCards(i).map(c=>c.ref)));
     out.sorts=[0,1].map(i=>normalizedChoices(input.sorts?.[i],SORT_ANIMALS,['yes','no']));
     out.criteria=[safeChoice(input.criteria?.[0],['cute','wings']),safeChoice(input.criteria?.[1],[...OWN_CRITERIA,...OPINION_CRITERIA])];
     out.discovered=uniqueStrings(input.discovered,DISCOVERIES.map(d=>d.id));
@@ -198,12 +225,16 @@ export function restoreExpedition(raw,{strict=false}={}){
     const allowed=STAGES.flatMap(t=>t.tasks.map((_,n)=>`${t.id}-${n}`));
     out.activities=uniqueStrings(input.activities,allowed);
     // Preserve awarded tasks even while a learner revisits and edits an answer.
-    out.completed=STAGES.filter(t=>t.tasks.every((_,n)=>out.activities.includes(`${t.id}-${n}`))).map(t=>t.id);
-    for(const i of [0,1]){
+    // A place finished before more rounds were added stays finished: its original rounds are enough for that save.
+    const finishedBefore=t=>Array.isArray(input.completed)&&input.completed.includes(t.id)&&Array.from({length:LEGACY_TASKS[t.id]},(_,n)=>`${t.id}-${n}`).every(id=>out.activities.includes(id));
+    out.completed=STAGES.filter(t=>t.tasks.every((_,n)=>out.activities.includes(`${t.id}-${n}`))||finishedBefore(t)).map(t=>t.id);
+    for(const i of CASES.keys()){
       const c=record(input.records?.cases?.[i]),expected=CASES[i];
       // A record saved before screen 08 used two trait ids; translate it for display.
       const legacy=Array.isArray(c.traits)&&c.traits.length===2&&c.traits.every(t=>Object.hasOwn(expected.legacy,t)),grounds=legacy?c.traits.map(t=>expected.legacy[t]):uniqueStrings(c.grounds,expected.clues.map(k=>k.id));
       if(out.activities.includes(`4-${i*2+1}`)&&c.candidate===expected.animal&&(legacy||proves(expected,grounds))&&c.habitat===expected.habitat&&c.reason===expected.reason)out.records.cases[i]={opened:[...grounds],grounds,candidate:c.candidate,habitat:c.habitat,reason:c.reason};
+    }
+    for(const i of [0,1]){
       const d=normalizeDesign(input.records?.designs?.[i]||out.designs[i]);
       if(out.activities.includes(`5-${i*2+1}`)&&validDesignRecord(d))out.records.designs[i]=d;
       for(const problem of Object.keys(PROBLEMS)){
@@ -274,7 +305,7 @@ export function taskMistake(s,stage,step){
     // A true statement in the other slot is about the slot; a false one gets the fact that disproves it.
     out.push({key:'compare:'+q.key,text:!card?`‘${slot(q.key)}’ 칸이 비어 있어.`:card.why?`‘${card.label}’ 카드를 다시 봐. ${card.why}`:`${withParticle(`‘${card.label}’`,'은/는')} ${slot(q.key)}이 아니라 ${slot(card.key)}이야.`});}return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
   if(stage===2&&round&&!OWN_CRITERIA.includes(s.criteria[1]))return {text:s.criteria[1]?`‘${CRITERIA[s.criteria[1]]}’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.`:'먼저 나눌 기준을 하나 골라 줘.',wrong:[]};
-  if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.`,wrong:bad.map(id=>'sort:'+id)}:null;}
+  if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));const aha=key==='wings'?bad.map(id=>ANIMALS[id].aha).find(Boolean):'';return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.${aha?' '+aha:''}`,wrong:bad.map(id=>'sort:'+id)}:null;}
   if(stage===2){const v=s.inquiry.verify[round];
     if(round){if(v.checked!==s.criteria[1])return {text:'‘내 기준 검증’을 눌러 세 연구원의 결과를 확인해 봐.',wrong:[]};if(!s.inquiry.reclass[1].revealed)return {text:'예상을 고른 뒤 ‘분류 바꾸기’를 눌러 결과를 확인해 봐.',wrong:[]};return null;}
     if(!v.ran)return {text:'먼저 ‘검증 실행’을 눌러 세 연구원의 결과를 확인해 봐.',wrong:[]};

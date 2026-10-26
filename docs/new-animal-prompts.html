@@ -1,0 +1,157 @@
+<title>새 동물 그림 주문서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: a field-guide order sheet — one plate card per animal, specs first, prompt below with a copy button. */
+:root{
+  --paper:#f6f3e8; --card:#fffdf6; --ink:#25301f; --muted:#66705a; --line:#d9d2b8; --leaf:#3d6a4a; --leaf-soft:#e3ecd6; --warn:#8a5a14; --warn-soft:#fbefd2;
+  --display:'Gowun Batang',Georgia,serif; --body:'Noto Sans KR',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#1a1f17;--card:#232a1f;--ink:#ece8d8;--muted:#a9b29a;--line:#3a4434;--leaf:#9ccf9f;--leaf-soft:#2c3a2a;--warn:#f0c46a;--warn-soft:#3a3020;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#1a1f17;--card:#232a1f;--ink:#ece8d8;--muted:#a9b29a;--line:#3a4434;--leaf:#9ccf9f;--leaf-soft:#2c3a2a;--warn:#f0c46a;--warn-soft:#3a3020;color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.65 var(--body)}
+.wrap{max-width:920px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4vw,38px)}
+h2{font-size:22px}
+p{margin:0}
+.lead{color:var(--muted);max-width:65ch}
+.spec{display:grid;gap:10px;padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.spec dl{margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 16px}
+.spec dt{color:var(--muted)}
+.spec dd{margin:0;min-width:0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+.prompt{position:relative;min-width:0}
+.prompt pre{margin:0;padding:14px 16px 14px;border-radius:10px;background:var(--leaf-soft);white-space:pre-wrap;word-break:break-word;font:400 14px/1.6 var(--mono);color:var(--ink)}
+.copy{justify-self:start;padding:6px 14px;border:1px solid var(--leaf);border-radius:8px;background:transparent;color:var(--leaf);font:600 14px/1.2 var(--body);cursor:pointer}
+.copy:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+.stage{display:grid;gap:14px}
+.stage>h2{display:flex;align-items:baseline;gap:10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+.stage>h2 small{font:400 15px/1.2 var(--body);color:var(--muted)}
+.plate{display:grid;gap:10px;padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.plate header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.plate header h3{font-size:22px}
+.file{font-family:var(--mono);font-size:13px;padding:2px 8px;border-radius:6px;background:var(--leaf-soft);color:var(--leaf)}
+.must{margin:0;padding-left:1.1em;display:grid;gap:2px}
+.must li::marker{color:var(--leaf)}
+.why{padding:8px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:15px}
+.done{color:var(--muted);font-size:15px}
+@media (max-width:520px){.spec dl{grid-template-columns:minmax(0,1fr)}.spec dt{margin-top:6px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:8px">
+    <h1>새 동물 그림 주문서</h1>
+    <p class="lead">동물기록 복구작전 1·2·4장에 들어갈 새 동물 7종이야. 지금 있는 개구리·박쥐 그림과 같은 화풍(사실적인 자연 도감 그림, 배경 없음)으로 맞춰 줘. 그림마다 꼭 보여야 하는 부분은 관찰 문제의 정답 근거라서, 빠지면 다시 만들어야 해.</p>
+  </header>
+
+  <section class="spec" aria-labelledby="spec-title">
+    <h2 id="spec-title">모든 그림 공통</h2>
+    <dl>
+      <dt>크기</dt><dd>정사각형 1:1, 1254×1254px 이상</dd>
+      <dt>배경</dt><dd>투명 PNG (안 되면 순백 배경. 배경은 내가 지울게)</dd>
+      <dt>저장 위치</dt><dd><code>D:\iscreammedia_sc34\_scratch\new-animals\</code> 에 아래 파일 이름 그대로</dd>
+      <dt>구도</dt><dd>몸 전체가 잘리지 않게, 가장자리에 여백. 땅 그림자·글자·테두리 없음</dd>
+    </dl>
+    <p>아래 공통 문장은 동물별 프롬프트에 이미 들어가 있어. 따로 붙이지 않아도 돼.</p>
+    <div class="prompt"><pre id="p-common">Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts.</pre></div>
+    <button class="copy" type="button" data-copy="p-common" id="copy-common">공통 문장 복사</button>
+  </section>
+
+  <section class="stage" aria-labelledby="s1">
+    <h2 id="s1">1장 관찰의 숲 <small>박쥐 ↔ 참새 · 거미 ↔ 개미</small></h2>
+    <p class="done">박쥐는 지금 있는 그림(<span class="mono">bat.webp</span>)을 그대로 써.</p>
+
+    <article class="plate">
+      <header><h3>참새</h3><span class="file">sparrow.png</span></header>
+      <ul class="must"><li>날개 한쪽을 반쯤 펼쳐 깃털이 한 장씩 보이게</li><li>짧고 두툼한 원뿔 모양 부리</li><li>발가락 앞 3개·뒤 1개가 보이게 두 다리로 서 있기</li></ul>
+      <p class="why">배울 점: 박쥐 날개는 손가락 사이 피부막, 새 날개는 깃털. 두 날개를 나란히 비교해.</p>
+      <div class="prompt"><pre id="p-sparrow">Eurasian tree sparrow (Passer montanus) standing on both legs in three-quarter side view, one wing half-spread so individual flight feathers are clearly visible, short thick cone-shaped beak, chestnut cap and black cheek spot, feet showing three toes forward and one toe backward.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts.</pre></div>
+      <button class="copy" type="button" data-copy="p-sparrow" id="copy-sparrow">프롬프트 복사</button>
+    </article>
+
+    <article class="plate">
+      <header><h3>거미</h3><span class="file">spider.png</span></header>
+      <ul class="must"><li>다리 8개가 모두 또렷하게, 하나도 겹쳐 가리지 않게</li><li>몸이 두 부분(머리가슴 + 배)으로 나뉜 게 보이게</li><li>더듬이 없음</li></ul>
+      <p class="why">배울 점: 거미는 다리가 8개라서 곤충이 아니야. 곤충은 다리 6개, 몸 세 부분.</p>
+      <div class="prompt"><pre id="p-spider">Garden orb-weaver spider (Araneus) seen from above at a slight three-quarter angle, all eight legs clearly separated and fully visible with none hidden or overlapping, body clearly divided into two parts (cephalothorax and rounded abdomen), no antennae, short pedipalps near the head, natural brown and cream pattern.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts, spider web.</pre></div>
+      <button class="copy" type="button" data-copy="p-spider" id="copy-spider">프롬프트 복사</button>
+    </article>
+
+    <article class="plate">
+      <header><h3>개미</h3><span class="file">ant.png</span></header>
+      <ul class="must"><li>다리 6개가 모두 가운데 몸(가슴)에서 나오게</li><li>머리·가슴·배 세 부분이 잘록하게 구분</li><li>꺾인 더듬이 2개</li></ul>
+      <p class="why">배울 점: 거미와 나란히 놓고 다리 수·몸의 마디·더듬이를 비교해.</p>
+      <div class="prompt"><pre id="p-ant">Worker ant in clear side view, body clearly divided into three parts (head, thorax, abdomen) with a narrow waist, exactly six legs all attached to the middle thorax segment and fully visible, two elbowed (bent) antennae on the head, dark reddish-brown glossy body.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts, wings.</pre></div>
+      <button class="copy" type="button" data-copy="p-ant" id="copy-ant">프롬프트 복사</button>
+    </article>
+  </section>
+
+  <section class="stage" aria-labelledby="s2">
+    <h2 id="s2">2장 분류의 정원 <small>펭귄 · 타조 · 돌고래</small></h2>
+
+    <article class="plate">
+      <header><h3>펭귄</h3><span class="file">penguin.png</span></header>
+      <ul class="must"><li>지느러미처럼 납작하고 단단한 날개를 양옆으로 살짝 펼치기</li><li>발가락 사이 물갈퀴가 보이게</li><li>몸이 깃털로 덮인 질감</li></ul>
+      <p class="why">배울 점: 날개가 있어도 날지 못하는 새. 날개를 지느러미처럼 저어 헤엄쳐.</p>
+      <div class="prompt"><pre id="p-penguin">Adélie penguin standing upright in three-quarter front view, both flat stiff flipper-like wings held slightly away from the body, webbed feet clearly visible, dense short feathers with visible texture, black back and white belly, white eye ring.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts, ice or snow.</pre></div>
+      <button class="copy" type="button" data-copy="p-penguin" id="copy-penguin">프롬프트 복사</button>
+    </article>
+
+    <article class="plate">
+      <header><h3>타조</h3><span class="file">ostrich.png</span></header>
+      <ul class="must"><li>작은 날개를 들어 깃털 날개가 있다는 게 보이게</li><li>길고 튼튼한 다리, 발가락 2개</li><li>머리부터 발끝까지 한 화면에</li></ul>
+      <p class="why">배울 점: 날개가 있어도 못 나는 새, 대신 긴 다리로 빨리 달려. "날개가 있나요?" 기준을 다시 생각하게 해.</p>
+      <div class="prompt"><pre id="p-ostrich">Common ostrich standing in side view, whole bird from head to toes inside the square frame, small feathered wings slightly lifted away from the body so they are clearly visible, long strong bare legs, each foot with two toes clearly shown, long neck, black and white plumage.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts, running motion blur.</pre></div>
+      <button class="copy" type="button" data-copy="p-ostrich" id="copy-ostrich">프롬프트 복사</button>
+    </article>
+
+    <article class="plate">
+      <header><h3>돌고래</h3><span class="file">dolphin.png</span></header>
+      <ul class="must"><li>머리 위 숨구멍이 보이게 살짝 위에서 본 옆모습</li><li>꼬리지느러미가 가로로 납작한 모양</li><li>비늘 없이 매끈한 피부</li></ul>
+      <p class="why">배울 점: 물에 살아도 물고기가 아니야. 머리 위 숨구멍으로 물 밖 공기를 마셔.</p>
+      <div class="prompt"><pre id="p-dolphin">Common bottlenose dolphin in side view seen slightly from above so the single blowhole on top of the head is clearly visible, horizontal flat tail flukes, smooth grey skin with no scales, curved dorsal fin, pectoral flippers, whole body inside the square frame.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts, water splash, scales.</pre></div>
+      <button class="copy" type="button" data-copy="p-dolphin" id="copy-dolphin">프롬프트 복사</button>
+    </article>
+  </section>
+
+  <section class="stage" aria-labelledby="s4">
+    <h2 id="s4">4장 동물 찾기 안내소 <small>두더지</small></h2>
+    <p class="done">개구리 피부 추리는 지금 있는 개구리 그림을 그대로 써.</p>
+
+    <article class="plate">
+      <header><h3>두더지</h3><span class="file">mole.png</span></header>
+      <ul class="must"><li>삽처럼 넓은 앞발, 날카로운 발톱이 바깥쪽을 향하게</li><li>털 속에 묻힌 아주 작은 눈</li><li>뾰족한 코, 짧고 촘촘한 털</li></ul>
+      <p class="why">배울 점: 삽 같은 앞발과 작은 눈을 보고 "땅속에서 사는구나"를 추리해. 손전등 단서로 앞발·눈·털을 하나씩 찾게 돼.</p>
+      <div class="prompt"><pre id="p-mole">European mole in three-quarter side view, very large broad spade-like front paws turned outward with strong claws clearly visible, tiny eyes almost hidden in the fur, pointed pink snout, short dense velvety dark grey fur, short tail, whole body inside the square frame.
+Realistic natural-history illustration in the style of a museum field-guide plate, soft painterly detail, warm natural light, anatomically accurate, full body fully inside the frame with generous margin, centered, isolated on a transparent background, no ground shadow, no text, no border, square 1:1.
+Avoid: cartoon, cute chibi style, human expressions, extra or missing limbs, cropped body parts, soil tunnel.</pre></div>
+      <button class="copy" type="button" data-copy="p-mole" id="copy-mole">프롬프트 복사</button>
+    </article>
+  </section>
+</div>
+
+<script>
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  const pre = document.getElementById(b.dataset.copy), label = b.textContent;
+  try { await navigator.clipboard.writeText(pre.textContent); b.textContent = '복사했어'; }
+  catch { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = '선택했어 · Ctrl+C'; }
+  setTimeout(() => { b.textContent = label; }, 1600);
+});
+</script>

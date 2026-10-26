@@ -14,7 +14,7 @@ test('base completion keeps stars but does not restore the place or unlock the n
 });
 test('all ten commissions and five optional challenges can be completed; replay never adds stars or duplicate records',()=>{
  const s=campaignFixture();for(let stage=1;stage<=5;stage++)for(let index=0;index<=2;index++){solve(s,stage,index);assert.equal(claimCommission(s,stage,index).ok,true,`${stage}-${index}`);assert.equal(claimCommission(s,stage,index).fresh,false);}
- assert.equal(commissionCount(s),10);assert.equal(Object.keys(s.campaign.records).length,15);assert.equal(s.activities.length,18);assert.deepEqual(restoredPlaces(s),[1,2,3,4,5]);assert.match(campaignReport(s).join('\n'),/중간 면/);
+ assert.equal(commissionCount(s),10);assert.equal(Object.keys(s.campaign.records).length,15);assert.equal(s.activities.length,24);assert.deepEqual(restoredPlaces(s),[1,2,3,4,5]);assert.match(campaignReport(s).join('\n'),/중간 면/);
 });
 test('current saves retain drafts, validated awards, tool use and archived evidence after replay edits',()=>{
  const s=campaignFixture();solve(s,1,0);campaignDraft(s,1,0).usedTool=true;claimCommission(s,1,0);chooseCommission(s,1,0,'frog-label','shell');chooseCommission(s,1,1,'duck','feather');
@@ -46,7 +46,7 @@ test('one reply validates both parts before awarding either, then survives reloa
   assert.equal(claimRequest(s,stage).ok,false);assert.equal(campaignDone(s,stage,0),false);
   solve(s,stage,1);assert.deepEqual(claimRequest(s,stage),{ok:true,fresh:true,restored:true});
   const out=restoreExpedition(JSON.stringify(s));assert.equal(requestCount(out),1);assert.equal(campaignDone(out,stage,0),true);assert.equal(campaignDone(out,stage,1),true);
-  assert.equal(claimRequest(out,stage).fresh,false);assert.equal(out.activities.length,18);
+  assert.equal(claimRequest(out,stage).fresh,false);assert.equal(out.activities.length,24);
  }
 });
 test('a partially completed old request keeps archived evidence while the remaining work is submitted',()=>{

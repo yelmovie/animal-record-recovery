@@ -3,7 +3,7 @@ export {sheetURL};
 export {withParticle} from './korean.js';
 export const artURL=id=>new URL(`../assets/adventure/${id}.webp`,import.meta.url).href;
 export const villageURL=file=>new URL(`../assets/village/${file}`,import.meta.url).href;
-const newImages={explorer:'하루 탐험가',duck:'오리',butterfly:'나비',goldfish:'금붕어',bee:'벌',snail:'달팽이',bat:'박쥐',hen:'닭','field-kit':'탐사 장비 상자'};
+const newImages={explorer:'하루 탐험가',duck:'오리',butterfly:'나비',goldfish:'금붕어',bee:'벌',snail:'달팽이',bat:'박쥐',hen:'닭','field-kit':'탐사 장비 상자',sparrow:'참새',spider:'거미',ant:'개미',penguin:'펭귄',ostrich:'타조',dolphin:'돌고래',mole:'두더지'};
 export function art(id,cls='',decorative=false){return Object.hasOwn(newImages,id)?`<img class="art ${cls}" src="${artURL(id)}" alt="${decorative?'':newImages[id]}" decoding="async" draggable="false" data-image="${id}">`:originalImage(id,`art ${cls}`,decorative).replace('data-asset=','data-image=');}
 export const sprite=(sheet,col=0,row=0,cls='',label='')=>`<span class="sprite ${cls}" style="--sheet:url('${sheetURL(sheet)}');--col:${col};--row:${row}" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}></span>`;
 export const mori=(pose=1,cls='')=>sprite('raccoon',pose%4,Math.floor(pose/4),`mori ${cls}`);

@@ -12,18 +12,18 @@ function solve(s,stage,step){
   if(stage===1){if(step%2===0)s.observed.push(...OBSERVE_PAIRS[r].flatMap(id=>OBSERVATIONS[id].map(o=>o.id)));else for(const q of COMPARES[r])s.compares[r][q.key]=`${q.key}-${q.answer}`;}
   if(stage===2){if(r)s.criteria[1]='web';else s.criteria[0]='wings';const key=r?'web':'wings';if(step%2===0)for(const id of SORT_ANIMALS)s.sorts[r][id]=ANIMALS[id][key]?'yes':'no';else if(r){s.inquiry.verify[1].checked='web';s.inquiry.reclass[1]={prediction:'yes',revealed:true};}else s.inquiry.verify[0]={ran:true,cause:'opinion',fix:'wings',checked:'wings'};}
   if(stage===3){if(step%2===0){s.discovered.push(...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.id));for(const d of DISCOVERIES.slice(r*3,r*3+3))s.inquiry.motion[d.animal]=1;}else{const id=r?'crab':'frog';for(const [i,key]of ['environment','body','life'].entries())s.links[id][key]=LINKS[id].answer[i];}}
-  if(stage===4){const c=CASES[r],g=r?['place','move']:['place','cover'];if(step%2===0)Object.assign(s.cases[r],{opened:[...g],grounds:[...g],candidate:c.animal});else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
+  if(stage===4){const c=CASES[r],g=[['place','cover'],['place','move'],['place','paws']][r];if(step%2===0)Object.assign(s.cases[r],{opened:[...g],grounds:[...g],candidate:c.animal});else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
   if(stage===5){const id=r?'protect':'swim',p=PROBLEMS[id];if(step%2===0)Object.assign(s.designs[r],{problem:id,feature:p.feature,structure:p.structure,spot:{swim:'toe',protect:'top',warm:'body'}[id],name:r?'단단모':'물갈퀴 추진기'});else{recordTrial(s,r);completeExperiment(s.designs[r]);s.designs[r].explanation='match';}s.designs[r].experiment.sourceSeen=true;}
 }
 function completeExperiment(d){d.experiment.sourceSeen=true;d.experiment.prediction='more';d.experiment.level=1;addExperimentTrial(d);d.experiment.level=3;addExperimentTrial(d);d.experiment.reflection='changed';d.experiment.note='폭을 넓혀서 물을 더 많이 밀었어.';}
 function complete(s,stage){for(let step=0;step<STAGES[stage-1].tasks.length;step++){solve(s,stage,step);assert.equal(claimTask(s,stage,step).ok,true,`${stage}-${step}`);}}
 
 test('classification has two core activities and other stages have four; a fresh expedition starts with one open place',()=>{
-  const s=freshExpedition();assert.equal(STAGES.flatMap(t=>t.tasks).length,18);assert.equal(isStageOpen(s,1),true);for(const id of [0,2,3,4,5,6])assert.equal(isStageOpen(s,id),false);assert.equal(s.activities.length,0);assert.deepEqual(availableTools(s),[]);
+  const s=freshExpedition();assert.equal(STAGES.flatMap(t=>t.tasks).length,24);assert.equal(isStageOpen(s,1),true);for(const id of [0,2,3,4,5,6])assert.equal(isStageOpen(s,id),false);assert.equal(s.activities.length,0);assert.deepEqual(availableTools(s),[]);
 });
 test('eighteen activities award exactly eighteen stars and five usable tools, without repeat farming',()=>{
   const s=freshExpedition();for(let stage=1;stage<=5;stage++){complete(s,stage);assert.equal(s.activities.length,STAGES.slice(0,stage).flatMap(t=>t.tasks).length);assert.equal(availableTools(s).length,stage);assert.equal(claimTask(s,stage,STAGES[stage-1].tasks.length-1).fresh,false);assert.equal(s.activities.length,STAGES.slice(0,stage).flatMap(t=>t.tasks).length);}
-  assert.deepEqual(s.completed,[1,2,3,4,5]);assert.equal(collectedAnimals(s).length,9);
+  assert.deepEqual(s.completed,[1,2,3,4,5]);assert.equal(collectedAnimals(s).length,16);
 });
 test('incomplete / skipped tasks and administrator preview cannot grant completion',()=>{
   const s=freshExpedition();assert.equal(claimTask(s,1,0).ok,false);solve(s,1,3);assert.equal(claimTask(s,1,3).ok,false);s.adminUnlocked=true;assert.equal(isStageOpen(s,5),true);assert.equal(claimTask(s,5,3).ok,false);assert.deepEqual(s.completed,[]);assert.equal(taskReady(s,1,4),false);

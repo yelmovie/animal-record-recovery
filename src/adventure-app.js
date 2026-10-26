@@ -388,7 +388,9 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'scan-reset':viewer?.call('reset');break;
     case 'dome-tilt':toggleTilt(el);break;
     case 'compare':{const c=s.compares[round()];for(const k of ['common','difference'])if(c[k]===value)delete c[k];if(['common','difference'].includes(key))c[key]=value;feedback=null;render();break;}
-    case 'sort':if(!SORT_ANIMALS.includes(id))break;if(value==='pool')delete s.sorts[round()][id];else s.sorts[round()][id]=value;feedback=null;render();break;
+    case 'sort':{if(!SORT_ANIMALS.includes(id))break;if(value==='pool')delete s.sorts[round()][id];else s.sorts[round()][id]=value;feedback=null;render();
+      // A card that breaks the everyday guess (a bird that cannot fly, a sea animal that is not a fish) explains itself once it lands in the right place.
+      const key=round()?s.criteria[1]:'wings';if(value===(ANIMALS[id][key]?'yes':'no')&&ANIMALS[id].aha)toast('알고 보니! '+ANIMALS[id].aha,document.querySelector(`.drag-card[data-id="${id}"]`)||el);break;}
     case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;
     case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id)||(can3d()&&Object.hasOwn(DOME_ZONES,id)))activeHabitat=id;feedback=null;render();break;
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}

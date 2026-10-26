@@ -64,7 +64,7 @@ test('a draft cannot appear as a completed artwork, and legacy invention records
   assert.equal(restoreExpedition(JSON.stringify(s)).studioRecord,null);
   const legacy=campaignFixture();delete legacy.studio;delete legacy.studioRecord;
   const restored=restoreExpedition(JSON.stringify(legacy));
-  assert.equal(restored.activities.length,18);
+  assert.equal(restored.activities.length,24);
   assert.equal(restored.studio,null);
   assert.equal(restored.studioRecord,null);
   assert.deepEqual(restored.records.designs,legacy.records.designs);

@@ -1,7 +1,7 @@
 import {flashlightCaseView} from './flashlight.js';
 import {anatomy,sourceView,labView,motionView} from './inquiry-views.js';
 import {EXPERIMENTS} from './inquiry.js';
-import {ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,compareCards,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
+import {SCAN_3D,ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,compareCards,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
 import {art,animal,icon,sprite,btn,choice,esc,off,withParticle} from './presentation.js';
 import {assetURL,workshopSprite,swimArtwork} from './assets.js';
 import {studioView} from './studio-views.js';
@@ -9,10 +9,10 @@ import {conceptButton} from './concept-video.js';
 import {activityUnlocked} from './concepts.js';
 
 export const INSTRUCTIONS={
-  1:['아래에서 몸의 부분을 고르고, 본 모습에 맞는 설명을 골라 기록해 봐.','맞는 카드 2장만 같은 점·다른 점에 놓고, 그림과 다른 설명은 남겨 둬.','부분 버튼으로 새 동물을 살펴보고, 맞는 설명을 골라 기록해 봐.','오리와 토끼의 맞는 카드 2장만 같은 점·다른 점에 놓고, 그림과 다른 설명은 남겨 둬.'],
+  1:['아래에서 몸의 부분을 고르고, 본 모습에 맞는 설명을 골라 기록해 봐.','맞는 카드 2장만 같은 점·다른 점에 놓고, 그림과 다른 설명은 남겨 둬.','부분 버튼으로 새 동물을 살펴보고, 맞는 설명을 골라 기록해 봐.','오리와 토끼의 맞는 카드 2장만 같은 점·다른 점에 놓고, 그림과 다른 설명은 남겨 둬.','둘 다 날개가 있어. 날개가 무엇으로 되어 있는지 돋보기로 자세히 봐.','박쥐와 참새의 맞는 카드 2장만 같은 점·다른 점에 놓아 봐.','다리 수와 몸의 마디를 하나씩 세어 보고 맞는 설명을 골라 봐.','거미와 개미의 맞는 카드 2장만 같은 점·다른 점에 놓아 봐.'],
   2:['동물 카드를 끌어 O·X 칸에 넣어 봐. 카드를 누르고 O·X 칸을 눌러도 돼.','연구원 세 명의 결과가 왜 다를까? 기준을 고쳐 다시 검증해 봐.','낱말로 나만의 질문을 만들고, 동물을 O·X 칸에 넣어 봐.','내 기준을 검증하고, 날개 기준과 비교해 봐.'],
  3:['동물을 찾고 영상을 재생해 전시관에 보낼 사진 한 장을 찍어 봐.','섞인 카드 중 개구리에게 맞는 카드로 사는 곳·몸·생활을 이어 봐.','새 동물의 영상도 재생하고, 마음에 드는 순간을 전시 사진으로 남겨 봐.','섞인 카드 중 게에게 맞는 카드로 사는 곳·몸·생활을 이어 봐.'],
-  4:['손전등으로 반짝이는 곳을 비추고, 발견한 특징을 수첩에 붙여 봐.','발견한 풍경을 떠올리며 동물의 집을 골라 주고, 움직이는 방법을 눌러 봐.','새로운 동물이 숨어 있어. 빛을 비춰 특징을 발견하고 근거로 추리해 봐.','찾아낸 몸의 특징으로 어떻게 움직이는지 살펴보고 집으로 안내해 줘.'],
+  4:['손전등으로 반짝이는 곳을 비추고, 발견한 특징을 수첩에 붙여 봐.','발견한 풍경을 떠올리며 동물의 집을 골라 주고, 움직이는 방법을 눌러 봐.','새로운 동물이 숨어 있어. 빛을 비춰 특징을 발견하고 근거로 추리해 봐.','찾아낸 몸의 특징으로 어떻게 움직이는지 살펴보고 집으로 안내해 줘.','땅속에 숨은 동물이야. 빛을 비춰 앞발과 눈을 찾아보고 근거로 추리해 봐.','찾아낸 앞발 모양으로 어떻게 다니는지 골라 주고, 땅속 집으로 안내해 줘.'],
   5:['특징을 고르고 ‘특징 기록’을 누른 뒤, 부품을 수영 신발에 붙여 봐.','두 모양을 비교하며 동물의 특징이 하는 일을 알아봐.','이제 네 차례! 빈 도화지에 새로운 발명품을 자유롭게 그리고 이름을 붙여 봐.','누구를 돕는 발명인지, 어떻게 쓰는지 소개해 봐. 그림과 소개를 함께 저장할 수 있어.'],
 };
 // Drag cards are also tap targets (pick → place); zones take a drop or a tap after a pick.
@@ -24,6 +24,8 @@ const jong=w=>(w.charCodeAt(w.length-1)-0xac00)%28>0,eul=w=>jong(w)?'을':'를',
 const miss=(v,key)=>v.feedback?.wrong?.includes(key)?'retry':'';
 export function activityView(s,v){if(v.stage===5&&v.step>=2)return studioView(s.studio,{showcase:v.step===3});return [null,observeView,sortView,habitatView,caseView,designView][v.stage](s,{...v,round:Math.floor(v.step/2)});}
 
+// A surprising true fact appears only after the learner has recorded what they saw.
+const ahaNote=o=>o.aha?`<p class="aha-note"><b>알고 보니!</b> ${o.aha}</p>`:'';
 // The right description plus two that do not fit the picture; a fixed per-part rotation keeps the answer off one slot.
 function observeOptions(o){const list=[['right',o.text],...o.wrong.map((w,i)=>['wrong-'+i,w])],k=[...o.id].reduce((n,c)=>n+c.charCodeAt(0),0)%3;return [...list.slice(k),...list.slice(0,k)];}
 function observeView(s,v){const pair=OBSERVE_PAIRS[v.round];
@@ -33,7 +35,7 @@ function observeView(s,v){const pair=OBSERVE_PAIRS[v.round];
  const id=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0],list=OBSERVATIONS[id],o=list[v.focusIndex||0],found=s.observed.includes(o.id);
  const tabs='<div class="scene-tabs">'+pair.map(a=>btn(ANIMALS[a].name,'animal-tab',id===a?'active':'','data-id="'+a+'" aria-pressed="'+(id===a)+'"')).join('')+'</div>',count='<div class="notes-title">관찰 기록 <b>'+pair.flatMap(a=>OBSERVATIONS[a]).filter(x=>s.observed.includes(x.id)).length+'/6</b></div>',status='<p class="pair-status">'+pair.map(a=>ANIMALS[a].name+' '+OBSERVATIONS[a].filter(x=>s.observed.includes(x.id)).length+'/3').join(' · ')+'</p>',options='<div class="observe-options">'+observeOptions(o).map(([value,label])=>choice(label,'observe',value,false,'data-id="'+o.id+'"',miss(v,'observe:'+value))).join('')+'</div>';
  // A pin is an optional way to explore, never a prerequisite for choosing a description.
- if(v.use3d){
+ if(v.use3d&&SCAN_3D.includes(id)){
    const next=pair.flatMap(a=>OBSERVATIONS[a].map((x,i)=>({animal:a,index:i,...x}))).find(x=>!s.observed.includes(x.id));
    const nextAction=next?btn((next.animal===id?'다음 부분':ANIMALS[next.animal].name)+' 보기 '+icon('arrow'),'inspect','secondary observe-next',`data-id="${next.animal}" data-value="${next.index}" aria-label="${ANIMALS[next.animal].name} ${next.label} 살펴보기"`):'<p class="observe-complete">두 동물의 기록을 다 모았어!<br>아래 ‘다음으로’를 눌러 비교해 봐.</p>';
    const partButtons=list.map((x,i)=>btn((s.observed.includes(x.id)?icon('check'):icon('search'))+x.label,'inspect',o.id===x.id?'selected':'quiet',`data-value="${i}" aria-pressed="${o.id===x.id}" aria-controls="observation-notes"`)).join('');
@@ -44,11 +46,11 @@ function observeView(s,v){const pair=OBSERVE_PAIRS[v.round];
      </div>
    </div><aside id="observation-notes" class="field-notes lens-notes">${count}
      <div class="detail-crop" style="--focus-x:${o.x};--focus-y:${o.y}">${animal(id)}</div><h2>${o.label}</h2>
-     ${found?'<p>'+o.text+'</p><p class="observe-done">'+icon('check')+' 기록했어</p>'+nextAction:'<p class="observe-ask">그림을 보고 맞는 설명을 골라 봐.</p>'+options}
+     ${found?'<p>'+o.text+'</p><p class="observe-done">'+icon('check')+' 기록했어</p>'+ahaNote(o)+nextAction:'<p class="observe-ask">그림을 보고 맞는 설명을 골라 봐.</p>'+options}
      ${status}
    </aside>`;
  }
- return '<div class="specimen-scene inquiry-specimen"><div class="scene-tabs">'+pair.map(a=>btn(ANIMALS[a].name,'animal-tab',id===a?'active':'','data-id="'+a+'" aria-pressed="'+(id===a)+'"')).join('')+'</div><div class="specimen" id="lens-surface" data-animal="'+id+'" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+animal(id,'specimen-photo')+'<span class="lens-ring" aria-hidden="true"></span>'+list.map((x,i)=>'<button class="hotspot '+(s.observed.includes(x.id)?'found':'')+'" data-action="inspect" data-value="'+i+'" style="left:'+x.x+'%;top:'+x.y+'%" aria-label="'+x.label+' 크게 보기">'+(s.observed.includes(x.id)?icon('check'):icon('search'))+'</button>').join('')+'</div><p class="gesture-hint">그림을 쓸어 확대해 봐. 돋보기를 누르면 그 부분으로 이동해.</p><div class="part-buttons">'+list.map((x,i)=>btn(x.label,'inspect',o.id===x.id?'selected':'quiet','data-value="'+i+'"')).join('')+'</div></div><aside class="field-notes lens-notes"><div class="notes-title">관찰 기록 <b>'+pair.flatMap(a=>OBSERVATIONS[a]).filter(x=>s.observed.includes(x.id)).length+'/6</b></div><div class="detail-crop" id="lens-detail" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+animal(id)+'</div><h2>'+o.label+'</h2>'+(found?'<p>'+o.text+'</p><p class="observe-done">'+icon('check')+' 기록했어</p>':'<p class="observe-ask">렌즈로 본 모습과 설명을 비교해 봐.</p><div class="observe-options">'+observeOptions(o).map(([value,label])=>choice(label,'observe',value,false,'data-id="'+o.id+'"',miss(v,'observe:'+value))).join('')+'</div>')+'<p class="pair-status">'+pair.map(a=>ANIMALS[a].name+' '+OBSERVATIONS[a].filter(x=>s.observed.includes(x.id)).length+'/3').join(' · ')+'</p></aside>';
+ return '<div class="specimen-scene inquiry-specimen"><div class="scene-tabs">'+pair.map(a=>btn(ANIMALS[a].name,'animal-tab',id===a?'active':'','data-id="'+a+'" aria-pressed="'+(id===a)+'"')).join('')+'</div><div class="specimen" id="lens-surface" data-animal="'+id+'" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+animal(id,'specimen-photo')+'<span class="lens-ring" aria-hidden="true"></span>'+list.map((x,i)=>'<button class="hotspot '+(s.observed.includes(x.id)?'found':'')+'" data-action="inspect" data-value="'+i+'" style="left:'+x.x+'%;top:'+x.y+'%" aria-label="'+x.label+' 크게 보기">'+(s.observed.includes(x.id)?icon('check'):icon('search'))+'</button>').join('')+'</div><p class="gesture-hint">그림을 쓸어 확대해 봐. 돋보기를 누르면 그 부분으로 이동해.</p><div class="part-buttons">'+list.map((x,i)=>btn(x.label,'inspect',o.id===x.id?'selected':'quiet','data-value="'+i+'"')).join('')+'</div></div><aside class="field-notes lens-notes"><div class="notes-title">관찰 기록 <b>'+pair.flatMap(a=>OBSERVATIONS[a]).filter(x=>s.observed.includes(x.id)).length+'/6</b></div><div class="detail-crop" id="lens-detail" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+animal(id)+'</div><h2>'+o.label+'</h2>'+(found?'<p>'+o.text+'</p><p class="observe-done">'+icon('check')+' 기록했어</p>'+ahaNote(o):'<p class="observe-ask">렌즈로 본 모습과 설명을 비교해 봐.</p><div class="observe-options">'+observeOptions(o).map(([value,label])=>choice(label,'observe',value,false,'data-id="'+o.id+'"',miss(v,'observe:'+value))).join('')+'</div>')+'<p class="pair-status">'+pair.map(a=>ANIMALS[a].name+' '+OBSERVATIONS[a].filter(x=>s.observed.includes(x.id)).length+'/3').join(' · ')+'</p></aside>';
 }
 function sortGrid(s,v,r,key){const picked=v.picked?.ref?.startsWith('sort-')?ANIMALS[v.picked.id]?.name:'',placed=id=>s.sorts[r][id],card=id=>dragCard('sort-'+id,animal(id)+'<b>'+ANIMALS[id].name+'</b>',`data-id="${id}"`,v,'animal-card answered '+miss(v,'sort:'+id)),left=SORT_ANIMALS.filter(id=>!placed(id));
   return `<div class="criterion-sign">${icon('layers')}<span>${r?'내가 만든 분류 기준':'우리의 분류 기준'}</span><strong>${CRITERIA[key]}</strong></div><div class="gate-board">${['yes','no'].map(value=>dropZone('sort',`data-zone="${value}"`,`<h3><span class="sort-symbol">${value==='yes'?'O':'X'}</span> <small>${SORT_ANIMALS.filter(id=>placed(id)===value).length}</small></h3><div class="gate-cards">${SORT_ANIMALS.filter(id=>placed(id)===value).map(card).join('')}</div>`,'gate gate-'+value,(value==='yes'?'O':'X')+' 분류 칸')).join('')}</div>${dropZone('sort','data-zone="pool"',`<h3>동물 카드 <small>${!left.length?'모두 넣었어! ‘다음으로’를 눌러 확인해.':picked?`<b class="pick-status">${picked} 카드를 골랐어 → O·X 칸을 눌러 줘</b>`:`남은 카드 ${left.length}마리 · 끌어 넣거나, 카드를 누르고 O·X 칸을 눌러도 돼`}</small></h3><div class="card-pool">${left.map(id=>dragCard('sort-'+id,animal(id)+'<b>'+ANIMALS[id].name+'</b>',`data-id="${id}"`,v,'animal-card')).join('')}</div>`,'card-tray','동물 카드 더미')}`;}
