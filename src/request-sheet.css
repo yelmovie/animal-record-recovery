@@ -80,3 +80,7 @@ dialog .scan-links p span{color:#5f8a5a}
  #app #main#main.commission-page .criterion-chooser .btn{min-height:50px;padding-inline:12px}
  #app #main#main.commission-page .commission-layout{padding-block:8px}
 }
+@media (max-width:1100px){
+ #app #main#main.commission-page .arrival-card{height:100%;min-height:0;overflow:hidden}
+ #app #main#main.commission-page .arrival-card>.animal{height:auto;max-height:100%;min-height:0;width:auto;max-width:100%}
+}
