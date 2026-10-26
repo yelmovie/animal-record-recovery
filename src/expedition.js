@@ -38,7 +38,7 @@ export const ANIMALS={
   mole:{name:'두더지',legs:true,wings:false,four:true,web:false,fur:true,fin:false,six:false,cover:'털',habitat:'forest',fact:'삽처럼 넓은 앞발로 흙을 파서 땅속 굴에서 살아. 눈은 털 속에 묻힐 만큼 작아.'},
 };
 // Sorting questions. Observable ones give everyone the same answer; the others are opinions.
-export const CRITERIA={wings:'날개가 있나요?',legs:'다리가 있나요?',four:'다리가 네 개인가요?',web:'발가락 사이에 물갈퀴가 있나요?',fur:'몸이 털로 덮였나요?',fin:'지느러미가 있나요?',six:'다리가 여섯 개인가요?',cute:'귀엽나요?',scary:'무섭게 생겼나요?',fast:'빨리 달리나요?'};
+export const CRITERIA={wings:'날개가 있나요?',legs:'다리가 있나요?',four:'다리가 네 개인가요?',web:'발가락 사이에 물갈퀴가 있나요?',fur:'몸이 털로 덮였나요?',fin:'지느러미가 있나요?',six:'다리가 여섯 개인가요?',cute:'귀엽나요?',scary:'무섭게 생겼나요?',fast:'빠르게 움직이나요?'};
 export const OWN_CRITERIA=['legs','web','fin','six'],OPINION_CRITERIA=['scary','fast'];
 // Screen 05: questions anyone can check on the body; the rest depend on who answers.
 export const OBSERVABLE=['wings','legs','four','web','fin','six'];

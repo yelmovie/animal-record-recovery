@@ -39,6 +39,16 @@ export function motionDiagram(id,phase=0){
 }
 // Scene captions name the moving body part after playback or a saved observation.
 export const motionCaption=(id,frame,open)=>open?MOTIONS[id].frames[frame]:'';
+// One line for what to do now: before play, playing, ready to shoot, photo taken (next animal or all done).
+export function motionGuide({video=true,viewed=false,ready=false,playing=false,done=false,next='',allDone=false,extra=false}={}){
+ if(!video)return done?'관찰 기록을 남겼어! 다른 동물도 살펴봐.':'움직임 설명 그림을 살펴보고 관찰 기록을 남겨 봐.';
+ const after=extra?'다른 구역도 둘러봐.':allDone?'‘다음으로’를 눌러 다음 활동으로 가 봐.':next?'다음 동물 '+withParticle(next)+' 찾아봐.':'';
+ if(done&&!(viewed&&ready))return (extra?'추가 사진을 골랐어! ':allDone?'세 마리 사진을 모두 골랐어! ':'사진을 골랐어! ')+after+' 다른 장면을 원하면 다시 재생해.';
+ if(viewed&&!ready)return '지금 장면을 불러오는 중이야. 잠깐 기다려 줘.';
+ if(done)return '다른 순간이 마음에 들면 ‘다시 찍기’를 눌러. 지금 사진 그대로 두고 '+(after||'넘어가도 돼.');
+ if(!viewed)return '가운데 재생 버튼을 먼저 눌러 봐.';
+ return playing?'마음에 드는 순간에 ‘전시 사진 찍기’를 눌러 봐.':'원하는 순간에 사진을 찍어 봐. 멈추고 찍어도 돼!';
+}
 export function motionView(id,v={},captured){
  const m=MOTIONS[id];if(!m)return '';
  const phase=v.motionPhase||0,useVideo=Object.hasOwn(MOTION_CLIPS,id)&&!v.failedMotionVideos?.includes(id),frame=useVideo?videoFrameAt(id,phase):frameAt(phase);
@@ -51,5 +61,5 @@ export function motionView(id,v={},captured){
  const cameraButton=btn(icon('camera')+'<span>'+(photo?'다시 찍기':useVideo?'전시 사진 찍기':'관찰 기록')+'</span>','motion-capture','primary motion-photo-capture','data-id="'+id+'"'+(useVideo?' disabled':''));
  const player='<div class="motion-player '+(v.motionPlaying?'is-playing':'')+'">'+visual+btn('<span class="motion-play-disc">'+icon('play')+'</span><span>눌러서 영상 재생</span>','motion-play','motion-start-button',`aria-label="${name} 영상 재생" ${v.motionPlaying?'hidden':''}`)+'<span class="motion-player-badge">'+(useVideo?'동물 관찰 영상':'움직임 설명 그림')+'</span>'+fullscreenButton+cameraButton+'<div class="motion-player-controls">'+playButton+'<input type="range" id="motion-phase" min="0" max="100" step="0.1" value="'+phase+'" aria-label="영상 탐색"><span class="motion-time"><span data-motion-current>0:00</span> / <span data-motion-duration>0:05</span></span>'+btn(v.motionSlow?'보통 속도':'느리게','motion-slow','motion-speed')+'</div></div>';
  const result=photo?'<div class="motion-photo-result">'+btn('<img src="'+photo.dataURL+'" width="'+photo.width+'" height="'+photo.height+'" alt="'+name+'의 내가 찍은 전시 사진">','motion-photo','motion-photo-thumb','data-id="'+id+'" aria-label="'+name+' 전시 사진 크게 보기"')+'<div><b>'+icon('check')+' 전시 사진 준비 완료</b><p>'+name+'의 '+photo.time.toFixed(1)+'초 순간을 골랐어.</p><small>다른 순간을 찍으면 이 사진이 바뀌어.</small></div></div>':done?'<p class="motion-legacy-record">이전 관찰 기록을 보관 중이야. 영상을 재생해 새 전시 사진도 남겨 봐.</p>':'';
- return '<div class="motion-observer '+(done?'motion-complete':'')+'" data-motion="'+id+'"><header class="motion-channel"><span class="motion-channel-icon">'+icon('camera')+'</span><div><span>하루와 모리의 동물 영상관</span><h2>'+name+'의 생활 관찰</h2></div><span class="motion-photo-count">한 마리 · 한 장</span></header>'+player+'<p class="motion-caption">'+motionCaption(id,frame,open)+'</p><div class="motion-photo-toolbar"><p data-motion-ready role="status">'+(useVideo?'재생한 뒤 마음에 드는 순간에 전시 사진을 찍어 봐.':'움직임 설명 그림을 살펴보고 관찰 기록을 남겨 봐.')+'</p></div>'+result+'</div>';
+ return '<div class="motion-observer '+(done?'motion-complete':'')+'" data-motion="'+id+'"><header class="motion-channel"><span class="motion-channel-icon">'+icon('camera')+'</span><div><span>하루와 모리의 동물 영상관</span><h2>'+name+'의 생활 관찰</h2></div><span class="motion-photo-count">한 마리 · 한 장</span></header>'+player+'<p class="motion-caption">'+motionCaption(id,frame,open)+'</p><div class="motion-photo-toolbar"><p data-motion-ready role="status" data-next="'+esc(v.motionNext||'')+'"'+(v.motionAllDone?' data-all-done':'')+(v.motionExtra?' data-extra':'')+'>'+motionGuide({video:useVideo,done,next:v.motionNext,allDone:v.motionAllDone,extra:v.motionExtra})+'</p></div>'+result+'</div>';
 }

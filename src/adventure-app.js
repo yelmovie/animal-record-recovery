@@ -8,8 +8,8 @@ import {createStoryPlayer} from './story-player.js';
 import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
-import {motionView,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
+import {motionView,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
 import {header,page,questPanel,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
 import {createVillage} from './village.js';
@@ -241,9 +241,14 @@ function advance(){
   const result=claimTask(s,stage,step);if(!result.ok){const m=isStageOpen(s,stage)?taskMistake(s,stage,step):null;if(stage===4&&step%2===0&&m?.wrong?.some(k=>k.startsWith('case:')))panelPages.set(panelKey('.case-activity'),m.wrong.includes('case:candidate')?0:1);return say(m?.text||taskHint(stage,step),false,m?.wrong);}
   playSound(s.soundEnabled,true);
   if(step===STAGES[stage-1].tasks.length-1){save();render();requestCommission(stage);return;}
+  const pairDone=stage===1&&step%2===1&&result.fresh?Math.floor(step/2):-1;
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
   report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어가자!':'다음 탐구로 이어가자!';if(result.fresh)flyStar();
+  if(pairDone>=0)globalThis.setTimeout?.(()=>{if(screen==='mission'&&stage===1&&!dialog.open)pairReward(pairDone);},1300);
 }
+// 1장: after each pair comparison, the discovery in one line, where the learner is, and a safe place to stop.
+function pairReward(r){const [a,b]=OBSERVE_PAIRS[r],[same,diff]=COMPARES[r].map(q=>q.options.find(o=>o[0]===q.answer)[1]),seen=OBSERVE_PAIRS.flat().flatMap(id=>OBSERVATIONS[id]).filter(o=>s.observed.includes(o.id)).length;
+  modal('발견 카드 · '+withParticle(ANIMALS[a].name,'과/와')+' '+ANIMALS[b].name,`<div class="pair-reward"><p class="pair-found">${icon('star')}<span><b>같은 점</b> ${same}<br><b>다른 점</b> ${diff}</span></p><p class="pair-progress">1장 진도 · 비교 ${r+1}/4 · 특징 관찰 ${seen}/24</p><p>여기서 쉬어 가도 돼. 지금까지 기록은 저장됐어.</p></div><div class="dialog-actions">${btn('지도에서 쉬기','map','quiet')}${btn('다음 동물 관찰하기 '+icon('arrow'),'close-dialog','primary','autofocus')}</div>`);}
 // A new star pops in the middle of the screen, then flies into the activity title, which shows "+1 ★" for a moment.
 function flyStar(){
   if(typeof document.createElement!=='function')return;
@@ -288,7 +293,7 @@ function paintMotion(){
  const slow=host.querySelector('[data-action="motion-slow"]');if(slow)slow.textContent=motionSlow?'보통 속도':'느리게';
  const slider=host.querySelector('#motion-phase');if(slider)slider.value=motionPhase;
  // Actual decoded video pixels, after playback, are required for a photo.
- if(motionPlayer){const ready=motionPlayer.ready&&motionPlayer.viewed,capture=host.querySelector('[data-action="motion-capture"]'),note=host.querySelector('[data-motion-ready]');if(capture)capture.disabled=!ready;if(note){note.textContent=!motionPlayer.viewed?'가운데 재생 버튼을 먼저 눌러 봐.':ready?'원하는 순간에 사진을 찍어 봐. 멈추고 찍어도 돼!':'지금 장면을 불러오는 중이야. 잠깐 기다려 줘.';note.classList.toggle('ready',ready);}}
+ if(motionPlayer){const ready=motionPlayer.ready&&motionPlayer.viewed,capture=host.querySelector('[data-action="motion-capture"]'),note=host.querySelector('[data-motion-ready]');if(capture)capture.disabled=!ready;if(note){note.textContent=motionGuide({viewed:motionPlayer.viewed,ready,playing:motionPlaying,done:s.inquiry.motion[id]!==undefined,next:note.dataset.next,allDone:note.hasAttribute('data-all-done'),extra:note.hasAttribute('data-extra')});note.classList.toggle('ready',ready);}}
  const full=host.querySelector('[data-action="motion-fullscreen"]');if(full){const expanded=document.fullscreenElement===host.querySelector('.motion-player');full.setAttribute('aria-label',expanded?'동영상 전체화면 닫기':'동영상 전체화면 보기');full.setAttribute('title',expanded?'전체화면 닫기 (Esc)':'전체화면 보기');full.querySelector('[data-motion-fullscreen-icon]').innerHTML=icon(expanded?'shrink':'expand');}
  const video=host.querySelector('video.motion-video'),format=t=>'0:'+String(Math.floor(Number(t)||0)).padStart(2,'0'),current=host.querySelector('[data-motion-current]'),duration=host.querySelector('[data-motion-duration]');if(current)current.textContent=format(video?.currentTime);if(duration)duration.textContent=format(video?.duration||5);
 }
