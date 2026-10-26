@@ -1,0 +1,35 @@
+/* Request pages read as ONE sheet of paper on the desk, not a cluster of floating cards.
+   Loaded last: the sheet is drawn once on .commission-layout and every inner panel drops its own
+   fill, border and shadow, keeping only thin rules to show where one part ends. */
+#app #main#main.commission-page .commission-layout{
+  height:fit-content;max-height:100%;align-self:start;
+  padding:10px clamp(12px,1.4vw,24px);gap:clamp(12px,1.4vw,24px);
+  border:1px solid #d6c595;border-radius:20px;
+  background:#fffaeb;box-shadow:0 18px 40px -18px #2a1d0b88,0 2px 0 #e7d9b2;
+}
+
+/* Inner panels: no boxes of their own. */
+#app #main#main.commission-page :is(.client-card,.commission-tabs,.deck-nav,.request-part-heading>h2,.part-tag,.request-part-intro,.record-row,.record-row>legend,.card-result,.broadcast-subject,.broadcast-selection-heading,.broadcast-script-preview,.request-lab blockquote,.retest-controls,.retest-results){
+  background:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important;
+}
+#app #main#main.commission-page :is(.request-part-heading>h2,.part-tag,.request-part-intro,.record-row>legend){padding-left:0!important;padding-right:0!important}
+
+/* Thin rules mark the structure instead. */
+#app #main#main.commission-page .commission-layout>.client-card{padding-right:clamp(12px,1.4vw,24px)!important;border-right:2px dashed #dccb9f!important}
+#app #main#main.commission-page .deck-nav{padding-bottom:8px!important;border-bottom:1px solid #e3d5ae!important}
+#app #main#main.commission-page .record-row+.record-row{padding-top:10px!important;border-top:1px dashed #dccb9f!important}
+#app #main#main.commission-page .card-result{padding-left:clamp(12px,1.4vw,22px)!important;border-left:2px solid #e3d5ae!important}
+#app #main#main.commission-page .request-part-intro{color:#3a3a2a;font-weight:600}
+#app #main#main.commission-page .part-tag{color:#8a7a52}
+#app #main#main.commission-page .retest-results{padding-left:clamp(12px,1.4vw,22px)!important;border-left:2px solid #e3d5ae!important}
+
+/* Broadcast page: the request header sits above the deck, the subject photo beside the choices. */
+#app #main#main.broadcast-request-page .commission-layout>.client-card{padding:0 0 8px!important;border-right:0!important;border-bottom:1px solid #e3d5ae!important}
+#app #main#main.broadcast-request-page .broadcast-subject{padding-right:clamp(12px,1.4vw,22px)!important;border-right:2px dashed #dccb9f!important}
+/* The row being filled stays visibly current. */
+#app #main#main.broadcast-request-page .record-row.is-current{background:#f6ecc9!important;border-radius:12px!important}
+/* Tablet width: three answer chips stay on one line each (wrapped two-word chips made the card scroll). */
+@media (max-width:1100px){
+ #app #main#main.broadcast-request-page .record-row .record-options{grid-template-columns:repeat(3,auto);justify-content:start;gap:8px}
+ #app #main#main.broadcast-request-page .record-row .commission-choice{white-space:nowrap;padding:6px 10px;font-size:19px!important}
+}
