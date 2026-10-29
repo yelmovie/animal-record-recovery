@@ -30,3 +30,9 @@ files/videos/outro-silent-20261018.mp4
 
 # Root videos moved aside on 2026-10-26 (large, unidentified; kept locally only)
 _unused/root-videos-20261026/
+
+# Local generated/cache dirs
+.tmp/
+.npm-cache/
+graphify-out/
+.claude/worktrees/
