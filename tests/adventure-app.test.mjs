@@ -103,6 +103,10 @@ test('locked map selection stops pending entry and points to the actual next unf
  assert.match(a.dialog.innerHTML,/관찰의 숲으로 가기/);assert.equal(a.run('screen'),'map');
  a.run("act('locked-next',{dataset:{id:'1'}})");assert.equal(a.dialog.open,false);assert.equal(a.run('selectedStage'),1);assert.equal(a.run('autoEnter'),true);
 });
+test('a walk cut short by a locked place drops its "on the way" line',()=>{
+ const a=appHarness();a.run("go('map');selectMap(1)");assert.match(a.run("document.querySelector('#travel-text').textContent"),/관찰의 숲으로 가는 중/);
+ a.run('selectMap(5)');assert.doesNotMatch(a.run("document.querySelector('#travel-text').textContent"),/가는 중/);assert.equal(a.run('arrived'),false);
+});
 test('the diary escapes learner writing, keeps both draft inventions and offers no TXT export',()=>{
   const a=appHarness();a.run("s.adminUnlocked=true;stage=5;step=0;s.designs[0].problem='swim';s.designs[1].problem='warm';s.designs[1].name='포근 외투';screen='mission';render()");a.input('<script>alert(1)</script>');a.run('render()');assert.ok(!a.app.innerHTML.includes('<script>alert'));a.run('download()');assert.ok(!a.dialog.innerHTML.includes('<script>alert'));assert.equal(a.exported,null);assert.match(a.dialog.innerHTML,/포근 외투/);assert.match(a.dialog.innerHTML,/만들고 있는/);assert.match(a.dialog.innerHTML,/&lt;script&gt;/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|report-download|textarea/);
 });

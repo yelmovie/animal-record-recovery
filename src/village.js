@@ -37,7 +37,7 @@ function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.node
 
 export function createVillage(root,{position='entrance',completed=[],flash=null,overview=false,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
   overview=overview&&[1,2,3,4,5].every(id=>completed.includes(id));
-  let active=true,built=false,paused=false,frame=null,api={move(){},destroy(){active=false;}};
+  let active=true,built=false,paused=false,away=false,frame=null,api={move(){},destroy(){active=false;}};
   const pending=[];
   const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   villageReady().then(j=>{if(!active)return;if(!j?.map?.w||!j?.map?.h||!j.buildings||!j.nodes){loading=null;onError?.();return;}if(!root?.ownerDocument)return;build(j);while(pending.length)api.move(pending.shift());}).catch(()=>{loading=null;if(active)onError?.();});
@@ -111,8 +111,8 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       const from=nearestNode(graph,[haru.x,haru.y]),to=nearestNode(graph,point),ids=from&&to?villagePath(graph,from,to):[];
       const pts=[...ids.map(id=>graph.nodes[id]),...(arriveId!=null?[point]:[])];
       if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);follow();if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}if(arriveId!=null)onArrive?.(arriveId);else api.interact?.(35);return;}
-      cancelAnimationFrame(frame);let last=0;root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;
-      const step=t=>{if(!active)return;if(paused||isBlocked()){last=0;frame=requestAnimationFrame(step);return;}const dt=Math.min(last?t-last:16,100);last=t;const p=pts[0],dx=p[0]-haru.x,dy=p[1]-haru.y,d=Math.hypot(dx,dy),v=dt*.4;
+      cancelAnimationFrame(frame);let last=0;away=false;root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;
+      const step=t=>{if(!active)return;if(paused||away||isBlocked()){last=0;frame=requestAnimationFrame(step);return;}const dt=Math.min(last?t-last:16,100);last=t;const p=pts[0],dx=p[0]-haru.x,dy=p[1]-haru.y,d=Math.hypot(dx,dy),v=dt*.4;
         if(d<=v){haru.x=p[0];haru.y=p[1];pts.shift();}else{const was=Math.floor(haru.f/3);haru.x+=dx/d*v;haru.y+=dy/d*v;haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=v/14;if(Math.floor(haru.f/3)>was)onStep?.();}
         trail.push([haru.x,haru.y,haru.dir]);if(trail.length>40)trail.shift();
         if(mori&&trail.length>14){const [mx,my,md]=trail[trail.length-14];const mdx=mx-mori.x,mdy=my-mori.y;if(Math.hypot(mdx,mdy)>.5){mori.f+=Math.hypot(mdx,mdy)/14;mori.dir=md;}mori.x=mx;mori.y=my;}
@@ -125,8 +125,9 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     api.move=id=>{const d=doorOf(String(id));if(d)walkTo(d,id);else onArrive?.(id);};
     api.walk=direction=>{if(overview||paused||isBlocked()||!haru)return;const from=nearestNode(graph,[haru.x,haru.y]),to=directionalNode(graph,from,direction);api.stop();onWalk?.();if(to)walkTo(graph.nodes[to],null);};
     api.interact=(radius=85)=>{if(overview||paused||isBlocked()||!haru)return;const nearby=Object.entries(j.buildings).filter(([id,b])=>id!=='core'&&b.door&&Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y)<radius).sort(([,a],[,b])=>Math.hypot(a.door[0]-haru.x,a.door[1]-haru.y)-Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y))[0];if(nearby){api.stop();onInteract?.(nearby[0]);}};
-    const onBlur=()=>api.stop();doc.defaultView?.addEventListener('blur',onBlur);
-    api.destroy=()=>{active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('resize',onResize);root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
+    // Leaving the app holds a walk where it is; it carries on to the same door on return (a new tap also resumes).
+    const onBlur=()=>{away=true;},onFocus=()=>{away=false;};doc.defaultView?.addEventListener('blur',onBlur);doc.defaultView?.addEventListener('focus',onFocus);
+    api.destroy=()=>{active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('focus',onFocus);doc.defaultView?.removeEventListener('resize',onResize);root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
     built=true;
   }
   return {move(id){built?api.move(id):pending.push(id);},walk(direction){api.walk?.(direction);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
