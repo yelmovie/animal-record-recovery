@@ -287,18 +287,22 @@ function mountMotionPlayer(){
  });
  paintMotion();
 }
-// Auto-run (learner helper): presses the hands-on controls in order — the specimen part tour, dome find · video · photo,
-// flashlight clues, lab trials — and stops before any question. What it does is saved as the learner's own record.
+// Auto-run (learner helper): presses the hands-on controls in order — the specimen parts, dome find · video · photo,
+// flashlight clues, lab trials — and stops (or, in stage 1, waits) before any question. What it does is saved as the learner's own record.
 const later=(fn,ms)=>typeof setTimeout==='function'?setTimeout(fn,ms):null,cancelLater=id=>{if(id!=null&&typeof clearTimeout==='function')clearTimeout(id);};
 function syncAutoButton(){const b=document.querySelector('[data-action="auto-run"]');if(!b)return;b.setAttribute('aria-pressed',String(!!autoRun));b.classList.toggle('selected',!!autoRun);b.innerHTML=icon(autoRun?'pause':'play')+'<span>'+(autoRun?'자동 진행 멈추기':'자동 진행')+'</span>';}
 function stopAuto(text){if(!autoRun)return;cancelLater(autoRun.timer);autoRun=null;if(text){feedback={good:true,text};render();document.querySelector('#announcer').textContent=text;}else syncAutoButton();}
 // The next hands-on press as [action, dataset, wait ms], or a sentence telling the learner what is theirs to do.
 function autoNext(a){
-  if(stage===1&&step%2===0){const pair=OBSERVE_PAIRS[round()],tour=pair.flatMap(id=>[0,1,2].map(i=>[id,i]));
-    if(a.i<tour.length){const [id,i]=tour[a.i++];return ['inspect',{id,value:String(i)},1700];}
-    const left=tour.find(([id,i])=>!s.observed.includes(OBSERVATIONS[id][i].id));if(!left)return '두 동물의 모든 부분을 살펴봤어. ‘다음으로’를 눌러 비교해 봐.';
-    if(s.activeAnimal!==left[0]||focusIndex!==left[1])return ['inspect',{id:left[0],value:String(left[1])},600];
-    return '부분을 다 둘러봤어. 그림을 보고 맞는 설명은 네가 골라 줘.';}
+  // Observe, then answer: bring one unrecorded part into view, wait for the learner's own choice (and '알고 보니' pick), then go on.
+  if(stage===1&&step%2===0){const pair=OBSERVE_PAIRS[round()],parts=pair.flatMap(id=>OBSERVATIONS[id].map((o,i)=>({id,i,o})));
+    const pending=p=>!s.observed.includes(p.o.id)||(p.o.ahaQ&&s.ahaPicks?.[p.o.id]===undefined);
+    const current=parts.find(p=>p.id===(pair.includes(s.activeAnimal)?s.activeAnimal:pair[0])&&p.i===focusIndex),open=current&&pending(current)?current:parts.find(pending);
+    if(!open)return '두 동물의 모든 부분을 기록했어. ‘다음으로’를 눌러 비교해 봐.';
+    if(open!==current){if(a.waiting){a.waiting=false;return [null,null,1500];}return ['inspect',{id:open.id,value:String(open.i)},1700];}
+    if(!a.waiting){a.waiting=true;const text=s.observed.includes(open.o.id)?'‘알고 보니’ 질문도 네가 골라 줘. 고르면 다음 부분으로 넘어가.':'이 부분을 잘 보고 맞는 설명을 골라 줘. 고르면 다음 부분으로 넘어가.';
+      feedback={good:true,text};const bubble=document.querySelector('.guide-buddy p');if(bubble)bubble.textContent=text;document.querySelector('#announcer').textContent=text;}
+    return [null,null,600];}
   if(stage===3&&step%2===0){const d=DISCOVERIES.slice(round()*3,round()*3+3).find(x=>s.inquiry.motion[x.animal]===undefined);
     if(!d)return '세 마리 사진을 모두 골랐어. ‘다음으로’를 눌러 줘.';
     if(activeHabitat!==d.habitat)return ['habitat',{id:d.habitat},1200];
@@ -398,7 +402,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'locked-next':dialog.close();selectMap(Number(id));break;
     case 'sound-all':{const on=!(s.musicOn!==false||s.soundEnabled);s.musicOn=on;s.soundEnabled=on;save();syncMusic();if(!on)silence();else playSound(true);const b=document.querySelector('[data-action="sound-all"]');if(b){b.innerHTML=icon(on?'sound':'muted');b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',on?'소리 끄기':'소리 켜기');b.title=on?'소리 끄기':'소리 켜기';}break;}
     case 'auto-run':if(autoRun){stopAuto();document.querySelector('#announcer').textContent='자동 진행을 멈췄어.';break;}
-      autoRun={stage,step,i:0,clue:null,ran:null,timer:null};feedback={good:true,text:'자동 진행 중이야. 문제는 네가 직접 풀어 줘. 아무 곳이나 누르면 멈춰.'};render();autoRun.timer=later(autoTick,700);break;
+      autoRun={stage,step,waiting:false,clue:null,ran:null,timer:null};feedback={good:true,text:'자동 진행 중이야. 문제는 네가 직접 풀어 줘. 아무 곳이나 누르면 멈춰.'};render();autoRun.timer=later(autoTick,700);break;
     case 'map-walk':autoEnter=false;map?.walk?.(id);break;
     // Hand toggle: no re-render, so the walking map and its camera keep their place.
     case 'map-pan':mapPan=!mapPan;map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
@@ -543,7 +547,8 @@ function toast(text,anchor,speaker){if(typeof document.createElement!=='function
 const hideToast=()=>document.querySelector('#hint-toast')?.classList.remove('show');document.addEventListener('pointerdown',hideToast,true);if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{hideToast();fitBubble();});
 // Mori's bubble (activity instruction) opens on tap and closes when the learner taps anywhere else.
 // The learner's own touch takes over from auto-run (the auto button itself toggles it in act).
-document.addEventListener('pointerdown',e=>{if(autoRun&&e.isTrusted&&!e.target.closest?.('[data-action="auto-run"]'))stopAuto();},true);
+// While it waits for an answer, the learner's taps are that answer and do not stop it.
+document.addEventListener('pointerdown',e=>{if(autoRun&&!autoRun.waiting&&e.isTrusted&&!e.target.closest?.('[data-action="auto-run"]'))stopAuto();},true);
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback','auto');}else if(!buddy.contains(e.target))buddy.classList.remove('open','auto');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{

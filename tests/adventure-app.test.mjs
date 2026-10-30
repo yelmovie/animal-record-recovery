@@ -374,7 +374,13 @@ test('auto-run plays only the hands-on steps and stops before the learner answer
  assert.ok(!a.run('s.cases[0].candidate'),'the animal guess stays with the learner');assert.equal(a.run('step'),0);assert.equal(a.dialog.open,false);
  assert.match(a.announcer.textContent,/추리해 봐/);
  const b=appHarness();b.run("s.adminUnlocked=true;enter(1);act('auto-run',{dataset:{}})");
- for(let i=0;i<20&&b.run('!!autoRun');i++)b.run('autoTick()');
- assert.equal(b.run('autoRun'),null);assert.equal(b.run('s.observed.length'),0,'descriptions are never chosen for the learner');assert.match(b.announcer.textContent,/네가 골라 줘/);
+ for(let i=0;i<8;i++)b.run('autoTick()');
+ assert.equal(b.run('autoRun?.waiting'),true,'stage 1 waits on the shown part instead of skipping past it');assert.equal(b.run('focusIndex'),0);
+ assert.equal(b.run('s.observed.length'),0,'descriptions are never chosen for the learner');assert.match(b.announcer.textContent,/맞는 설명을 골라 줘/);
+ b.run("const first=OBSERVATIONS[OBSERVE_PAIRS[0][0]][0];act('observe',{dataset:{id:first.id,value:'right'}});if(first.ahaQ)act('aha-pick',{dataset:{id:first.id,value:'0'}})");
+ for(let i=0;i<3;i++)b.run('autoTick()');
+ assert.equal(b.run('focusIndex'),1,'after the learner answers, it moves on to the next part');assert.equal(b.run('s.observed.length'),1);
+ b.run("for(const o of OBSERVE_PAIRS[0].flatMap(id=>OBSERVATIONS[id])){if(!s.observed.includes(o.id))s.observed.push(o.id);if(o.ahaQ)(s.ahaPicks??={})[o.id]=0;}autoTick()");
+ assert.equal(b.run('autoRun'),null);assert.match(b.announcer.textContent,/모든 부분을 기록했어/);
  b.run('step=1;render()');assert.doesNotMatch(b.app.innerHTML,/data-action="auto-run"/,'question steps have no auto-run');
 });
