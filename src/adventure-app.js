@@ -25,16 +25,16 @@ const loadedRecord=recordStore.read();
 let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(loadedRecord.status);
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
-let studentSnapshot=null,mapWalkVersion=0;
+let studentSnapshot=null,mapWalkVersion=0,autoRun=null;
 // relook: an observation id whose choices stay closed after a wrong pick until that part is looked at again.
 let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
-let mapOverview=restoredPlaces(s).length===STAGES.length;
+let mapOverview=restoredPlaces(s).length===STAGES.length,mapPan=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
@@ -116,7 +116,7 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.
@@ -182,7 +182,7 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 // One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
@@ -287,6 +287,42 @@ function mountMotionPlayer(){
  });
  paintMotion();
 }
+// Auto-run (learner helper): presses the hands-on controls in order — the specimen part tour, dome find · video · photo,
+// flashlight clues, lab trials — and stops before any question. What it does is saved as the learner's own record.
+const later=(fn,ms)=>typeof setTimeout==='function'?setTimeout(fn,ms):null,cancelLater=id=>{if(id!=null&&typeof clearTimeout==='function')clearTimeout(id);};
+function syncAutoButton(){const b=document.querySelector('[data-action="auto-run"]');if(!b)return;b.setAttribute('aria-pressed',String(!!autoRun));b.classList.toggle('selected',!!autoRun);b.innerHTML=icon(autoRun?'pause':'play')+'<span>'+(autoRun?'자동 진행 멈추기':'자동 진행')+'</span>';}
+function stopAuto(text){if(!autoRun)return;cancelLater(autoRun.timer);autoRun=null;if(text){feedback={good:true,text};render();document.querySelector('#announcer').textContent=text;}else syncAutoButton();}
+// The next hands-on press as [action, dataset, wait ms], or a sentence telling the learner what is theirs to do.
+function autoNext(a){
+  if(stage===1&&step%2===0){const pair=OBSERVE_PAIRS[round()],tour=pair.flatMap(id=>[0,1,2].map(i=>[id,i]));
+    if(a.i<tour.length){const [id,i]=tour[a.i++];return ['inspect',{id,value:String(i)},1700];}
+    const left=tour.find(([id,i])=>!s.observed.includes(OBSERVATIONS[id][i].id));if(!left)return '두 동물의 모든 부분을 살펴봤어. ‘다음으로’를 눌러 비교해 봐.';
+    if(s.activeAnimal!==left[0]||focusIndex!==left[1])return ['inspect',{id:left[0],value:String(left[1])},600];
+    return '부분을 다 둘러봤어. 그림을 보고 맞는 설명은 네가 골라 줘.';}
+  if(stage===3&&step%2===0){const d=DISCOVERIES.slice(round()*3,round()*3+3).find(x=>s.inquiry.motion[x.animal]===undefined);
+    if(!d)return '세 마리 사진을 모두 골랐어. ‘다음으로’를 눌러 줘.';
+    if(activeHabitat!==d.habitat)return ['habitat',{id:d.habitat},1200];
+    if(!s.discovered.includes(d.id))return ['discover',{id:d.id},1600];
+    if(!motionPlayer)return ['motion-capture',{id:d.animal},1600];
+    if(!motionPlaying&&!motionPlayer.viewed)return ['motion-play',{},2400];
+    if(!(motionPlayer.ready&&motionPlayer.viewed))return [null,null,600];
+    return ['motion-capture',{id:d.animal},1800];}
+  if(stage===4&&step%2===0){const c=CASES[round()],cs=s.cases[round()],index=c.clues.findIndex(k=>!cs.opened.includes(k.id));
+    if(index<0){if(dialog.open)dialog.close();return '단서를 모두 찾았어. 어떤 동물인지는 네가 추리해 봐.';}
+    if(a.clue!==index){a.clue=index;document.querySelector(`.flashlight-hotspot[data-value="${index}"]`)?.focus({preventScroll:true});return [null,null,1000];}
+    if(!dialog.open)return ['flashlight-clue',{value:String(index)},1500];
+    return ['flashlight-collect',{value:String(index)},900];}
+  if(stage===5&&step===1&&!labSummary&&!(report&&!report.passed)){const d=s.designs[round()],e=d.experiment,tried=new Set(e.trials.filter(t=>t.problem===d.problem).map(t=>t.level));
+    if(!e.sourceSeen)return ['source-seen',{},1200];
+    if(!e.prediction)return '결과 예상은 네가 골라 줘. 고른 뒤 자동 진행을 다시 눌러.';
+    if(!tried.has(e.level)){if(a.ran===e.level)return '시험이 되지 않았어. 설계를 먼저 고쳐 줘.';a.ran=e.level;return ['experiment-run',{},2000];}
+    const level=[1,2,3].find(l=>!tried.has(l));if(level)return ['experiment-level',{value:String(level)},1200];
+    return '세 가지 모양을 모두 시험했어. 결과를 비교해 봐.';}
+  return '';
+}
+function autoTick(){const a=autoRun;if(!a)return;if(screen!=='mission'||stage!==a.stage||step!==a.step){autoRun=null;cancelLater(a.timer);return;}
+  const next=autoNext(a);if(typeof next==='string')return stopAuto(next);const [action,data,wait]=next;
+  if(action)act(action,{dataset:data,setAttribute(){},getAttribute(){return null;}});if(autoRun===a)a.timer=later(autoTick,wait);}
 function stopMotion(reset=true){stopMotionFrame();motionPlayer?.pause();motionPlaying=false;motionTime=0;if(reset){motionPhase=0;motionPlayer?.seek(0);}paintMotion();}
 function paintMotion(){
  const host=document.querySelector('.motion-observer');if(!host)return;const id=host.dataset.motion;if(!Object.hasOwn(MOTIONS,id))return;
@@ -361,7 +397,11 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'quest-toggle':setQuestOpen(!questOpen);return;
     case 'locked-next':dialog.close();selectMap(Number(id));break;
     case 'sound-all':{const on=!(s.musicOn!==false||s.soundEnabled);s.musicOn=on;s.soundEnabled=on;save();syncMusic();if(!on)silence();else playSound(true);const b=document.querySelector('[data-action="sound-all"]');if(b){b.innerHTML=icon(on?'sound':'muted');b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',on?'소리 끄기':'소리 켜기');b.title=on?'소리 끄기':'소리 켜기';}break;}
+    case 'auto-run':if(autoRun){stopAuto();document.querySelector('#announcer').textContent='자동 진행을 멈췄어.';break;}
+      autoRun={stage,step,i:0,clue:null,ran:null,timer:null};feedback={good:true,text:'자동 진행 중이야. 문제는 네가 직접 풀어 줘. 아무 곳이나 누르면 멈춰.'};render();autoRun.timer=later(autoTick,700);break;
     case 'map-walk':autoEnter=false;map?.walk?.(id);break;
+    // Hand toggle: no re-render, so the walking map and its camera keep their place.
+    case 'map-pan':mapPan=!mapPan;map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
     case 'map-prev':case 'map-next':selectMap(Math.max(1,Math.min(5,selectedStage+(action==='map-prev'?-1:1))));break;
     case 'enter':enter(Number(id));break;
     case 'replay-stage':enter(Number(id),true);break;
@@ -502,6 +542,8 @@ function toast(text,anchor,speaker){if(typeof document.createElement!=='function
 // A hint stays readable until the learner taps again (no timer that hides it mid-sentence).
 const hideToast=()=>document.querySelector('#hint-toast')?.classList.remove('show');document.addEventListener('pointerdown',hideToast,true);if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{hideToast();fitBubble();});
 // Mori's bubble (activity instruction) opens on tap and closes when the learner taps anywhere else.
+// The learner's own touch takes over from auto-run (the auto button itself toggles it in act).
+document.addEventListener('pointerdown',e=>{if(autoRun&&e.isTrusted&&!e.target.closest?.('[data-action="auto-run"]'))stopAuto();},true);
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback','auto');}else if(!buddy.contains(e.target))buddy.classList.remove('open','auto');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{

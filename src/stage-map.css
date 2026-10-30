@@ -41,6 +41,18 @@
 #app .map-direction .btn{width:56px;min-width:56px;min-height:56px;padding:0;font-size:26px;border:2px solid #4a3a22;border-radius:12px;background:#fff9e9ee;color:#3f3420;box-shadow:0 3px 0 #4a3a2299;touch-action:manipulation}
 #app .map-direction .btn:active{transform:translateY(3px);box-shadow:none}
 .direction-up{grid-column:2;grid-row:1}.direction-left{grid-column:1;grid-row:2}.direction-down{grid-column:2;grid-row:2}.direction-right{grid-column:3;grid-row:2}
+/* Mission auto-run: centred between the back and next buttons, clear of Mori (fixed at the bottom left); pressed while playing. */
+#app .mission-footer>.auto-run{display:inline-flex;align-items:center;gap:8px;margin-inline:auto}
+#app .mission-footer>.auto-run .icon{width:22px;height:22px}
+#app .mission-footer>.auto-run.selected{background:#f6d36e;color:#3f3420}
+@media(max-width:760px){#app .mission-footer>.auto-run{padding-inline:14px}#app .mission-footer>.auto-run>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+/* Hand toggle beside the arrows: while pressed, dragging the map slides the view instead of walking. */
+.direction-pan{grid-column:3;grid-row:1}
+#app .map-direction .direction-pan .icon{width:60%;height:60%}
+#app .map-direction .direction-pan[aria-pressed="true"]{background:#f6d36e;transform:translateY(3px);box-shadow:none}
+#app .map-page.map-pan .map-scene{cursor:grab;touch-action:none}
+#app .map-page.map-pan .world-frame .village-map{cursor:grab}
+#app .map-page.map-pan .map-scene.dragging,#app .map-page.map-pan .map-scene.dragging .village-map{cursor:grabbing}
 .map-next{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:4000}
 #app .map-next>.btn{min-height:64px;padding:12px 26px;font-size:22px;border:2px solid #4a3a22;border-radius:14px;background:#f6d36e;color:#3f3420;box-shadow:0 4px 0 #4a3a22;white-space:nowrap}
 #app .map-next .map-next-role{padding:3px 9px;border-radius:999px;background:#fff6d6;border:1px solid #b59342;font-size:16px;font-weight:700;line-height:1.3}
