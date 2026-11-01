@@ -1293,6 +1293,21 @@ dialog .settings-card.concept-replays .concept-thumb .icon{width:26px;height:26p
 #app #main.mission-page .inquiry-specimen .specimen{position:absolute;flex:none;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));width:auto;aspect-ratio:1/1;max-width:calc(100% - var(--mat-left) - 12px);left:calc((var(--mat-left) + 100%) / 2);transform:translateX(-50%)}
 /* 3D scanner: same mat area; the canvas has no backdrop of its own so the model rests on the cloth. */
 #app #main.mission-page .scan-scene .scan3d{position:absolute;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));left:var(--mat-left);right:12px;min-height:0;background:none!important;border:0;box-shadow:none}
+/* The absolute canvas paints over in-flow siblings; the hint and part buttons must stay on top of the model's feet. */
+#app #main.mission-page .scan-scene .observation-controls{position:relative;z-index:1}
+/* Phone landscape (≈340px tall): the notes card is ~170px, so the three descriptions sit side by side without the radio dot or the "하나를 골라" bar.
+   The shortcut hint would slide under the animal tabs, and the part buttons already say what to press. */
+@media(max-height:420px){
+  #app #main.mission-page .observation-shortcut{display:none}
+  #app #main.mission-page .lens-notes>.detail-crop{height:56px!important;min-height:0}
+  #app #main.mission-page .lens-notes>h2{font-size:20px!important}
+  #app #main.mission-page .lens-notes>.observe-ask{font-size:15px!important}
+  #app #main.mission-page .lens-notes .observe-options{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  #app #main.mission-page .lens-notes .observe-options::before{display:none}
+  #app #main.mission-page .lens-notes .observe-options>.choice{width:auto!important;min-height:44px;padding:4px 6px;justify-content:center;text-align:center}
+  #app #main.mission-page .lens-notes .observe-options>.choice:not(.selected)>.choice-mark{display:none}
+  #app #main.mission-page .lens-notes .observe-options>.choice>span{font-size:15px!important}
+}
 #app #main.mission-page .inquiry-specimen .specimen-photo{filter:drop-shadow(0 16px 14px #3a2a1038)}
 /* "Press this next": a gold ring that breathes on the next part/animal, and on 다음으로 once the step is done. */
 @keyframes next-cue-ring{0%,100%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 0 #e6bd5600}50%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 7px #e6bd5699}}
