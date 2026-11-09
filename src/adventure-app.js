@@ -290,7 +290,7 @@ function mountMotionPlayer(){
 // Auto-run (learner helper): presses the hands-on controls in order — the specimen parts, dome find · video · photo,
 // flashlight clues, lab trials — and stops (or, in stage 1, waits) before any question. What it does is saved as the learner's own record.
 const later=(fn,ms)=>typeof setTimeout==='function'?setTimeout(fn,ms):null,cancelLater=id=>{if(id!=null&&typeof clearTimeout==='function')clearTimeout(id);};
-function syncAutoButton(){const b=document.querySelector('[data-action="auto-run"]');if(!b)return;b.setAttribute('aria-pressed',String(!!autoRun));b.classList.toggle('selected',!!autoRun);b.innerHTML=icon(autoRun?'pause':'play')+'<span>'+(autoRun?'자동 진행 멈추기':'자동 진행')+'</span>';}
+function syncAutoButton(){const b=document.querySelector('[data-action="auto-run"]');if(!b)return;b.setAttribute('aria-pressed',String(!!autoRun));b.classList.toggle('selected',!!autoRun);b.innerHTML=icon(autoRun?'pause':'play')+'<span>'+(autoRun?'직접 해보기':'자동 진행')+'</span>';}
 function stopAuto(text){if(!autoRun)return;cancelLater(autoRun.timer);autoRun=null;if(text){feedback={good:true,text};render();document.querySelector('#announcer').textContent=text;}else syncAutoButton();}
 // The next hands-on press as [action, dataset, wait ms], or a sentence telling the learner what is theirs to do.
 function autoNext(a){

@@ -368,7 +368,7 @@ test('after a wrong observation the choices stay closed until that part is looke
 
 test('auto-run plays only the hands-on steps and stops before the learner answers',()=>{
  const a=appHarness();a.run("s.adminUnlocked=true;enter(4)");assert.match(a.app.innerHTML,/data-action="auto-run"/);
- a.run("act('auto-run',{dataset:{}})");assert.ok(a.run('autoRun'));assert.match(a.app.innerHTML,/aria-pressed="true"[^>]*>.*자동 진행 멈추기|자동 진행 멈추기/);
+ a.run("act('auto-run',{dataset:{}})");assert.ok(a.run('autoRun'));assert.match(a.app.innerHTML,/aria-pressed="true"[^>]*>.*직접 해보기|직접 해보기/);
  for(let i=0;i<40&&a.run('!!autoRun');i++)a.run('autoTick()');
  assert.equal(a.run('autoRun'),null);assert.equal(a.run('s.cases[0].opened.length'),a.run('CASES[0].clues.length'),'every clue is collected');
  assert.ok(!a.run('s.cases[0].candidate'),'the animal guess stays with the learner');assert.equal(a.run('step'),0);assert.equal(a.dialog.open,false);
