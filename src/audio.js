@@ -21,7 +21,7 @@ function track(source,gain,group){active.add(source);group.push(source);source.o
 // kind: any FILES or SYNTH name ('drop' is synth-only); true/false are kept for older callers; unknown kinds fall back to 'tap'.
 export const soundName=kind=>kind===true?'correct':kind===false||!(Object.hasOwn(FILES,kind)||Object.hasOwn(SYNTH,kind))?'tap':kind;
 export function playSound(enabled,kind='tap'){
-  if(!enabled||!sfxVolume)return;
+  if(!enabled||!sfxVolume||globalThis.document?.hidden)return;
   try{
     const AudioContext=window.AudioContext||window.webkitAudioContext;
     if(!AudioContext)return;
@@ -80,5 +80,6 @@ export function playMusic(key){
 if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
   const resume=()=>{if(pendingMusic){const key=pendingMusic;pendingMusic=null;playMusic(key);}else if(music?.paused&&!document.hidden)start(music);};
   document.addEventListener('pointerdown',resume);document.addEventListener('keydown',resume);
-  document.addEventListener('visibilitychange',()=>{if(!music)return;if(document.hidden)music.pause();else start(music);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){silence();music?.pause();}else if(music)start(music);});
+  globalThis.addEventListener?.('pagehide',()=>{silence();music?.pause();});
 }
