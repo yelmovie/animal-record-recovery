@@ -70,10 +70,10 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       sp.el.style.left=pct(sp.x,W);sp.el.style.top=pct(sp.y,H);sp.el.style.zIndex=String(10+Math.round(sp.y));sp.el.classList.toggle('flip',sp.dir==='right'&&!sp.c.rows.right&&sp.c.flipRight!==false);};
     // Camera: the world frame is larger than its scene; slide it so Haru stays near the middle, clamped at the map edges.
     // A view the learner slid by hand (free) stays put until the next walk or a hand-mode exit.
-    const scene=root.parentElement;let cam=null,free=false;
+    const scene=root.parentElement;let cam=null,free=false,fitView=false;
     const place=(x,y)=>{cam=[x,y];root.style.transform=`translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;clearControls();};
     const follow=()=>{if(free||!haru||!scene)return;const sw=scene.clientWidth,sh=scene.clientHeight,fw=root.offsetWidth,fh=root.offsetHeight;if(!fw||!fh)return;
-      const x=overview?(sw-fw)/2:Math.min(0,Math.max(sw-fw,sw/2-haru.x/W*fw)),y=overview?(sh-fh)/2:Math.min(0,Math.max(sh-fh,sh*.55-haru.y/H*fh));
+      const x=overview||fitView?(sw-fw)/2:Math.min(0,Math.max(sw-fw,sw/2-haru.x/W*fw)),y=overview||fitView?(sh-fh)/2:Math.min(0,Math.max(sh-fh,sh*.55-haru.y/H*fh));
       if(cam&&Math.abs(cam[0]-x)<.5&&Math.abs(cam[1]-y)<.5)return;place(x,y);};
     // Hand mode: dragging slides the view, clamped to the map edges like the walking camera.
     let drag=null,dragged=false;
@@ -86,7 +86,8 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     const onDragClick=e=>{if(!dragged)return;dragged=false;e.stopPropagation();e.preventDefault();};
     const onNativeDrag=e=>{if(panning)e.preventDefault();};
     if(scene){scene.addEventListener('pointerdown',onDown);scene.addEventListener('pointermove',onMove);scene.addEventListener('pointerup',onUp);scene.addEventListener('pointercancel',onUp);scene.addEventListener('click',onDragClick,true);scene.addEventListener('dragstart',onNativeDrag);}
-    api.pan=on=>{panning=on;root.closest?.('.map-page')?.classList.toggle('map-pan',on);if(!on&&free){free=false;follow();}};
+    api.fit=()=>{api.stop?.();fitView=!fitView;free=false;root.closest('.map-page')?.classList.toggle('map-camera-fit',fitView);root.style.width=fitView?'min(100cqw, 100cqh * 16/9)':'';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed',String(fitView));cam=null;follow();};
+    api.pan=on=>{if(on&&(fitView||overview)){fitView=false;overview=false;root.closest('.map-page')?.classList.remove('map-camera-fit');root.closest('.map-page')?.classList.remove('map-overview');root.style.width='';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed','false');cam=null;free=false;follow();}panning=on;root.closest?.('.map-page')?.classList.toggle('map-pan',on);if(!on&&free){free=false;follow();}};
     // While the camera slides, a marker that would sit under a corner icon or floating button fades out until it is clear.
     let controls=null;
     const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
@@ -145,5 +146,5 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     api.destroy=()=>{active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('focus',onFocus);doc.defaultView?.removeEventListener('resize',onResize);if(scene){scene.removeEventListener('pointerdown',onDown);scene.removeEventListener('pointermove',onMove);scene.removeEventListener('pointerup',onUp);scene.removeEventListener('pointercancel',onUp);scene.removeEventListener('click',onDragClick,true);scene.removeEventListener('dragstart',onNativeDrag);}root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
     built=true;
   }
-  return {move(id){built?api.move(id):pending.push(id);},walk(direction){api.walk?.(direction);},pan(on){panning=!!on;api.pan?.(panning);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
+  return {move(id){built?api.move(id):pending.push(id);},walk(direction){api.walk?.(direction);},fit(){api.fit?.();},pan(on){panning=!!on;api.pan?.(panning);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
 }

@@ -15,6 +15,8 @@ import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolConten
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
+import {installNpcNarration} from './npc-narration.js';
+if(typeof MutationObserver!=='undefined')installNpcNarration({selector:'.guide-buddy,.commission-feedback',src:'assets/audio/npc-welcome.mp3',text:'안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!',enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,hold:()=>{silence();playMusic(null);return syncMusic;}});
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
@@ -405,6 +407,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       autoRun={stage,step,waiting:false,clue:null,ran:null,timer:null};feedback={good:true,text:'자동 진행 중이야. 문제는 네가 직접 풀어 줘. 아무 곳이나 누르면 멈춰.'};render();autoRun.timer=later(autoTick,700);break;
     case 'map-walk':autoEnter=false;map?.walk?.(id);break;
     // Hand toggle: no re-render, so the walking map and its camera keep their place.
+    case 'map-fit':mapPan=false;map?.pan?.(false);map?.fit?.();document.querySelector('[data-action="map-pan"]')?.setAttribute('aria-pressed','false');break;
     case 'map-pan':mapPan=!mapPan;map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
     case 'map-prev':case 'map-next':selectMap(Math.max(1,Math.min(5,selectedStage+(action==='map-prev'?-1:1))));break;
     case 'enter':enter(Number(id));break;

@@ -100,3 +100,7 @@
 @keyframes core-awaken{0%{opacity:.9;transform:translate(-50%,-50%) scale(.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
 @media(max-width:700px){.map-complete-banner{top:72px;max-width:calc(100% - 24px)}#app .map-page.map-overview .map-scene{inset:146px 8px 150px}.map-complete-actions{flex-wrap:wrap;gap:8px}#app .map-complete-actions>.btn{min-height:48px;padding:10px 18px}.map-complete-banner h1{font-size:24px}#app .map-overview .map-marker>b{font-size:14px;padding:6px;gap:3px}.map-overview .map-marker>b>small{display:none}}
 @media(prefers-reduced-motion:reduce){.village-core-light::before,.village-core-light.just-lit::after{animation:none}.village-core-light::before{opacity:.8}}
+
+.map-camera-tools{position:absolute;z-index:4001;left:max(14px,env(safe-area-inset-left));bottom:144px;display:flex;gap:8px}#app .map-camera-tools .camera-icon{display:grid;place-items:center;width:52px;min-width:52px;height:52px;min-height:52px;padding:10px;background:#fff9e9;border:2px solid #4a3a22;border-radius:12px} .map-camera-tools svg{width:28px;height:28px}#app .map-camera-tools [aria-pressed="true"]{background:#f6d36e}.map-camera-tools button:focus-visible{outline:4px solid #f6d36e;outline-offset:2px}
+
+#app .map-page.map-camera-fit .map-scene{inset:80px 12px 200px}
