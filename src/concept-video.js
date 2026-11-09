@@ -1,3 +1,4 @@
+import {bindConceptFocus} from './concept-focus.js';
 // Concept / motion replay player (dokdo-design dom-video-modal rules). Content lives in concepts.js.
 import {CONCEPTS,MOTION_REPLAYS,replayItem,replayUnlocked,captionAt} from './concepts.js';
 import {btn,icon,esc,off} from './presentation.js';
@@ -23,7 +24,7 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  const video=host?.querySelector('.concept-video'),item=replayItem(host?.dataset.concept);if(!video||!item)return null;
  const caption=host.querySelector('.concept-caption'),cues=host.querySelector('.concept-cues'),status=host.querySelector('.concept-status'),end=host.querySelector('.concept-end'),playButton=host.querySelector('[data-action="concept-play"]'),replay=host.querySelector('[data-action="concept-replay"]'),sources=[...video.querySelectorAll('source')];
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
- let closed=false,failed=false,last=null;const events=[];
+ let closed=false,failed=false,last=null;const events=[];let releaseFocus=()=>{};
  const listen=(el,name,fn)=>{el.addEventListener(name,fn);events.push([el,name,fn]);};
  const show=t=>{const text=captionAt(item.id,t);if(text!==last){caption.textContent=text;last=text;}};
  const focus=el=>el?.focus?.({preventScroll:true});
@@ -48,6 +49,12 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  listen(video,'error',fallback);if(sources.length)listen(sources.at(-1),'error',fallback);
  if(end)listen(end,'error',()=>{end.remove();});
  if(video.readyState>=1){clearTimeout(timer);if(reduced)playButton.hidden=false;else play();}
+ const vocabulary={ 'webbed-foot':['물갈퀴','넓은 면','오리발'], 'shell-helmet':['등딱지','단단한 덮개','안전모'], 'warm-fur':['열','털','공기'], 'sort-criteria':['기준','날개','같은 결과'], 'habitat-life':['발바닥','날개','물갈퀴','사는 곳'] };
+ Object.assign(vocabulary,{frog:['뒷다리','물','앞으로'],crab:['다리','땅','옆으로'],duck:['발','물갈퀴','앞으로'],rabbit:['뒷다리','땅','앞으로'],butterfly:['날개','위로'],marine:['몸','꼬리','앞으로'],camel:['발','발바닥','모래','앞으로'],penguin:['짧은 날개','물','앞으로']});
+ const words=vocabulary[item.id]||[];
+ const labels={ 'webbed-foot':['물갈퀴','물 밀기','오리발'], 'shell-helmet':['등딱지','충격 줄이기','안전모'], 'warm-fur':['몸의 열','빠져나가는 열','털 사이 공기','열 손실 줄이기'], 'sort-criteria':['결과 비교','관찰할 기준','같은 결과'], 'habitat-life':['낙타의 발','펭귄의 날개','오리의 물갈퀴'] };
+ Object.assign(labels,{frog:['뒷다리 접기','물을 뒤로 밀기','앞으로 이동'],crab:['다리 들기','땅 밀기','옆으로 이동'],duck:['발 움직이기','물갈퀴로 밀기','앞으로 이동'],rabbit:['뒷다리 굽히기','땅 뒤로 밀기','앞으로 뛰기'],butterfly:['날개 들기','날개 내리기','날개 다시 올리기'],marine:['몸과 꼬리','반대로 굽히기','앞으로 이동'],camel:['발 옮기기','넓은 발바닥','앞으로 이동'],penguin:['짧은 날개','물 밀기','앞으로 이동']});
+ releaseFocus=bindConceptFocus(host,video,{steps:item.captions.map(([at],i)=>({at,term:labels[item.id]?.[i]||['움직임 준비','몸의 움직임','이동 결과'][i]})),terms:words,caption,anchor:host.querySelector('.concept-stage')});
  return {play,replay(){if(failed)return;video.currentTime=0;play();},get failed(){return failed;},
-  destroy(){if(closed)return;closed=true;clearTimeout(timer);for(const [el,name,fn] of events)el.removeEventListener(name,fn);video.pause();sources.forEach(x=>x.removeAttribute('src'));video.removeAttribute('src');video.load();onPlayingChange(false);}};
+  destroy(){if(closed)return;closed=true;releaseFocus();clearTimeout(timer);for(const [el,name,fn] of events)el.removeEventListener(name,fn);video.pause();sources.forEach(x=>x.removeAttribute('src'));video.removeAttribute('src');video.load();onPlayingChange(false);}};
 }
