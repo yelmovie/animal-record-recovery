@@ -249,7 +249,7 @@ function advance(){
   if(step===STAGES[stage-1].tasks.length-1){save();render();requestCommission(stage);return;}
   const pairDone=stage===1&&step%2===1&&result.fresh?Math.floor(step/2):-1;
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
-  report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어가자!':'다음 탐구로 이어가자!';if(result.fresh)flyStar();
+  report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어 가자!':'다음 탐구로 이어 가자!';if(result.fresh)flyStar();
   if(pairDone>=0)globalThis.setTimeout?.(()=>{if(screen==='mission'&&stage===1&&!dialog.open)pairReward(pairDone);},1300);
 }
 // 1장: after each pair comparison, the discovery in one line, where the learner is, and a safe place to stop.

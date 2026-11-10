@@ -7,6 +7,25 @@ import {GLTFLoader} from './vendor/three/GLTFLoader.js';
 // size: longest side after fitting; yaw turns the model to face +x like the procedural ones
 // The replacement butterfly already has a volumetric, upright body; no legacy roll is needed.
 export const GLB={frog:{size:2.8,yaw:Math.PI/2-.15,revision:'20261018'},crab:{size:3.6,yaw:Math.PI/2,revision:'20261018'},duck:{size:2.8,yaw:Math.PI/2,revision:'20261018'},rabbit:{size:2.8,yaw:Math.PI/2,revision:'20261018'},camel:{size:3,yaw:Math.PI/2,revision:'20261018'},penguin:{size:2.2,yaw:Math.PI/2,revision:'20261018'},butterfly:{size:2.6,yaw:Math.PI/2,revision:'20261018-butterfly'},marine:{size:2.4,yaw:Math.PI/2,revision:'20261018'}};
+// Non-destructive display correction for the stylized Copper Crab asset.
+// The species is not identified. Live crab colours vary: this muted earthy palette is
+// an illustrative choice, not a claim that every live crab must be green/brown.
+// Keep original GLBs, texture relief, pale underside and dark eyes unchanged.
+export function applyCrabColour(material){
+  if(material.userData.crabColour==='earth-v1')return;
+  material.userData.crabColour='earth-v1';
+  material.onBeforeCompile=shader=>{
+    shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
+      float crabWarm = smoothstep(1.1, 1.8, diffuseColor.r / max(diffuseColor.g, 0.0001));
+      crabWarm *= smoothstep(0.015, 0.1, max(diffuseColor.r, max(diffuseColor.g, diffuseColor.b)));
+      float crabLuma = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+      vec3 crabEarth = crabLuma * vec3(1.09, 1.03, 0.68) / dot(vec3(1.09, 1.03, 0.68), vec3(0.2126, 0.7152, 0.0722));
+      diffuseColor.rgb = mix(diffuseColor.rgb, crabEarth, crabWarm * 0.85);
+    `);
+  };
+  material.customProgramCacheKey=()=> 'crab-earth-v1';
+  material.needsUpdate=true;
+}
 const cache=new Map();
 // scan: 40k triangles, 1024px textures for the close-up scanner; dome: the light copy (~15k, 512px) for animals seen small inside the eco dome.
 // Both come from the full models by scripts/prepare-dome-models.py; the full ones stay in the repo only.
@@ -18,7 +37,7 @@ export function loadAnimal(id,{dome=false}={}){
     const root=g.scene,box=new T.Box3(),fit=GLB[id];root.rotation.set(0,fit.yaw,fit.roll||0);root.updateMatrixWorld(true);box.setFromObject(root);
     const size=box.getSize(new T.Vector3()),c=box.getCenter(new T.Vector3()),k=fit.size/Math.max(size.x,size.y,size.z);
     root.scale.setScalar(k);root.position.set(-c.x*k,-box.min.y*k,-c.z*k);
-    root.traverse(m=>{m.userData.shared=true;for(const material of [].concat(m.material||[])){if(!fit.revision)material.roughness=.7;material.metalness=0;}});
+    root.traverse(m=>{m.userData.shared=true;for(const material of [].concat(m.material||[])){if(!fit.revision)material.roughness=.7;material.metalness=0;if(id==='crab')applyCrabColour(material);}});
     const wrap=new T.Group();wrap.add(root);return wrap;
   }).catch(error=>{cache.delete(key);throw error;}));// a failed early fetch must not poison the real load
   return cache.get(key).then(w=>w.clone());

@@ -77,6 +77,6 @@ export const SETTINGS_TEXT={
   copyright:'ⓒ 2026 옐샘 & i-Scream Media Corporation. All rights reserved.',
   ownWorks:'앱 화면 캡처·자체 제작 일러스트·자체 제작 음원은 무단 복제·재배포·전용·상업적 이용을 금지합니다.',
   externalWorks:'외부 공개 효과음·폰트·프로그램의 저작권은 각 원저작자에게 있으며, 각 자료의 공개 라이선스와 이용 조건을 따릅니다.',
-  contentSource:'교육 내용 구성 참고: 교육부(moe.go.kr), 국가교육과정정보센터(ncic.go.kr).',
+  contentSource:'교육 내용 구성 참고: 교육부(moe.go.kr), 국가교육과정정보센터(ncic.re.kr).',
   reset:'탐험 기록 초기화',
 };

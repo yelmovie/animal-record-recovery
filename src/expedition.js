@@ -92,7 +92,7 @@ export const DISCOVERIES=[
   {id:'coast-marine',animal:'marine',habitat:'coast',text:'바다 물고기가 지느러미로 바닷물 속을 헤엄쳤어.'},
   {id:'forest-butterfly',animal:'butterfly',habitat:'forest',text:'꽃이 있는 풀밭에서 나비가 날개로 날아다녔어.'},
   {id:'pond-duck',animal:'duck',habitat:'pond',text:'오리가 연못에서 물갈퀴로 물을 밀며 헤엄쳤어.'},
-  {id:'coast-crab',animal:'crab',habitat:'coast',text:'바닷가 갯벌에서 게가 여러 다리로 걸어다녔어.'},
+  {id:'coast-crab',animal:'crab',habitat:'coast',text:'바닷가 갯벌에서 게가 여러 다리로 걸어 다녔어.'},
 ];
 // A motion's body part and function stay hidden until the learner commits a prediction (or recorded it in an older save).
 export const motionOpen=(s,animal)=>Boolean(s.inquiry?.motionPredictions?.[animal])||s.inquiry?.motion?.[animal]!==undefined;
