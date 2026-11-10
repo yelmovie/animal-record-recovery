@@ -31,7 +31,7 @@ test('review feedback: official source domain and corrected Korean spacing remai
  assert.match(read('shell-views.js'),/처음부터 다시 하기/);
  assert.match(read('expedition.js'),/걸어 다녔어/);
  assert.match(read('adventure-app.js'),/이어 가자/);
- for(const file of ['shell-views.js','expedition.js','adventure-app.js'])assert.doesNotMatch(read(file),/다시하기|걸어다녔어|이어가자/);
+ for(const file of ['shell-views.js','expedition.js','adventure-app.js','story-player.js'])assert.doesNotMatch(read(file),/다시하기|걸어다녔어|이어가자|이어갈/);
 });
 
 test('crab colour correction keeps original material maps and is idempotent',async()=>{
