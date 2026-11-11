@@ -51,7 +51,7 @@
  --ease-pop:cubic-bezier(.3,1.6,.5,1);--ease-slam:cubic-bezier(.55,0,1,.45);--dur-fast:160ms;--dur-base:280ms}
 :root,body{font-family:var(--font-body)}button,input,textarea,select{font-family:inherit}
 body{word-break:keep-all;overflow-wrap:break-word}
-/* Display face: titles, primary actions, counters. Jua has one weight, so no faux bold. */
+/* Shared face: titles, primary actions and counters use NanumSquare Neo. */
 main h1,main h2,dialog h2,.btn.primary,.star-count b,.activity-count>b,.map-marker b,.chapter-trail b,.world-count,.restore-stamp,.hint-toast{font-family:var(--font-display);font-weight:400;letter-spacing:0}
 .landing h1{letter-spacing:-.01em}
 /* Primary: gradient body + darker edge that shows when pressed. */
