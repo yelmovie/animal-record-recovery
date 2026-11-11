@@ -66,15 +66,15 @@ export function mountStudio(root,{getStudio,onChange,onDownload}={}){
 
 function wrap(ctx,text,maxWidth){const lines=[];for(const paragraph of String(text).split('\n')){let line='';for(const letter of paragraph){if(line&&ctx.measureText(line+letter).width>maxWidth){lines.push(line);line=letter;}else line+=letter;}lines.push(line);}return lines;}
 export async function downloadStudioArtwork(value){
- const s=normalizeStudio(value);if(document.fonts?.ready)await document.fonts.ready;
+ const s=normalizeStudio(value);if(document.fonts?.load)await Promise.all([document.fonts.load('26px "NanumSquareNeo"'),document.fonts.load('bold 26px "NanumSquareNeo"')]);if(document.fonts?.ready)await document.fonts.ready;
  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas unavailable');
  canvas.width=1440;const fields=[['누구를 위한 발명?',s.audience||'아직 적지 않았어요.'],['어떻게 사용하나요?',s.purpose||'그림에 담긴 쓰임을 상상해 보세요.'],['어디에서 아이디어를 얻었나요?',s.inspiration||'나의 상상에서 시작했어요.']];
- ctx.font='26px "Malgun Gothic",sans-serif';const sections=fields.map(([label,text])=>({label,lines:wrap(ctx,text,1224)}));canvas.height=1110+sections.reduce((sum,item)=>sum+88+item.lines.length*38,0);
+ ctx.font='26px "NanumSquareNeo","Malgun Gothic",sans-serif';const sections=fields.map(([label,text])=>({label,lines:wrap(ctx,text,1224)}));canvas.height=1110+sections.reduce((sum,item)=>sum+88+item.lines.length*38,0);
  ctx.fillStyle='#f5f0de';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#2d5542';ctx.fillRect(0,0,1440,16);
- ctx.font='bold 22px "Malgun Gothic",sans-serif';ctx.fillText('동물기록 복구작전  ·  어린이 발명 전시회',64,69);
- ctx.font='bold 44px "Malgun Gothic",sans-serif';let fontSize=44;while(ctx.measureText(s.title||'나의 새로운 발명').width>1300&&fontSize>24){fontSize-=2;ctx.font=`bold ${fontSize}px "Malgun Gothic",sans-serif`;}ctx.fillText(s.title||'나의 새로운 발명',64,134);
+ ctx.font='bold 22px "NanumSquareNeo","Malgun Gothic",sans-serif';ctx.fillText('동물기록 복구작전  ·  어린이 발명 전시회',64,69);
+ ctx.font='bold 44px "NanumSquareNeo","Malgun Gothic",sans-serif';let fontSize=44;while(ctx.measureText(s.title||'나의 새로운 발명').width>1300&&fontSize>24){fontSize-=2;ctx.font=`bold ${fontSize}px "NanumSquareNeo","Malgun Gothic",sans-serif`;}ctx.fillText(s.title||'나의 새로운 발명',64,134);
  ctx.fillStyle='#fff';ctx.fillRect(64,170,1312,853);ctx.save();ctx.translate(64,170);ctx.scale(1.312,1.312);ctx.beginPath();ctx.rect(0,0,1000,650);ctx.clip();
  for(const stroke of s.strokes)drawStudioStroke(ctx,stroke);ctx.restore();
- let y=1070;for(const section of sections){ctx.fillStyle='#64794e';ctx.font='bold 25px "Malgun Gothic",sans-serif';ctx.fillText(section.label,80,y);ctx.fillStyle='#294638';ctx.font='26px "Malgun Gothic",sans-serif';section.lines.forEach((line,i)=>ctx.fillText(line,80,y+43+i*38));y+=88+section.lines.length*38;}
+ let y=1070;for(const section of sections){ctx.fillStyle='#64794e';ctx.font='bold 25px "NanumSquareNeo","Malgun Gothic",sans-serif';ctx.fillText(section.label,80,y);ctx.fillStyle='#294638';ctx.font='26px "NanumSquareNeo","Malgun Gothic",sans-serif';section.lines.forEach((line,i)=>ctx.fillText(line,80,y+43+i*38));y+=88+section.lines.length*38;}
  const blob=await new Promise((resolve,reject)=>canvas.toBlob(result=>result?resolve(result):reject(new Error('PNG export failed')),'image/png'));const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=(s.title||'나의 발명').replace(/[<>:"/\\|?*\x00-\x1f]/g,'').slice(0,40)+'-작품.png';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
 }

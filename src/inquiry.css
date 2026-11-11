@@ -40,13 +40,11 @@
 .group-animal.moved{animation:none;box-shadow:0 0 0 3px #f0d48a}.group-animal small{word-break:keep-all;white-space:nowrap;color:#9a6a1c;font-weight:700}
 
 /* ===== 0.5 design layer (dokdo-design): tokens, display font, button states, achievement motion ===== */
-@font-face{font-family:'Jua';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/jua-korean-400.woff2') format('woff2');unicode-range:U+AC00-D7A3,U+1100-11FF,U+3130-318F,U+A960-A97F,U+D7B0-D7FF,U+3000-303F,U+FF00-FFEF}
-@font-face{font-family:'Jua';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/jua-latin-400.woff2') format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF}
-/* Body: Pretendard (official KS X 1001 subset, 2,350 syllables); rarer syllables fall back per glyph to the system font. */
-@font-face{font-family:'Pretendard';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/Pretendard-Regular.subset.woff2') format('woff2')}
-@font-face{font-family:'Pretendard';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/Pretendard-Bold.subset.woff2') format('woff2')}
+/* Self-hosted NanumSquare Neo: regular and bold, SIL OFL 1.1. */
+@font-face{font-family:'NanumSquareNeo';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/NanumSquareNeoTTF-bRg.woff2') format('woff2')}
+@font-face{font-family:'NanumSquareNeo';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/NanumSquareNeoTTF-cBd.woff2') format('woff2')}
 /* Colours come from this project's forest palette (primary green, map-marker gold, lime). */
-:root{--font-body:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;--font-display:'Jua',var(--font-body);
+:root{--font-body:'NanumSquareNeo','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;--font-display:var(--font-body);
  --color-primary-top:#356a4d;--color-primary:#284c39;--color-primary-edge:#163323;--color-accent:#e7c96d;--color-retry:#d9822b;--color-focus:#f2c14e;
  --radius-sm:12px;--radius-md:20px;--radius-pill:999px;--button-height-md:48px;--button-height-lg:56px;
  --shadow-button:0 4px 0 var(--color-primary-edge);--shadow-card:0 10px 30px #253e321f;

@@ -20,7 +20,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...['frog','crab','duck','rabbit'].map(f=>`assets/models/scan/${f}.glb`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/dome/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
-  ...['jua-korean-400.woff2','jua-latin-400.woff2','Jua-OFL.txt','Pretendard-Regular.subset.woff2','Pretendard-Bold.subset.woff2','Pretendard-OFL.txt'].map(f=>`assets/fonts/${f}`)];
+  ...['NanumSquareNeoTTF-bRg.woff2','NanumSquareNeoTTF-cBd.woff2','NanumSquareNeo-OFL.txt','NanumSquareNeo-SOURCE.json'].map(f=>`assets/fonts/${f}`)];
 files.push('src/workspace.css',...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/residents/${id}-v2.webp`),...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/village/npc-${id}.webp`),...[1,2,3,4,5].flatMap(id=>[`assets/tools/${id}-v2.webp`,`assets/village/recovery-${id}-v2.webp`]),'src/landing.css','assets/adventure/title-logo-v1.webp','src/story-player.js','src/story.css',...Object.keys(STORIES).map(kind=>`assets/videos/story/${kind}.mp4`),...['intro','outro'].flatMap(kind=>[1,2,3,4].map(i=>`assets/story/${kind}-0${i}.webp`)));
 // Remove only previously generated files named in our own build manifest.
 // Authoring assets / unknown files are never recursively removed.
@@ -35,7 +35,7 @@ for(const item of previous){
 const manifest=[];
 const buildInfo={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),builtAt:new Date().toISOString(),dirty:Boolean(execFileSync('git',['diff','HEAD','--','src','scripts','index.html'],{cwd:root,encoding:'utf8'}).trim())};
 files.push('src/record-storage.js','src/build-info.js');
-files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css','src/museum-notes.css','src/request-sheet.css','assets/fonts/research-hand-400.woff2','assets/fonts/NanumPenScript-OFL.txt',...['observation-notebook','museum-placard','museum-pedestal'].map(f=>`assets/museum/${f}.webp`));
+files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css','src/museum-notes.css','src/request-sheet.css',...['observation-notebook','museum-placard','museum-pedestal'].map(f=>`assets/museum/${f}.webp`));
 // Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
 files.push('src/npc-narration.js','assets/audio/npc-welcome.mp3');
 files.push('src/concept-focus.js','src/concept-focus.css','src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));

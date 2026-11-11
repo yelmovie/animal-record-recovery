@@ -69,8 +69,7 @@ export const SETTINGS_TEXT={
       '책장 넘김 · creatorshome · Pixabay Content License',
     ]],
     ['글꼴·프로그램',[
-      'Jua · Woowahan Brothers Corp. · SIL Open Font License 1.1',
-      'Pretendard · Kil Hyung-jin · SIL Open Font License 1.1',
+      '나눔스퀘어 네오 · NAVER · SIL Open Font License 1.1',
       'three.js · three.js authors · MIT License',
     ]],
   ],
