@@ -37,7 +37,7 @@ const buildInfo={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:
 files.push('src/record-storage.js','src/build-info.js');
 files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css','src/museum-notes.css','src/request-sheet.css',...['observation-notebook','museum-placard','museum-pedestal'].map(f=>`assets/museum/${f}.webp`));
 // Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
-files.push('src/npc-narration.js','assets/audio/npc-welcome.mp3');
+files.push('src/glass-ui.css','src/npc-narration.js','assets/audio/npc-welcome.mp3');
 files.push('src/concept-focus.js','src/concept-focus.css','src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
 files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.css','src/motion-player.css','assets/scenes/museum-gallery-v2.webp','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){

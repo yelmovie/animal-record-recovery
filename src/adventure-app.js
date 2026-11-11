@@ -16,7 +16,7 @@ import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
 import {installNpcNarration} from './npc-narration.js';
-if(typeof MutationObserver!=='undefined')installNpcNarration({selector:'.guide-buddy,.commission-feedback',src:'assets/audio/npc-welcome.mp3',text:'안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!',enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,hold:()=>{silence();playMusic(null);return syncMusic;}});
+if(typeof MutationObserver!=='undefined')installNpcNarration({selector:'.guide-buddy>p:not([data-npc-caption]),.commission-feedback>p:not([data-npc-caption])',src:'assets/audio/npc-welcome.mp3',text:'안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!',enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,hold:()=>{silence();playMusic(null);return syncMusic;}});
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
