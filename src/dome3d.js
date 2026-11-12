@@ -85,7 +85,7 @@ export function create(host,opts){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let animals=[],key='',active=null,aimed=null,tilt=null,dead=false;
   const stage=createStage(host,{target:[0,.4,0],theta:0,phi:.95,radius:12.5,minR:5,maxR:17,minPhi:.45,maxPhi:1.35,fov:40,fps:30,
-    label:'3D 생태 돔. 손가락으로 밀어 돌려 보고, 동물을 찾으면 눌러 봐.',pickables:()=>animals.map(x=>x.hit),onTap,tick,onFail:e=>opts.onFail?.(e)});
+    label:'3D 생태 돔. 손가락으로 밀어 돌려 보고, 동물을 찾으면 눌러 봐.',pickables:()=>animals.filter(x=>x.model.userData.glb).map(x=>x.hit),onTap,tick,onFail:e=>opts.onFail?.(e)});
   const {scene}=stage,sun=new T.DirectionalLight('#fff4dc',2.2);sun.position.set(6,10,5);
   scene.add(new T.HemisphereLight('#f4fbff','#6b7a52',1.4),sun);
   const angle=id=>opts.zones.indexOf(id)*TURN/opts.zones.length;
@@ -117,11 +117,11 @@ export function create(host,opts){
     const g=new T.Group(),model=new T.Group(),s=SCALE[t.animal]||.4,home=spots[t.animal]||at(angle(t.habitat),3);
     model.scale.setScalar(s);g.add(model);
     // Keep the entire scene covered until all real models for this visit are ready.
-    const ready=loadAnimal(t.animal,{dome:true}).then(glb=>{if(dead||!animals.some(x=>x.model===model))return;model.add(glb);model.userData.glb=true;stage.request();});
+    const ready=loadAnimal(t.animal,{dome:true}).then(glb=>{if(dead||!animals.some(x=>x.model===model))return;model.add(glb);model.userData.glb=true;g.visible=true;pins();stage.request();});
     if(t.animal!=='marine'&&t.animal!=='butterfly')g.add(blobShadow(1.1*s/.4,.22));
     const hit=new T.Mesh(new T.SphereGeometry(1.1,10,8),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.position.y=.5;hit.userData.find=t.id;g.add(hit);
     g.position.copy(home);// Models face +x; turn them outward toward the camera, three-quarter on (the crab straight on).
-    g.rotation.y=angle(t.habitat)-Math.PI/2+(t.animal==='crab'?0:.7);scene.add(g);
+    g.visible=false;g.rotation.y=angle(t.habitat)-Math.PI/2+(t.animal==='crab'?0:.7);scene.add(g);
     return {...t,g,model,hit,home,ready,pin:new T.Vector3(),seed:Math.random()*10};
   }
   function tick(t){
@@ -151,8 +151,13 @@ export function create(host,opts){
   }
   function apply(o){
     opts=o;const all=[...o.targets,...(o.extras||[]).map(t=>({...t,look:true}))],k=all.map(t=>t.id).join();
-    if(k!==key){stage.setLoading(true);for(const x of animals){scene.remove(x.g);x.g.traverse(n=>{if(!n.userData.shared)n.geometry?.dispose();});}key=k;animals=all.map(addAnimal);
-      Promise.all([sceneryReady,...animals.map(x=>x.ready)]).then(()=>{if(!dead&&key===k)stage.setLoading(false);}).catch(error=>{if(!dead&&key===k)opts.onFail?.(error);});}
+    if(k!==key){stage.setLoading(true);for(const x of animals){scene.remove(x.g);x.g.traverse(n=>{if(!n.userData.shared)n.geometry?.dispose();});}key=k;animals=o.targets.map(addAnimal);
+      Promise.all([sceneryReady,...animals.map(x=>x.ready)]).then(()=>{
+        if(dead||key!==k)return;stage.setLoading(false);
+        // Optional observations arrive after the required three; they never hold the lesson behind a spinner.
+        const extras=all.filter(t=>t.look).map(addAnimal);animals.push(...extras);
+        for(const x of extras)x.ready.catch(()=>{if(!dead&&key===k){scene.remove(x.g);animals=animals.filter(a=>a!==x);pins();stage.request();}});
+      }).catch(error=>{if(!dead&&key===k)opts.onFail?.(error);});}
     else animals.forEach(x=>{x.found=all.find(t=>t.id===x.id)?.found;});
     if(o.active!==active){if(aimed&&animals.find(x=>x.id===aimed)?.habitat===o.active)active=o.active;else faceZone(o.active);}
     aimed=null;pins();stage.request();

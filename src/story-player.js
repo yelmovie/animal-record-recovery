@@ -31,9 +31,9 @@ export function createStoryPlayer(host,{onEnd,volume=0}={}){
   function sync(){if(disposed)return;const at=video.currentTime||0,cue=storyCue(kind,at),duration=Number.isFinite(video.duration)?video.duration:story.duration;progress.max=duration;progress.value=at;time.textContent=`${format(at)} / ${format(duration)}`;if(cue!==lastCue){speaker.textContent=cue?.[2]||'';line.textContent=cue?.[3]||'';caption.hidden=!cue;lastCue=cue;}toggle.textContent=video.paused?'재생':'일시정지';toggle.setAttribute('aria-label',video.paused?'영상 재생':'영상 일시정지');}
   function play(){if(disposed)return;video.play()?.catch(()=>{if(disposed)return;if(!video.muted){video.muted=true;play();return;}{status.textContent='재생을 눌러 마을로 들어가 봐.';sync();}});}
   for(const name of ['timeupdate','loadedmetadata','play','pause','seeked'])listen(name,sync);
-  listen('waiting',()=>{if(!disposed)status.textContent='마을 영상을 불러오는 중이야. 건너뛰기로 바로 이어갈 수도 있어.';});
+  listen('waiting',()=>{if(!disposed)status.textContent='마을 영상을 불러오는 중이야. 건너뛰기로 바로 이어 갈 수도 있어.';});
   listen('playing',()=>{status.textContent='';});
-  listen('error',()=>{status.textContent='영상을 불러오지 못했어. 건너뛰기를 누르면 바로 이어갈 수 있어.';sync();});
+  listen('error',()=>{status.textContent='영상을 불러오지 못했어. 건너뛰기를 누르면 바로 이어 갈 수 있어.';sync();});
   listen('ended',()=>{if(!disposed)onEnd?.();});
   sync();play();
   return {toggle(){if(video.paused)play();else video.pause();},pause(){video.pause();},destroy(){disposed=true;for(const [name,fn]of listeners)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));video.load();}};

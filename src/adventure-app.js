@@ -1,6 +1,6 @@
 import {researchDiaryView} from './research-report.js';
 import {createRecordStorage,storageMessage} from './record-storage.js';
-import {mountFlashlight,clueFoundView,flashlightGuessView} from './flashlight.js';
+import {mountFlashlight,clueFoundView,flashlightGuessView,caseComparisonView} from './flashlight.js';
 import {normalizeStudio} from './studio.js';
 import {mountStudio,downloadStudioArtwork} from './studio-runtime.js';
 import {createMotionPlayer,videoFrameAt,toggleMotionFullscreen} from './motion-video.js';
@@ -15,8 +15,6 @@ import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolConten
 import {createVillage} from './village.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
-import {installNpcNarration} from './npc-narration.js';
-if(typeof MutationObserver!=='undefined')installNpcNarration({selector:'.guide-buddy,.commission-feedback',src:'assets/audio/npc-welcome.mp3',text:'안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!',enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,hold:()=>{silence();playMusic(null);return syncMusic;}});
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
@@ -27,7 +25,7 @@ const loadedRecord=recordStore.read();
 let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(loadedRecord.status);
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
-let studentSnapshot=null,mapWalkVersion=0,autoRun=null;
+let studentSnapshot=null,mapWalkVersion=0,autoRun=null,clearStar=null,pairRewardTimer=null;
 // relook: an observation id whose choices stay closed after a wrong pick until that part is looked at again.
 let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
@@ -72,7 +70,7 @@ function setupPanels(){
     });
   };
   tabs('.museum-exhibits',':scope > .museum-exhibit');
-  tabs('.final-inventions',':scope > article');
+  // The landscape certificate shows every invention together, without name tabs.
   tabs('.case-activity',':scope > section',step%2?['사는 곳','움직이는 방법']:['동물 선택','근거 연결']);
   tabs('.verify-steps',':scope > .verify-step',['검증','이유 찾기','기준 고치기']);
   tabs('.design-options',':scope > section',['문제·이름 정하기','특징 관찰','부품 붙이기']);
@@ -86,6 +84,7 @@ let renderedRoute='',unmountStudio=null,unmountFlashlight=null;
 // One village theme everywhere; it keeps quiet while a story or concept video is open (the outro carries its own finale music).
 function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:'village');}
 function render(){
+  clearStar?.();clearStar=null;if(pairRewardTimer!=null)globalThis.clearTimeout?.(pairRewardTimer);pairRewardTimer=null;
   unmountFlashlight?.();unmountFlashlight=null;
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
@@ -118,7 +117,7 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{progress:s.mapVillains,onVillainHit:()=>save(),onVillainSound:()=>playSound(s.soundEnabled,'correct'),position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.
@@ -189,7 +188,7 @@ function go(where){if(dialog.open)dialog.close();requestCard=null;caseHint=false
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
 function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
-function modal(title,content){conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"')}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
+function modal(title,content,{showClose=true}={}){conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   if(s.introSeen){go('map');return;}
   openStory('intro');
@@ -210,8 +209,8 @@ function finishStory(){
 function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 복구하면 ${withParticle(next.reward,'을/를')} 받아! 건물이나 길을 누르면 같이 걸어갈게.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;playSound(s.soundEnabled,'talk');toast(line,el,npc.name);}
 // 3D screens start downloading while Haru walks to the door, so the scanner and dome open sooner.
 function warmStage(id){const r=Math.floor((s.step[id]||0)/2);
-  if(id===1)warm3d('scanner',(OBSERVE_PAIRS[r]||[]).filter(a=>SCAN_3D.includes(a)));
-  if(id===3)warm3d('dome',[...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.animal),...Object.values(DOME_ZONES).map(z=>z.animal)]);}
+  if(id===1){const pair=OBSERVE_PAIRS[r]||[],first=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0];if(SCAN_3D.includes(first))warm3d('scanner',[first]);}
+  if(id===3)warm3d('dome',DISCOVERIES.slice(r*3,r*3+3).map(d=>d.animal));}
 function selectMap(id){
   if(screen==='map'&&mapOverview&&Number.isInteger(id)&&STAGES[id-1]){mapOverview=false;render();}
   if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;mapWalkVersion++;map?.stop?.();autoEnter=false;selectedStage=id;arrived=false;
@@ -249,21 +248,25 @@ function advance(){
   if(step===STAGES[stage-1].tasks.length-1){save();render();requestCommission(stage);return;}
   const pairDone=stage===1&&step%2===1&&result.fresh?Math.floor(step/2):-1;
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
-  report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어가자!':'다음 탐구로 이어가자!';if(result.fresh)flyStar();
-  if(pairDone>=0)globalThis.setTimeout?.(()=>{if(screen==='mission'&&stage===1&&!dialog.open)pairReward(pairDone);},1300);
+  report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어 가자!':'다음 탐구로 이어 가자!';if(result.fresh)flyStar();
+  if(pairDone>=0){const rewardStep=step;pairRewardTimer=globalThis.setTimeout?.(()=>{pairRewardTimer=null;if(screen==='mission'&&stage===1&&step===rewardStep&&!dialog.open)pairReward(pairDone);},900);}
 }
-// 1장: after each pair comparison, the discovery in one line, where the learner is, and a safe place to stop.
+// After each pair comparison, show the discovery and continue to the next animals.
 function pairReward(r){const [a,b]=OBSERVE_PAIRS[r],[same,diff]=COMPARES[r].map(q=>q.options.find(o=>o[0]===q.answer)[1]),seen=OBSERVE_PAIRS.flat().flatMap(id=>OBSERVATIONS[id]).filter(o=>s.observed.includes(o.id)).length;
-  modal('발견 카드 · '+withParticle(ANIMALS[a].name,'과/와')+' '+ANIMALS[b].name,`<div class="pair-reward"><p class="pair-found">${icon('star')}<span><b>같은 점</b> ${same}<br><b>다른 점</b> ${diff}</span></p><p class="pair-progress">1장 진도 · 비교 ${r+1}/4 · 특징 관찰 ${seen}/24</p><p>여기서 쉬어 가도 돼. 지금까지 기록은 저장됐어.</p></div><div class="dialog-actions">${btn('지도에서 쉬기','map','quiet')}${btn('다음 동물 관찰하기 '+icon('arrow'),'close-dialog','primary','autofocus')}</div>`);}
-// A new star pops in the middle of the screen, then flies into the activity title, which shows "+1 ★" for a moment.
+  modal('발견 카드 · '+withParticle(ANIMALS[a].name,'과/와')+' '+ANIMALS[b].name,`<div class="pair-reward"><p class="pair-found">${icon('star')}<span><b>같은 점</b> ${same}<br><b>다른 점</b> ${diff}</span></p><p class="pair-progress">1장 진도 · 비교 ${r+1}/4 · 특징 관찰 ${seen}/24</p></div><div class="dialog-actions">${btn('다음 동물 관찰하기 '+icon('arrow'),'close-dialog','primary','autofocus')}</div>`,{showClose:false});}
+// A star lands on the activity progress. Scene changes cancel its sound, animation and DOM together.
 function flyStar(){
   if(typeof document.createElement!=='function')return;
-  const chip=document.querySelector('.mission-guide h1'),target=chip?.getBoundingClientRect(),still=matchMedia('(prefers-reduced-motion: reduce)').matches,el=document.createElement('div');el.className='star-fly';el.setAttribute('aria-hidden','true');el.innerHTML=icon('star')+'<b>+1</b>';document.body.append(el);
-  const land=()=>{el.remove();playSound(s.soundEnabled,'star');if(!chip?.isConnected)return;const tag=document.createElement('span');tag.className='star-pop-tag';tag.setAttribute('aria-hidden','true');tag.textContent=' +1 ★';chip.classList.add('star-pop');chip.append(tag);setTimeout(()=>{tag.remove();chip.classList.remove('star-pop');},1000);if(!still)chip.animate?.([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:380,easing:'ease-out'});};
-  if(!el.animate||!target?.width||still){setTimeout(land,900);return;}
+  clearStar?.();
+  const progressChip=document.querySelector('.guide-progress'),chip=progressChip?.getBoundingClientRect().width?progressChip:document.querySelector('.mission-guide h1'),target=chip?.getBoundingClientRect(),still=matchMedia('(prefers-reduced-motion: reduce)').matches,el=document.createElement('div');el.className='star-fly';el.setAttribute('aria-hidden','true');el.innerHTML=icon('star')+'<b>+1</b>';document.body.append(el);
+  let timer=null,animation=null,pulse=null,tag=null,active=true,landed=false;
+  clearStar=()=>{active=false;clearTimeout(timer);animation?.cancel();pulse?.cancel();el.remove();tag?.remove();chip?.classList.remove('star-pop');};
+  const land=()=>{if(!active||landed)return;landed=true;el.remove();if(!chip?.isConnected)return;playSound(s.soundEnabled,'star');tag=document.createElement('span');tag.className='star-pop-tag';tag.setAttribute('aria-hidden','true');tag.textContent=' ★ '+countStage(s,stage)+'/'+STAGES[stage-1].tasks.length+' · +1';chip.classList.add('star-pop');chip.append(tag);timer=setTimeout(()=>{tag.remove();chip.classList.remove('star-pop');},800);if(!still)pulse=chip.animate?.([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:260,easing:'ease-out'});};
+  if(!el.animate||!target?.width||still){land();return;}
   const dx=target.left+target.width/2-innerWidth/2,dy=target.top+target.height/2-innerHeight/2;
-  el.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:0},{transform:'translate(-50%,-50%) scale(1.2)',opacity:1,offset:.25},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.55},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.2)`,opacity:.8}],{duration:1100,easing:'cubic-bezier(.5,0,.3,1)'}).onfinish=land;
+  animation=el.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:0},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.3},{transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(.2)',opacity:.8}],{duration:700,easing:'cubic-bezier(.5,0,.3,1)'});animation.onfinish=land;
 }
+
 function previous(){labSummary=false;stopMotion();if(step===0){go('map');return;}step--;report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
@@ -292,7 +295,7 @@ function mountMotionPlayer(){
 // Auto-run (learner helper): presses the hands-on controls in order — the specimen parts, dome find · video · photo,
 // flashlight clues, lab trials — and stops (or, in stage 1, waits) before any question. What it does is saved as the learner's own record.
 const later=(fn,ms)=>typeof setTimeout==='function'?setTimeout(fn,ms):null,cancelLater=id=>{if(id!=null&&typeof clearTimeout==='function')clearTimeout(id);};
-function syncAutoButton(){const b=document.querySelector('[data-action="auto-run"]');if(!b)return;b.setAttribute('aria-pressed',String(!!autoRun));b.classList.toggle('selected',!!autoRun);b.innerHTML=icon(autoRun?'pause':'play')+'<span>'+(autoRun?'자동 진행 멈추기':'자동 진행')+'</span>';}
+function syncAutoButton(){const b=document.querySelector('[data-action="auto-run"]');if(!b)return;b.setAttribute('aria-pressed',String(!!autoRun));b.classList.toggle('selected',!!autoRun);b.innerHTML=icon(autoRun?'pause':'play')+'<span>'+(autoRun?'직접 해보기':'자동 진행')+'</span>';}
 function stopAuto(text){if(!autoRun)return;cancelLater(autoRun.timer);autoRun=null;if(text){feedback={good:true,text};render();document.querySelector('#announcer').textContent=text;}else syncAutoButton();}
 // The next hands-on press as [action, dataset, wait ms], or a sentence telling the learner what is theirs to do.
 function autoNext(a){
@@ -402,9 +405,9 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'map-select':selectMap(Number(id));break;
     case 'quest-toggle':setQuestOpen(!questOpen);return;
     case 'locked-next':dialog.close();selectMap(Number(id));break;
-    case 'sound-all':{const on=!(s.musicOn!==false||s.soundEnabled);s.musicOn=on;s.soundEnabled=on;save();syncMusic();if(!on)silence();else playSound(true);const b=document.querySelector('[data-action="sound-all"]');if(b){b.innerHTML=icon(on?'sound':'muted');b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',on?'소리 끄기':'소리 켜기');b.title=on?'소리 끄기':'소리 켜기';}break;}
     case 'auto-run':if(autoRun){stopAuto();document.querySelector('#announcer').textContent='자동 진행을 멈췄어.';break;}
       autoRun={stage,step,waiting:false,clue:null,ran:null,timer:null};feedback={good:true,text:'자동 진행 중이야. 문제는 네가 직접 풀어 줘. 아무 곳이나 누르면 멈춰.'};render();autoRun.timer=later(autoTick,700);break;
+    case 'map-interact':map?.interact?.();break;
     case 'map-walk':autoEnter=false;map?.walk?.(id);break;
     // Hand toggle: no re-render, so the walking map and its camera keep their place.
     case 'map-fit':mapPan=false;map?.pan?.(false);map?.fit?.();document.querySelector('[data-action="map-pan"]')?.setAttribute('aria-pressed','false');break;
@@ -458,6 +461,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'flashlight-clue':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],k=c.clues[Number(value)];if(k)modal('발견한 단서',clueFoundView(c,Number(value),s.cases[round()].opened.includes(k.id)));}break;
     case 'flashlight-collect':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k)break;const fresh=!a.opened.includes(k.id);if(fresh)a.opened.push(k.id);dialog.close();feedback=null;save();render();if(fresh)playSound(s.soundEnabled,'star');document.querySelector('.flashlight-hotspot[data-value="'+value+'"]')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=k.kind+' 단서를 발견 수첩에 붙였어. '+(a.opened.length<2?'다른 특징도 찾아보자.':'이 단서가 다른 동물과 어떻게 다른지 생각해 봐.');}break;
     case 'flashlight-guess':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()];if(a.opened.length<2){say('손전등으로 서로 다른 단서를 두 개 이상 찾아 봐.');break;}modal('이 동물은 누구일까?',flashlightGuessView(c,a));}break;
+    case 'case-compare':if(stage===4&&step%2===0&&s.cases[round()].candidate)modal('후보 비교 · 왜 아닐까?',caseComparisonView(CASES[round()],s.cases[round()]));break;
+    case 'case-comparison-done':dialog.close();render();break;
     case 'case-animal':if(stage===4&&CASES[round()].candidates.includes(id)){s.cases[round()].candidate=id;dialog.close();feedback=null;render();document.querySelector('.flashlight-note:not(.locked)')?.focus();}break;
     case 'case-continue':{
       if(stage!==4||step%2!==0)break;
@@ -467,7 +472,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       panelPages.set(panelKey('.case-activity'),a.candidate?1:0);render();
       document.querySelector('.flashlight-note:not(.locked):not(.selected)')?.focus();break;
     }
-    case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:''});clueIndex=0;feedback=null;render();break;
+    case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:'',excluded:{}});clueIndex=0;feedback=null;render();break;
     case 'case-ground':{const a=s.cases[round()];if(!a.opened.includes(value))break;a.grounds=a.grounds.includes(value)?a.grounds.filter(g=>g!==value):[...a.grounds,value];feedback=null;render();break;}
     // Spent energy stays spent even when the answer changes (screen 08); 'case-reset' starts a fresh investigation.
     case 'clue-spend':{const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k||a.opened.includes(k.id))break;if(a.opened.length>=CLUE_ENERGY)return say('조사 에너지를 다 썼어. 연 단서로 판단하거나 ‘다시 조사’를 눌러 봐.');a.opened.push(k.id);feedback=null;save();render();break;}
@@ -561,13 +566,20 @@ document.addEventListener('input',e=>{
   if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();save();return;}
   if(e.target.id==='invention-name'){const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
-document.addEventListener('change',e=>{if(e.target.id==='experiment-level')render();});
+document.addEventListener('change',e=>{
+ if(e.target.id==='experiment-level')render();
+ const id=e.target.dataset?.caseExclusion;if(!id||stage!==4||step%2!==0)return;
+ const c=CASES[round()],a=s.cases[round()],value=e.target.value;
+ if(!c.candidates.includes(id)||id===a.candidate||value&&!a.opened.includes(value))return;
+ a.excluded??={};if(value)a.excluded[id]=value;else delete a.excluded[id];save();
+ const count=dialog.querySelector?.('[data-comparison-count]');if(count)count.textContent=c.candidates.filter(id=>id!==a.candidate&&a.excluded[id]).length+'/'+(c.candidates.length-1)+' 후보의 비교 근거를 골랐어.';
+});
 document.addEventListener('fullscreenchange',paintMotion);
 function sketchPoint(e,svg){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return [Math.round(Math.max(0,Math.min(320,p.x))),Math.round(Math.max(0,Math.min(260,p.y)))];}
 document.addEventListener('pointerdown',e=>{const surface=e.target.closest?.('#lens-surface');if(surface&&!e.target.closest('[data-action]')){e.preventDefault();lensPointer={surface,id:e.pointerId};try{surface.setPointerCapture(e.pointerId);}catch{}moveLens(e,surface);return;}if(e.target.id==='motion-phase')stopMotion(false);if(e.target.id!=='drawing-surface'||!sketching||stage!==5||step%2!==0)return;e.preventDefault();const svg=e.target.closest('svg'),d=s.designs[round()];if(d.strokes.length>=30)return say('선은 30개까지야. 마지막 선을 지우고 다시 그려 줘.');const points=[sketchPoint(e,svg)],line=document.createElementNS('http://www.w3.org/2000/svg','polyline');d.strokes.push(points);line.setAttribute('points',points[0].join(','));svg.querySelector('#sketch-lines').append(line);try{svg.setPointerCapture(e.pointerId);}catch{}stroke={svg,points,line,id:e.pointerId};});
 document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPointer.id){moveLens(e,lensPointer.surface);return;}if(!stroke||e.pointerId!==stroke.id)return;e.preventDefault();if(stroke.points.length<250){stroke.points.push(sketchPoint(e,stroke.svg));stroke.line.setAttribute('points',stroke.points.map(p=>p.join(',')).join(' '));}});
 for(const name of ['pointerup','pointercancel'])document.addEventListener(name,e=>{if(lensPointer&&e.pointerId===lensPointer.id){const animalId=lensPointer.surface.dataset.animal,list=OBSERVATIONS[animalId],x=Number(lensPointer.surface.style.getPropertyValue('--focus-x')),y=Number(lensPointer.surface.style.getPropertyValue('--focus-y'));focusIndex=list.reduce((best,o,i)=>(o.x-x)**2+(o.y-y)**2<(list[best].x-x)**2+(list[best].y-y)**2?i:best,0);lensPointer=null;render();}if(stroke&&e.pointerId===stroke.id){stroke=null;save();}});
-document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;const direction={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down'}[e.key];if(direction){e.preventDefault();autoEnter=false;map?.walk?.(direction);}else if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 dialog.addEventListener('close',()=>{conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();

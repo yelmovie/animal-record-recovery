@@ -98,14 +98,14 @@ dialog{width:min(790px,94vw);max-height:89dvh;border:1px solid #d3ddc4;border-ra
 @keyframes restore-ring{0%{opacity:1;transform:scale(.6)}100%{opacity:0;transform:scale(2.6)}}
 .restore-card{position:relative;width:330px;flex-shrink:0;padding:10px 10px 34px;background:#fffdf3;border-radius:6px;box-shadow:0 14px 26px #46572833;transform:rotate(-2.5deg);animation:card-arrive .5s ease-out both}
 @keyframes card-arrive{from{opacity:0;transform:translateY(24px) rotate(-7deg)}to{opacity:1;transform:rotate(-2.5deg)}}
-.restore-photo{aspect-ratio:4/3;border-radius:3px;background:url('../assets/adventure/trail-map.webp') no-repeat;background-size:300% auto;background-position:clamp(0%,calc((var(--x)*3 - 50)/2*1%),100%) clamp(0%,calc((var(--y)*2.25 - 50)/1.25*1%),100%);animation:photo-restore 1.6s ease-in-out .4s both;position:relative;overflow:hidden}
+.restore-photo{aspect-ratio:4/3;border-radius:3px;background:url('../assets/adventure/trail-map.webp') no-repeat;background-size:300% auto;background-position:clamp(0%,calc((var(--x)*3 - 50)/2*1%),100%) clamp(0%,calc((var(--y)*2.25 - 50)/1.25*1%),100%);animation:photo-restore .6s ease-out .15s both;position:relative;overflow:hidden}
 .restore-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#fff8d8cc 50%,transparent 65%);transform:translateX(-120%);animation:light-sweep 1.1s ease-in-out 1.3s}
-.restore-stamp{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:4px;padding:6px 12px;font-weight:800;font-size:17px;color:#b4462c;border:3px solid #b4462c;border-radius:8px;background:#fffdf3e6;transform:rotate(-12deg);animation:stamp-in .45s cubic-bezier(.3,1.7,.5,1) 2s both}
+.restore-stamp{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:4px;padding:6px 12px;font-weight:800;font-size:17px;color:#b4462c;border:3px solid #b4462c;border-radius:8px;background:#fffdf3e6;transform:rotate(-12deg);animation:stamp-in .3s ease-out .65s both}
 .restore-stamp .icon{width:18px;height:18px}
 @keyframes photo-restore{0%{filter:grayscale(1) sepia(.35) brightness(.75) blur(2px)}35%{filter:grayscale(1) sepia(.35) brightness(.75) blur(0)}100%{filter:none}}
 @keyframes light-sweep{to{transform:translateX(120%)}}
 @keyframes stamp-in{0%{opacity:0;transform:rotate(-12deg) scale(2.2)}100%{opacity:1;transform:rotate(-12deg) scale(1)}}
-.reward-stars i{animation:star-pop .5s cubic-bezier(.3,1.7,.5,1) both}.reward-stars i:nth-child(1){animation-delay:2.3s}.reward-stars i:nth-child(2){animation-delay:2.45s}.reward-stars i:nth-child(3){animation-delay:2.6s}.reward-stars i:nth-child(4){animation-delay:2.75s}
+.reward-stars i{animation:star-pop .3s ease-out both;animation-delay:calc(.85s + var(--star-index,0)*.07s)}
 @keyframes star-pop{0%{opacity:0;transform:scale(.2) rotate(-40deg)}100%{opacity:1;transform:none}}
 @media(max-width:620px){.restore-card{width:240px}}
 @media(prefers-reduced-motion:reduce){.map-fog span.clearing{display:none}}

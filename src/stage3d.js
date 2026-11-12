@@ -25,7 +25,7 @@ export function createStage(host,o){
     camera.lookAt(target);
   }
   function frame(t){
-    raf=0;if(dead)return;
+    raf=0;if(dead||document.hidden)return;
     // ponytail: fixed frame cap (o.fps) instead of adaptive quality; lower it if old tablets stutter.
     if(o.fps&&t-last<1000/o.fps-2){request();return;}
     last=t;
@@ -36,7 +36,7 @@ export function createStage(host,o){
     place();renderer.render(scene,camera);drawPins();
     if(moving)request();
   }
-  function request(){if(!raf&&!dead)raf=requestAnimationFrame(frame);}
+  function request(){if(!raf&&!dead&&!document.hidden)raf=requestAnimationFrame(frame);}
   // Pins hidden behind the model (occlude) or facing away (normal) fade, so a far-side pin never marks the near side.
   function drawPins(){
     const w=canvas.clientWidth,h=canvas.clientHeight;
@@ -57,6 +57,8 @@ export function createStage(host,o){
     const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;
     renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();request();
   }
+  const visibility=()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else request();};
+  document.addEventListener('visibilitychange',visibility);
   const ro=new ResizeObserver(resize);ro.observe(box);
 
   // Gestures
@@ -115,7 +117,7 @@ export function createStage(host,o){
     goTo,reset(){goTo(home);},
     attach(h){if(box.parentNode!==h)h.append(box);resize();},
     destroy(){
-      dead=true;cancelAnimationFrame(raf);ro.disconnect();
+      dead=true;cancelAnimationFrame(raf);ro.disconnect();document.removeEventListener('visibilitychange',visibility);
       // Shared (cached GLB) resources stay for the next visit; the lost context frees their GPU copies.
       scene.traverse(x=>{if(x.userData.shared)return;x.geometry?.dispose();for(const m of [].concat(x.material||[])){m.map?.dispose();m.dispose();}});
       renderer.dispose();renderer.forceContextLoss();box.remove();

@@ -54,7 +54,7 @@ export function motionView(id,v={},captured){
  const phase=v.motionPhase||0,useVideo=Object.hasOwn(MOTION_CLIPS,id)&&!v.failedMotionVideos?.includes(id),frame=useVideo?videoFrameAt(id,phase):frameAt(phase);
  const name=ANIMALS[id]?.name||({camel:'낙타',penguin:'펭귄'}[id])||'동물',open=Boolean(v.motionPlaying)||captured!==undefined;
  if(m.optional&&!useVideo)return '<div class="motion-observer motion-error" data-motion="'+id+'"><h2>'+name+' 관찰 영상</h2><img class="motion-video" src="'+motionVideoURL(id,'webp')+'" alt="'+name+' 관찰 영상의 한 장면"><p>영상을 불러오지 못했어. 사진은 재생할 수 있을 때 찍어 줘.</p>'+btn('영상 다시 불러오기','motion-retry','primary','data-id="'+id+'"')+'</div>';
- const visual=useVideo?'<video class="motion-video" src="'+motionVideoURL(id)+'" poster="'+motionVideoURL(id,'webp')+'" preload="metadata" muted playsinline aria-label="'+name+'의 움직임 관찰 영상"></video>':motionDiagram(id,phase);
+ const visual=useVideo?'<video class="motion-video" src="'+motionVideoURL(id)+'" poster="'+motionVideoURL(id,'webp')+'" preload="none" muted playsinline aria-label="'+name+'의 움직임 관찰 영상"></video>':motionDiagram(id,phase);
  const done=captured!==undefined,photo=normalizeMotionPhoto(v.motionPhoto);
  const fullscreenButton=useVideo?btn('<span data-motion-fullscreen-icon>'+icon('expand')+'</span>','motion-fullscreen','motion-fullscreen','aria-label="동영상 전체화면 보기" title="전체화면 보기"'):'';
  const playButton=btn('<span data-motion-play-icon>'+icon(v.motionPlaying?'pause':'play')+'</span><span class="sr-only" data-play-label>'+(v.motionPlaying?'일시정지':'재생')+'</span>','motion-play','motion-control-play',`aria-label="${v.motionPlaying?'일시정지':'재생'}"`);

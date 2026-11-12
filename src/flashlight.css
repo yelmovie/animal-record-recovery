@@ -1,4 +1,4 @@
-/* Night investigation uses real animal artwork under a pointer-controlled beam. */
+/* Investigation reveals isolated evidence, never the full answer before confirmation. */
 #app #main.stage-4 .activity-workspace {
   display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(330px, .85fr);
   gap: clamp(12px, 1.5vw, 24px); height: 100%; min-height: 0;
@@ -64,7 +64,7 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
 .flashlight-discovery > h3 { margin: 14px 0 8px; color: #385d3e; font: 400 32px/1.2 var(--font-display); }
 .flashlight-found-photo { width: 100%; height: min(29dvh,270px); overflow: hidden; border-radius: 14px; background: #e5e8d6; }
 .flashlight-found-photo > .animal { display: block; width: 100%; height: 100%; object-fit: contain; }
-.flashlight-found-photo.closeup > .animal { transform: scale(2); transform-origin: var(--clue-x) var(--clue-y); }
+.flashlight-found-photo.closeup > .animal { transform: scale(4); transform-origin: var(--clue-x) var(--clue-y); }
 .flashlight-discovery > .biome-photo { display: block; width: 100%; height: min(29dvh,240px); margin: 0; border-radius: 14px; }
 .flashlight-discovery > p { margin: 18px 6px 8px; color: #3b5d40; font: 400 clamp(24px,2.4vw,32px)/1.4 var(--font-display); }
 .flashlight-discovery > small { display: block; color: #8a7d58; font-size: 17px; line-height: 1.4; }
@@ -135,3 +135,13 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
 @media (prefers-reduced-motion: reduce) { .journey-ground { animation: none; } #app #main#main.stage-4 .journey-stage > .journey-scene { transition: none; } }
 #app #main.stage-4 .journey-movement>.aha-note{margin:10px 0 0;padding:8px 12px;border-radius:10px;background:#fff1c9;color:#4a3a12;font-size:clamp(17px,1.3vw,21px)!important;line-height:1.45;word-break:keep-all}
 #app #main.stage-4 .journey-movement>.aha-note b{margin-right:6px;color:#8a5a14}
+
+.flashlight-mystery{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;pointer-events:none;opacity:.7}
+.flashlight-mystery>span{display:grid;place-items:center;width:112px;height:112px;border:2px dashed #e5ddb277;border-radius:50%;font-size:72px;color:#e5ddb2}
+.flashlight-mystery>p{max-width:22ch;text-align:center;color:#c9d4b6;font-size:17px}
+.flashlight-observation{display:grid;place-items:center;min-height:130px;background:#edf0df;border-radius:14px}
+.flashlight-observation .icon{width:72px;height:72px;color:#48614a}
+.case-comparison{display:grid;gap:14px}.case-comparison>p{font-size:19px;line-height:1.5}
+.case-comparison-row{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid #b8c6a6;border-radius:12px;background:#f6f8ed}
+.case-comparison-row>.animal{width:64px;height:64px}.case-comparison-row>span{flex:1;min-width:0}.case-comparison-row b{display:block;margin-bottom:6px}
+.case-comparison-row select{width:100%;max-width:100%;min-height:48px;font:inherit;color:#263f35;background:#fffdf5;border:1px solid #879b75;border-radius:8px;padding:6px}

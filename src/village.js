@@ -1,4 +1,4 @@
-import {mountMapVillains} from './map-villains.js';
+import {createDirectionalWalker,bindMapDirections,availableDirections} from './map-walk.js';
 import {COMMISSIONS} from './campaign.js';
 // Main map: a top-down pixel village (screen 01). Same contract as createTrailMap: {move(id), destroy()}.
 // Layout (map size, building rects and doors, walk nodes/edges, sprite cells) comes from assets/village/village.json.
@@ -36,16 +36,15 @@ export const buildingAt=(buildings,[x,y])=>Object.entries(buildings).find(([id,{
 // The village json may give nodes as an array or an object; edges as index or id pairs.
 function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
 
-export function createVillage(root,{progress=[],onVillainHit,onVillainSound,position='entrance',completed=[],flash=null,overview=false,pan=false,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
+export function createVillage(root,{position='entrance',completed=[],flash=null,overview=false,pan=false,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
   overview=overview&&[1,2,3,4,5].every(id=>completed.includes(id));
-  let active=true,built=false,paused=false,away=false,frame=null,panning=!!pan,api={move(){},destroy(){active=false;}};
+  let active=true,built=false,paused=false,away=false,frame=null,manual=null,directions=null,panning=!!pan,api={move(){},destroy(){active=false;}};
   const pending=[];
   const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   villageReady().then(j=>{if(!active)return;if(!j?.map?.w||!j?.map?.h||!j.buildings||!j.nodes){loading=null;onError?.();return;}if(!root?.ownerDocument)return;build(j);while(pending.length)api.move(pending.shift());}).catch(()=>{loading=null;if(active)onError?.();});
   function build(j){
     const W=j.map.w,H=j.map.h,pct=(v,t)=>v/t*100+'%',graph=graphOf(j),doc=root.ownerDocument;
     const layer=doc.createElement('div');layer.className='village-layer';root.append(layer);
-    const villains=mountMapVillains(root,{progress,points:completed.map(id=>({id:id-1,name:j.buildings[id].name||'기록 구역',x:(j.buildings[id].door[0]+75)/W*100,y:(j.buildings[id].door[1]-50)/H*100})),onHit:onVillainHit,sound:onVillainSound,blocked:()=>paused||isBlocked(),tool:'관찰 빛',color:'#647db0'});
     // Restored buildings replace their withered look; the core lights up when all five are back.
     for(const [id,b] of Object.entries(j.buildings)){
       const done=id==='gallery'||(id==='core'?completed.length===5:completed.includes(Number(id)));if(!done||!b.rect)continue;
@@ -86,13 +85,13 @@ export function createVillage(root,{progress=[],onVillainHit,onVillainSound,posi
     const onUp=e=>{if(!drag||e.pointerId!==drag.id)return;drag=null;scene.classList.remove('dragging');};
     // The click that ends a drag must not walk Haru or open the building under the finger.
     const onDragClick=e=>{if(!dragged)return;dragged=false;e.stopPropagation();e.preventDefault();};
-    const onNativeDrag=e=>{if(panning)e.preventDefault();};
+    const onNativeDrag=e=>e.preventDefault();
     if(scene){scene.addEventListener('pointerdown',onDown);scene.addEventListener('pointermove',onMove);scene.addEventListener('pointerup',onUp);scene.addEventListener('pointercancel',onUp);scene.addEventListener('click',onDragClick,true);scene.addEventListener('dragstart',onNativeDrag);}
     api.fit=()=>{api.stop?.();fitView=!fitView;free=false;root.closest('.map-page')?.classList.toggle('map-camera-fit',fitView);root.style.width=fitView?'min(100cqw, 100cqh * 16/9)':'';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed',String(fitView));cam=null;follow();};
     api.pan=on=>{if(on&&(fitView||overview)){fitView=false;overview=false;root.closest('.map-page')?.classList.remove('map-camera-fit');root.closest('.map-page')?.classList.remove('map-overview');root.style.width='';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed','false');cam=null;free=false;follow();}panning=on;root.closest?.('.map-page')?.classList.toggle('map-pan',on);if(!on&&free){free=false;follow();}};
     // While the camera slides, a marker that would sit under a corner icon or floating button fades out until it is clear.
     let controls=null;
-    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
+    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next,.map-camera-tools,.map-walk-help')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
       const bounds=scene.getBoundingClientRect(),safe=parseFloat(doc.defaultView?.getComputedStyle(root).getPropertyValue('--hud-top'))||76;
       root.querySelectorAll('.map-marker[data-id]').forEach(m=>{m.style.translate='0px 0px';const initial=m.getBoundingClientRect(),[dx,dy]=markerSafeOffset(initial,{left:bounds.left+8,right:bounds.right-8,top:bounds.top+safe+6,bottom:bounds.bottom-8},bounds);m.style.translate=`${dx}px ${dy}px`;const q=m.getBoundingClientRect();m.classList.toggle('under-control',q.width>0&&controls.some(r=>q.left<r.right&&q.right>r.left&&q.top<r.bottom&&q.bottom>r.top));});};
     const onResize=()=>{cam=null;free=false;controls=null;follow();placeMarkers();clearControls();};doc.defaultView?.addEventListener('resize',onResize);
@@ -125,7 +124,7 @@ export function createVillage(root,{progress=[],onVillainHit,onVillainSound,posi
     }
     function walkTo(point,arriveId){
       if(!haru){if(arriveId!=null)onArrive?.(arriveId);return;}
-      api.stop?.();free=false;
+      api.stop?.();free=false;if(enterButton)enterButton.hidden=true;if(help)help.textContent='문까지 안내하고 있어. 방향키를 누르면 직접 걸을 수 있어.';
       const from=nearestNode(graph,[haru.x,haru.y]),to=nearestNode(graph,point),ids=from&&to?villagePath(graph,from,to):[];
       const pts=[...ids.map(id=>graph.nodes[id]),...(arriveId!=null?[point]:[])];
       if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);follow();if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}if(arriveId!=null)onArrive?.(arriveId);else api.interact?.(35);return;}
@@ -139,14 +138,38 @@ export function createVillage(root,{progress=[],onVillainHit,onVillainSound,posi
         haru.f=0;haru.moving=false;haru.dir='down';draw(haru);if(mori){mori.f=0;mori.moving=false;mori.dir='down';draw(mori);}frame=null;root.classList.remove('travelling');if(arriveId!=null)onArrive?.(arriveId);else api.interact?.(35);};
       frame=requestAnimationFrame(step);
     }
-    api.stop=()=>{cancelAnimationFrame(frame);frame=null;pending.length=0;root.classList.remove('travelling');for(const sp of [haru,mori])if(sp){sp.moving=false;sp.f=0;draw(sp);}};
+    const page=root.closest('.map-page'),help=page.querySelector('#map-walk-help'),enterButton=page.querySelector('[data-action="map-interact"]');
+    const nearbyDoor=(radius=60)=>!haru?null:Object.entries(j.buildings).filter(([id,b])=>id!=='core'&&b.door&&Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y)<radius).sort(([,a],[,b])=>Math.hypot(a.door[0]-haru.x,a.door[1]-haru.y)-Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y))[0];
+    const syncWalkUI=(blockedDirection=null)=>{
+      if(!haru||overview)return;const choices=availableDirections(graph,[haru.x,haru.y]),nearby=nearbyDoor();
+      for(const b of page.querySelectorAll('[data-action="map-walk"]'))b.dataset.available=String(choices.includes(b.dataset.id));
+      if(enterButton){enterButton.hidden=!nearby;enterButton.textContent=nearby?(root.querySelector('.map-marker[data-id="'+nearby[0]+'"] b')?.textContent.trim()||'이곳')+' 들어가기':'문 앞 도착 · 들어가기';}
+      if(help){const arrows={up:'↑',down:'↓',left:'←',right:'→'};help.textContent=nearby?'문 앞에 도착했어. 들어가기 버튼이나 Enter를 눌러 봐.':blockedDirection?'이쪽엔 길이 없어. '+choices.map(d=>arrows[d]).join(' ')+' 방향으로 걸어 봐.':'방향키를 꾹 눌러 걸어 봐. 건물을 누르면 문까지 안내해.';}
+      controls=null;clearControls();
+    };
+    api.stop=()=>{cancelAnimationFrame(frame);frame=null;manual=null;pending.length=0;root.classList.remove('travelling');for(const sp of [haru,mori])if(sp){sp.moving=false;sp.f=0;draw(sp);}syncWalkUI();};
     api.move=id=>{const d=doorOf(String(id));if(d)walkTo(d,id);else onArrive?.(id);};
-    api.walk=direction=>{if(overview||paused||isBlocked()||!haru)return;const from=nearestNode(graph,[haru.x,haru.y]),to=directionalNode(graph,from,direction);api.stop();onWalk?.();if(to)walkTo(graph.nodes[to],null);};
-    api.interact=(radius=85)=>{if(overview||paused||isBlocked()||!haru)return;const nearby=Object.entries(j.buildings).filter(([id,b])=>id!=='core'&&b.door&&Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y)<radius).sort(([,a],[,b])=>Math.hypot(a.door[0]-haru.x,a.door[1]-haru.y)-Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y))[0];if(nearby){api.stop();onInteract?.(nearby[0]);}};
+    api.walk=(direction,options={})=>{
+      if(overview||paused||isBlocked()||!haru)return;
+      api.stop();onWalk?.();free=false;away=false;manual=createDirectionalWalker(graph,[haru.x,haru.y],direction,options);
+      root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;if(enterButton)enterButton.hidden=true;let last=0,walked=0;
+      const step=t=>{if(!active||!manual)return;if(paused||away||isBlocked()){api.stop();return;}
+        const dt=Math.min(last?t-last:16,50);last=t;const moved=manual.step(dt*.26),[x,y]=moved.point,dx=x-haru.x,dy=y-haru.y;
+        if(moved.distance){walked+=moved.distance;const was=Math.floor(haru.f/3);haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=moved.distance/14;
+          if(Math.floor(haru.f/3)>was)onStep?.();haru.x=x;haru.y=y;trail.push([x,y,haru.dir]);if(trail.length>40)trail.shift();
+          if(mori&&trail.length>14){const [mx,my,md]=trail[trail.length-14];mori.f+=Math.hypot(mx-mori.x,my-mori.y)/14;mori.x=mx;mori.y=my;mori.dir=md;}
+          draw(haru);draw(mori);follow();}
+        if(moved.done){api.stop();syncWalkUI(walked===0||moved.distance===0?direction:null);return;}frame=requestAnimationFrame(step);
+      };frame=requestAnimationFrame(step);
+    };
+    api.release=()=>{manual?.release();if(manual?.done)api.stop();};
+    directions=bindMapDirections(root.closest('.map-page'),{walk:(...args)=>api.walk(...args),release:()=>api.release(),stop:()=>{if(manual)api.stop();},blocked:()=>overview||paused||isBlocked()});
+    api.interact=(radius=60)=>{if(overview||paused||isBlocked()||!haru)return;const nearby=Object.entries(j.buildings).filter(([id,b])=>id!=='core'&&b.door&&Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y)<radius).sort(([,a],[,b])=>Math.hypot(a.door[0]-haru.x,a.door[1]-haru.y)-Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y))[0];if(nearby){api.stop();onInteract?.(nearby[0]);}};
+    syncWalkUI();
     // Leaving the app holds a walk where it is; it carries on to the same door on return (a new tap also resumes).
     const onBlur=()=>{away=true;},onFocus=()=>{away=false;};doc.defaultView?.addEventListener('blur',onBlur);doc.defaultView?.addEventListener('focus',onFocus);
-    api.destroy=()=>{villains.destroy();active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('focus',onFocus);doc.defaultView?.removeEventListener('resize',onResize);if(scene){scene.removeEventListener('pointerdown',onDown);scene.removeEventListener('pointermove',onMove);scene.removeEventListener('pointerup',onUp);scene.removeEventListener('pointercancel',onUp);scene.removeEventListener('click',onDragClick,true);scene.removeEventListener('dragstart',onNativeDrag);}root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
+    api.destroy=()=>{directions.destroy();active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('focus',onFocus);doc.defaultView?.removeEventListener('resize',onResize);if(scene){scene.removeEventListener('pointerdown',onDown);scene.removeEventListener('pointermove',onMove);scene.removeEventListener('pointerup',onUp);scene.removeEventListener('pointercancel',onUp);scene.removeEventListener('click',onDragClick,true);scene.removeEventListener('dragstart',onNativeDrag);}root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
     built=true;
   }
-  return {move(id){built?api.move(id):pending.push(id);},walk(direction){api.walk?.(direction);},fit(){api.fit?.();},pan(on){panning=!!on;api.pan?.(panning);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
+  return {move(id){built?api.move(id):pending.push(id);},walk(direction,options){api.walk?.(direction,options);},release(){api.release?.();},fit(){api.fit?.();},pan(on){panning=!!on;api.pan?.(panning);},interact(){api.interact?.();},pause(){paused=true;directions?.cancel();},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};
 }

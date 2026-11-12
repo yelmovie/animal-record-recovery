@@ -22,4 +22,4 @@ export function mount3d(kind,host,opts){
   return handle;
 }
 // Start downloading a 3D screen (module, three.js, models) ahead of time; failures are ignored here.
-export function warm3d(kind,ids){if(!can3d())return;(kind==='dome'?import('./dome3d.js'):import('./scanner3d.js')).then(m=>m.warm(ids)).catch(()=>{});}
+export function warm3d(kind,ids){if(!can3d()||navigator.connection?.saveData||/^(slow-)?2g$/.test(navigator.connection?.effectiveType||''))return;(kind==='dome'?import('./dome3d.js'):import('./scanner3d.js')).then(m=>m.warm(ids)).catch(()=>{});}

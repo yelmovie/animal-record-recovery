@@ -34,6 +34,12 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null}={}){
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
+function compareCandidates(a){
+ const state=a.run('JSON.parse(JSON.stringify(s.cases[round()]))'),c=model.CASES[a.run('round()')];
+ a.run("act('case-compare',{dataset:{}})");
+ for(const id of c.candidates.filter(id=>id!==state.candidate)){const clue=c.clues.find(k=>state.opened.includes(k.id)&&k.fits.includes(state.candidate)&&!k.fits.includes(id));assert.ok(clue);a.changeControl({dataset:{caseExclusion:id},value:clue.id});}
+ a.run("act('close-dialog',{dataset:{}})");
+}
 test('current controller reports storage failure immediately and recovers without losing progress',()=>{
   const a=appHarness({fail:true});assert.equal(a.run('storageOK'),false);assert.match(a.warning.text,/role="alert"/);assert.match(a.status.textContent,/저장/);a.run("s.observed.push('frog-eye');render()");assert.ok(a.warning);a.setFail(false);a.run('save()');assert.equal(a.warning,null);assert.deepEqual(JSON.parse(a.saved).observed,['frog-eye']);
 });
@@ -114,7 +120,7 @@ test('the diary escapes learner writing, keeps both draft inventions and offers 
 test('controller records prediction and comparison, preserves input and prevents one-trial completion',()=>{
  const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('source-seen',{dataset:{}});act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'wide'}});s.designs[0].name='내 수영 오리발';act('advance',{dataset:{}})");assert.equal(a.run('step'),1);a.run("act('experiment-run',{dataset:{}})");assert.equal(a.run('s.designs[0].experiment.trials.length'),0);a.run("act('prediction',{dataset:{value:'less'}});act('experiment-run',{dataset:{}})");assert.equal(a.run('s.designs[0].experiment.trials.length'),1);a.run("act('advance',{dataset:{}})");assert.equal(a.run('step'),1);a.run("act('experiment-level',{dataset:{value:'3'}});act('experiment-run',{dataset:{}});act('lab-summary',{dataset:{}});act('reflection',{dataset:{value:'surprised'}});s.designs[0].experiment.note='넓이를 바꾸니 미는 물이 달라졌어.';act('explain',{dataset:{value:'match'}});act('advance',{dataset:{}})");assert.equal(a.run('step'),2);assert.equal(a.run('s.records.designs[0].experiment.trials.length'),2);assert.equal(a.run('labSummary'),false);
 });
-test('investigation can collect more clues while still requiring grounds that distinguish the chosen animal',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('clue-spend',{dataset:{value:'1'}});act('clue-spend',{dataset:{value:'3'}});act('clue-spend',{dataset:{value:'4'}});act('clue-spend',{dataset:{value:'0'}})");assert.deepEqual(a.run('s.cases[0].opened'),['cover','move','life','place']);a.run("act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'move'}});advance()");assert.equal(a.run('step'),0);assert.match(a.run('feedback.text'),/닭/);a.run("act('case-animal',{dataset:{id:'frog'}});act('case-animal',{dataset:{id:'duck'}})");assert.equal(a.run('s.cases[0].opened.length'),4,'changing the answer keeps found clues');a.run("act('case-reset',{dataset:{}});act('clue-spend',{dataset:{value:'0'}});act('clue-spend',{dataset:{value:'1'}});act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});advance()");assert.equal(a.run('step'),1);});
+test('investigation can collect more clues while still requiring grounds that distinguish the chosen animal',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('clue-spend',{dataset:{value:'1'}});act('clue-spend',{dataset:{value:'3'}});act('clue-spend',{dataset:{value:'4'}});act('clue-spend',{dataset:{value:'0'}})");assert.deepEqual(a.run('s.cases[0].opened'),['cover','move','life','place']);a.run("act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'move'}});advance()");assert.equal(a.run('step'),0);assert.match(a.run('feedback.text'),/닭/);a.run("act('case-animal',{dataset:{id:'frog'}});act('case-animal',{dataset:{id:'duck'}})");assert.equal(a.run('s.cases[0].opened.length'),4,'changing the answer keeps found clues');a.run("act('case-reset',{dataset:{}});act('clue-spend',{dataset:{value:'0'}});act('clue-spend',{dataset:{value:'1'}});act('case-animal',{dataset:{id:'duck'}});act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});");compareCandidates(a);a.run('advance()');assert.equal(a.run('step'),1);});
 
 test('investigation navigation opens the evidence step and failed checks return to the relevant panel',()=>{
  const a=appHarness();a.run("s.adminUnlocked=true;enter(4);act('case-continue',{dataset:{}})");
@@ -125,7 +131,7 @@ test('investigation navigation opens the evidence step and failed checks return 
  assert.equal(a.run("panelPages.get(panelKey('.case-activity'))"),0);assert.equal(a.run('step'),0);
  a.run("act('case-animal',{dataset:{id:'duck'}});advance()");
  assert.equal(a.run("panelPages.get(panelKey('.case-activity'))"),1);
- a.run("act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});advance()");assert.equal(a.run('step'),1);
+ a.run("act('case-ground',{dataset:{value:'place'}});act('case-ground',{dataset:{value:'cover'}});");compareCandidates(a);a.run('advance()');assert.equal(a.run('step'),1);
 });
 
 test('a flashlight discovery is only saved on attaching, replay does not duplicate it, and guesses still need grounds',()=>{
@@ -135,7 +141,7 @@ test('a flashlight discovery is only saved on attaching, replay does not duplica
  assert.deepEqual([...a.run('s.cases[0].opened')],['cover']);assert.equal(a.run('s.activities.length'),0);
  a.run("act('flashlight-collect',{dataset:{value:'2'}});act('flashlight-guess',{dataset:{}})");assert.match(a.dialog.innerHTML,/flashlight-candidates/);
  a.run("act('case-animal',{dataset:{id:'duck'}});advance()");assert.equal(a.run('step'),0);
- a.run("act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'foot'}});advance()");assert.equal(a.run('step'),1);
+ a.run("act('case-ground',{dataset:{value:'cover'}});act('case-ground',{dataset:{value:'foot'}});");compareCandidates(a);a.run('advance()');assert.equal(a.run('step'),1);
 });
 
 test('motion range keeps the newly entered value when stopping playback repaints the same slider',()=>{const a=appHarness({motion:true});a.run('motionPhase=0');a.slider.value=68;a.inputControl(a.slider);assert.equal(a.run('motionPhase'),68);assert.equal(a.slider.value,68);});
@@ -333,7 +339,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  a.run('enter(4)');
  for(const r of [0,1,2]){const c=model.CASES[r],g=[['place','cover'],['place','move'],['place','paws']][r];
   for(const id of g){const v=String(c.clues.findIndex(k=>k.id===id));act('clue-open',{value:v});act('clue-spend',{value:v});}
-  act('case-animal',{id:c.animal});for(const v of g)act('case-ground',{value:v});tapTwice('advance()');
+  act('case-animal',{id:c.animal});for(const v of g)act('case-ground',{value:v});compareCandidates(a);tapTwice('advance()');
   act('case-habitat',{value:c.habitat});act('case-reason',{value:c.reason});a.run('advance()');
  }
  assert.equal(stars(),20);finishRequest(4);
@@ -366,13 +372,10 @@ test('after a wrong observation the choices stay closed until that part is looke
  assert.deepEqual(model.restoreExpedition(JSON.stringify({...JSON.parse(a.saved),ahaPicks:{'frog-skin':5,'nope':0,'frog-eye':0}})).ahaPicks,{},'only known questions and their two options survive');
 });
 
-test('auto-run plays only the hands-on steps and stops before the learner answers',()=>{
- const a=appHarness();a.run("s.adminUnlocked=true;enter(4)");assert.match(a.app.innerHTML,/data-action="auto-run"/);
- a.run("act('auto-run',{dataset:{}})");assert.ok(a.run('autoRun'));assert.match(a.app.innerHTML,/aria-pressed="true"[^>]*>.*자동 진행 멈추기|자동 진행 멈추기/);
- for(let i=0;i<40&&a.run('!!autoRun');i++)a.run('autoTick()');
- assert.equal(a.run('autoRun'),null);assert.equal(a.run('s.cases[0].opened.length'),a.run('CASES[0].clues.length'),'every clue is collected');
+test('auto-run leaves investigation to the learner and stops before observation answers',()=>{
+ const a=appHarness();a.run("s.adminUnlocked=true;enter(4)");assert.doesNotMatch(a.app.innerHTML,/data-action="auto-run"/);
+ assert.equal(a.run('autoRun'),null);assert.equal(a.run('s.cases[0].opened.length'),0,'investigation clues are collected by the learner');
  assert.ok(!a.run('s.cases[0].candidate'),'the animal guess stays with the learner');assert.equal(a.run('step'),0);assert.equal(a.dialog.open,false);
- assert.match(a.announcer.textContent,/추리해 봐/);
  const b=appHarness();b.run("s.adminUnlocked=true;enter(1);act('auto-run',{dataset:{}})");
  for(let i=0;i<8;i++)b.run('autoTick()');
  assert.equal(b.run('autoRun?.waiting'),true,'stage 1 waits on the shown part instead of skipping past it');assert.equal(b.run('focusIndex'),0);
@@ -383,4 +386,17 @@ test('auto-run plays only the hands-on steps and stops before the learner answer
  b.run("for(const o of OBSERVE_PAIRS[0].flatMap(id=>OBSERVATIONS[id])){if(!s.observed.includes(o.id))s.observed.push(o.id);if(o.ahaQ)(s.ahaPicks??={})[o.id]=0;}autoTick()");
  assert.equal(b.run('autoRun'),null);assert.match(b.announcer.textContent,/모든 부분을 기록했어/);
  b.run('step=1;render()');assert.doesNotMatch(b.app.innerHTML,/data-action="auto-run"/,'question steps have no auto-run');
+});
+
+test('discovery cards offer only continuation and preserve the next observation',()=>{
+ const a=appHarness();a.run('stage=1;step=6;go("mission");pairReward(2)');
+ assert.match(a.dialog.innerHTML,/다음 동물 관찰하기/);assert.doesNotMatch(a.dialog.innerHTML,/지도에서 쉬기|쉬어 가도|aria-label="닫기"/);
+ assert.equal((a.dialog.innerHTML.match(/data-action=/g)||[]).length,1);
+ a.run('act("close-dialog",{dataset:{}})');assert.equal(a.run('screen'),'mission');assert.equal(a.run('step'),6);
+});
+
+test('sound controls appear only in settings and narration is not installed',()=>{
+ const a=appHarness();assert.doesNotMatch(a.app.innerHTML,/data-action="sound-all"|data-npc-voice|NPC 음성/);
+ a.run('settings()');assert.match(a.dialog.innerHTML,/sound-volume/);assert.match(a.dialog.innerHTML,/music-volume/);
+ assert.doesNotMatch(source,/installNpcNarration/);
 });

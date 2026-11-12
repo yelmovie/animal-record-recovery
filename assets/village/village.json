@@ -92,8 +92,8 @@
     330
    ],
    "door": [
-    1390,
-    700
+    1335,
+    704
    ],
    "npc": [
     1500,
@@ -500,22 +500,60 @@
    1300,
    383
   ],
-  "workshop-turn": [1280, 430],
-  "workshop-north": [1530, 445],
-  "workshop-east": [1570, 570],
-  "workshop-south": [1520, 755],
-  "workshop-door": [1390, 700],
+  "workshop-turn": [
+   1210,
+   425
+  ],
+  "workshop-north": [
+   1194,
+   490
+  ],
+  "workshop-east": [
+   1165,
+   565
+  ],
+  "workshop-south": [
+   1190,
+   665
+  ],
+  "workshop-door": [
+   1335,
+   704
+  ],
   "door-4": [
    1395,
    378
+  ],
+  "workshop-front": [
+   1260,
+   711
   ]
  },
  "edges": [
-  ["libPath", "workshop-turn"],
-  ["workshop-turn", "workshop-north"],
-  ["workshop-north", "workshop-east"],
-  ["workshop-east", "workshop-south"],
-  ["workshop-south", "workshop-door"],
+  [
+   "libPath",
+   "workshop-turn"
+  ],
+  [
+   "workshop-turn",
+   "workshop-north"
+  ],
+  [
+   "workshop-north",
+   "workshop-east"
+  ],
+  [
+   "workshop-east",
+   "workshop-south"
+  ],
+  [
+   "workshop-south",
+   "workshop-front"
+  ],
+  [
+   "workshop-front",
+   "workshop-door"
+  ],
   [
    "entrance",
    "dirt"

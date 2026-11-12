@@ -33,15 +33,15 @@ export async function toggleMotionFullscreen(player){
 // Keep the media clock authoritative. A stalled or seeking video cannot grant a record.
 export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpdate=()=>{},onError=()=>{}}={}){
  const video=host?.querySelector('.motion-video');if(!video)return null;
- let alive=true,pendingPhase=phase,viewed=false;
+ let alive=true,pendingPhase=phase,viewed=false,requested=false;
  const events=[];
  const listen=(name,fn)=>{video.addEventListener(name,fn);events.push([name,fn]);};
  const duration=()=>Number.isFinite(video.duration)&&video.duration>0?video.duration:0;
  const percent=()=>duration()?video.currentTime/duration()*100:pendingPhase;
  const update=()=>{if(alive)onUpdate({phase:percent(),playing:!video.paused&&!video.ended});};
- function seek(value){pendingPhase=Math.max(0,Math.min(100,Number(value)||0));if(duration())video.currentTime=pendingPhase/100*duration();}
+ function seek(value){if(!alive)return;pendingPhase=Math.max(0,Math.min(100,Number(value)||0));if(duration())video.currentTime=pendingPhase/100*duration();else if(!requested){requested=true;video.preload='auto';video.load();}}
  function play(){
-  if(!alive)return;playing=true;
+  if(!alive)return;playing=true;requested=true;
   if(video.ended||percent()>=99.9)seek(0);
   const promise=video.play();
   promise?.catch(()=>{if(alive){video.pause();update();}});
@@ -51,7 +51,8 @@ export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpda
  listen('playing',()=>{viewed=true;update();});
  for(const name of ['timeupdate','play','pause','seeking','seeked','ended','loadeddata','canplay','waiting'])listen(name,update);
  listen('error',()=>{if(alive)onError();});
- if(video.readyState>=1){seek(pendingPhase);if(playing)play();}
+ if(video.readyState>=1)seek(pendingPhase);
+ if(playing)play();
  return {
   get phase(){return percent();},get ready(){return video.readyState>=2&&!video.seeking;},get viewed(){return viewed;},
   capture(){

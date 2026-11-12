@@ -2,7 +2,7 @@ let context,sfxVolume=.8;
 const active=new Set(),plays=[],lastStart={};
 // Pixabay sound files (see assets/CREDITS.md). Gains even out the sources' peaks (tap ≈.33, others ≈.5); tune by ear on the classroom tablet.
 const FILES={tap:.5,correct:.55,retry:.75,star:1.4,stamp:.7,fanfare:.8,talk:.45,step:.6,door:.45,page:.7};
-const buffers={};let loading=null;
+const buffers={},loading={};
 // Synth fallback while a file is still loading or failed: [notes, gap, wave, top-note length].
 const SYNTH={talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
 export function silence(){
@@ -14,8 +14,9 @@ export function setSoundVolume(value){
   sfxVolume=Math.min(1,Math.max(0,value));
   if(sfxVolume===0)silence();
 }
-function load(){
-  loading ||= Promise.all(Object.keys(FILES).map(name=>fetch(new URL(`../assets/sfx/${name}.mp3`,import.meta.url)).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(data=>context.decodeAudioData(data)).then(buffer=>{buffers[name]=buffer;}).catch(()=>{ /* Keep the synth fallback for this sound. */ })));
+function load(name){
+  if(!Object.hasOwn(FILES,name)||buffers[name]||loading[name])return;
+  loading[name]=fetch(new URL(`../assets/sfx/${name}.mp3`,import.meta.url)).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(data=>context.decodeAudioData(data)).then(buffer=>{buffers[name]=buffer;}).catch(()=>{ /* Keep the synth fallback; do not repeatedly fetch a failed sound. */ });
 }
 function track(source,gain,group){active.add(source);group.push(source);source.onended=()=>{active.delete(source);source.disconnect();gain.disconnect();group.splice(group.indexOf(source),1);if(!group.length&&plays.includes(group))plays.splice(plays.indexOf(group),1);};}
 // kind: any FILES or SYNTH name ('drop' is synth-only); true/false are kept for older callers; unknown kinds fall back to 'tap'.
@@ -27,7 +28,7 @@ export function playSound(enabled,kind='tap'){
     if(!AudioContext)return;
     context ||= new AudioContext();
     if(context.state==='suspended')context.resume().catch(()=>{});
-    load();
+    load(soundName(kind));
     const name=soundName(kind),now=performance.now();
     // Same sound within 80ms is a double trigger; more than 3 effects at once turns to mush, so the oldest stops.
     if(now-(lastStart[name]??-1e9)<80)return;lastStart[name]=now;

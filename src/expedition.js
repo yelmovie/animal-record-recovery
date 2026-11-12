@@ -63,7 +63,7 @@ export const OBSERVATIONS={
   duck:[{id:'duck-bill',look:'부리의 모양',label:'부리',text:'넓적한 부리가 있어.',wrong:['뾰족하고 짧은 부리가 있어.','부리가 없고 입술이 있어.'],x:20,y:30},{id:'duck-wing',look:'몸을 덮고 있는 것과 날개',label:'몸 표면',text:'깃털로 덮여 있고 날개가 있어.',wrong:['몸이 털로 덮여 있어.','털이나 깃털 없이 맨살이 드러나 있어.'],x:61,y:50},{id:'duck-feet',look:'발가락 사이',label:'발',text:'두 발의 발가락 사이에 물갈퀴가 있어.',wrong:['발가락이 따로 떨어져 있고 사이에 막이 없어.','발 대신 지느러미가 있어.'],x:50,y:86}],
   // x/y for bat..ant were measured on the delivered field-guide art (2026-10-26).
   bat:[{id:'bat-wing',look:'날개가 무엇으로 되어 있는지',label:'날개',text:'긴 손가락 사이를 얇은 피부가 이어 날개가 돼.',wrong:['깃털이 겹겹이 모여 날개가 돼.','날개가 없어.'],aha:'박쥐는 새가 아니야. 날개 속에 길게 자란 손가락뼈가 있어.',ahaQ:'박쥐는 새일까?',ahaOptions:['새야','새가 아니야'],ahaAnswer:1,x:15,y:40},{id:'bat-fur',look:'몸을 덮고 있는 것',label:'몸 표면',text:'몸이 털로 덮여 있어.',wrong:['깃털로 덮여 있어.','단단한 껍데기가 몸을 감싸.'],x:50,y:58},{id:'bat-ear',look:'귀의 크기와 모양',label:'귀',text:'크고 뾰족한 귀가 있어.',wrong:['귀가 보이지 않고 부리가 있어.','더듬이가 두 개 있어.'],aha:'박쥐는 자기가 낸 소리가 되돌아오는 메아리를 큰 귀로 들으며 어둠 속에서 길을 찾아.',ahaQ:'박쥐는 깜깜한 밤에 어떻게 길을 찾을까?',ahaOptions:['소리가 되돌아오는 메아리를 들어','어둠 속에서 빛나는 눈으로 봐'],ahaAnswer:0,x:40,y:24}],
-  sparrow:[{id:'sparrow-wing',look:'날개가 무엇으로 되어 있는지',label:'날개',text:'깃털이 겹겹이 모여 날개가 돼.',wrong:['긴 손가락 사이를 얇은 피부가 이어 날개가 돼.','날개가 없어.'],aha:'깃털은 새에게만 있어. 깃털을 보면 새라는 걸 알 수 있어.',ahaQ:'깃털이 있는 동물은 새뿐일까?',ahaOptions:['그래, 새뿐이야','다른 동물에게도 있어'],ahaAnswer:0,x:25,y:32},{id:'sparrow-bill',look:'부리의 모양',label:'부리',text:'짧고 두툼한 부리가 있어.',wrong:['넓적한 부리가 있어.','부리가 없고 이빨이 있는 입이 있어.'],aha:'짧고 두툼한 부리는 딱딱한 씨앗을 깨 먹기 좋아.',ahaQ:'짧고 두툼한 부리는 무엇을 먹기 좋을까?',ahaOptions:['딱딱한 씨앗','물속의 물고기'],ahaAnswer:0,x:90,y:25},{id:'sparrow-feet',look:'발가락의 개수와 방향',label:'발',text:'발가락이 앞에 셋, 뒤에 하나 있어.',wrong:['발가락 사이에 물갈퀴가 있어.','발가락이 두 개뿐이야.'],aha:'뒤쪽 발가락 덕분에 나뭇가지를 꽉 잡고 앉을 수 있어.',ahaQ:'뒤쪽 발가락은 무엇에 쓰일까?',ahaOptions:['나뭇가지를 꽉 잡기','물을 밀어 헤엄치기'],ahaAnswer:0,x:58,y:88}],
+  sparrow:[{id:'sparrow-wing',look:'날개가 무엇으로 되어 있는지',label:'날개',text:'깃털이 겹겹이 모여 날개가 돼.',wrong:['긴 손가락 사이를 얇은 피부가 이어 날개가 돼.','날개가 없어.'],aha:'지금 살아 있는 동물 중에서 깃털이 있는 동물은 새뿐이야.',ahaQ:'지금 살아 있는 동물 중에서 깃털이 있는 동물은 새뿐일까?',ahaOptions:['그래, 새뿐이야','다른 동물에게도 있어'],ahaAnswer:0,x:25,y:32},{id:'sparrow-bill',look:'부리의 모양',label:'부리',text:'짧고 두툼한 부리가 있어.',wrong:['넓적한 부리가 있어.','부리가 없고 이빨이 있는 입이 있어.'],aha:'짧고 두툼한 부리는 딱딱한 씨앗을 깨 먹기 좋아.',ahaQ:'짧고 두툼한 부리는 무엇을 먹기 좋을까?',ahaOptions:['딱딱한 씨앗','물속의 물고기'],ahaAnswer:0,x:90,y:25},{id:'sparrow-feet',look:'발가락의 개수와 방향',label:'발',text:'발가락이 앞에 셋, 뒤에 하나 있어.',wrong:['발가락 사이에 물갈퀴가 있어.','발가락이 두 개뿐이야.'],aha:'뒤쪽 발가락 덕분에 나뭇가지를 꽉 잡고 앉을 수 있어.',ahaQ:'뒤쪽 발가락은 무엇에 쓰일까?',ahaOptions:['나뭇가지를 꽉 잡기','물을 밀어 헤엄치기'],ahaAnswer:0,x:58,y:88}],
   spider:[{id:'spider-leg',look:'다리의 개수',label:'다리',text:'다리가 여덟 개 있어.',wrong:['다리가 여섯 개 있어.','다리가 네 개 있어.'],aha:'거미는 곤충이 아니야. 곤충은 다리가 여섯 개야.',ahaQ:'거미는 곤충일까?',ahaOptions:['곤충이야','곤충이 아니야'],ahaAnswer:1,x:13,y:48},{id:'spider-body',look:'몸이 몇 부분으로 나뉘는지',label:'몸',text:'몸이 머리가슴과 배, 두 부분으로 나뉘어.',wrong:['몸이 머리·가슴·배, 세 부분으로 나뉘어.','몸이 나뉘지 않고 한 덩어리야.'],x:52,y:44},{id:'spider-head',look:'머리에 무엇이 달려 있는지',label:'머리',text:'더듬이가 없어.',wrong:['꺾인 더듬이가 두 개 있어.','긴 귀가 두 개 있어.'],aha:'거미는 더듬이 대신 다리와 몸의 털로 떨림을 느껴.',ahaQ:'더듬이가 없는 거미는 무엇으로 주변을 느낄까?',ahaOptions:['다리와 몸의 털로 떨림을 느껴','아무것도 못 느껴'],ahaAnswer:0,x:50,y:57}],
   ant:[{id:'ant-leg',look:'다리의 개수와 붙은 곳',label:'다리',text:'다리가 여섯 개 있어.',wrong:['다리가 여덟 개 있어.','다리가 네 개 있어.'],aha:'곤충의 다리 여섯 개는 모두 가운데 몸(가슴)에 붙어 있어.',ahaQ:'개미의 다리 여섯 개는 몸의 어디에 붙어 있을까?',ahaOptions:['가운데 몸(가슴)','뒤쪽 몸(배)'],ahaAnswer:0,x:50,y:72},{id:'ant-body',look:'몸이 몇 부분으로 나뉘는지',label:'몸',text:'몸이 머리·가슴·배, 세 부분으로 나뉘어.',wrong:['몸이 머리가슴과 배, 두 부분으로 나뉘어.','몸이 나뉘지 않고 한 덩어리야.'],x:45,y:42},{id:'ant-antenna',look:'머리에 무엇이 달려 있는지',label:'더듬이',text:'꺾인 더듬이가 두 개 있어.',wrong:['더듬이가 없어.','긴 귀가 두 개 있어.'],aha:'개미는 더듬이로 냄새를 맡아 친구와 먹이로 가는 길을 찾아.',ahaQ:'개미는 더듬이로 무엇을 할까?',ahaOptions:['냄새를 맡아 길을 찾아','소리를 내서 친구를 불러'],ahaAnswer:0,x:80,y:20}],
   rabbit:[{id:'rabbit-ear',look:'귀의 길이',label:'귀',text:'길게 솟은 귀가 있어.',wrong:['귀가 짧고 둥글어.','귀가 거의 보이지 않아.'],x:46,y:18},{id:'rabbit-fur',look:'몸을 덮고 있는 것',label:'몸 표면',text:'몸이 털로 덮여 있어.',wrong:['깃털로 덮여 있어.','단단한 껍데기가 몸을 감싸.'],x:51,y:48},{id:'rabbit-leg',look:'다리의 개수와 길이',label:'뒷다리',text:'길고 튼튼한 뒷다리와 앞다리, 네 다리가 있어.',wrong:['다리가 여섯 개 있어.','앞다리가 뒷다리보다 훨씬 길어.'],x:33,y:76}],
@@ -93,7 +93,7 @@ export const DISCOVERIES=[
   {id:'coast-marine',animal:'marine',habitat:'coast',text:'바다 물고기가 지느러미로 바닷물 속을 헤엄쳤어.'},
   {id:'forest-butterfly',animal:'butterfly',habitat:'forest',text:'꽃이 있는 풀밭에서 나비가 날개로 날아다녔어.'},
   {id:'pond-duck',animal:'duck',habitat:'pond',text:'오리가 연못에서 물갈퀴로 물을 밀며 헤엄쳤어.'},
-  {id:'coast-crab',animal:'crab',habitat:'coast',text:'바닷가 갯벌에서 게가 여러 다리로 걸어다녔어.'},
+  {id:'coast-crab',animal:'crab',habitat:'coast',text:'바닷가 갯벌에서 게가 여러 다리로 걸어 다녔어.'},
 ];
 // A motion's body part and function stay hidden until the learner commits a prediction (or recorded it in an older save).
 export const motionOpen=(s,animal)=>Boolean(s.inquiry?.motionPredictions?.[animal])||s.inquiry?.motion?.[animal]!==undefined;
@@ -137,7 +137,10 @@ export const CASES=[
 export const clueOf=(c,id)=>c.clues.find(x=>x.id===id);
 // Candidates every given clue is true for.
 export const fitting=(c,ids)=>c.candidates.filter(a=>ids.every(id=>clueOf(c,id)?.fits.includes(a)));
-export const proves=(c,ids)=>ids.length>=2&&ids.every(id=>clueOf(c,id))&&fitting(c,ids).join()===c.animal;
+export const proves=(c,ids)=>new Set(ids).size>=2&&ids.every(id=>clueOf(c,id))&&fitting(c,ids).join()===c.animal;
+// Each alternative must be ruled out with an observed clue, not just an animal guess.
+export function exclusionsReady(c,a){return c.candidates.filter(id=>id!==a.candidate).every(id=>{const clue=clueOf(c,a.excluded?.[id]);return clue&&a.opened.includes(clue.id)&&clue.fits.includes(a.candidate)&&!clue.fits.includes(id);});}
+const normalizeExclusions=(c,x,opened)=>Object.fromEntries(c.candidates.flatMap(id=>opened.includes(x?.[id])?[[id,x[id]]]:[]));
 const groundsReady=(c,a)=>a.candidate===c.animal&&a.grounds.every(id=>a.opened.includes(id))&&proves(c,a.grounds);
 export const FEATURES=[['shell','거북의 단단한 등딱지'],['web','오리의 물갈퀴'],['fur','북극곰의 촘촘한 털']];
 export const STRUCTURES=[['dome','머리를 감싸는 단단한 덮개'],['wide','물을 미는 넓고 납작한 면'],['layer','공기를 머금는 여러 겹']];
@@ -154,7 +157,7 @@ export function testDesign(d){const r=testChoices(d),spot=Boolean(PRODUCTS[d?.pr
 // Failed tests are the times the learner had to go back and change the design.
 export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
-const blankCase=()=>({opened:[],grounds:[],candidate:'',habitat:'',reason:''});
+const blankCase=()=>({opened:[],grounds:[],candidate:'',excluded:{},habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
 export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
@@ -213,7 +216,7 @@ export function restoreExpedition(raw,{strict=false}={}){
     out.criteria=[safeChoice(input.criteria?.[0],['cute','wings']),safeChoice(input.criteria?.[1],[...OWN_CRITERIA,...OPINION_CRITERIA])];
     out.discovered=uniqueStrings(input.discovered,DISCOVERIES.map(d=>d.id));
     for(const id of ['frog','crab'])out.links[id]=normalizedChoices(input.links?.[id],['environment','body','life'],Object.values(LINKS[id]).filter(Array.isArray).flat().flat().filter(x=>typeof x==='string'));
-    out.cases=CASES.map((c,i)=>{const x=input.cases?.[i],opened=uniqueStrings(x?.opened,c.clues.map(k=>k.id)).slice(0,CLUE_ENERGY);return {opened,grounds:uniqueStrings(x?.grounds,opened),candidate:safeChoice(x?.candidate,c.candidates),habitat:safeChoice(input.cases?.[i]?.habitat,Object.keys(HABITATS)),reason:safeChoice(x?.reason,c.reasons.map(r=>r[0]))};});
+    out.cases=CASES.map((c,i)=>{const x=input.cases?.[i],opened=uniqueStrings(x?.opened,c.clues.map(k=>k.id)).slice(0,CLUE_ENERGY);return {opened,excluded:normalizeExclusions(c,x?.excluded,opened),grounds:uniqueStrings(x?.grounds,opened),candidate:safeChoice(x?.candidate,c.candidates),habitat:safeChoice(input.cases?.[i]?.habitat,Object.keys(HABITATS)),reason:safeChoice(x?.reason,c.reasons.map(r=>r[0]))};});
     out.designs=[0,1].map(i=>normalizeDesign(input.designs?.[i]));
     for(const i of [0,1])for(const problem of Object.keys(PROBLEMS)){
       const draft=input.designDrafts?.[i]?.[problem];
@@ -235,7 +238,7 @@ export function restoreExpedition(raw,{strict=false}={}){
       const c=record(input.records?.cases?.[i]),expected=CASES[i];
       // A record saved before screen 08 used two trait ids; translate it for display.
       const legacy=Array.isArray(c.traits)&&c.traits.length===2&&c.traits.every(t=>Object.hasOwn(expected.legacy,t)),grounds=legacy?c.traits.map(t=>expected.legacy[t]):uniqueStrings(c.grounds,expected.clues.map(k=>k.id));
-      if(out.activities.includes(`4-${i*2+1}`)&&c.candidate===expected.animal&&(legacy||proves(expected,grounds))&&c.habitat===expected.habitat&&c.reason===expected.reason)out.records.cases[i]={opened:[...grounds],grounds,candidate:c.candidate,habitat:c.habitat,reason:c.reason};
+      if(out.activities.includes(`4-${i*2+1}`)&&c.candidate===expected.animal&&(legacy||proves(expected,grounds))&&c.habitat===expected.habitat&&c.reason===expected.reason)out.records.cases[i]={opened:[...grounds],grounds,...(c.excluded?{excluded:normalizeExclusions(expected,c.excluded,grounds)}:{}),candidate:c.candidate,habitat:c.habitat,reason:c.reason};
     }
     for(const i of [0,1]){
       const d=normalizeDesign(input.records?.designs?.[i]||out.designs[i]);
@@ -274,7 +277,7 @@ export function taskReady(s,stage,step){
   if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>OBSERVATIONS[id].every(o=>s.observed.includes(o.id))):COMPARES[round].every(q=>s.compares[round][q.key]===`${q.key}-${q.answer}`);
   if(stage===2){const key=round?s.criteria[1]:'wings',v=s.inquiry.verify[round];if(round&&!OWN_CRITERIA.includes(key))return false;if(step%2===0)return SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no'));return round?v.checked===key&&s.inquiry.reclass[1].revealed:v.ran&&v.cause==='opinion'&&OBSERVABLE.includes(v.fix)&&splitsAnimals(v.fix)&&v.checked===v.fix;}
   if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
-  if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
+  if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(s.activities.includes(`4-${round*2}`)||exclusionsReady(c,a))&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
   if(stage===5&&step>=2&&s.studio)return step===2?studioDrawingReady(s.studio):studioReady(s.studio);
   if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot&&d.experiment.sourceSeen);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&testDesign(t).passed)&&d.explanation==='match';}
   return false;
@@ -327,6 +330,7 @@ export function taskMistake(s,stage,step){
       if(a.candidate!==c.animal){const k=a.opened.map(id=>clueOf(c,id)).find(x=>!x.fits.includes(a.candidate));return {text:k?`${withParticle(ANIMALS[a.candidate].name,'은/는')} ‘${k.kind}: ${k.text}’ 단서와 맞지 않아.`:`지금 단서로는 ${names(open)} 중 누구인지 알 수 없어. ${left?'다른 단서를 더 조사해 봐.':'‘다시 조사’로 다른 단서를 골라 봐.'}`,wrong:['case:candidate']};}
       if(a.grounds.length<2)return {text:'왜 그 동물인지 판단 근거 단서를 두 개 이상 골라 줘.',wrong:['case:grounds']};
       if(!proves(c,a.grounds)){const also=fitting(c,a.grounds).filter(id=>id!==c.animal);return {text:open.length>1&&!left?`연 단서만으로는 ${withParticle(names(open))} 구별할 수 없어. ‘다시 조사’로 다른 종류의 단서를 골라 봐.`:`고른 근거는 ${names(also)}에게도 맞아. 다른 동물과 구별되는 단서를 근거로 골라 봐.`,wrong:['case:grounds']};}
+      if(!s.activities.includes(`4-${round*2}`)&&!exclusionsReady(c,a)){const rival=c.candidates.find(id=>id!==a.candidate&&(!a.opened.includes(a.excluded?.[id])||clueOf(c,a.excluded?.[id])?.fits.includes(id)));const clue=clueOf(c,a.excluded?.[rival]);return {text:clue?`‘${clue.kind}’ 단서는 ${ANIMALS[rival].name}에게도 맞아. 이 후보와 맞지 않는 다른 특징을 찾아 봐.`:'다른 후보와 비교해 봐. 각 후보에게 맞지 않는 단서를 발견 수첩에서 골라 줘.',wrong:['case:comparison']};}
       if(step%2===0)return null;}
     const out=[];if(a.habitat!==c.habitat)out.push({key:'case:habitat',text:a.habitat?'‘만난 곳’을 다시 봐. 사진 속 풍경에 무엇이 있는지 살펴봐.':'‘만난 곳’을 아직 고르지 않았어.'});if(a.reason!==c.reason)out.push({key:'case:reason',text:a.reason?`‘어떻게 움직일까’를 다시 봐. ${c.reasonTip}`:'‘어떻게 움직일까’를 아직 고르지 않았어.'});return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
   // Results summary: name the one piece still missing (tests, what was learned, the note, or why the feature was borrowed).
