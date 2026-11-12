@@ -1,5 +1,13 @@
+/* Landing-only glyph subsets of NanumSquare Neo. New characters fall back to the full font. */
+@font-face{font-family:'AnimalRecordLanding';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/landing-regular.woff2') format('woff2')}
+@font-face{font-family:'AnimalRecordLanding';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/landing-bold.woff2') format('woff2')}
+.boot-message, .skip-link { font-family: 'AnimalRecordLanding', var(--font-body); }
+
 /* Title artwork and the opening scene share a single, responsive composition. */
 .museum-landing {
+  --font-landing: 'AnimalRecordLanding', var(--font-body);
+  --font-display: var(--font-landing);
+  font-family: var(--font-landing);
   --landing-inset: clamp(24px, 4.5vw, 88px);
   height: calc(100dvh);
   min-height: 520px;

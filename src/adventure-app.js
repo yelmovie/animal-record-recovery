@@ -36,7 +36,7 @@ let mapOverview=restoredPlaces(s).length===STAGES.length,mapPan=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:screen==='mission'&&(stage===1||stage===3)&&step%2===0&&can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
