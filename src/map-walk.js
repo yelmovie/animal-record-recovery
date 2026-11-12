@@ -3,6 +3,18 @@ import {bindDirectionPad,mapKeyDirection} from './map-controls.js';
 const vectors={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 export const WALK_TAP_DISTANCE=48;
 export const WALK_TURN_DISTANCE=48;
+function nearbyTurn(graph,point,vector,node,segment){
+ const limit=graph.turnDistance??WALK_TURN_DISTANCE,queue=[],seen=new Map();
+ if(node)queue.push({id:node[0],distance:0,first:null,previous:null});
+ else for(const id of [segment.a,segment.b])queue.push({id,distance:Math.hypot(graph.nodes[id][0]-point[0],graph.nodes[id][1]-point[1]),first:graph.nodes[id],previous:id===segment.a?segment.b:segment.a});
+ while(queue.length){
+  queue.sort((a,b)=>a.distance-b.distance);const current=queue.shift();if(current.distance>limit+.000001||current.distance>=(seen.get(current.id)??Infinity)||(current.first&&((current.first[0]-point[0])*vector[0]+(current.first[1]-point[1])*vector[1]<-.001)))continue;seen.set(current.id,current.distance);
+  const origin=graph.nodes[current.id],exits=graph.edges.flatMap(([a,b])=>a===current.id?[b]:b===current.id?[a]:[]).filter(id=>id!==current.previous);
+  if(current.first&&exits.some(id=>{const q=graph.nodes[id],dx=q[0]-origin[0],dy=q[1]-origin[1];return (dx*vector[0]+dy*vector[1])/(Math.hypot(dx,dy)||1)>.55;}))return current.first;
+  for(const id of exits){const q=graph.nodes[id],distance=current.distance+Math.hypot(q[0]-origin[0],q[1]-origin[1]);if(distance<=limit+.000001&&(q[0]-origin[0])*vector[0]+(q[1]-origin[1])*vector[1]>=-.001)queue.push({id,distance,first:current.first||q,previous:current.id});}
+ }
+ return null;
+}
 export function directionalAdvance(graph,point,direction,distance){
  const vector=vectors[direction];let p=[...point],left=Math.max(0,distance),travelled=0;
  if(!vector)return {point:p,distance:0};
@@ -16,24 +28,16 @@ export function directionalAdvance(graph,point,direction,distance){
    for(const [a,b]of graph.edges){const A=graph.nodes[a],B=graph.nodes[b];if(!A||!B)continue;
     const dx=B[0]-A[0],dy=B[1]-A[1],length=dx*dx+dy*dy;if(!length)continue;
     const t=Math.max(0,Math.min(1,((p[0]-A[0])*dx+(p[1]-A[1])*dy)/length)),q=[A[0]+t*dx,A[1]+t*dy],gap=Math.hypot(q[0]-p[0],q[1]-p[1]);
-    if(!nearest||gap<nearest.gap)nearest={A,B,gap};
+    if(!nearest||gap<nearest.gap)nearest={a,b,A,B,gap};
    }
    if(nearest?.gap<.01){candidates=[nearest.A,nearest.B];segment=nearest;}
   }
   let target=null,score=.3;
   for(const q of candidates){if(!q)continue;const dx=q[0]-p[0],dy=q[1]-p[1],length=Math.hypot(dx,dy);if(length<1e-6)continue;
    const s=(dx*vector[0]+dy*vector[1])/length;if(s>score){score=s;target=q;}}
-  // A turn pressed just before a junction approaches it along the current path first.
-  // Only a nearby connected junction with a real exit qualifies; never cut across grass/buildings.
-  if(!target&&segment){
-   let closest=WALK_TURN_DISTANCE+1e-6;
-   for(const endpoint of [segment.A,segment.B]){
-    const gap=Math.hypot(endpoint[0]-p[0],endpoint[1]-p[1]);if(gap>=closest)continue;
-    const id=Object.keys(graph.nodes).find(k=>graph.nodes[k]===endpoint),other=endpoint===segment.A?segment.B:segment.A;
-    const exits=graph.edges.flatMap(([a,b])=>a===id?[graph.nodes[b]]:b===id?[graph.nodes[a]]:[]);
-    if(exits.some(q=>q&&q!==other&&((q[0]-endpoint[0])*vector[0]+(q[1]-endpoint[1])*vector[1])/(Math.hypot(q[0]-endpoint[0],q[1]-endpoint[1])||1)>.55)){target=endpoint;closest=gap;}
-   }
-  }
+  // Approach only a nearby connected turn, including when standing exactly on a node.
+  // The approach consumes the same distance budget as ordinary walking.
+  if(!target&&(node||segment))target=nearbyTurn(graph,p,vector,node,segment);
   if(!target)break;
   const dx=target[0]-p[0],dy=target[1]-p[1],length=Math.hypot(dx,dy),step=Math.min(left,length);
   p=step===length?[...target]:[p[0]+dx/length*step,p[1]+dy/length*step];left-=step;travelled+=step;

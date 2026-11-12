@@ -34,7 +34,7 @@ export function directionalNode(graph,from,direction){
 // Interactive building (not the core, whose square overlaps the ring path) under a map point.
 export const buildingAt=(buildings,[x,y])=>Object.entries(buildings).find(([id,{rect:r}={}])=>id!=='core'&&r&&x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3])?.[0]||null;
 // The village json may give nodes as an array or an object; edges as index or id pairs.
-function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
+function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,turnDistance:j.turnDistance,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
 
 export function createVillage(root,{position='entrance',completed=[],flash=null,overview=false,pan=false,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
   overview=overview&&[1,2,3,4,5].every(id=>completed.includes(id));

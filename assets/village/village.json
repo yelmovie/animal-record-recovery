@@ -527,6 +527,26 @@
   "workshop-front": [
    1260,
    711
+  ],
+  "south-east-junction": [
+   819,
+   630
+  ],
+  "south-east-path": [
+   910,
+   630
+  ],
+  "south-east-bank": [
+   995,
+   645
+  ],
+  "south-east-tree": [
+   1080,
+   660
+  ],
+  "south-east-workshop": [
+   1155,
+   675
   ]
  },
  "edges": [
@@ -584,7 +604,31 @@
   ],
   [
    "southJ",
+   "south-east-junction"
+  ],
+  [
+   "south-east-junction",
    "plaza"
+  ],
+  [
+   "south-east-junction",
+   "south-east-path"
+  ],
+  [
+   "south-east-path",
+   "south-east-bank"
+  ],
+  [
+   "south-east-bank",
+   "south-east-tree"
+  ],
+  [
+   "south-east-tree",
+   "south-east-workshop"
+  ],
+  [
+   "south-east-workshop",
+   "workshop-south"
   ],
   [
    "plaza",
@@ -662,5 +706,6 @@
   "walk": "프레임 번호 [시작,끝]. NPC 시트는 걷기 주기가 없어 0번 한 장(+들썩임), talk 1~3은 말하기 동작.",
   "restore": "restore-{id}.webp를 map-base 위 rect 자리에 같은 크기로 얹는다(가장자리 28px 페더).",
   "markers": "anchor = 아이콘 안에서 바닥 링의 가운데. 그 점을 대상 위치에 맞춘다."
- }
+ },
+ "turnDistance": 120
 }

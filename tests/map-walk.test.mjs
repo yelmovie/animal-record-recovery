@@ -65,3 +65,35 @@ test('physical WASD keys work with Korean layout while input fields keep their k
  const h=harness();h.doc.emit('keydown',{key:'ㅈ',code:'KeyW'});assert.deepEqual(h.calls.at(-1),['walk','up',{held:true}]);h.doc.emit('keyup',{key:'ㅈ',code:'KeyW'});assert.deepEqual(h.calls.at(-1),['release']);
  const n=h.calls.length;h.doc.emit('keydown',{key:'ArrowRight',target:{closest:()=>({})}});assert.equal(h.calls.length,n);h.ui.destroy();
 });
+
+const village=JSON.parse((await import('node:fs')).readFileSync(new URL('../assets/village/village.json',import.meta.url),'utf8'));
+const onRoad=p=>village.edges.some(([a,b])=>{const A=village.nodes[a],B=village.nodes[b],dx=B[0]-A[0],dy=B[1]-A[1],t=Math.max(0,Math.min(1,((p[0]-A[0])*dx+(p[1]-A[1])*dy)/(dx*dx+dy*dy)));return Math.hypot(p[0]-A[0]-t*dx,p[1]-A[1]-t*dy)<.001;});
+function followRoad(start,direction,amount=4,frames=220){let p=[...start],travelled=0;const samples=[p];for(let i=0;i<frames;i++){const moved=directionalAdvance(village,p,direction,amount);assert.ok(moved.distance<=amount+.00001);assert.ok(onRoad(moved.point),'every step stays on a connected paved route');p=moved.point;travelled+=moved.distance;samples.push(p);}return {point:p,samples,travelled};}
+test('bridge north end reaches the workshop on right hold using the lower paved route',()=>{
+ assert.ok(availableDirections(village,village.nodes.bridge).includes('right'));
+ const run=followRoad(village.nodes.bridge,'right');
+ assert.deepEqual(run.point,village.nodes['workshop-door']);
+ assert.ok(run.samples.some(([x,y])=>x>810&&x<840&&y<640),'first approach the junction north of the stone bridge');
+ assert.ok(run.samples.some(([x,y])=>x>1000&&y>620),'use the lower bank, not the distant wooden bridge');
+ assert.ok(run.samples.every(([,y])=>y>=620),'no detour through the plaza or upper bridge');
+ for(let i=1;i<run.samples.length;i++)assert.ok(run.samples[i][0]>=run.samples[i-1][0]-.001,'holding right never walks backwards');
+});
+test('the workshop lower road reverses left through the central junction without a loop',()=>{
+ const run=followRoad(village.nodes['workshop-door'],'left',4,200);
+ assert.ok(run.point[0]<village.nodes.southJ[0]);
+ assert.ok(run.samples.some(([x,y])=>x>810&&x<840&&y<640));
+ for(let i=1;i<run.samples.length;i++)assert.ok(run.samples[i][0]<=run.samples[i-1][0]+.001,'holding left never walks backwards');
+});
+test('turn assistance starts at an exact node as well as between nodes',()=>{
+ const bend={nodes:{a:[0,0],b:[0,-30],c:[100,-30]},edges:[['a','b'],['b','c']]};
+ assert.deepEqual(directionalAdvance(bend,[0,0],'right',20).point,[0,-20]);
+ assert.deepEqual(directionalAdvance(bend,[0,-20],'right',20).point,[10,-30]);
+ assert.deepEqual(directionalAdvance(bend,[0,0],'right',70).point,[40,-30]);
+});
+test('bridge approach keeps distance budgets and the same path across frame sizes',()=>{
+ const one=directionalAdvance(village,village.nodes.bridge,'right',200);
+ const many=followRoad(village.nodes.bridge,'right',4,50);
+ assert.ok(Math.hypot(one.point[0]-many.point[0],one.point[1]-many.point[1])<.001);
+ assert.ok(Math.abs(one.distance-200)<.001);assert.ok(Math.abs(many.travelled-200)<.001);
+ assert.ok(availableDirections(village,[805,720]).includes('right'));
+});

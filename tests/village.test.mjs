@@ -41,6 +41,6 @@ test('every stage and the gallery have a connected door node, including the work
   if(id==='core')continue;
   assert.deepEqual(data.nodes[b.node],b.door,`${id}: door must be on the walk graph`);
   const route=villagePath(data,'plaza',b.node);assert.ok(route.length>1,`${id}: reachable from plaza`);
-  if(id==='5')assert.ok(route.includes('woodBridge'),'the workshop route crosses the actual bridge');
+  if(id==='5'){assert.ok(route.includes('south-east-bank'),'the workshop follows the lower paved bank');assert.ok(villagePath(data,'woodBridge',b.node).includes('workshop-turn'),'the upper bridge route remains connected');}
  }
 });
