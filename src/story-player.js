@@ -1,14 +1,14 @@
 import {btn,icon} from './presentation.js';
 
 export const STORIES={
-  intro:{title:'자연 기록 마을에 온 걸 환영해',duration:24,poster:'intro-01',finish:'탐험 시작하기',cues:[
+  intro:{title:'자연 기록 마을에 온 걸 환영해',duration:24,poster:'intro-poster-light',video:'intro-light',finish:'탐험 시작하기',cues:[
     [0,5,'하루','저 다리를 건너면 자연 기록 마을이야. 같이 가자!'],
     [5,9,'모리','어? 관찰 기록이 뒤섞여서 수정의 빛이 약해졌어.'],
     [9,13,'모리','직접 관찰한 사실을 모으면 기록을 다시 연결할 수 있어.'],
     [13,17,'하루','다섯 장소를 탐험하며 주민들의 부탁을 해결해 보자!'],
     [17,24,'모리','먼저 관찰소로 가자. 어떤 동물을 만나게 될까?']
   ]},
-  outro:{title:'우리의 발견으로 다시 열린 전시관',duration:24,poster:'outro-01',finish:'내 전시관 들어가기',cues:[
+  outro:{title:'우리의 발견으로 다시 열린 전시관',duration:24,poster:'outro-01',video:'outro',finish:'내 전시관 들어가기',cues:[
     [0,4,'모리','마지막 기록이 도착했어. 다섯 빛이 모두 연결됐어!'],
     [4,10,'하루','우리가 관찰하고, 비교하고, 만들어 낸 기록이야.'],
     [10,16,'모리','책이 있는 전시관으로 가자. 네 발견이 기다리고 있어.'],
@@ -17,7 +17,7 @@ export const STORIES={
   ]}
 };
 export function storyCue(kind,time){return STORIES[kind]?.cues.find(([start,end])=>time>=start&&time<end)||null;}
-export function storyView(s,v){const kind=v.screen==='outro'?'outro':'intro',story=STORIES[kind];return `<main id="main" tabindex="-1" class="story-screen" data-story="${kind}" aria-label="${story.title}"><video class="story-video" autoplay muted playsinline preload="auto" poster="./assets/story/${story.poster}.webp" aria-label="${story.title}"><source src="./assets/videos/story/${kind}.mp4" type="video/mp4"></video><div class="story-top"><span>${story.title}</span>${btn('건너뛰기 '+icon('arrow'),'story-skip','story-skip')}</div><div class="story-caption" aria-live="off"><b></b><span></span></div><p class="story-status" role="status"></p><footer class="story-controls">${btn('일시정지','story-toggle','story-control','aria-label="영상 일시정지"')}<progress class="story-progress" max="${story.duration}" value="0" aria-label="영상 재생 진행"></progress><span class="story-time">0:00 / 0:24</span>${btn('전체화면','story-fullscreen','story-control')}</footer></main>`;}
+export function storyView(s,v){const kind=v.screen==='outro'?'outro':'intro',story=STORIES[kind];return `<main id="main" tabindex="-1" class="story-screen" data-story="${kind}" aria-label="${story.title}"><video class="story-video" autoplay muted playsinline preload="auto" poster="./assets/story/${story.poster}.webp" aria-label="${story.title}"><source src="./assets/videos/story/${story.video}.mp4" type="video/mp4"></video><div class="story-top"><span>${story.title}</span>${btn('건너뛰기 '+icon('arrow'),'story-skip','story-skip')}</div><div class="story-caption" aria-live="off"><b></b><span></span></div><p class="story-status" role="status"></p><footer class="story-controls">${btn('일시정지','story-toggle','story-control','aria-label="영상 일시정지"')}<progress class="story-progress" max="${story.duration}" value="0" aria-label="영상 재생 진행"></progress><span class="story-time">0:00 / 0:24</span>${btn('전체화면','story-fullscreen','story-control')}</footer></main>`;}
 
 // One native media clock drives captions and completion. Disposing cancels all old callbacks.
 // volume: the outro carries the finale music in its own audio track (0 keeps it muted).

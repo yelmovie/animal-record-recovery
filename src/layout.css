@@ -1292,9 +1292,12 @@ dialog .settings-card.concept-replays .concept-thumb .icon{width:26px;height:26p
 /* Photo lens: a square box on the mat, centred between the mat's left edge and the notes. */
 #app #main.mission-page .inquiry-specimen .specimen{position:absolute;flex:none;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));width:auto;aspect-ratio:1/1;max-width:calc(100% - var(--mat-left) - 12px);left:calc((var(--mat-left) + 100%) / 2);transform:translateX(-50%)}
 /* 3D scanner: same mat area; the canvas has no backdrop of its own so the model rests on the cloth. */
-#app #main.mission-page .scan-scene .scan3d{position:absolute;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));left:var(--mat-left);right:12px;min-height:0;background:none!important;border:0;box-shadow:none}
+#app #main.mission-page .scan-scene .scan3d{position:absolute;width:auto;top:var(--mat-top);height:calc(var(--mat-bottom) - var(--mat-top));left:var(--mat-left);right:12px;min-height:0;background:none!important;border:0;box-shadow:none}
 /* The absolute canvas paints over in-flow siblings; the hint and part buttons must stay on top of the model's feet. */
 #app #main.mission-page .scan-scene .observation-controls{position:relative;z-index:1}
+/* The wide narration wrapper overlaps the scanner controls, but only the visible controls should receive taps. */
+#app .mission-page:has(.scan-scene) .guide-buddy{pointer-events:none}
+#app .mission-page:has(.scan-scene) .guide-buddy :is(button,input){pointer-events:auto}
 /* Phone landscape (≈340px tall): the notes card is ~170px, so the three descriptions sit side by side without the radio dot or the "하나를 골라" bar.
    The shortcut hint would slide under the animal tabs, and the part buttons already say what to press. */
 @media(max-height:420px){

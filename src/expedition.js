@@ -1,3 +1,4 @@
+import {normalizeMapVillains} from './map-villains.js';
 import {withParticle} from './korean.js';
 import {normalizeExperiment,normalizeInquiry,experimentReady,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {normalizeCampaign,restoredPlaces,missionRows} from './campaign.js';
@@ -68,7 +69,7 @@ export const OBSERVATIONS={
   rabbit:[{id:'rabbit-ear',look:'귀의 길이',label:'귀',text:'길게 솟은 귀가 있어.',wrong:['귀가 짧고 둥글어.','귀가 거의 보이지 않아.'],x:46,y:18},{id:'rabbit-fur',look:'몸을 덮고 있는 것',label:'몸 표면',text:'몸이 털로 덮여 있어.',wrong:['깃털로 덮여 있어.','단단한 껍데기가 몸을 감싸.'],x:51,y:48},{id:'rabbit-leg',look:'다리의 개수와 길이',label:'뒷다리',text:'길고 튼튼한 뒷다리와 앞다리, 네 다리가 있어.',wrong:['다리가 여섯 개 있어.','앞다리가 뒷다리보다 훨씬 길어.'],x:33,y:76}],
 };
 // Animals the 3D scanner has models for; the rest are observed through the photo lens.
-export const SCAN_3D=['frog','crab','duck','rabbit'];
+export const SCAN_3D=['frog','crab','duck','rabbit','bat','sparrow','spider','ant'];
 export const OBSERVE_PAIRS=[['frog','crab'],['duck','rabbit'],['bat','sparrow'],['spider','ant']];
 // The third item of a wrong option is the observed fact that disproves it.
 // Round 2 keeps keys fur/cover for saved records; the labels use wings/bill, which children tell apart more easily than feathers vs fur.
@@ -155,7 +156,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
+export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -193,7 +194,7 @@ export function restoreExpedition(raw,{strict=false}={}){
     const input=JSON.parse(raw);if(!input||typeof input!=='object')return base;
     if(input.version===1)return migrateLegacy(raw);
     if(![3,VERSION].includes(input.version))return base;
-    const out=base;out.inquiry=normalizeInquiry(input.inquiry);
+    const out=base;out.mapVillains=normalizeMapVillains(input.mapVillains);out.inquiry=normalizeInquiry(input.inquiry);
     for(const key of ['soundEnabled','introSeen'])if(typeof input[key]==='boolean')out[key]=input[key];
     // soundEnabled is the effects switch; saves from before the split keep music in step with it.
     out.musicOn=typeof input.musicOn==='boolean'?input.musicOn:out.soundEnabled;

@@ -1,7 +1,6 @@
 /* Observation notebook (request pages) and real-looking museum cases (gallery).
    Loaded last so it can settle the many older overlay/panel rules in one place. */
-@font-face{font-family:'ResearchHand';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/research-hand-400.woff2') format('woff2')}
-:root{--font-hand:'ResearchHand',var(--font-display)}
+:root{--font-hand:var(--font-body)}
 
 /* ---------- Closed: a small notebook tab instead of a panel button ---------- */
 #app #main .commission-evidence{border:0;border-radius:6px;background:#f6ecd2 url('../assets/museum/observation-notebook.webp') center/cover;box-shadow:0 3px 0 #b49b6b,0 6px 12px #3a2a1033;overflow:visible}

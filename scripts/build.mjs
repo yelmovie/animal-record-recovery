@@ -1,4 +1,5 @@
 import { mkdir, copyFile, readFile, writeFile, stat, unlink } from 'node:fs/promises';
+import { SCAN_3D } from '../src/expedition.js';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -17,11 +18,29 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   'assets/music/village-theme.mp3','assets/adventure/swim-shoe-v2.webp','assets/adventure/swim-blade-v2.webp',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
   // The scanner loads models/scan/ (40k, 1024px) and the dome models/dome/; full models stay out of the deploy.
-  ...['frog','crab','duck','rabbit'].map(f=>`assets/models/scan/${f}.glb`),
+  ...SCAN_3D.map(f=>`assets/models/scan/${f}.glb`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/dome/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
-  ...['jua-korean-400.woff2','jua-latin-400.woff2','Jua-OFL.txt','Pretendard-Regular.subset.woff2','Pretendard-Bold.subset.woff2','Pretendard-OFL.txt'].map(f=>`assets/fonts/${f}`)];
-files.push('src/workspace.css',...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/residents/${id}-v2.webp`),...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/village/npc-${id}.webp`),...[1,2,3,4,5].flatMap(id=>[`assets/tools/${id}-v2.webp`,`assets/village/recovery-${id}-v2.webp`]),'src/landing.css','assets/adventure/title-logo-v1.webp','src/story-player.js','src/story.css',...Object.keys(STORIES).map(kind=>`assets/videos/story/${kind}.mp4`),...['intro','outro'].flatMap(kind=>[1,2,3,4].map(i=>`assets/story/${kind}-0${i}.webp`)));
+  ...['NanumSquareNeoTTF-bRg.woff2','NanumSquareNeoTTF-cBd.woff2','NanumSquareNeo-OFL.txt','NanumSquareNeo-SOURCE.json','landing-regular.woff2','landing-bold.woff2'].map(f=>`assets/fonts/${f}`)];
+files.push('src/workspace.css',...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/residents/${id}-v2.webp`),...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/village/npc-${id}.webp`),...[1,2,3,4,5].flatMap(id=>[`assets/tools/${id}-v2.webp`,`assets/village/recovery-${id}-v2.webp`]),'src/landing.css','assets/adventure/museum-opening-light.webp','assets/adventure/title-logo-light.webp','assets/village/map-base-light.webp','assets/story/intro-poster-light.webp','src/story-player.js','src/story.css',...Object.values(STORIES).map(({video})=>`assets/videos/story/${video}.mp4`),...['intro','outro'].flatMap(kind=>[1,2,3,4].map(i=>`assets/story/${kind}-0${i}.webp`)));
+files.push('src/record-storage.js','src/build-info.js');
+files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css','src/museum-notes.css','src/request-sheet.css',...['observation-notebook','museum-placard','museum-pedestal'].map(f=>`assets/museum/${f}.webp`));
+// Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
+files.push('src/npc-narration.js','assets/audio/npc-welcome.mp3');
+files.push('src/concept-focus.js','src/concept-focus.css','src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
+files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.css','src/motion-player.css','assets/scenes/museum-gallery-v2.webp','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
+// Ship and preload the entry's static dependencies, including any new modules.
+// Dynamic imports (3D) stay lazy and are listed with the other runtime assets.
+const preload=new Set();
+async function walk(file){
+  if(preload.has(file))return;
+  preload.add(file);
+  const source=await readFile(path.join(root,file),'utf8');
+  const imports=source.matchAll(/^\s*(?:(?:import|export)\s+[^'";]*?\bfrom\s*|import\s*)['"](\.\.?\/[^'"]+)['"]/gm);
+  for(const [,specifier] of imports)await walk(path.posix.join(path.posix.dirname(file),specifier));
+}
+await walk('src/adventure-app.js');
+for(const file of preload)if(!files.includes(file))files.push(file);
 // Remove only previously generated files named in our own build manifest.
 // Authoring assets / unknown files are never recursively removed.
 let previous=[];
@@ -34,12 +53,6 @@ for(const item of previous){
 }
 const manifest=[];
 const buildInfo={sha:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),builtAt:new Date().toISOString(),dirty:Boolean(execFileSync('git',['diff','HEAD','--','src','scripts','index.html'],{cwd:root,encoding:'utf8'}).trim())};
-files.push('src/record-storage.js','src/build-info.js');
-files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css','src/museum-notes.css','src/request-sheet.css','assets/fonts/research-hand-400.woff2','assets/fonts/NanumPenScript-OFL.txt',...['observation-notebook','museum-placard','museum-pedestal'].map(f=>`assets/museum/${f}.webp`));
-// Concept clips (rendered by tools/concept-clips): WebM, MP4 and the last-frame WebP poster for each id.
-files.push('src/npc-narration.js','assets/audio/npc-welcome.mp3');
-files.push('src/concept-focus.js','src/concept-focus.css','src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
-files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.css','src/motion-player.css','assets/scenes/museum-gallery-v2.webp','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 for(const file of files){
   const source=path.join(root,file),dest=path.join(root,'dist',file);
   await mkdir(path.dirname(dest),{recursive:true});
@@ -62,11 +75,6 @@ await writeFile(path.join(root,'dist','src','app.css'),bundle);
 manifest.push({file:'src/app.css',bytes:Buffer.byteLength(bundle),sha256:createHash('sha256').update(bundle).digest('hex')});
 const html=await readFile(path.join(root,'dist','index.html'),'utf8'),links=[...html.matchAll(/[ \t]*<link[^>]+rel="stylesheet"[^>]+href="\.\/src\/[^"]+\.css"[^>]*>\r?\n?/g)];
 let built=html.replace(links[0][0],'<link rel="stylesheet" href="./src/app.css?v='+buildInfo.sha.slice(0,8)+'">\n');for(const m of links.slice(1))built=built.replace(m[0],'');
-// Modules otherwise load as a chain (each import found only after its parent arrives). Preload the entry's
-// static import graph so they download in parallel; dynamic imports (3D) stay lazy.
-const preload=new Set(),walk=async file=>{if(preload.has(file))return;preload.add(file);
-  for(const m of (await readFile(path.join(root,file),'utf8')).matchAll(/^\s*import\s[^'"]*?from\s*['"](\.\/[^'"]+)['"]/gm))await walk(path.posix.join(path.posix.dirname(file),m[1]));};
-await walk('src/adventure-app.js');
 built=built.replace('</head>',[...preload].map(f=>`<link rel="modulepreload" href="./${f}">`).join('\n')+'\n</head>');
 await writeFile(path.join(root,'dist','index.html'),built);
 manifest.find(f=>f.file==='index.html').bytes=Buffer.byteLength(built);

@@ -1,3 +1,4 @@
+import {mountMapVillains} from './map-villains.js';
 import {COMMISSIONS} from './campaign.js';
 // Main map: a top-down pixel village (screen 01). Same contract as createTrailMap: {move(id), destroy()}.
 // Layout (map size, building rects and doors, walk nodes/edges, sprite cells) comes from assets/village/village.json.
@@ -35,7 +36,7 @@ export const buildingAt=(buildings,[x,y])=>Object.entries(buildings).find(([id,{
 // The village json may give nodes as an array or an object; edges as index or id pairs.
 function graphOf(j){const nodes=Array.isArray(j.nodes)?Object.fromEntries(j.nodes.map((n,i)=>[String(i),Array.isArray(n)?n:[n.x,n.y]])):Object.fromEntries(Object.entries(j.nodes||{}).map(([k,n])=>[k,Array.isArray(n)?n:[n.x,n.y]]));return {nodes,edges:(j.edges||[]).map(([a,b])=>[String(a),String(b)])};}
 
-export function createVillage(root,{position='entrance',completed=[],flash=null,overview=false,pan=false,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
+export function createVillage(root,{progress=[],onVillainHit,onVillainSound,position='entrance',completed=[],flash=null,overview=false,pan=false,onArrive,onTalk,onStep,onWalk,onInteract,onError,isBlocked=()=>false}={}){
   overview=overview&&[1,2,3,4,5].every(id=>completed.includes(id));
   let active=true,built=false,paused=false,away=false,frame=null,panning=!!pan,api={move(){},destroy(){active=false;}};
   const pending=[];
@@ -44,6 +45,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
   function build(j){
     const W=j.map.w,H=j.map.h,pct=(v,t)=>v/t*100+'%',graph=graphOf(j),doc=root.ownerDocument;
     const layer=doc.createElement('div');layer.className='village-layer';root.append(layer);
+    const villains=mountMapVillains(root,{progress,points:completed.map(id=>({id:id-1,name:j.buildings[id].name||'기록 구역',x:(j.buildings[id].door[0]+75)/W*100,y:(j.buildings[id].door[1]-50)/H*100})),onHit:onVillainHit,sound:onVillainSound,blocked:()=>paused||isBlocked(),tool:'관찰 빛',color:'#647db0'});
     // Restored buildings replace their withered look; the core lights up when all five are back.
     for(const [id,b] of Object.entries(j.buildings)){
       const done=id==='gallery'||(id==='core'?completed.length===5:completed.includes(Number(id)));if(!done||!b.rect)continue;
@@ -143,7 +145,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     api.interact=(radius=85)=>{if(overview||paused||isBlocked()||!haru)return;const nearby=Object.entries(j.buildings).filter(([id,b])=>id!=='core'&&b.door&&Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y)<radius).sort(([,a],[,b])=>Math.hypot(a.door[0]-haru.x,a.door[1]-haru.y)-Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y))[0];if(nearby){api.stop();onInteract?.(nearby[0]);}};
     // Leaving the app holds a walk where it is; it carries on to the same door on return (a new tap also resumes).
     const onBlur=()=>{away=true;},onFocus=()=>{away=false;};doc.defaultView?.addEventListener('blur',onBlur);doc.defaultView?.addEventListener('focus',onFocus);
-    api.destroy=()=>{active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('focus',onFocus);doc.defaultView?.removeEventListener('resize',onResize);if(scene){scene.removeEventListener('pointerdown',onDown);scene.removeEventListener('pointermove',onMove);scene.removeEventListener('pointerup',onUp);scene.removeEventListener('pointercancel',onUp);scene.removeEventListener('click',onDragClick,true);scene.removeEventListener('dragstart',onNativeDrag);}root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
+    api.destroy=()=>{villains.destroy();active=false;cancelAnimationFrame(frame);doc.defaultView?.removeEventListener('blur',onBlur);doc.defaultView?.removeEventListener('focus',onFocus);doc.defaultView?.removeEventListener('resize',onResize);if(scene){scene.removeEventListener('pointerdown',onDown);scene.removeEventListener('pointermove',onMove);scene.removeEventListener('pointerup',onUp);scene.removeEventListener('pointercancel',onUp);scene.removeEventListener('click',onDragClick,true);scene.removeEventListener('dragstart',onNativeDrag);}root.style.transform='';root.removeEventListener('click',onTap);layer.remove();};
     built=true;
   }
   return {move(id){built?api.move(id):pending.push(id);},walk(direction){api.walk?.(direction);},fit(){api.fit?.();},pan(on){panning=!!on;api.pan?.(panning);},interact(){api.interact?.();},pause(){paused=true;},resume(){paused=false;},stop(){pending.length=0;api.stop?.();},destroy(){pending.length=0;api.destroy();active=false;}};

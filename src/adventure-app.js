@@ -36,7 +36,7 @@ let mapOverview=restoredPlaces(s).length===STAGES.length,mapPan=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
 const round=()=>Math.floor(step/2);
-const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:screen==='mission'&&(stage===1||stage===3)&&step%2===0&&can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
@@ -118,7 +118,7 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{progress:s.mapVillains,onVillainHit:()=>save(),onVillainSound:()=>playSound(s.soundEnabled,'correct'),position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.

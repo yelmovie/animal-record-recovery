@@ -11,7 +11,7 @@
 | 사용자 제공 ChatGPT 그림 (2026-09-23 `ChatGPT Image …png`, 2026-10-07 `image/chatgpt_2026-10-07_latest_*.png`) | 마을 지도·건물 복구 조각·하루·모리·주민 시트·지도 표시, 모리 시트·생태 디오라마·수사실 배경 | 확인 필요 (2026-10-20) | 원본 파일과 가공 과정은 아래 "런타임 에셋 출처 보충"에 기록. 생성한 계정·요금제와 계약상 권리 주체 기록이 저장소에 없음 — 사용자 확인 |
 | 사용자 제공 생성 영상 6종 (`gemini_generated_video_*.mp4`) | 동물 움직임 영상(낙타·펭귄 제외) | 확인 필요 (2026-10-20) | 생성 모델·요금제 기록 없음(아래 2026-10-18 기록) — 사용자 확인 |
 | Pixabay 효과음 10종 (2026-10-20 `drop.mp3` 사용 중지로 11→10) | 효과음 | 가능 | Pixabay Content License(출처 표기 불필요·상업 이용 가능) |
-| Jua·Pretendard | 글꼴 | 가능 | SIL OFL 1.1, 원문 `fonts/*-OFL.txt` 동봉 |
+| 나눔스퀘어 네오 | 글꼴 | 가능 | NAVER, SIL OFL 1.1, 원문 `fonts/NanumSquareNeo-OFL.txt` 동봉 |
 | three.js | 3D 표시 | 가능 | MIT License |
 | Remotion | 쓰지 않음 | 해당 없음 | `package.json`·백업 package.json·코드에 사용 흔적 없음(영상은 ffmpeg로 편집) |
 | CC BY-NC·ND 자료, 유료 폰트 | 쓰지 않음 | 해당 없음 | — |
@@ -25,8 +25,9 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 - `generated/*.png`: 2026-10-14 OpenAI 이미지 생성 도구로 이 프로젝트를 위해 생성한 기본 이미지 11종. 정확한 원생물 표본 대신 쓰는 자료가 아니다.
 - WebP: 위 원본을 sharp로 변환. 별도의 외부 스톡 다운로드 없음.
 - 지도·아이콘·연못 물 모양: 프로젝트 Canvas/SVG 코드로 제작.
-- 글꼴(본문): Pretendard 1.3.9 — Copyright (c) 2021 Kil Hyung-jin, SIL Open Font License 1.1, Reserved Font Name "Pretendard". 2026-10-16 공식 npm 패키지 `pretendard@1.3.9`(github.com/orioncactus/pretendard)의 배포본 `Pretendard-Regular/Bold.subset.woff2`(KS X 1001 한글 2,350자 서브셋, 수정 없음)를 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Pretendard-OFL.txt`를 함께 둔다. 서브셋에 없는 글자는 운영체제 기본 한글 글꼴로 표시된다.
-- 글꼴(제목·버튼): Jua — Copyright (c) 2017 Woowahan Brothers Corp., SIL Open Font License 1.1, Reserved Font Name "Jua". Google Fonts 배포본(korean/latin 서브셋, 수정 없음)을 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Jua-OFL.txt`를 함께 둔다. 외부 CDN 요청 없음. (배달의민족 주아체와는 다른 Google Fonts 배포본)
+- 글꼴: 나눔스퀘어 네오(NAVER), SIL OFL 1.1. 원본 출처와 해시는 `fonts/NanumSquareNeo-SOURCE.json`에 있다. `fonts/landing-regular.woff2`, `fonts/landing-bold.woff2`는 같은 글꼴에서 첫 화면에 쓰는 글자를 추린 서브셋이며, 수정본 내부 이름은 Animal Record Landing이다.
+- 이전 버전 글꼴(본문): Pretendard 1.3.9 — Copyright (c) 2021 Kil Hyung-jin, SIL Open Font License 1.1, Reserved Font Name "Pretendard". 2026-10-16 공식 npm 패키지 `pretendard@1.3.9`(github.com/orioncactus/pretendard)의 배포본 `Pretendard-Regular/Bold.subset.woff2`(KS X 1001 한글 2,350자 서브셋, 수정 없음)를 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Pretendard-OFL.txt`를 함께 둔다. 서브셋에 없는 글자는 운영체제 기본 한글 글꼴로 표시된다.
+- 이전 버전 글꼴(제목·버튼): Jua — Copyright (c) 2017 Woowahan Brothers Corp., SIL Open Font License 1.1, Reserved Font Name "Jua". Google Fonts 배포본(korean/latin 서브셋, 수정 없음)을 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Jua-OFL.txt`를 함께 둔다. 외부 CDN 요청 없음. (배달의민족 주아체와는 다른 Google Fonts 배포본)
 - 초기 효과음: Web Audio 합성. 현재는 아래 Pixabay 음원과 로딩 실패 시 합성 대체음을 사용한다.
 
 앱 화면에 생성형 AI 이미지 안내가 있다. 권리 귀속·표시 주체·배포 플랫폼은 납품 계약으로 확정해야 하며 이 문서는 새로운 이용 허락을 부여하지 않는다.
@@ -207,3 +208,13 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 ### 2026-10-26 생태돔용 가벼운 모델
 
 `models/dome/*.glb` 8종은 위 Meshy 모델(`models/*.glb`)을 `scripts/prepare-dome-models.py`(Blender 5.2, 창 없이)로 삼각형 1만5천 개·텍스처 512px WebP로 줄인 사본이다. 새로 생성한 모델이 아니다. 돔 안에서는 동물이 작게 보여 이 크기로 충분하고, 8종 합계 47.6MB → 5.3MB. 가까이 보는 관찰 화면은 기존 모델을 그대로 쓴다. 나비·바다 물고기·낙타·펭귄 원본 모델은 이제 돔 사본의 원본으로만 저장소에 두고 배포에는 넣지 않는다.
+
+### 2026-11-12 관찰 스캐너용 박쥐·토끼·참새 3D
+
+| 표본 | 변환에 쓴 파일 (assets/models/) | 앱용 파일 (assets/models/) |
+|---|---|---|
+| 박쥐 | `source/20261112/bat.glb` (사용자가 전달한 `Small_Brown_Bat.glb` 원본) | `scan/bat.glb` |
+| 토끼 | `rabbit.glb` | `scan/rabbit.glb` |
+| 참새 | `source/20261112/sparrow.glb` | `scan/sparrow.glb` |
+
+`scripts/prepare-scanner-models.py`에서 Blender로 각 표본을 약 5만 6천 삼각형으로 줄였다. 겹치는 꼭짓점을 연결해 표면을 다듬고, 원본 색 텍스처의 몸통 부분에만 주변 색을 부드럽게 섞었다. 털 결, 날개막과 깃털 끝의 형태는 남겼다. 색 텍스처는 박쥐와 토끼 1792px, 참새 1536px이며 요철 텍스처는 768px다. 박쥐의 눈에는 작은 반사광을 색 텍스처에 더했다. 박쥐의 평평한 등과 날개 뒷면에는 원본 GLB의 색을 1536×1024로 다시 투영해 최적화 과정에서 늘어난 날개맥과 털 결을 복원했다. 원본은 표의 경로에 보존했고 생태돔 파일은 변경하지 않았다.
