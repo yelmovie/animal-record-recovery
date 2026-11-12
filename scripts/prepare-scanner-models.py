@@ -352,4 +352,3 @@ def convert(animal):
 
 for animal in sys.argv[sys.argv.index('--') + 1:] or CONFIG:
     convert(animal)
-
