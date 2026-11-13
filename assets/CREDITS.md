@@ -26,6 +26,9 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 - WebP: 위 원본을 sharp로 변환. 별도의 외부 스톡 다운로드 없음.
 - 지도·아이콘·연못 물 모양: 프로젝트 Canvas/SVG 코드로 제작.
 - 글꼴: 나눔스퀘어 네오(NAVER), SIL OFL 1.1. 원본 출처와 해시는 `fonts/NanumSquareNeo-SOURCE.json`에 있다. `fonts/landing-regular.woff2`, `fonts/landing-bold.woff2`는 같은 글꼴에서 첫 화면에 쓰는 글자를 추린 서브셋이며, 수정본 내부 이름은 Animal Record Landing이다.
+- 2026-11-13 웹용 사본: 관찰 영상 8개는 기존 MP4를 960×540 H.264로 다시 압축했다. 재생 길이와 프레임 수는 그대로다. 공통 배경과 생태 돔 텍스처의 `-web.webp`도 기존 이미지에서 만들었다. 원본 파일은 보존한다.
+- `fonts/ui-regular.woff2`와 `fonts/ui-bold.woff2`는 같은 나눔스퀘어 네오에서 앱에 쓰는 글자를 추린 서브셋이다. 수정본 내부 이름은 Animal Record UI이고, 나머지 글자에는 전체 글꼴을 사용한다.
+
 - 이전 버전 글꼴(본문): Pretendard 1.3.9 — Copyright (c) 2021 Kil Hyung-jin, SIL Open Font License 1.1, Reserved Font Name "Pretendard". 2026-10-16 공식 npm 패키지 `pretendard@1.3.9`(github.com/orioncactus/pretendard)의 배포본 `Pretendard-Regular/Bold.subset.woff2`(KS X 1001 한글 2,350자 서브셋, 수정 없음)를 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Pretendard-OFL.txt`를 함께 둔다. 서브셋에 없는 글자는 운영체제 기본 한글 글꼴로 표시된다.
 - 이전 버전 글꼴(제목·버튼): Jua — Copyright (c) 2017 Woowahan Brothers Corp., SIL Open Font License 1.1, Reserved Font Name "Jua". Google Fonts 배포본(korean/latin 서브셋, 수정 없음)을 `fonts/`에 셀프호스팅하고 라이선스 원문 `fonts/Jua-OFL.txt`를 함께 둔다. 외부 CDN 요청 없음. (배달의민족 주아체와는 다른 Google Fonts 배포본)
 - 초기 효과음: Web Audio 합성. 현재는 아래 Pixabay 음원과 로딩 실패 시 합성 대체음을 사용한다.

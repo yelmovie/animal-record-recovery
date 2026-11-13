@@ -78,8 +78,8 @@ const ZONES={
 const SCALE={rabbit:.42,frog:.38,duck:.4,crab:.36,butterfly:.42,marine:.45,camel:.7,penguin:.6};
 
 // opts: {zones:[id], names:{id:name}, targets:[{id,animal,habitat,name,found}], extras (same, look only), active, onFind(id), onLook(id), onFail}
-// Fetch the dome scenery and this round's models before the screen opens; the browser cache serves them again.
-const SCENERY=['../assets/adventure/dome-ground.webp','../assets/adventure/terrain-atlas.webp','../assets/adventure/nature-materials.webp','../assets/generated/reed.webp','../assets/generated/lotus_leaf.webp'];
+// Warm the first model and its scenery while the learner walks to the dome.
+const SCENERY=['../assets/adventure/dome-ground-web.webp','../assets/adventure/terrain-atlas-web.webp','../assets/adventure/nature-materials-web.webp','../assets/generated/reed-web.webp','../assets/generated/lotus_leaf-web.webp'];
 export function warm(ids){for(const path of SCENERY)new Image().src=new URL(path,import.meta.url).href;for(const id of ids)loadAnimal(id,{dome:true}).catch(()=>{});}
 export function create(host,opts){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -104,25 +104,34 @@ export function create(host,opts){
   });
 
   const assetTasks=[];
-  const imageAsset=(path,apply)=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{if(!dead)apply(img);resolve();};img.onerror=()=>reject(new Error(`Unable to load dome image: ${path}`));img.src=new URL(path,import.meta.url).href;});
+  const imageAsset=(path,apply)=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{try{if(!dead)apply(img);resolve();}catch(error){reject(error);}};img.onerror=()=>reject(new Error(`Unable to load dome image: ${path}`));img.src=new URL(path,import.meta.url).href;});
   const applyMap=(key,maps)=>scene.traverse(node=>{for(const material of [].concat(node.material||[])){const tile=material.userData[key];if(tile===undefined||!Object.hasOwn(maps,tile))continue;material.map=maps[tile];material.color.set('#e6e7df');material.needsUpdate=true;}});
-  assetTasks.push(imageAsset('../assets/adventure/dome-ground.webp',img=>{const map=new T.Texture(img);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;map.needsUpdate=true;ground.material.map=map;ground.material.needsUpdate=true;}));
-  assetTasks.push(imageAsset('../assets/adventure/terrain-atlas.webp',img=>applyMap('terrain',Array.from({length:6},(_,i)=>texture(256,(ctx,size)=>{const w=img.width/2,h=img.height/3;ctx.drawImage(img,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,size,size);},2)))));
-  assetTasks.push(imageAsset('../assets/adventure/nature-materials.webp',img=>applyMap('surface',Array.from({length:4},(_,i)=>texture(512,(ctx,size)=>{const w=img.width/2,h=img.height/2;ctx.drawImage(img,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,size,size);},1)))));
-  for(const name of ['reed','lotus_leaf'])assetTasks.push(imageAsset(`../assets/generated/${name}.webp`,img=>{const map=new T.Texture(img);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;map.needsUpdate=true;applyMap('plant',{[name]:map});}));
+  assetTasks.push(imageAsset('../assets/adventure/dome-ground-web.webp',img=>{const map=new T.Texture(img);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;map.needsUpdate=true;ground.material.map=map;ground.material.needsUpdate=true;}));
+  assetTasks.push(imageAsset('../assets/adventure/terrain-atlas-web.webp',img=>applyMap('terrain',Array.from({length:6},(_,i)=>texture(256,(ctx,size)=>{const w=img.width/2,h=img.height/3;ctx.drawImage(img,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,size,size);},2)))));
+  assetTasks.push(imageAsset('../assets/adventure/nature-materials-web.webp',img=>applyMap('surface',Array.from({length:4},(_,i)=>texture(512,(ctx,size)=>{const w=img.width/2,h=img.height/2;ctx.drawImage(img,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,size,size);},1)))));
+  for(const name of ['reed','lotus_leaf'])assetTasks.push(imageAsset(`../assets/generated/${name}-web.webp`,img=>{const map=new T.Texture(img);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;map.needsUpdate=true;applyMap('plant',{[name]:map});}));
   const sceneryReady=Promise.all(assetTasks);
 
   // Each animal: model + a generous invisible hit sphere (≥44 px on a tablet) + its idle motion.
   function addAnimal(t){
     const g=new T.Group(),model=new T.Group(),s=SCALE[t.animal]||.4,home=spots[t.animal]||at(angle(t.habitat),3);
     model.scale.setScalar(s);g.add(model);
-    // Each real animal appears as soon as its model is ready.
-    const ready=loadAnimal(t.animal,{dome:true}).then(glb=>{if(dead||!animals.some(x=>x.model===model))return;model.add(glb);model.userData.glb=true;g.visible=true;pins();stage.request();});
     if(t.animal!=='marine'&&t.animal!=='butterfly')g.add(blobShadow(1.1*s/.4,.22));
     const hit=new T.Mesh(new T.SphereGeometry(1.1,10,8),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.position.y=.5;hit.userData.find=t.id;g.add(hit);
     g.position.copy(home);// Models face +x; turn them outward toward the camera, three-quarter on (the crab straight on).
     g.visible=false;g.rotation.y=angle(t.habitat)-Math.PI/2+(t.animal==='crab'?0:.7);scene.add(g);
-    return {...t,g,model,hit,home,ready,pin:new T.Vector3(),seed:Math.random()*10};
+    return {...t,g,model,hit,home,pin:new T.Vector3(),seed:Math.random()*10};
+  }
+  function load(x){
+    if(!x.ready)x.ready=loadAnimal(x.animal,{dome:true}).then(glb=>{
+      if(dead||!animals.includes(x))return;
+      x.model.add(glb);x.model.userData.glb=true;x.g.visible=true;pins();stage.request();
+    }).catch(error=>{
+      if(dead||!animals.includes(x))return;
+      if(!x.look)throw error;
+      scene.remove(x.g);animals=animals.filter(a=>a!==x);pins();stage.request();
+    });
+    return x.ready;
   }
   function tick(t){
     const s=t/1000;
@@ -157,16 +166,18 @@ export function create(host,opts){
   }
   function apply(o){
     opts=o;const all=[...o.targets,...(o.extras||[]).map(t=>({...t,look:true}))],k=all.map(t=>t.id).join();
-    if(k!==key){ready=false;stage.setLoading(true);for(const x of animals){scene.remove(x.g);x.g.traverse(n=>{if(!n.userData.shared)n.geometry?.dispose();});}key=k;animals=o.targets.map(addAnimal);
-      const first=animals.find(x=>x.habitat===o.active)||animals[0];
-      for(const x of animals)x.ready.catch(error=>{if(!dead&&key===k)opts.onFail?.(error);});
-      Promise.all([sceneryReady,first.ready]).then(()=>{
+    const fail=error=>{if(!dead&&key===k)opts.onFail?.(error);};
+    if(k!==key){ready=false;stage.setLoading(true);for(const x of animals){scene.remove(x.g);x.g.traverse(n=>{if(!n.userData.shared)n.geometry?.dispose();});}
+      key=k;animals=all.map(addAnimal);
+      const first=animals.find(x=>x.habitat===o.active)||animals[0],queue=animals.filter(x=>x!==first);
+      Promise.all([sceneryReady,load(first)]).then(async()=>{
         if(dead||key!==k)return;ready=true;stage.setLoading(false);focusActive();
-        // Other animals continue loading after the first observation is already usable.
-        const extras=all.filter(t=>t.look).map(addAnimal);animals.push(...extras);
-        for(const x of extras)x.ready.catch(()=>{if(!dead&&key===k){scene.remove(x.g);animals=animals.filter(a=>a!==x);pins();stage.request();}});
-      }).catch(error=>{if(!dead&&key===k)opts.onFail?.(error);});}
+        // Fill the other habitats one at a time so the current clip can start.
+        for(const x of queue){if(dead||key!==k)return;await load(x);}
+      }).catch(fail);}
     else animals.forEach(x=>{x.found=all.find(t=>t.id===x.id)?.found;});
+    const selected=animals.find(x=>x.habitat===o.active);
+    if(selected)load(selected).catch(fail);
     focusActive();pins();stage.request();
   }
   // Optional tilt: device orientation nudges the orbit; no events within 1.5 s means no sensor.

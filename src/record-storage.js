@@ -18,7 +18,8 @@ export function createRecordStorage(storage){
    try{
     const current=storage.getItem(STORAGE_KEY);
     if(current!==lastRaw){blocked=true;api.raw=current;api.status='conflict';return false;}
-    const next=JSON.stringify(state);storage.setItem(STORAGE_KEY,next);
+    const next=JSON.stringify(state);
+    if(replace||next!==current)storage.setItem(STORAGE_KEY,next);
     lastRaw=next;api.raw=next;blocked=false;api.status='ok';return true;
    }catch(error){api.status=error?.name==='QuotaExceededError'?'quota':'unavailable';return false;}
   },

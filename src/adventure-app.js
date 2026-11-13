@@ -9,8 +9,8 @@ import {createStoryPlayer} from './story-player.js';
 import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
-import {motionView,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
+import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,actionGuide} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {createVillage} from './village.js';
@@ -287,7 +287,10 @@ function talk(npc,text,marker,{automatic=false,onEnd}={}){
 // 3D screens start downloading while Haru walks to the door, so the scanner and dome open sooner.
 function warmStage(id){const r=Math.floor((s.step[id]||0)/2);
   if(id===1){const pair=OBSERVE_PAIRS[r]||[],first=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0];if(SCAN_3D.includes(first))warm3d('scanner',[first]);}
-  if(id===3)warm3d('dome',DISCOVERIES.slice(r*3,r*3+3).map(d=>d.animal));}
+  if(id===3&&(s.step[id]||0)%2===0){
+    const list=DISCOVERIES.slice(r*3,r*3+3),first=list.find(d=>s.inquiry.motion[d.animal]===undefined)||list[0];
+    if(first)warm3d('dome',[first.animal]);
+  }}
 function cancelMapWalk(){
   autoEnter=false;arrived=false;
   const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);
@@ -526,17 +529,38 @@ function autoTick(){const a=autoRun;if(!a)return;if(screen!=='mission'||stage!==
   const next=autoNext(a);if(typeof next==='string')return stopAuto(next);const [action,data,wait]=next;
   if(action)act(action,{dataset:data,setAttribute(){},getAttribute(){return null;}});if(autoRun===a)a.timer=later(autoTick,wait);}
 function stopMotion(reset=true){stopMotionFrame();motionPlayer?.pause();motionPlaying=false;motionTime=0;if(reset){motionPhase=0;motionPlayer?.seek(0);}paintMotion();}
+// Keep the decoded frame and fullscreen session during the photo confirmation.
+function showMotionPhoto(id,photo){
+ const host=app.querySelector('.motion-observer');
+ const list=DISCOVERIES.slice(round()*3,round()*3+3),remaining=list.filter(d=>s.inquiry.motion[d.animal]===undefined),d=list.find(d=>d.animal===id),extra=DOME_ZONES[activeHabitat];
+ const next=remaining[0],note=host.querySelector('[data-motion-ready]'),capture=host.querySelector('.motion-photo-capture');
+ if(next)note.dataset.next=ANIMALS[next.animal].name;else delete note.dataset.next;
+ note.toggleAttribute('data-all-done',!remaining.length);
+ capture.setAttribute('aria-label','다시 찍기');capture.querySelector('span').textContent='다시 찍기';
+ host.classList.add('motion-complete');host.querySelector('.motion-photo-result,.motion-legacy-record')?.remove();
+ host.insertAdjacentHTML('beforeend',motionPhotoResult(id,photo));
+ const checklist=app.querySelector('.motion-checklist');
+ if(d&&checklist){
+  checklist.querySelector('b').textContent='이번 활동 · '+(3-remaining.length)+'/3마리 기록';
+  checklist.querySelector('[data-id="'+d.habitat+'"]').textContent='✓ '+ANIMALS[id].name;
+  const footer=app.querySelector('.mission-footer [data-action="advance"]');
+  if(footer){footer.innerHTML=(remaining.length?'기록 확인 · '+(3-remaining.length)+'/3':'세 마리 완료 · 다음으로')+' '+icon('arrow');footer.classList.toggle('action-cue',!remaining.length);}
+ }
+ const caption=app.querySelector('.habitat-caption p');
+ if(caption&&(d||extra))caption.textContent=d?discoveryCaption(s,d):domeCaption(s,extra);
+ paintMotion();
+}
 function paintMotion(){
  const host=document.querySelector('.motion-observer');if(!host)return;const id=host.dataset.motion;if(!Object.hasOwn(MOTIONS,id))return;
  const frame=motionPlayer?videoFrameAt(id,motionPhase):frameAt(motionPhase),svg=host.querySelector('.motion-model');if(svg)svg.outerHTML=motionDiagram(id,motionPhase);
  const caption=host.querySelector('.motion-caption');if(caption)caption.textContent=motionCaption(id,frame,motionPlayer?.viewed||motionOpen(s,id));
- const play=host.querySelector('.motion-control-play');if(play){const label=play.querySelector('[data-play-label]'),glyph=play.querySelector('[data-motion-play-icon]');if(label)label.textContent=motionPlaying?'일시정지':'재생';if(glyph)glyph.innerHTML=icon(motionPlaying?'pause':'play');play.setAttribute('aria-label',motionPlaying?'일시정지':'재생');}
+ const play=host.querySelector('.motion-control-play');if(play){const label=play.querySelector('[data-play-label]'),glyph=play.querySelector('[data-motion-play-icon]');if(label&&label.textContent!==(motionPlaying?'일시정지':'재생'))label.textContent=motionPlaying?'일시정지':'재생';const text=motionPlaying?'일시정지':'재생';if(play.getAttribute('aria-label')!==text){if(glyph)glyph.innerHTML=icon(motionPlaying?'pause':'play');play.setAttribute('aria-label',text);}}
  const overlay=host.querySelector('.motion-start-button');if(overlay)overlay.hidden=motionPlaying;host.querySelector('.motion-player')?.classList.toggle('is-playing',motionPlaying);
  const slow=host.querySelector('[data-action="motion-slow"]');if(slow)slow.textContent=motionSlow?'보통 속도':'느리게';
  const slider=host.querySelector('#motion-phase');if(slider)slider.value=motionPhase;
  // Actual decoded video pixels, after playback, are required for a photo.
- if(motionPlayer){const ready=motionPlayer.ready&&motionPlayer.viewed,capture=host.querySelector('[data-action="motion-capture"]'),note=host.querySelector('[data-motion-ready]');if(capture)capture.disabled=!ready;if(note){note.textContent=motionGuide({viewed:motionPlayer.viewed,ready,playing:motionPlaying,done:s.inquiry.motion[id]!==undefined,next:note.dataset.next,allDone:note.hasAttribute('data-all-done'),extra:note.hasAttribute('data-extra')});note.classList.toggle('ready',ready);}}
- const full=host.querySelector('[data-action="motion-fullscreen"]');if(full){const expanded=document.fullscreenElement===host.querySelector('.motion-player');full.setAttribute('aria-label',expanded?'동영상 전체화면 닫기':'동영상 전체화면 보기');full.setAttribute('title',expanded?'전체화면 닫기 (Esc)':'전체화면 보기');full.querySelector('[data-motion-fullscreen-icon]').innerHTML=icon(expanded?'shrink':'expand');}
+ if(motionPlayer){const ready=motionPlayer.ready&&motionPlayer.viewed,capture=host.querySelector('[data-action="motion-capture"]'),note=host.querySelector('[data-motion-ready]');if(capture)capture.disabled=!ready;if(note){const text=motionGuide({viewed:motionPlayer.viewed,ready,playing:motionPlaying,loading:motionPlayer.loading,done:s.inquiry.motion[id]!==undefined,next:note.dataset.next,allDone:note.hasAttribute('data-all-done'),extra:note.hasAttribute('data-extra')});if(note.textContent!==text)note.textContent=text;note.classList.toggle('ready',ready);}}
+ const full=host.querySelector('[data-action="motion-fullscreen"]');if(full){const expanded=document.fullscreenElement===host.querySelector('.motion-player');const label=expanded?'동영상 전체화면 닫기':'동영상 전체화면 보기';if(full.getAttribute('aria-label')!==label){full.setAttribute('aria-label',label);full.setAttribute('title',expanded?'전체화면 닫기 (Esc)':'전체화면 보기');full.querySelector('[data-motion-fullscreen-icon]').innerHTML=icon(expanded?'shrink':'expand');}}
  const video=host.querySelector('video.motion-video'),format=t=>'0:'+String(Math.floor(Number(t)||0)).padStart(2,'0'),current=host.querySelector('[data-motion-current]'),duration=host.querySelector('[data-motion-duration]');if(current)current.textContent=format(video?.currentTime);if(duration)duration.textContent=format(video?.duration||5);
 }
 function startMotionFrame(){if(typeof window.requestAnimationFrame!=='function')return;motionRAF=window.requestAnimationFrame(time=>{if(!motionPlaying||screen!=='mission'||stage!==3)return;const delta=motionTime?time-motionTime:0;motionTime=time;const old=frameAt(motionPhase);motionPhase=(motionPhase+delta/(motionSlow?100:40))%101;const slider=document.querySelector('#motion-phase');if(slider)slider.value=motionPhase;if(frameAt(motionPhase)!==old)paintMotion();startMotionFrame();});}
@@ -705,10 +729,10 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'sort-before':{const before=groupRects();s.inquiry.reclass[round()].revealed=false;render();flipGroups(before);break;}
     case 'case-hint':caseHint=!caseHint;render();break;
     case 'clue-open':clueIndex=Math.max(0,Math.min(4,Number(value)||0));render();break;
-    case 'motion-fullscreen':toggleMotionFullscreen(document.querySelector('.motion-player')).catch(()=>{document.querySelector('#announcer').textContent='전체화면을 열지 못했어. 이 화면에서 영상을 계속 볼 수 있어.';});break;
-    case 'motion-play':motionPlaying=!motionPlaying;motionTime=0;if(motionPlayer){if(motionPlaying)motionPlayer.play();else motionPlayer.pause();paintMotion();}else render();break;
-    case 'motion-slow':motionSlow=!motionSlow;if(motionPlayer){motionPlayer.setSlow(motionSlow);paintMotion();}else render();break;
-    case 'motion-frame':stopMotion(false);motionPhase=Number(value)||0;if(motionPlayer){motionPlayer.seek(motionPhase);paintMotion();}else render();break;
+    case 'motion-fullscreen':toggleMotionFullscreen(document.querySelector('.motion-player')).catch(()=>{document.querySelector('#announcer').textContent='전체화면을 열지 못했어. 이 화면에서 영상을 계속 볼 수 있어.';});return;
+    case 'motion-play':motionPlaying=!motionPlaying;motionTime=0;if(motionPlayer){if(motionPlaying)motionPlayer.play();else motionPlayer.pause();paintMotion();}else render();return;
+    case 'motion-slow':motionSlow=!motionSlow;if(motionPlayer){motionPlayer.setSlow(motionSlow);paintMotion();}else render();return;
+    case 'motion-frame':stopMotion(false);motionPhase=Number(value)||0;if(motionPlayer){motionPlayer.seek(motionPhase);paintMotion();}else render();return;
     case 'motion-predict':if(Object.hasOwn(MOTIONS,id)&&['part','other'].includes(value)){s.inquiry.motionPredictions[id]=value;feedback=null;render();}break;
     case 'motion-retry':failedMotionVideos.delete(id);motionPhase=0;motionPlaying=false;render();break;
     case 'motion-photo':{const photo=normalizeMotionPhoto(s.inquiry.motionPhotos?.[id]);if(photo)modal('내가 찍은 전시 사진','<figure class="motion-photo-review"><img src="'+photo.dataURL+'" alt="영상에서 직접 고른 전시 사진"><figcaption>내가 고른 '+photo.time.toFixed(1)+'초의 순간</figcaption></figure><div class="dialog-actions">'+btn('닫기','close-dialog','primary')+'</div>');}break;
@@ -719,7 +743,9 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       stopMotion(false);if(captured)motionPhase=captured.phase;const frame=motionPlayer?videoFrameAt(id,motionPhase):frameAt(motionPhase);
       s.inquiry.motion[id]=MOTION_KEY_FRAME;s.inquiry.motionEvidence[id]={frame,phase:motionPhase,source:motionPlayer?'video':'diagram'};
       if(photo)(s.inquiry.motionPhotos??={})[id]=photo;
-      save();say(photo?'찰칵! 전시관에 보낼 사진 한 장을 골랐어. 사진 속 동물의 몸과 움직임을 살펴봐.':'설명 그림의 관찰 기록을 남겼어. 영상이 다시 열리면 전시 사진도 찍어 봐.',true);
+      if(photo&&app.querySelector?.('.motion-observer')){
+        showMotionPhoto(id,photo);document.querySelector('#announcer').textContent='찰칵! 전시관에 보낼 사진을 골랐어.';
+      }else say(photo?'찰칵! 전시관에 보낼 사진 한 장을 골랐어.':'설명 그림의 관찰 기록을 남겼어. 영상이 다시 열리면 전시 사진도 찍어 봐.',true);
       if(DISCOVERIES.slice(round()*3,round()*3+3).some(d=>d.animal===id))scheduleActivityProgress(continueMotion);
     }break;
     case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=1;feedback=null;render();break;
@@ -778,7 +804,7 @@ document.addEventListener('input',e=>{
   if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setMusicVolume(s.musicVolume);syncMusic();save();return;}
   if(e.target.id==='experiment-note'||e.target.id==='peer-note'){clearActivityProgress();s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();syncWorkshopCue();return;}
   if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
-  if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();save();return;}
+  if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();return;}
   if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
 document.addEventListener('change',e=>{
  if(e.target.id==='experiment-level')render();

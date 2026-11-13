@@ -10,7 +10,7 @@ export const MOTION_CLIPS={
  marine:{duration:5,picks:[.1,1.7,4.7],push:[[.65,4.4]]}
 };
 const BASE=new URL('../assets/videos/motion/',import.meta.url).href;
-export const motionVideoURL=(id,ext='mp4')=>Object.hasOwn(MOTION_CLIPS,id)?BASE+id+'.'+ext:'';
+export const motionVideoURL=(id,ext='mp4')=>Object.hasOwn(MOTION_CLIPS,id)?BASE+id+(ext==='mp4'?'-web':'')+'.'+ext:'';
 export const motionFramePhase=(id,index)=>MOTION_CLIPS[id].picks[index]/MOTION_CLIPS[id].duration*100;
 export function videoFrameAt(id,phase){
  const clip=MOTION_CLIPS[id];if(!clip)return 0;
@@ -43,25 +43,32 @@ export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpda
  const duration=()=>Number.isFinite(video.duration)&&video.duration>0?video.duration:0;
  const percent=()=>duration()?video.currentTime/duration()*100:pendingPhase;
  const update=()=>{if(alive)onUpdate({phase:percent(),playing:!video.paused&&!video.ended});};
- function seek(value){if(!alive)return;pendingPhase=Math.max(0,Math.min(100,Number(value)||0));if(duration())video.currentTime=pendingPhase/100*duration();else if(!requested){requested=true;video.preload='auto';video.load();}}
+ function seek(value){
+  if(!alive)return;
+  pendingPhase=Math.max(0,Math.min(100,Number(value)||0));
+  if(duration()){
+   const next=pendingPhase/100*duration();
+   if(Math.abs(video.currentTime-next)>.001)video.currentTime=next;
+  }else if(pendingPhase>0&&!requested){requested=true;video.preload='auto';video.load();}
+ }
  function play(){
   if(!alive)return;playing=true;requested=true;
   if(video.ended||percent()>=99.9)seek(0);
   watchStall();
   const promise=video.play();
-  promise?.catch(()=>{if(alive){clearStall();video.pause();update();}});
+  promise?.catch(()=>{if(alive&&playing){playing=false;clearStall();video.pause();update();}});
  }
  video.muted=true;video.playbackRate=slow?.45:1;
- listen('loadedmetadata',()=>{if(!alive)return;seek(pendingPhase);if(playing)play();});
+ listen('loadedmetadata',()=>{if(!alive)return;seek(pendingPhase);update();});
  listen('playing',()=>{clearStall();viewed=true;update();});
  listen('waiting',watchStall);
- listen('ended',clearStall);
+ listen('ended',()=>{playing=false;clearStall();});
  for(const name of ['timeupdate','play','pause','seeking','seeked','ended','loadeddata','canplay','waiting'])listen(name,update);
  listen('error',fail);
  if(video.readyState>=1)seek(pendingPhase);
  if(playing)play();
  return {
-  get phase(){return percent();},get ready(){return video.readyState>=2&&!video.seeking;},get viewed(){return viewed;},
+  get phase(){return percent();},get ready(){return video.readyState>=2&&!video.seeking;},get viewed(){return viewed;},get loading(){return playing&&(video.readyState<3||video.seeking);},
   capture(){
    if(!alive||!viewed||video.readyState<2||video.seeking||!duration()||!video.videoWidth||!video.videoHeight)return null;
    try{

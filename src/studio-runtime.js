@@ -79,7 +79,7 @@ export function mountStudio(root,{getStudio,onChange,onDownload,onCommit}={}){
 
 function wrap(ctx,text,maxWidth){const lines=[];for(const paragraph of String(text).split('\n')){let line='';for(const letter of paragraph){if(line&&ctx.measureText(line+letter).width>maxWidth){lines.push(line);line=letter;}else line+=letter;}lines.push(line);}return lines;}
 export async function downloadStudioArtwork(value){
- const s=normalizeStudio(value);if(document.fonts?.load)await Promise.all([document.fonts.load('26px "NanumSquareNeo"'),document.fonts.load('bold 26px "NanumSquareNeo"')]);if(document.fonts?.ready)await document.fonts.ready;
+ const s=normalizeStudio(value);const text=[s.title,s.audience,s.purpose,s.inspiration,'동물기록 복구작전'].join(' ');if(document.fonts?.load)await Promise.all([document.fonts.load('26px "NanumSquareNeo"',text),document.fonts.load('bold 26px "NanumSquareNeo"',text)]);if(document.fonts?.ready)await document.fonts.ready;
  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas unavailable');
  canvas.width=1440;const fields=[['누구를 위한 발명?',s.audience||'아직 적지 않았어요.'],['어떻게 사용하나요?',s.purpose||'그림에 담긴 쓰임을 상상해 보세요.'],['어디에서 아이디어를 얻었나요?',s.inspiration||'나의 상상에서 시작했어요.']];
  ctx.font='26px "NanumSquareNeo","Malgun Gothic",sans-serif';const sections=fields.map(([label,text])=>({label,lines:wrap(ctx,text,1224)}));canvas.height=1110+sections.reduce((sum,item)=>sum+88+item.lines.length*38,0);

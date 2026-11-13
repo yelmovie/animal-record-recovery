@@ -10,18 +10,18 @@ import { CONCEPTS } from '../src/concepts.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const files=['index.html',...['korean.js','research-report.js','motion-video.js','tablet.css','campaign.js','campaign-views.js','campaign.css','inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','settings-content.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css','view3d.js','stage3d.js','scanner3d.js','dome3d.js',...['three.module.min.js','three.core.min.js','GLTFLoader.js','BufferGeometryUtils.js','LICENSE.txt'].map(f=>`vendor/three/${f}`)].map(f=>`src/${f}`),
-  'assets/og/animal-record-recovery-pond-v1.png',
-  ...['raccoon','biomes','investigation'].map(f=>`assets/${f}.webp`),
+  'assets/og/animal-record-recovery-pond-v1.png','assets/generated/reed-web.webp','assets/generated/lotus_leaf-web.webp',
+  ...['raccoon-web','biomes-web','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
-  ...['dome-ground','nature-materials','workshop-atlas','terrain-atlas','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk','sparrow','spider','ant','penguin','ostrich','dolphin','mole'].map(f=>`assets/adventure/${f}.webp`),
+  ...['dome-ground-web','nature-materials-web','workshop-atlas','terrain-atlas-web','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk-web','sparrow','spider','ant','penguin','ostrich','dolphin','mole'].map(f=>`assets/adventure/${f}.webp`),
   ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page'].map(f=>`assets/sfx/${f}.mp3`),
   'assets/music/village-theme.mp3','assets/adventure/swim-shoe-v2.webp','assets/adventure/swim-blade-v2.webp',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
-  ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>['mp4','webp'].map(ext=>`assets/videos/motion/${id}.${ext}`)),
+  ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>[`assets/videos/motion/${id}-web.mp4`,`assets/videos/motion/${id}.webp`]),
   // The scanner loads models/scan/ (40k, 1024px) and the dome models/dome/; full models stay out of the deploy.
   ...SCAN_3D.map(f=>`assets/models/scan/${f}.glb`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].map(f=>`assets/models/dome/${f}.glb`),
   ...['village.json','map-base.webp','map-restored.webp',...['1','2','3','4','5','core','gallery'].map(id=>`restore-${id}.webp`),...['haru','mori','researcher','ranger','engineer'].map(id=>`${id}.webp`),...['talk','enter','lock','unlock','sparkle'].map(id=>`marker-${id}.webp`)].map(f=>`assets/village/${f}`),
-  ...['NanumSquareNeoTTF-bRg.woff2','NanumSquareNeoTTF-cBd.woff2','NanumSquareNeo-OFL.txt','NanumSquareNeo-SOURCE.json','landing-regular.woff2','landing-bold.woff2'].map(f=>`assets/fonts/${f}`)];
+  ...['NanumSquareNeoTTF-bRg.woff2','NanumSquareNeoTTF-cBd.woff2','NanumSquareNeo-OFL.txt','NanumSquareNeo-SOURCE.json','landing-regular.woff2','landing-bold.woff2','ui-regular.woff2','ui-bold.woff2'].map(f=>`assets/fonts/${f}`)];
 files.push('src/workspace.css',...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/residents/${id}-v2.webp`),...['researcher','curator','ranger','detective','engineer'].map(id=>`assets/village/npc-${id}.webp`),...[1,2,3,4,5].flatMap(id=>[`assets/tools/${id}-v2.webp`,`assets/village/recovery-${id}-v2.webp`]),'src/landing.css','assets/adventure/museum-opening-light.webp','assets/adventure/title-logo-light.webp','assets/village/map-base-light.webp','assets/story/intro-poster-light.webp','src/story-player.js','src/story.css',...Object.values(STORIES).map(({video})=>`assets/videos/story/${video}.mp4`),...['intro','outro'].flatMap(kind=>[1,2,3,4].map(i=>`assets/story/${kind}-0${i}.webp`)));
 files.push('src/record-storage.js','src/build-info.js');
 files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src/flashlight.css','src/responsive.css','src/museum-notes.css','src/request-sheet.css',...['observation-notebook','museum-placard','museum-pedestal'].map(f=>`assets/museum/${f}.webp`));

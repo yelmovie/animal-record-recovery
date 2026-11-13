@@ -8,13 +8,13 @@ export const ASSETS = Object.freeze({
   flipper: {src:'flipper', label:'넓은 면을 가진 수영 오리발'},
   helmet: {src:'helmet', label:'머리를 감싸는 안전모'},
   coat: {src:'coat', label:'두툼한 안감이 있는 방한 외투'},
-  pond: {src:'pond_base', label:'연못 지형'},
+  pond: {src:'pond_base-web', label:'연못 지형'},
   lotus: {src:'lotus_leaf', label:'연잎'},
   reed: {src:'reed', label:'갈대'},
   case: {src:'evidence_case', label:'조사할 동물 기록과 돋보기'},
 });
 export const assetURL = id => new URL(`../assets/generated/${ASSETS[id].src}.webp`, import.meta.url).href;
-export const sheetURL = sheet => new URL(`../assets/${sheet}.webp`, import.meta.url).href;
+export const sheetURL = sheet => new URL(`../assets/${['raccoon','biomes'].includes(sheet)?sheet+'-web':sheet}.webp`, import.meta.url).href;
 export const swimArtwork = kind => new URL(`../assets/adventure/swim-${kind}-v2.webp`, import.meta.url).href;
 // A single transparent atlas keeps workshop objects consistent and shares one download.
 export function workshopSprite(kind,x=0,y=0,width=100,height=100){

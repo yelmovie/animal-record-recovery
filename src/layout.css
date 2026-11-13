@@ -10,7 +10,7 @@
 /* Activity pages: no top row. The activity art fills the screen; the title chip floats next to home/back,
    the "?" help sits with the corner icons, and Mori speaks only as a feedback bubble. */
 #app .mission-page{position:relative;height:var(--app-height,100dvh)!important;max-width:none;margin:0;padding:0!important;display:block!important;overflow:hidden}
-#app .mission-page .activity-workspace{position:absolute;inset:0;height:auto;min-height:0;margin:0;border-radius:0;padding:0;gap:0;background:#e9e3cf url('../assets/adventure/field-desk.webp') center/cover}
+#app .mission-page .activity-workspace{position:absolute;inset:0;height:auto;min-height:0;margin:0;border-radius:0;padding:0;gap:0;background:#e9e3cf url('../assets/adventure/field-desk-web.webp') center/cover}
 /* The workspace art is the one background; a second cover-sized copy on the half-width scene crops differently and shows a seam. */
 #app .mission-page .activity-workspace>.specimen-scene{background:transparent}
 /* Each activity board runs edge to edge (its art behind the corner icons) and starts its content below them. */
@@ -1277,7 +1277,7 @@ dialog .concept-player .dialog-actions .btn{min-height:48px;font-size:clamp(18px
 #app .mission-page .inquiry-specimen .part-buttons{gap:8px;justify-content:center}
 #app #main.mission-page .inquiry-specimen .part-buttons .btn{min-height:clamp(48px,6vh,66px);padding:6px clamp(12px,1.2vw,22px);border:3px solid var(--ui-line);border-radius:14px;background:var(--ui-paper-strong);color:var(--ui-ink);font-size:max(var(--btn-fs,18px),2.3vh)!important;box-shadow:0 4px 0 var(--ui-line)}
 #app #main.mission-page .inquiry-specimen .part-buttons .btn.selected{background:var(--ui-green);border-color:var(--ui-edge);color:#fffbed;box-shadow:0 4px 0 var(--ui-edge)}
-/* The specimen lies on the canvas mat of field-desk.webp (1400×933, drawn center/cover).
+/* The specimen lies on the canvas mat of field-desk-web.webp (1400×933, drawn center/cover).
    Mat inside the stitching: y 230–750, left edge ≈ x 150 at mid height. These vars map it to the screen. */
 #app .mission-page .activity-workspace{--fd-s:max(100vw / 1400,var(--app-height,100dvh) / 933);--fd-ox:calc((100vw - 1400 * var(--fd-s)) / 2);--fd-oy:calc((var(--app-height,100dvh) - 933 * var(--fd-s)) / 2);--mat-top:calc(var(--fd-oy) + 236 * var(--fd-s));--mat-bottom:min(calc(var(--fd-oy) + 744 * var(--fd-s)),calc(var(--app-height,100dvh) - 150px));--mat-left:calc(var(--fd-ox) + 170 * var(--fd-s))}
 #app #main.mission-page :is(.inquiry-specimen,.scan-scene){justify-content:flex-end}
