@@ -174,7 +174,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     if(haru){haru.x=start[0];haru.y=start[1];draw(haru);follow();placeMarkers();clearControls();}
     if(mori){mori.x=start[0]-40;mori.y=start[1]+6;draw(mori);mori.el.dataset.npc='mori';}
     // Position by feet in the existing village coordinate space; the camera projects to the scene.
-    const encounters=haru&&!encounterPreview?mountVillageEncounters({host:scene,
+    const encounters=haru&&!encounterPreview?mountVillageEncounters({host:scene,clearIndex:flash===null?null:Number(flash)-1,
       stages:COMMISSIONS.map((commission,i)=>{
         const building=j.buildings[i+1],door=building?.door;if(!completed.includes(i+1)||!door)return null;
         const node=building.node??nearestNode(graph,door);

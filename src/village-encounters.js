@@ -2,38 +2,12 @@ import {mountMapEncounters,normalizeMapHits} from './map-encounters.js';
 
 // This copy ships with its own map so offline play needs no cross-project request.
 const STAGES = [
-  [
-    "stamp",
-    "file",
-    "이 발자국, 내가 방금 만들었지!",
-    "발자국 하나 더 찍을까?"
-  ],
-  [
-    "label",
-    "label",
-    "이름표만 바꾸면 모르겠지?",
-    "이번엔 어느 이름표를 바꿀까?"
-  ],
-  [
-    "flip",
-    "flip",
-    "아까 기록은 이쪽이었나?",
-    "기록을 또 뒤집어 볼까?"
-  ],
-  [
-    "photo",
-    "lens",
-    "이 사진은 내가 잠깐 빌릴게!",
-    "가면 뒤에는 아무것도 없어!"
-  ],
-  [
-    "plans",
-    "file",
-    "설계도는 내가 먼저 봐야지!",
-    "이 설계도는 둘둘 말아야지!"
-  ]
+  ["stamp", "file", "개구리랑 게를 눈썰미로 구별해? 내 가짜 발자국은 어쩌라고!", "다음엔 도장에 꼬리까지 그려 주지!", "앗, 발자국 도장이 거꾸로!", "사진첩까지 펼쳐졌잖아!", "흥, 진짜 동물 사진은 돌려줄게!"],
+  ["label", "label", "날개가 있는지로 나눴어? 그럼 내 이름표 바꿔치기는 들통이잖아!", "내 기준은 간단해. 내 편, 내 편 아닌 편!", "앗, 분류표가 제자리로!", "내 멋대로 붙인 이름표가 떨어져!", "쳇, 누구나 쓸 수 있는 기준이라니 반칙이야!"],
+  ["flip", "flip", "게가 어디 사는지까지 알아냈어? 내 뒤집힌 안내판을 믿으란 말이야!", "물가 안내판에 내 비밀 기지도 그려 둘까?", "앗, 물가 기록이 보이잖아!", "개구리랑 게 자리가 다 돌아왔어!", "흥, 안내판에서 내 비밀 기지는 지울게!"],
+  ["photo", "lens", "사진을 가렸는데 발과 털만 보고 찾았어? 탐정이 너무 많아!", "다음엔 내 사진부터 토끼로 바꿔야겠군!", "앗, 내가 가린 사진이 열렸어!", "동물 안내 카드까지 완성됐잖아!", "쳇, 내 가짜 단서는 가져갈게!"],
+  ["plans", "file", "동물의 특징으로 발명까지 해? 그 설계도, 악당 공방에 납품해!", "내 발명품은 설계도 훔치는 주머니야!", "앗, 설계도 두루마리가 풀렸어!", "내 주머니에 구멍이 났잖아!", "흥, 전시회는 열어. 난 발명부터 다시 배울래!"],
 ];
-const hit = ["앗, 내 도장이 흔들려!", "기록장이 바람에 날아가!"], finish = "앗, 기록은 돌려줄게!";
 const palette = '#e66060';
 const art = {
   left: new URL('../assets/village/map-villain-left-v2.webp', import.meta.url).href,
@@ -53,14 +27,14 @@ export function normalizeVillageEncounters(value,legacy) {
   return {...normalizeMapHits(previous,STAGES.map(([id])=>id)),...normalizeMapHits(value,STAGES.map(([id])=>id))};
 }
 
-export function mountVillageEncounters({host,stages,progress,onSave,blocked,reduced,tone,actors}) {
+export function mountVillageEncounters({host,stages,progress,onSave,blocked,reduced,tone,actors,clearIndex}) {
   const points=stages.flatMap((stage,i)=>{
     if(!stage||!STAGES[i])return [];
-    const [id,prop,first,again]=STAGES[i];
-    return [{id,prop,lines:[first,again],hit,finish,...stage}];
+    const [id,prop,first,again,hitOne,hitTwo,finish]=STAGES[i];
+    return [{id,prop,lines:[first,again],hit:[hitOne,hitTwo],finish,speaker:"기록 도둑",...stage}];
   });
   if(!points.some(({id})=>(progress?.[id]||0)<3))return null;
-  const runtime=mountMapEncounters({host,stages:points,progress,onSave,blocked,reduced,tone,art,palette,
+  const runtime=mountMapEncounters({requiredFoes:5,host,stages:points,progress,onSave,blocked,reduced,tone,art,palette,clearStage:()=>STAGES[clearIndex]?.[0],
     reach:76,contact:23});
   const layer=host.querySelector('.map-encounter-layer');
   const poses=reactions.map((src,i)=>{
