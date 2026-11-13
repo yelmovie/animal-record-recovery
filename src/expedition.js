@@ -277,6 +277,12 @@ function migrateLegacy(raw){
 }
 export function isStageOpen(s,id){return Number.isInteger(id)&&id>=1&&id<=5&&(s.adminUnlocked||id===1||s.completed.includes(id)||restoredPlaces(s).includes(id-1)||Boolean(s.legacy&&(id<=Math.min(5,Math.max(0,...s.legacy.completed)+1))));}
 export const countStage=(s,id)=>STAGES[id-1].tasks.filter((_,n)=>s.activities.includes(`${id}-${n}`)).length;
+// An observation is saved before its activity is marked complete.
+export function expeditionResume(s){
+  const hasRecords=s.observed.length>0||s.activities.length>0||s.completed.length>0;
+  if(!hasRecords)return s.introSeen?'map':'intro';
+  return isStageOpen(s,s.stage)&&!s.completed.includes(s.stage)?'mission':'map';
+}
 export function taskReady(s,stage,step){
   if(!Number.isInteger(stage)||stage<1||stage>5||!Number.isInteger(step)||step<0||step>=STAGES[stage-1].tasks.length)return false;
   const round=Math.floor(step/2);

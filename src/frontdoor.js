@@ -1,6 +1,6 @@
 import {header,home} from './landing-views.js';
 import {createRecordStorage,storageMessage} from './record-storage.js';
-import {freshExpedition} from './expedition.js';
+import {freshExpedition,expeditionResume} from './expedition.js';
 import {btn,esc} from './presentation.js';
 import {playSound,playMusic,setMusicVolume,setSoundVolume,silence} from './audio.js';
 
@@ -66,7 +66,7 @@ function onClick(event){
  const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
  const action=button.dataset.action;
  playSound(s.soundEnabled,action==='settings'?'page':'tap');
- if(action==='start'){if(s.introSeen)openRuntime('map');else openIntro();}
+ if(action==='start'){if(expeditionResume(s)==='intro')openIntro();else openRuntime('resume');}
  if(action==='story-intro')openIntro();
  if(action==='settings')openRuntime('settings');
  if(action==='story-skip'&&introOpen)openRuntime('intro-finished');
@@ -84,4 +84,4 @@ setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);
 app.addEventListener('click',onClick);
 landing();
 if(restart==='story-intro')openIntro();
-else if(['map','settings','intro-finished'].includes(restart))openRuntime(restart);
+else if(['map','resume','settings','intro-finished'].includes(restart))openRuntime(restart);

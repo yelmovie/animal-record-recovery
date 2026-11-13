@@ -10,7 +10,7 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -300,7 +300,9 @@ function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundE
 function resetNpcDialogue(){if(!clearNpcVoice)return;clearNpcVoice();clearNpcVoice=null;dialog.classList.remove('npc-scene-dialog');}
 function modal(title,content,{showClose=true}={}){if(screen==='map'){map?.stop?.();cancelMapWalk();}unmountBroadcast?.stop?.();cancelCompletion();clearActivityProgress();resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
-  if(s.introSeen){go('map');return;}
+  const where=expeditionResume(s);
+  if(where==='mission'){enter(s.stage);return;}
+  if(where==='map'){go('map');return;}
   openStory('intro');
 }
 function storyFullscreen(){
@@ -906,5 +908,6 @@ if(action==='intro-finished'||action==='map'){
  if(action==='intro-finished'){s.introSeen=true;navigation.visit({screen:'intro',stage:null,step:null,commissionIndex:null});}
  go('map');
 }
+else if(action==='resume'){navigation.visit({screen:'home',stage:null,step:null,commissionIndex:null});start();}
 else{render();if(action==='settings')settings();}
 }

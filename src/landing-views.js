@@ -1,4 +1,5 @@
 import {artURL,icon,btn} from './presentation.js';
+import {expeditionResume} from './expedition.js';
 
 // Home and back sit on the left; the map has a quick sound switch beside settings.
 // No counters, no extra menus, no top or bottom bar; the bag and other extras live inside the settings dialog.
@@ -13,7 +14,7 @@ export function home(s){return `<main id="main" tabindex="-1" class="landing mus
     <h1 id="landing-title" class="landing-title"><span class="sr-only">동물기록 복구작전</span><img src="${artURL('title-logo-light')}" alt="" width="960" height="640" fetchpriority="high" draggable="false"></h1>
     <p class="landing-description">사라진 동물 기록을 찾아,<br><strong>우리 손으로 전시관을 다시 열어 줘!</strong></p>
     <div class="landing-actions">
-      ${btn(`<span>${s.activities.length?'이어서 탐험하기':'탐험대 출발하기'}</span><span class="landing-start-arrow">${icon('arrow')}</span>`,'start','primary landing-start')}
+      ${btn(`<span>${expeditionResume(s)==='intro'?'탐험대 출발하기':'이어서 탐험하기'}</span><span class="landing-start-arrow">${icon('arrow')}</span>`,'start','primary landing-start')}
       ${btn(`${icon('book')}<span>마을 이야기 보기</span>`,'story-intro','quiet landing-replay')}
     </div>
   </section>

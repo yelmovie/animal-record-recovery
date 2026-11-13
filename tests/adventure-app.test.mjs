@@ -58,8 +58,16 @@ test('an explicit reset that cannot save retains the work and opens preservation
  a.run("act('reset',{dataset:{}})");assert.equal(a.run('s.observed.length'),1);assert.match(a.dialog.innerHTML,/기록 보존|백업/);assert.deepEqual(JSON.parse(a.saved).observed,['frog-eye']);
 });
 
-test('intro can be skipped without losing learning progress and replay does not reset it',()=>{
- const a=appHarness();a.run("s.observed=['frog-eye'];start()");assert.equal(a.run('screen'),'intro');assert.match(a.app.innerHTML,/story-video/);assert.match(a.app.innerHTML,/건너뛰기/);a.run("act('story-skip',{dataset:{}})");assert.equal(a.run('screen'),'map');assert.equal(a.run('s.introSeen'),true);assert.deepEqual(Array.from(a.run('s.observed')),['frog-eye']);a.run("act('story-intro',{dataset:{}});finishStory()");assert.equal(a.run('screen'),'map');assert.deepEqual(Array.from(a.run('s.observed')),['frog-eye']);
+test('first visit shows the intro and replay preserves a saved observation',()=>{
+ const a=appHarness();a.run('start()');assert.equal(a.run('screen'),'intro');assert.match(a.app.innerHTML,/story-video/);assert.match(a.app.innerHTML,/건너뛰기/);
+ a.run("act('story-skip',{dataset:{}})");assert.equal(a.run('screen'),'map');assert.equal(a.run('s.introSeen'),true);
+ a.run("s.observed=['frog-skin'];save();act('story-intro',{dataset:{}});finishStory()");assert.equal(a.run('screen'),'map');assert.deepEqual(JSON.parse(a.saved).observed,['frog-skin']);
+});
+test('the live controller returns home and resumes the first unfinished observation',()=>{
+ const a=appHarness();a.run("s.observed=['frog-skin'];s.introSeen=true;save();go('home')");
+ assert.match(a.app.innerHTML,/이어서 탐험하기/);
+ a.run('start()');assert.equal(a.run('screen'),'mission');assert.equal(a.run('stage'),1);assert.equal(a.run('step'),0);
+ assert.deepEqual(JSON.parse(a.saved).observed,['frog-skin']);assert.deepEqual(JSON.parse(a.saved).activities,[]);
 });
 test('outro is locked before completion and opens the personal gallery when finished',()=>{
  const a=appHarness();a.run("act('story-outro',{dataset:{}})");assert.equal(a.run('screen'),'home');a.run("s=restoreExpedition("+JSON.stringify(JSON.stringify(campaignFixture()))+");s.campaign=freshCampaign([1,2,3,4,5]);act('story-outro',{dataset:{}})");assert.equal(a.run('screen'),'outro');a.run('finishStory()');assert.equal(a.run('screen'),'gallery');assert.equal(a.run('restoredPlaces(s).length'),5);
