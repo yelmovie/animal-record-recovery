@@ -13,6 +13,7 @@ import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,
 import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
 import {createVillage} from './village.js';
+import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
@@ -27,6 +28,7 @@ ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
 let studentSnapshot=null,mapWalkVersion=0,autoRun=null,clearStar=null,pairRewardTimer=null;
 // relook: an observation id whose choices stay closed after a wrong pick until that part is looked at again.
+let clearNpcVoice=null;
 let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
@@ -111,7 +113,7 @@ function render(){
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   app.querySelectorAll('.note-book').forEach((el,i)=>{if(notePages[i]>0)turnNotePage(el,notePages[i],false);});
   const storyHost=app.querySelector?.('[data-story]');
-  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.musicOn!==false?s.musicVolume??.5:0});
+  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.soundEnabled?(s.soundVolume??.8):s.musicOn!==false?(s.musicVolume??.5):0});
   // Every close-up photo opens large on tap (all animals, every screen that shows one).
   app.querySelectorAll?.('.detail-crop').forEach(el=>{el.dataset.action='photo-zoom';el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','사진 크게 보기');});
   sync3d();
@@ -188,7 +190,8 @@ function go(where){if(dialog.open)dialog.close();requestCard=null;caseHint=false
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
 function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
-function modal(title,content,{showClose=true}={}){conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
+function resetNpcDialogue(){if(!clearNpcVoice)return;clearNpcVoice();clearNpcVoice=null;dialog.classList.remove('npc-scene-dialog');}
+function modal(title,content,{showClose=true}={}){resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   if(s.introSeen){go('map');return;}
   openStory('intro');
@@ -205,8 +208,26 @@ function finishStory(){
   if(document.fullscreenElement===app)document.exitFullscreen?.()?.catch(()=>{});
   go(target);
 }
-// Village NPCs (and Mori) speak in a bubble above them and in the tip line.
-function talk(npc,text,el){const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 복구하면 ${withParticle(next.reward,'을/를')} 받아! 건물이나 길을 누르면 같이 걸어갈게.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;playSound(s.soundEnabled,'talk');toast(line,el,npc.name);}
+// Keep the map tip and campaign actions; present the resident in the native dialogue.
+function talk(npc,text,marker){
+  if(dialog.open)return;
+  const restored=restoredPlaces(s),id=Number(npc.near),mori=npc.id==='mori',completed=restored.includes(id);
+  const next=STAGES.find(t=>!restored.includes(t.id)&&isStageOpen(s,t.id));
+  const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 복구하면 ${withParticle(next.reward,'을/를')} 받아! 건물이나 길을 누르면 같이 걸어갈게.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');
+  const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;
+  const finalLine=!mori&&restored.length===STAGES.length?line:'';
+  const letter=!mori&&campaignOpen(s,id,0)?id:null;
+  const spoken=finalLine?npc.after:line;
+  stopMotion();map?.pause?.();dialog.classList.add('npc-scene-dialog');
+  dialog.innerHTML=npcDialogue(npc,spoken,{mori,completed,finalLine,letter});
+  dialog.showModal();
+  dialog.querySelector('.npc-scene-next')?.focus({preventScroll:true});
+  marker?.classList.add('is-speaking-npc');
+  const stopVoice=mountNpcVoice(dialog,npc,completed,{enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
+    setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
+  }});
+  clearNpcVoice=()=>{stopVoice();marker?.classList.remove('is-speaking-npc');};
+}
 // 3D screens start downloading while Haru walks to the door, so the scanner and dome open sooner.
 function warmStage(id){const r=Math.floor((s.step[id]||0)/2);
   if(id===1){const pair=OBSERVE_PAIRS[r]||[],first=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0];if(SCAN_3D.includes(first))warm3d('scanner',[first]);}
@@ -581,7 +602,7 @@ document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPo
 for(const name of ['pointerup','pointercancel'])document.addEventListener(name,e=>{if(lensPointer&&e.pointerId===lensPointer.id){const animalId=lensPointer.surface.dataset.animal,list=OBSERVATIONS[animalId],x=Number(lensPointer.surface.style.getPropertyValue('--focus-x')),y=Number(lensPointer.surface.style.getPropertyValue('--focus-y'));focusIndex=list.reduce((best,o,i)=>(o.x-x)**2+(o.y-y)**2<(list[best].x-x)**2+(list[best].y-y)**2?i:best,0);lensPointer=null;render();}if(stroke&&e.pointerId===stroke.id){stroke=null;save();}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
-dialog.addEventListener('close',()=>{conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();});
+dialog.addEventListener('close',()=>{resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();
   // The on-screen keyboard shrinks the visual viewport: bring the field being typed in back to the middle once it has opened.
   const keepField=()=>{const el=document.activeElement;if(el?.matches?.('textarea,input[type=text],input:not([type])'))setTimeout(()=>el.scrollIntoView?.({block:'center',behavior:'smooth'}),250);};

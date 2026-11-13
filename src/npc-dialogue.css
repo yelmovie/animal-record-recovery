@@ -1,0 +1,96 @@
+dialog#dialog.npc-scene-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  color: #24382e;
+}
+dialog#dialog.npc-scene-dialog::backdrop { background: #10251fa6; }
+.npc-scene-stage { position: absolute; inset: auto 0 max(20px, env(safe-area-inset-bottom)); width: min(92%, 900px); margin: auto; }
+.npc-scene-portrait {
+  width: min(46dvh, 57vw, 420px);
+  aspect-ratio: 1;
+  margin: 0 0 -10px 4%;
+  pointer-events: none;
+  background: var(--npc-art) 0% 0 / 200% 100% no-repeat;
+  filter: drop-shadow(0 5px 5px #101c1766);
+  animation: npc-scene-in 220ms ease-out both;
+}
+.npc-scene-dialog[data-speaking="true"] .npc-scene-portrait { animation: npc-scene-in 220ms ease-out both, npc-scene-mouth 410ms steps(1) infinite; }
+@keyframes npc-scene-in { from { opacity: 0; transform: translateY(15px); } }
+@keyframes npc-scene-mouth { 0%, 74% { background-position-x: 0%; } 28% { background-position-x: 100%; } }
+.npc-scene-panel {
+  position: relative;
+  display: grid;
+  gap: 7px;
+  padding: 22px 22px 10px;
+  border: 2px solid #9ba978;
+  border-radius: 14px;
+  background: linear-gradient(#fcf7e5, #f0edcf);
+  box-shadow: 0 12px 36px #12271d75, inset 0 0 0 2px #fff9e86a;
+}
+.npc-scene-panel h2 {
+  position: absolute;
+  top: -28px;
+  left: 20px;
+  margin: 0;
+  padding: 6px 15px;
+  border-radius: 8px;
+  background: #294c3e;
+  color: #fbf4d7;
+  font-size: clamp(17px, 2.1vw, 23px);
+  line-height: 1.2;
+}
+.npc-scene-panel p { margin: 0; margin-right: 38px; word-break: keep-all; overflow-wrap: anywhere; }
+.npc-scene-panel .npc-scene-line { font-size: clamp(17px, 2.1vw, 24px); line-height: 1.45; font-weight: 700; color: #233b30; }
+.npc-scene-panel .npc-scene-context { font-size: clamp(14px, 1.5vw, 17px); line-height: 1.45; color: #4b604c; }
+.npc-scene-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; font-size: 14px; color: #465e4a; }
+.npc-scene-panel button { min-height: 44px; }
+.npc-scene-panel .npc-scene-close { position: absolute; inset: 2px 4px auto auto; min-width: 44px; padding: 0; font-size: 30px; }
+.npc-scene-panel .npc-scene-close, .npc-scene-panel .npc-scene-replay { border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #345747; }
+.npc-scene-panel .npc-scene-replay { padding: 0 4px; font-weight: 700; text-decoration: underline; }
+.npc-scene-panel .npc-scene-next { margin-left: auto; padding: 5px 12px; border: 1px solid #839e70; border-radius: 8px; background: #e0e6c5; color: #284a39; font-size: 16px; font-weight: 800; }
+@media (max-width: 700px) {
+  .npc-scene-stage { width: 94%; }
+  .npc-scene-portrait { width: min(74vw, 43dvh, 360px); margin-left: 0; }
+  .npc-scene-panel { padding-inline: 15px; }
+  .npc-scene-panel h2 { left: 15px; }
+}
+@media (max-height: 600px) {
+  .npc-scene-stage { bottom: max(9px, env(safe-area-inset-bottom)); }
+  .npc-scene-portrait { width: min(43dvh, 61vw, 340px); }
+  .npc-scene-panel { padding-top: 15px; padding-bottom: 6px; gap: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .npc-scene-portrait, .npc-scene-dialog[data-speaking="true"] .npc-scene-portrait { animation: none; }
+}
+
+[data-npc].is-speaking-npc { opacity: 0; }
+
+/* Resident talk grows with the text while leaving the portrait, replay and exit in view. */
+.npc-scene-copy {
+  display: grid;
+  gap: 4px;
+  max-height: min(40dvh, 13em);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.npc-scene-panel .npc-scene-detail {
+  font-size: clamp(16px, 1.65vw, 20px);
+  line-height: 1.45;
+  color: #334a3d;
+}
+@media (max-height: 460px) {
+  .npc-scene-stage:has(.npc-scene-copy) .npc-scene-portrait { width: min(35dvh, 55vw, 320px); }
+  .npc-scene-copy { max-height: 38dvh; }
+}

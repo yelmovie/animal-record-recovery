@@ -1,0 +1,346 @@
+{
+  "extensionEngine": "Qwen3-TTS-12Hz-0.6B-Base, local, approved synthetic game voices as references",
+  "creditsUsed": 0,
+  "scenes": {
+    "researcher-before": {
+      "npc": "연구원 소라",
+      "existingVoice": "Sora - Modern, Versatile & Expressive",
+      "existingVoiceId": "R57C1ECBzXRSHUbNYPYx",
+      "existingGeneration": "aYop48sYDIRIT5xK6xr0",
+      "existingSentence": "뒤섞인 전시 설명판을 고쳐 줘",
+      "existingClipSha256": "0a8fa6260538198dc4f8426e7ef915373e8abd62c0b19e040cbd96429b417ec0",
+      "referenceClip": "researcher-after.mp3",
+      "originalMpegFramesPreserved": 112,
+      "added": [
+        {
+          "text": "개구리 사진을 보다가 설명판도 폴짝 뛰어 옮겨 간 줄 알았어.",
+          "asr": "개구리 사진을 보다가 설명판도 폴짝 뛰어 옮겨 간 줄 알았어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.278,
+          "lufs": -16.8
+        },
+        {
+          "text": "사진과 설명을 나란히 놓고, 어디가 어울리지 않는지 같이 살펴볼래?",
+          "asr": "사진과 설명을 나란히 놓고 어디가 어울리지 않는지 같이 살펴볼래?",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.179,
+          "lufs": -17.1
+        }
+      ],
+      "seconds": 13.434,
+      "lufs": -16.9,
+      "truePeakDbtp": -3.0,
+      "sha256": "d7c083a4a553bd018e6709145fffd384536c8dc70eb6c49f5351286548c77a31"
+    },
+    "researcher-after": {
+      "npc": "연구원 소라",
+      "existingVoice": "Sora - Modern, Versatile & Expressive",
+      "existingVoiceId": "R57C1ECBzXRSHUbNYPYx",
+      "existingGeneration": "5zitPNPuT8nKLIaVV5Hf",
+      "existingSentence": "이제 관람객이 사진과 설명을 함께 보며 동물을 비교할 수 있어!",
+      "existingClipSha256": "6afb15e13baf81200dbe51011995407b4f75777a6544864822873cb0ad20ff44",
+      "referenceClip": "researcher-after.mp3",
+      "originalMpegFramesPreserved": 216,
+      "added": [
+        {
+          "text": "아까 한 관람객이 사진 앞에서 한참 멈춰 서더니 옆 친구를 불렀어.",
+          "asr": "아까 한 관람객이 사진 앞에서 한참 멈춰 서더니 옆 친구를 불렀어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.52,
+          "lufs": -17.1
+        },
+        {
+          "text": "두 친구가 본 것을 서로 이야기해서 전시장에 이야깃거리가 하나 더 생겼어!",
+          "asr": "두 친구가 본 것을 서로 이야기해서 전시장에 이야깃거리가 하나 더 생겼어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 1,
+          "seconds": 5.662,
+          "lufs": -17.1
+        }
+      ],
+      "seconds": 16.868,
+      "lufs": -16.9,
+      "truePeakDbtp": -2.3,
+      "sha256": "3140600da4392a0e0764502afdde1b6a00e4caeffcdb30234179407cab274ffc"
+    },
+    "curator-before": {
+      "npc": "큐레이터 준",
+      "existingVoice": "Taek - Natural, Warm and Friendly",
+      "existingVoiceId": "rCm09Tf1yMYbOyCRLDyB",
+      "existingGeneration": "BTWxxev8sL2MCzYkOjPp",
+      "existingSentence": "새 동물의 전시 자리를 정해 줘",
+      "existingClipSha256": "6f151735e028053ba0c3489a8e70d7a0fdc05bde4b0d8e94d4e03d461ec418be",
+      "referenceClip": "curator-after.mp3",
+      "originalMpegFramesPreserved": 93,
+      "added": [
+        {
+          "text": "카드 한 장이 전시장을 한 바퀴 돌고도 아직 자기 자리를 못 찾았어.",
+          "asr": "카드 한 장이 전시장을 한 바퀴 돌고도 아직 자기 자리를 못 찾았어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 4.0,
+          "lufs": -17.4
+        },
+        {
+          "text": "네가 정한 기준을 한마디로 말해 주면, 나도 그 기준으로 다른 카드를 놓아 볼게.",
+          "asr": "내가 정한 기준을 한마디로 말해주면 나도 그 기준으로 다른 카드를 놓아볼게",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.295,
+          "lufs": -17.5
+        }
+      ],
+      "seconds": 11.773,
+      "lufs": -17.2,
+      "truePeakDbtp": -1.9,
+      "sha256": "6128eaeff7995d46b2359f1aabd9c564f8fe57b408cee1ed04e5741bc8a177ff"
+    },
+    "curator-after": {
+      "npc": "큐레이터 준",
+      "existingVoice": "Taek - Natural, Warm and Friendly",
+      "existingVoiceId": "rCm09Tf1yMYbOyCRLDyB",
+      "existingGeneration": "JrstD7BX1qDAdVZeNWNY",
+      "existingSentence": "네 기준을 따라 다른 연구원도 같은 자리에 카드를 놓았어!",
+      "existingClipSha256": "b34cf1262c7a89a74e0cf4973f08abdfb64aa54184a721511ddd604966c2fb7c",
+      "referenceClip": "curator-after.mp3",
+      "originalMpegFramesPreserved": 170,
+      "added": [
+        {
+          "text": "나는 네가 붙인 기준표만 보고 카드를 놓아 봤는데, 같은 곳에 도착했어.",
+          "asr": "나는 네가 붙인 기준표만 보고 카드를 놓아봤는데 같은 곳에 도착했어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.04,
+          "lufs": -17.6
+        },
+        {
+          "text": "다음번엔 다른 기준을 세워 보면 같은 카드가 어느 쪽으로 갈지도 궁금해.",
+          "asr": "다음번엔 다른 기준을 세워보면 같은 카드가 어느 쪽으로 갈지도 궁금해",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 4.74,
+          "lufs": -17.6
+        }
+      ],
+      "seconds": 14.249,
+      "lufs": -17.3,
+      "truePeakDbtp": -2.2,
+      "sha256": "1a7ed3502d7075b8553ae7f22ff9356dc2563da1481a0e2538a42e835d493f45"
+    },
+    "ranger-before": {
+      "npc": "레인저 하늘",
+      "existingVoice": "Aria – Bright & Youthful Korean",
+      "existingVoiceId": "O2KReOFLpoR65nz6C9Se",
+      "existingGeneration": "E7fFDgfwDzrf4PCBXAIT",
+      "existingSentence": "생태 탐방 방송을 완성해 줘",
+      "existingClipSha256": "10cf718e797d758eb7d3ca1a867ca2006931f40eeaf2930b4798ed7ebb798277",
+      "referenceClip": "ranger-after.mp3",
+      "originalMpegFramesPreserved": 93,
+      "added": [
+        {
+          "text": "마이크를 켰더니 내 첫 인사보다 물가 소리가 먼저 방송에 들어갔어!",
+          "asr": "마이크를 켰더니 내 첫 인사보다 물가 소리가 먼저 방송에 들어갔어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 4.871,
+          "lufs": -16.8
+        },
+        {
+          "text": "방송을 듣는 친구도 장면을 떠올릴 수 있게, 네가 본 모습을 들려줘.",
+          "asr": "방송을 듣는 친구도 장면을 떠올릴 수 있게 네가 본 모습을 들려줘.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.099,
+          "lufs": -16.8
+        }
+      ],
+      "seconds": 12.44,
+      "lufs": -16.8,
+      "truePeakDbtp": -3.4,
+      "sha256": "db08006eb75621af186f0bd7c588745bead4759d78c72dd0f401ef75d2280ea9"
+    },
+    "ranger-after": {
+      "npc": "레인저 하늘",
+      "existingVoice": "Aria – Bright & Youthful Korean",
+      "existingVoiceId": "O2KReOFLpoR65nz6C9Se",
+      "existingGeneration": "HR9pdymftdtmHrqJpVxC",
+      "existingSentence": "방문객들이 몸의 특징과 움직임을 연결하며 물가를 둘러볼 수 있게 됐어!",
+      "existingClipSha256": "b3abb2dd10b120942d8234559bcf0d8cdc8e96f17693d36750614118b0554447",
+      "referenceClip": "ranger-after.mp3",
+      "originalMpegFramesPreserved": 222,
+      "added": [
+        {
+          "text": "방송을 들은 친구가 걸음을 멈추고 동물이 어떻게 움직이는지 한참 지켜봤어.",
+          "asr": "방송을 들은 친구가 걸음을 멈추고 동물이 어떻게 움직이는지 한참 지켜봤어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 6.268,
+          "lufs": -16.9
+        },
+        {
+          "text": "마이크는 내가 챙길 테니, 다음 방송에 담을 장면도 같이 찾아보자!",
+          "asr": "마이크는 내가 챙길 테니 다음 방송에 담을 장면도 같이 찾아보자.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 2,
+          "seconds": 4.93,
+          "lufs": -16.9
+        }
+      ],
+      "seconds": 17.025,
+      "lufs": -16.8,
+      "truePeakDbtp": -2.3,
+      "sha256": "0db228c45292a3964995d819e83b62fa296ef96d9309e6d29fff56af48a6d0ff"
+    },
+    "detective-before": {
+      "npc": "기록 안내원 나라",
+      "existingVoice": "Eunhye - Composed and Reassuring",
+      "existingVoiceId": "ZubHeGTOAkECknc02Zmo",
+      "existingGeneration": "lQYaCzwZ75ekGHgad8gs",
+      "existingSentence": "주인 잃은 기록을 돌려줘",
+      "existingClipSha256": "e301100646a1436fc1bdc48157e688ec3efda7f42869d9bc7a3c869768afff44",
+      "referenceClip": "detective-after.mp3",
+      "originalMpegFramesPreserved": 87,
+      "added": [
+        {
+          "text": "주인 없는 기록이 책상에 도착했는데, 봉투에는 이름 대신 단서만 들어 있네.",
+          "asr": "주인 없는 기록이 책상에 도착했는데 봉투에는 이름 대신 단서만 들어있네.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 1,
+          "seconds": 4.858,
+          "lufs": -17.0
+        },
+        {
+          "text": "한 단서만 보면 비슷한 친구가 많으니, 어떤 단서들을 함께 보면 좋을까?",
+          "asr": "한 단서만 보면 비슷한 친구가 많으니 어떤 단서들을 함께 보면 좋을까?",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 1,
+          "seconds": 4.578,
+          "lufs": -16.9
+        }
+      ],
+      "seconds": 11.735,
+      "lufs": -16.8,
+      "truePeakDbtp": -3.2,
+      "sha256": "904a26df64fad6a908b1bf0bcd12bca96d8e476bb194b77acb5d48954c5f37ab"
+    },
+    "detective-after": {
+      "npc": "기록 안내원 나라",
+      "existingVoice": "Eunhye - Composed and Reassuring",
+      "existingVoiceId": "ZubHeGTOAkECknc02Zmo",
+      "existingGeneration": "t7y1hibQibFWyicorw2B",
+      "existingSentence": "이름만 찍지 않고 서로 다른 근거를 함께 확인해 줬구나. 네 안내 카드라면 믿고 찾아갈 수 있어!",
+      "existingClipSha256": "f1df5090b5b9e82deaee77214fdce987dedc6fd3f871de77997dd8199b9ff750",
+      "referenceClip": "detective-after.mp3",
+      "originalMpegFramesPreserved": 268,
+      "added": [
+        {
+          "text": "안내 카드를 따라온 친구가 드디어 자기 기록을 찾아서 환하게 웃었어.",
+          "asr": "안내 카드를 따라온 친구가 드디어 자기 기록을 찾아서 환하게 웃었어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 4.213,
+          "lufs": -17.0
+        },
+        {
+          "text": "다음에 또 이름표가 사라지면, 우리 탐정 수첩부터 펼치자!",
+          "asr": "다음에 또 이름표가 사라지면 우리 탐정 수첩부터 펼치자.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 3.94,
+          "lufs": -17.0
+        }
+      ],
+      "seconds": 15.199,
+      "lufs": -16.7,
+      "truePeakDbtp": -2.2,
+      "sha256": "f0382c0d5dd0b3040da9e24e2956e6574d6a5a33e80c9ae39e724fbf280a7764"
+    },
+    "engineer-before": {
+      "npc": "기술자 도윤",
+      "existingVoice": "NUHA — Bright & Cheerful Korean Male Voice",
+      "existingVoiceId": "XIBeHrnXIVdoqMMadmog",
+      "existingGeneration": "nzS3iTeCOEFe2SHbPyO4",
+      "existingSentence": "네가 상상한 발명을 전시해 줘",
+      "existingClipSha256": "7f9c546a84304e9f9206da57ff4daa238fe9f77bd67f81ae624bbe214816aa89",
+      "referenceClip": "engineer-after.mp3",
+      "originalMpegFramesPreserved": 99,
+      "added": [
+        {
+          "text": "작업대에 도구는 잔뜩 있지만, 오늘 제일 필요한 건 탐험가의 아이디어야.",
+          "asr": "작업대의 도구는 잔뜩 있지만 오늘 제일 필요한 건 탐험가의 아이디어야",
+          "similarity": 0.966,
+          "endingSimilarity": 1.0,
+          "take": 1,
+          "seconds": 4.56,
+          "lufs": -17.1
+        },
+        {
+          "text": "누가 어디에서 쓸 물건인지 먼저 떠올리고, 작게 만들어 시험해 볼래?",
+          "asr": "누가 어디에서 쓸 물건인지 먼저 떠올리고 작게 만들어 시험해 볼래?",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 4.984,
+          "lufs": -17.2
+        }
+      ],
+      "seconds": 12.168,
+      "lufs": -17.1,
+      "truePeakDbtp": -2.3,
+      "sha256": "bb5b301d9fd3db95ad8ed310c2078e040fc12530fce97b586bd3f7b830b71385"
+    },
+    "engineer-after": {
+      "npc": "기술자 도윤",
+      "existingVoice": "NUHA — Bright & Cheerful Korean Male Voice",
+      "existingVoiceId": "XIBeHrnXIVdoqMMadmog",
+      "existingGeneration": "pvESKIWkTX9Q6HOjCfwa",
+      "existingSentence": "같은 발명도 쓰는 사람과 조건에 맞게 바꿀 수 있구나. 두 시험의 근거가 붙은 네 발명품을 전시할게!",
+      "existingClipSha256": "428e69c86ae807913390ae03f80b8210de3a18cac38eb1fdfc641cda8fa97027",
+      "referenceClip": "engineer-after.mp3",
+      "originalMpegFramesPreserved": 299,
+      "added": [
+        {
+          "text": "전시 선반에 첫 모형과 고친 모형을 나란히 둘 자리를 비워 뒀어.",
+          "asr": "전시 선반에 첫 모형과 고친 모형을 나란히 둘 자리를 비워뒀어.",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 0,
+          "seconds": 5.026,
+          "lufs": -17.1
+        },
+        {
+          "text": "두 모형을 보며 무엇을 바꿨고 왜 그랬는지 직접 들려주면 좋겠어.",
+          "asr": "두 모형을 보며 무엇을 바꿨고 왜 그랬는지 직접 들려주면 좋겠어",
+          "similarity": 1.0,
+          "endingSimilarity": 1.0,
+          "take": 1,
+          "seconds": 5.159,
+          "lufs": -16.9
+        }
+      ],
+      "seconds": 18.037,
+      "lufs": -16.8,
+      "truePeakDbtp": -2.2,
+      "sha256": "b5fcc673cb2f2d08af98ca56bf2cb6caa310d04340381170de22a72bbc965524"
+    }
+  }
+}
