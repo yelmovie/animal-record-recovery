@@ -13,7 +13,6 @@ import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiag
 import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
-import {createVillage} from './village.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
@@ -21,6 +20,7 @@ import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignReady,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,cardReady,requestGap,firstOpenCard} from './campaign.js';
 
+export function openFromLanding(action){
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 const recordStore=createRecordStorage({getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
 const loadedRecord=recordStore.read();
@@ -158,6 +158,7 @@ function progressWorkshopDesign(){
     if(button?.getAttribute('aria-pressed')==='false')button.click();
   }
 }
+let villageFactory=null,villageImport,mapRender=0,mapFailed=false,mapModuleFailed=false;
 let renderedRoute='',unmountStudio=null,unmountFlashlight=null,unmountBroadcast=null;
 // One village theme everywhere; it keeps quiet while a story or concept video is open (the outro carries its own finale music).
 function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:'village');}
@@ -180,7 +181,7 @@ function render(){
   motionPlayer?.destroy();motionPlayer=null;
   navigation.visit({screen,stage:['mission','reward','commission'].includes(screen)?stage:null,step:screen==='mission'?step:null,commissionIndex:screen==='commission'?commissionIndex:null});
   const active=document.activeElement,data=active?.dataset?.action?{...active.dataset}:null;
-  map?.destroy();map=null;
+  mapRender++;map?.destroy();map=null;mapFailed=false;mapModuleFailed=false;
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
   setupPanels();syncWorkshopCue();
@@ -201,15 +202,41 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){cancelMapWalk();const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
-    if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
-    document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
-    // Enter only the building the learner picked once Haru reaches its door.
-    if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}save();
-  }});
+  if(screen==='map')mountVillage(flashed);
   if(data)[...app.querySelectorAll('[data-action]')].find(el=>Object.entries(data).every(([k,v])=>el.dataset[k]===v))?.focus({preventScroll:true});
   placeFeedback();
   save();
+}
+function nextMapActivity(){
+ return STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||STAGES.find(t=>isStageOpen(s,t.id))?.id;
+}
+function showMapFailure(moduleFailed=false){
+ mapFailed=true;mapModuleFailed=moduleFailed;
+ map?.destroy();map=null;
+ cancelMapWalk();
+ const tip=document.querySelector('#travel-text');if(!tip)return;
+ const id=nextMapActivity();
+ document.querySelector('#map-recovery')?.remove();
+ tip.insertAdjacentHTML('afterend',`<section id="map-recovery" class="map-status is-error" aria-label="지도 다시 열기"><span role="status">지도를 불러오지 못했어. 기록은 그대로야.</span>${btn('다시 불러오기','map-retry','secondary')}${id?btn(id===1?'관찰의 숲 시작하기':'다음 탐험 시작하기','map-direct','primary',`data-id="${id}"`):''}</section>`);
+}
+function mountVillage(flashed){
+ const revision=mapRender;
+ const current=()=>screen==='map'&&!mapFailed&&mapRender===revision;
+ const start=()=>{
+  if(!current())return;
+  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+    if(!current()||selectedStage!==id)return;
+    arrived=true;s.mapPosition=String(id);
+    document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
+    if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}save();
+  }});
+  if(autoEnter&&isStageOpen(s,selectedStage))map.move(selectedStage);
+ };
+ if(villageFactory){start();return;}
+ let timeout;
+ villageImport??=import('./village.js').then(m=>villageFactory=m.createVillage);
+ Promise.race([villageImport,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Map timed out')),8000);})])
+  .then(start,()=>{if(current())showMapFailure(true);}).finally(()=>clearTimeout(timeout));
 }
 // A wrong or blocked answer shows its reason beside the marked choice at once (progress chips and the checklist only keep their outline); Mori's bubble keeps the same words as extra help.
 // With nothing to mark (an unfinished step), Mori's bubble opens by itself instead of waiting for a tap.
@@ -327,10 +354,12 @@ function cancelMapWalk(){
 }
 function selectMap(id){
   if(screen==='map'&&mapOverview&&Number.isInteger(id)&&STAGES[id-1]){mapOverview=false;render();}
-  if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;map?.stop?.();cancelMapWalk();selectedStage=id;
+  if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;
+  if(mapFailed&&isStageOpen(s,id)){enter(id);return;}
+  map?.stop?.();cancelMapWalk();selectedStage=id;
   document.querySelectorAll('.map-marker[data-action="map-select"]').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});
   document.querySelector('#quest-panel').innerHTML=questPanel(s,view());
-  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;const next=document.querySelector('.map-next > .primary');if(next){next.disabled=true;next.setAttribute?.('aria-busy','true');}warmStage(id);document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
+  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;const next=document.querySelector('.map-next > .primary');if(next){next.disabled=true;next.setAttribute?.('aria-busy','true');}warmStage(id);document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map?.move(id);}
   else{document.querySelector('#travel-text').textContent=mapTip(s);explainLocked(id);}
 }
 function explainLocked(id){
@@ -812,6 +841,13 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
     case 'dome-look':if(DOME_ZONES[el.dataset.id]){stopMotion();looked.add(el.dataset.id);activeHabitat=el.dataset.id;feedback=null;render();}break;
+    case 'map-retry':
+      if(screen!=='map'||!mapFailed)break;
+      if(mapModuleFailed){
+        history.replaceState({...history.state,frontdoorAction:'map'},'');location.reload();return;
+      }
+      render();break;
+    case 'map-direct':if(screen==='map'&&mapFailed&&isStageOpen(s,Number(id)))enter(Number(id));break;
     case 'retry-images':render();break;
   }
   save();
@@ -857,7 +893,7 @@ document.addEventListener('pointerdown',e=>{const surface=e.target.closest?.('#l
 document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPointer.id){moveLens(e,lensPointer.surface);return;}if(!stroke||e.pointerId!==stroke.id)return;e.preventDefault();if(stroke.points.length<250){stroke.points.push(sketchPoint(e,stroke.svg));stroke.line.setAttribute('points',stroke.points.map(p=>p.join(',')).join(' '));}});
 for(const name of ['pointerup','pointercancel'])document.addEventListener(name,e=>{if(lensPointer&&e.pointerId===lensPointer.id){const animalId=lensPointer.surface.dataset.animal,list=OBSERVATIONS[animalId],x=Number(lensPointer.surface.style.getPropertyValue('--focus-x')),y=Number(lensPointer.surface.style.getPropertyValue('--focus-y'));focusIndex=list.reduce((best,o,i)=>(o.x-x)**2+(o.y-y)**2<(list[best].x-x)**2+(list[best].y-y)**2?i:best,0);lensPointer=null;render();}if(stroke&&e.pointerId===stroke.id){stroke=null;save();}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
-document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
+document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(screen==='map'&&e.target.dataset.image==='village-map'&&app.contains(e.target)){showMapFailure();return;}if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 document.addEventListener('toggle',e=>{if(e.target.open&&e.target.classList?.contains('forest-extra'))clearActivityProgress();},true);
 dialog.addEventListener('close',()=>{resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();resumeActivityProgress();});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();
@@ -865,4 +901,10 @@ if(typeof window.addEventListener==='function'){const resize=()=>document.docume
   const keepField=()=>{const el=document.activeElement;if(el?.matches?.('textarea,input[type=text],input:not([type])'))setTimeout(()=>el.scrollIntoView?.({block:'center',behavior:'smooth'}),250);};
   document.addEventListener('focusin',keepField);window.visualViewport?.addEventListener('resize',keepField);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearActivityProgress();stopMotion(false);storyPlayer?.pause();silence();}else resumeActivityProgress();});}
 enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;dropCard(action,dataset);});
-render();
+if(action==='intro-finished'||action==='map'){
+ navigation.visit({screen:'home',stage:null,step:null,commissionIndex:null});
+ if(action==='intro-finished'){s.introSeen=true;navigation.visit({screen:'intro',stage:null,step:null,commissionIndex:null});}
+ go('map');
+}
+else{render();if(action==='settings')settings();}
+}

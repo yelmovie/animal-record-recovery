@@ -9,7 +9,11 @@ export function markerSafeOffset(q,b,visible=b){
 }
 let loading=null;
 export function villageReady(){
-  if(!loading)loading=typeof fetch==='function'?fetch(BASE+'village.json').then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{if(!j)loading=null;return j;}):Promise.resolve(null);
+  if(!loading){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+    loading=typeof fetch==='function'?fetch(BASE+'village.json',{signal:controller.signal}).then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{if(!j)loading=null;return j;}).finally(()=>clearTimeout(timer)):Promise.resolve(null);
+    if(typeof fetch!=='function')clearTimeout(timer);
+  }
   return loading;
 }
 

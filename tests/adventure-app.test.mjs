@@ -23,7 +23,9 @@ import * as conceptVideo from '../src/concept-video.js';
 import * as concepts from '../src/concepts.js';
 import {npcDialogue} from '../src/npc-dialogue.js';
 
-const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
+const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'')
+  .split('export function openFromLanding(action){')[1].replace(/}\s*$/,'')
+  .replace('let villageFactory=null','let villageFactory=createVillage');
 function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock=false}={}){
   let stored=storedRecord,warning=null,writeFailure=fail,exported=null;const music=[];
   const listeners=new Map(),heading={textContent:''},status={textContent:''},announcer={textContent:''},link={href:''},quest={innerHTML:'',inert:true},travel={textContent:''};
@@ -34,7 +36,7 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
   const timers=new Map();let timerId=0;
   const clockTools=clock?{setTimeout(fn){timers.set(++timerId,fn);return timerId;},clearTimeout(id){timers.delete(id);}}:{};
-  const context=vm.createContext({...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,flushTimers(){const pending=[...timers.values()];timers.clear();for(const fn of pending)fn();},music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }

@@ -49,10 +49,19 @@
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 이동</a>
-  <div id="app"><div class="boot-message" role="status">자연 기록 연구소를 열고 있어…</div></div>
+  <div id="app"><div class="boot-message" id="startup-status"><p role="status">자연 기록 연구소를 열고 있어…</p><button class="btn primary" type="button" id="startup-retry" onclick="location.reload()" hidden>다시 열기</button></div></div>
   <noscript>탐험을 시작하려면 브라우저에서 JavaScript를 켜 줘.</noscript>
   <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
   <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
-  <script type="module" src="./src/adventure-app.js"></script>
+  <script>
+    function showStartupError(){
+      const status=document.getElementById('startup-status');
+      if(!status)return;
+      status.querySelector('p').textContent='연구소를 열지 못했어. 다시 열어 볼까?';
+      document.getElementById('startup-retry').hidden=false;
+    }
+    setTimeout(showStartupError,12000);
+  </script>
+  <script type="module" src="./src/frontdoor.js" onerror="showStartupError()"></script>
 </body>
 </html>

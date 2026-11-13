@@ -30,13 +30,14 @@ http.createServer(async(req,res)=>{try{
   if(url.searchParams.has('long')&&state.studio){state.studio.purpose='넓은 면을 펼치고 접어 친구를 도와주는 발명이야. '.repeat(6);state.studioRecord=structuredClone(state.studio);}
   const fault=url.searchParams.get('fault'),raw=fault==='corrupt'?'{손상된 원본':fault==='future'?JSON.stringify({version:99,original:'미래 버전의 한글 기록'}):JSON.stringify(state);
   const failure=fault==='quota'?`const originalSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='animal-record-recovery:v1')throw new DOMException('Full','QuotaExceededError');return originalSet.call(this,k,v);};`:fault==='blocked'?`Storage.prototype.getItem=function(){throw new DOMException('Blocked','SecurityError');};`:'';
-  data=data.toString().replace('<script type="module"',`<script>localStorage.setItem('animal-record-recovery:v1',${JSON.stringify(raw)});${failure}</script><script type="module"`);
+  data=data.toString().replace('./src/frontdoor.js','./src/adventure-app.js').replace('<script type="module"',`<script>localStorage.setItem('animal-record-recovery:v1',${JSON.stringify(raw)});${failure}</script><script type="module"`);
  }
  if(rel.replaceAll('\\','/')==='src/adventure-app.js')data=data.toString()
   .replace("let screen='home'", "let screen=new URLSearchParams(location.search).get('screen')||'home'")
   .replace('let commissionIndex=0',"let commissionIndex=Math.min(2,Math.max(0,Number(new URLSearchParams(location.search).get('index'))||0))")
   .replace('focusIndex=0,clueIndex=0',"focusIndex=Math.min(2,Math.max(0,Number(new URLSearchParams(location.search).get('focus'))||0)),clueIndex=0")
-  .replace('labSummary=false,focusIndex=',"labSummary=new URLSearchParams(location.search).has('summary'),focusIndex=");
+  .replace('labSummary=false,focusIndex=',"labSummary=new URLSearchParams(location.search).has('summary'),focusIndex=")
+  +'\nopenFromLanding();';
  const headers={'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store','Accept-Ranges':'bytes'};
  if(req.headers.range&&Buffer.isBuffer(data)){
   const match=req.headers.range.match(/^bytes=(\d+)-(\d*)$/),start=Number(match?.[1]),end=match?.[2]?Math.min(Number(match[2]),data.length-1):data.length-1;

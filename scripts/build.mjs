@@ -32,18 +32,18 @@ files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.c
 files.push(...['opening','rabbit','marine','duck','butterfly','camel','penguin','closing'].map(id=>`assets/audio/broadcast/${id}.mp3`));
 const dialogueResidents=['researcher','curator','ranger','detective','engineer'];
 files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after','after-expanded','before-expanded'].map(part=>`assets/audio/npc-dialogue/${id}-${part}.mp3`)));
-// Ship and preload the entry's static dependencies, including any new modules.
-// Dynamic imports (3D) stay lazy and are listed with the other runtime assets.
-const preload=new Set();
-async function walk(file){
-  if(preload.has(file))return;
-  preload.add(file);
+// Ship the full runtime, but preload only the static dependencies of the landing screen.
+async function walk(file,modules){
+  if(modules.has(file))return;
+  modules.add(file);
   const source=await readFile(path.join(root,file),'utf8');
   const imports=source.matchAll(/^\s*(?:(?:import|export)\s+[^'";]*?\bfrom\s*|import\s*)['"](\.\.?\/[^'"]+)['"]/gm);
-  for(const [,specifier] of imports)await walk(path.posix.join(path.posix.dirname(file),specifier));
+  for(const [,specifier] of imports)await walk(path.posix.join(path.posix.dirname(file),specifier),modules);
 }
-await walk('src/adventure-app.js');
-for(const file of preload)if(!files.includes(file))files.push(file);
+const preload=new Set(),runtime=new Set();
+await walk('src/frontdoor.js',preload);
+for(const entry of ['src/adventure-app.js','src/story-player.js','src/village.js'])await walk(entry,runtime);
+for(const file of new Set([...preload,...runtime]))if(!files.includes(file))files.push(file);
 // Remove only previously generated files named in our own build manifest.
 // Authoring assets / unknown files are never recursively removed.
 let previous=[];

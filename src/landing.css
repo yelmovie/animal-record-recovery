@@ -141,3 +141,7 @@
 @media (prefers-reduced-motion: reduce) {
   .museum-landing .landing-start { transition: none; }
 }
+
+/* Loading and recovery keep their buttons near the message on short screens. */
+.frontdoor-load{align-content:center;justify-items:center;gap:14px;padding:24px;text-align:center}
+.frontdoor-load h1,.frontdoor-load p{margin:0}
