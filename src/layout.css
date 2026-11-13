@@ -1311,13 +1311,6 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 .action-guide>.icon{flex:none;width:1.5em;height:1.5em;min-width:24px;min-height:24px;padding:.16em;border-radius:50%;background:#f6d97c;color:#604314;transform:rotate(90deg);animation:action-guide-point 1.05s ease-in-out 4}
 @keyframes action-guide-point{50%{transform:translateY(3px) rotate(90deg);opacity:.62}}
 @media(prefers-reduced-motion:reduce){.action-guide>.icon{animation:none}}
-#app #main.stage-5 .workshop-guide{margin:0;font-size:clamp(16px,1.25vw,21px)!important;color:#67501f;font-weight:700}
-#app #main.stage-5 label>.workshop-guide{margin-inline-end:.35em}
-#app #main.stage-5 .workshop-place-next .part-spot{outline:2px dashed #d9a634;outline-offset:2px}
-#app #main.stage-5 :is(.workshop-tab-cue,.workshop-continue-cue){position:relative}
-#app #main.stage-5 :is(.workshop-tab-cue,.workshop-continue-cue)::after{content:'↓';position:absolute;left:50%;bottom:calc(100% + 4px);translate:-50% 0;z-index:1;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#f6d97c;color:#604314;font:700 23px/1 var(--font-display);pointer-events:none;animation:workshop-guide-point 1.05s ease-in-out 4}
-@keyframes workshop-guide-point{50%{translate:-50% 3px;opacity:.62}}
-@media(prefers-reduced-motion:reduce){#app #main.stage-5 :is(.workshop-tab-cue,.workshop-continue-cue)::after{animation:none}}
 @keyframes next-cue-ring{0%,100%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 0 #e6bd5600}50%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 7px #e6bd5699}}
 #app #main.mission-page .btn.next-cue{border-color:#d9a634!important;animation:next-cue-ring 1.6s ease-in-out infinite}
 #app #main.mission-page .mission-footer>.btn.action-cue{animation:next-cue-ring 1.6s ease-in-out infinite}

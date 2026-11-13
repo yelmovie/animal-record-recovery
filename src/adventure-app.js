@@ -10,8 +10,8 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
-import {art,mori,icon,btn,esc,withParticle,toolArt,actionGuide} from './presentation.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
+import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {createVillage} from './village.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -62,7 +62,7 @@ function setupPanels(){
       // Steps read as a sequence: finished panels get a check, and once the open one is finished the next tab says "다음".
       const finished=p=>p.classList.contains('done')||(()=>{const groups=[...p.querySelectorAll('.choices,.problem-options,.design-choices')],name=p.querySelector('#invention-name');return groups.length>0&&groups.every(g=>g.querySelector('.selected'))&&(!name||!!name.value.trim());})();
       function update(){const done=panels.map(finished);if(selector==='.design-options')done[2]=!!(s.designs[0].structure&&s.designs[0].spot);const next=selector!=='.design-options'&&done[current]?done.findIndex((d,i)=>i>current&&!d):-1;panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));nav.children[i].classList.toggle('tab-done',done[i]);nav.children[i].classList.toggle('tab-next',i===next);});
-        if(selector==='.design-options'||selector==='.experiment-lab')syncWorkshopCue();
+        if(['.design-options','.experiment-lab','.lab-summary'].includes(selector))syncWorkshopCue();
         if(selector==='.case-activity'&&stage===4&&step%2===0){
           const a=s.cases[round()],next=investigationNext(a,current===1),button=app.querySelector?.('.mission-footer > .primary'),hint=app.querySelector?.('.investigation-next');
           if(button){button.innerHTML=esc(next.label)+' '+icon('arrow');button.dataset.action=next.action;button.classList.toggle('action-cue',!!a.candidate&&!next.why);if(next.why){button.setAttribute('aria-disabled','true');button.dataset.why=next.why;}else{button.removeAttribute('aria-disabled');delete button.dataset.why;}}
@@ -85,30 +85,63 @@ function setupPanels(){
     tabs('.lab-summary',':scope > section',['결과 비교','내 생각']);
   }
 }
-// Keep one visible workshop cue and let the learner revisit any completed tab.
-const workshopTab={problem:0,name:0,feature:1,part:2,place:2};
+// Point at the next choice group, field or button, even when its panel is closed.
+const workshopTab={problem:0,name:0,feature:1,part:2,place:2,move:2};
+let repairingWorkshop=false;
+function nextWorkshopDesign(){
+  const d=s.designs[0],held=picked?.ref?.startsWith('part-'),next=workshopDesignNext(d,held);
+  if(next!=='continue')return next;
+  if(held)return 'place';
+  if(!repairingWorkshop)return next;
+  const checked=testDesign(d);
+  return !checked.feature?'feature':!checked.structure?'part':!checked.spot?'move':next;
+}
+const workshopTargets={
+  problem:['.problem-options','해결할 문제를 골라 줘.'],
+  name:['.design-name > label'],
+  feature:['.design-choices','빌릴 동물의 특징을 골라 줘.'],
+  part:['.part-tray','붙일 부품을 골라 줘.'],
+  place:['.design-bench > .assembly','그림에서 붙일 자리를 눌러 줘.'],
+  move:['.design-bench > .assembly','붙인 부품을 눌러 다른 자리로 옮겨 봐.'],
+  level:['.level-buttons','다른 모양으로 바꿔 봐.'],
+  prediction:['.prediction-options','시험 결과를 예상해 봐.'],
+  test:['[data-action="experiment-run"]'],
+  compare:['[data-action="lab-summary"]'],
+  summary:['[data-action="summary-page"][data-value="2"]'],
+  reflection:['.reflection-options','알게 된 점을 골라 줘.'],
+  note:['label[for="experiment-note"]'],
+  explain:['.invention-explanation .inline-options','이 특징을 쓴 이유를 골라 줘.'],
+  repair:['.check-list [data-action="previous"]'],
+  continue:['.mission-footer [data-action="advance"]']
+};
 function syncWorkshopCue(){
-  if(screen!=='mission'||stage!==5||step>1||report?.passed===false)return;
-  const workspace=app.querySelector?.('.activity-workspace');
-  if(!workspace)return;
-  const previousCue=workspace.querySelector('.workshop-guide');
-  workspace.querySelector('.workshop-tab-cue')?.classList.remove('workshop-tab-cue');
-  const d=s.designs[0],next=step===0?workshopDesignNext(d,picked?.ref?.startsWith('part-')):workshopLabNext(d,labSummary);
-  const targets={problem:['.problem-options','해결할 문제를 골라 줘.'],name:['.design-name > label','발명품 이름을 적어 줘.'],feature:['.design-choices','빌릴 특징을 하나 골라 줘.'],part:['.part-tray','붙일 부품을 골라 줘.'],place:['.part-tray','그림에서 붙일 자리를 골라 줘.'],level:['.level-buttons','이번엔 다른 모양을 골라 줘.'],prediction:['.prediction-options','결과를 예상해 봐.'],test:['[data-action="experiment-run"]','지금 모양을 시험해 봐.'],reflection:['.reflection-options','알게 된 점을 하나 골라 줘.'],note:['label[for="experiment-note"]','바꾼 부분과 알게 된 점을 적어 줘.'],explain:['.invention-explanation .inline-options','이 특징을 쓴 이유를 골라 줘.']};
-  const footer=app.querySelector?.('.mission-footer .primary');
-  footer?.classList.toggle('workshop-continue-cue',step===1&&['summary','compare','continue'].includes(next));
-  workspace.classList.toggle('workshop-place-next',next==='place');
-  if(!targets[next]){previousCue?.remove();return;}
-  const [selector,text]=targets[next],target=workspace.querySelector(selector);
-  if(previousCue?.dataset.step===next)return;
-  previousCue?.remove();
-  if(step===0&&workshopTab[next]!==undefined){
-    const tab=workspace.querySelectorAll('.design-options > .panel-tabs > .btn')[workshopTab[next]];
-    if(tab?.getAttribute('aria-pressed')==='false'){tab.classList.add('workshop-tab-cue');return;}
+  if(screen!=='mission'||stage!==5||step>1)return;
+  const main=app.querySelector?.('.mission-page.stage-5');
+  if(!main)return;
+  const d=s.designs[0];
+  const next=step===0?nextWorkshopDesign():
+    report?.passed===false?'repair':workshopLabNext(d,labSummary);
+  const [selector,hint]=workshopTargets[next];
+  let target=main.querySelector(selector);
+  let tab=step===0?main.querySelectorAll('.design-options > .panel-tabs > .btn')[workshopTab[next]]:null;
+  const hidden=target?.closest('[hidden]');
+  if(!tab&&hidden){
+    const host=hidden.parentElement,panels=[...host.querySelectorAll(':scope > section')];
+    tab=host.querySelector(':scope > .panel-tabs')?.children[panels.indexOf(hidden)];
   }
-  if(target?.closest('[hidden]')){workspace.querySelector('.panel-tabs > .btn:first-child')?.classList.add('workshop-tab-cue');return;}
-  if(target?.tagName==='LABEL')target.insertAdjacentHTML('afterbegin','<span class="workshop-guide" data-step="'+next+'" aria-hidden="true">'+actionGuide('')+'</span>');
-  else target?.insertAdjacentHTML('beforebegin','<p class="workshop-guide" data-step="'+next+'" role="status">'+actionGuide(text)+'</p>');
+  const tabNumber=tab?.getAttribute('aria-pressed')==='false'?tab.querySelector('.tab-num'):null;
+  if(tabNumber)target=tab;
+  if((next==='continue'&&!taskReady(s,5,step))||target?.matches(':disabled,[aria-disabled="true"]'))target=null;
+  const previous=main.querySelector('[data-workshop-next]');
+  if(previous===target&&previous?.dataset.workshopNext===next)return;
+  previous?.removeAttribute('data-workshop-next');
+  main.querySelector('.workshop-guide')?.remove();
+  main.querySelector('.workshop-arrow')?.remove();
+  if(!target)return;
+  target.dataset.workshopNext=next;
+  if(tabNumber)tabNumber.insertAdjacentHTML('beforeend',workshopArrow('down'));
+  else if(hint)target.insertAdjacentHTML(target.matches('.assembly')?'afterbegin':'beforebegin','<p class="workshop-guide" role="status">'+workshopArrow('down')+esc(hint)+'</p>');
+  else target.insertAdjacentHTML('afterbegin',workshopArrow(target.tagName==='LABEL'?'down':undefined));
 }
 function progressWorkshopReflection(){
   if(screen==='mission'&&stage===5&&step===1&&labSummary===2&&taskReady(s,5,1))scheduleActivityProgress(()=>{
@@ -157,11 +190,7 @@ function render(){
     if(screen==='commission'&&!requestParts(stage,commissionIndex).every(part=>campaignDone(s,stage,part)))progressRequest();
   }});
   unmountFlashlight=mountFlashlight(app.querySelector?.('[data-flashlight]'),{onSelect(index){act('flashlight-clue',{dataset:{value:String(index)}});}});
-  if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{clearActivityProgress();s.studio=next;save();},onCommit:()=>{
-    if(screen==='mission'&&stage===5&&step>=2&&taskReady(s,stage,step))scheduleActivityProgress(()=>{
-      if(!document.activeElement?.matches?.('[data-studio-field]')&&taskReady(s,stage,step))advance();
-    });
-  }});
+  if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{s.studio=next;save();}});
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   app.querySelectorAll('.note-book').forEach((el,i)=>{if(notePages[i]>0)turnNotePage(el,notePages[i],false);});
@@ -236,7 +265,7 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){cancelCompletion();if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){repairingWorkshop=false;cancelCompletion();if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 // One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
@@ -313,7 +342,7 @@ function enter(id,replay=false){
   if(!isStageOpen(s,id)){if(screen==='map'&&STAGES[id-1])explainLocked(id);return;}playSound(s.soundEnabled,'door');stage=id;step=s.step[id]??Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
   if(replay)step=0;
   if(step>0&&!s.activities.includes(`${id}-${step-1}`))step=Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
-  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;focusForestObservation();clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem)d.problem='swim';}focusMotion();go('mission');if(!s.activities.includes(`${stage}-${step}`)&&taskReady(s,stage,step))scheduleActivityProgress(stage===1?continueForest:stage===2?continueGarden:advance);
+  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;focusForestObservation();clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem)d.problem='swim';}focusMotion();go('mission');if(stage!==5&&!s.activities.includes(`${stage}-${step}`)&&taskReady(s,stage,step))scheduleActivityProgress(stage===1?continueForest:stage===2?continueGarden:advance);
 }
 function reviewActivities(id){
   if(!isStageOpen(s,id))return;const t=STAGES[id-1];
@@ -340,7 +369,7 @@ function advance(){
   }
   const pairDone=stage===1&&step%2===1&&result.fresh?Math.floor(step/2):-1;
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;focusForestObservation();clueIndex=0;feedback=null;
-  report=null;zoom=false;sketching=false;activeHabitat='forest';focusMotion();render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent='다음 탐구로 이어 가자!';
+  report=null;repairingWorkshop=false;zoom=false;sketching=false;activeHabitat='forest';focusMotion();render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent='다음 탐구로 이어 가자!';
   if(pairDone>=0)pairReward(pairDone);
 }
 // Pair discoveries use a brief notice, keeping the next animals immediately available.
@@ -398,8 +427,9 @@ function resumeActivityProgress(){
   }else if(stage===3&&step%2===0){
     const current=DISCOVERIES.slice(round()*3,round()*3+3).find(d=>d.habitat===activeHabitat);
     if(current&&s.inquiry.motion[current.animal]!==undefined)scheduleActivityProgress(continueMotion);
-  }else if(taskReady(s,stage,step)&&!(stage===5&&step!==1))scheduleActivityProgress(stage===2&&step===0?continueGarden:advance);
-  else if(stage===5&&step===1&&!labSummary&&comparisonReady(s.designs[round()]))scheduleActivityProgress(()=>{labSummary=1;render();});
+  }else if(stage===5){
+    if(step===1&&labSummary===2)progressWorkshopReflection();
+  }else if(taskReady(s,stage,step))scheduleActivityProgress(stage===2&&step===0?continueGarden:advance);
 }
 function progressAnswer(showError=false){
   if(screen!=='mission')return;
@@ -464,7 +494,7 @@ function progressRequest(){
     requestCard=next;commissionIndex=cards[next].part;feedback=null;render();
   });
 }
-function previous(){labSummary=false;stopMotion();if(step===0){go('map');return;}step--;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
+function previous(){repairingWorkshop=stage===5&&step===1&&report?.passed===false;labSummary=false;stopMotion();if(step===0){go('map');return;}step--;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
   if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
@@ -805,7 +835,7 @@ document.addEventListener('input',e=>{
   if(e.target.id==='experiment-note'||e.target.id==='peer-note'){clearActivityProgress();s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();syncWorkshopCue();return;}
   if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();return;}
-  if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
+  if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();syncWorkshopCue();}});
 document.addEventListener('change',e=>{
  if(e.target.id==='experiment-level')render();
  if(e.target.id==='experiment-note'||e.target.id==='peer-note')progressWorkshopReflection();

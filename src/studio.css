@@ -70,7 +70,7 @@
 #app .studio-showcase .studio-answer :is(input,textarea)::placeholder{color:#625e48;opacity:1}
 @media(max-width:480px){#app #main .studio-showcase .studio-intro-field textarea{min-height:84px}}
 #app .studio-showcase .studio-intro-arrow{display:none}
-#app .studio-showcase .studio-intro-field[data-current] .studio-intro-arrow{animation:studio-intro-point 1.05s ease-in-out 4;position:absolute;display:block;inset-block-start:10px;inset-inline-start:9px;width:24px;height:24px;padding:2px;border-radius:50%;background:#f6d97c;color:#604314;pointer-events:none}
+#app .studio-showcase .studio-intro-field[data-current] .studio-intro-arrow{position:absolute;display:block;inset-block-start:10px;inset-inline-start:9px;pointer-events:none}
 #app .studio-showcase .studio-sample-button{align-self:flex-start;min-height:46px;margin:2px 0 4px;padding:6px 14px;border:2px dashed #c9b98d;border-radius:12px;background:#fffdf4;color:#3d6a4a;font:400 clamp(18px,1.3vw,22px)/1.2 var(--font-display)}
 #app .studio-sample[popover]{width:min(640px,92vw);margin:auto;padding:18px 20px;border:2px solid #c9b98d;border-radius:18px;background:#fffaeb;box-shadow:0 20px 50px #2a1d0b66}
 #app .studio-sample[popover]::backdrop{background:#1d2a1f55}
@@ -85,15 +85,45 @@
 #app .studio-showcase .studio-assist-mini{flex:none;max-width:44%;min-height:40px;padding:2px 8px;border:1px solid #c9b98d;border-radius:10px;background:#fffaeb;color:#5b5236;font-size:16px}
 #app .studio-showcase .studio-poster-empty{margin:6px 0 0;padding:8px 12px;border-radius:10px;background:#fff1c9;color:#6b4a12;font-size:clamp(17px,1.2vw,20px);text-align:center}
 
-@keyframes studio-intro-point{50%{transform:translateX(3px);opacity:.62}}
-@media(prefers-reduced-motion:reduce){#app .studio-showcase .studio-intro-field[data-current] .studio-intro-arrow{animation:none}}
-
-/* Follow the next meaningful action without adding another confirmation. */
-.studio-down-cue{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#f6d97c;color:#294b3e;font-size:29px;font-weight:900;line-height:1;pointer-events:none;box-shadow:0 2px 0 #ac843c;animation:studio-guide-down 1.1s ease-in-out infinite}
-.studio-title-cue{display:none;margin-left:10px;vertical-align:middle}
-.studio-drawing[data-next="title"] .studio-title-cue{display:inline-grid}
-.studio-empty .studio-down-cue{margin-top:5px}
-body:has(.studio-drawing[data-next="continue"]) .mission-footer [data-action="advance"]{position:relative;overflow:visible}
-body:has(.studio-drawing[data-next="continue"]) .mission-footer [data-action="advance"]::before{content:'↓';position:absolute;bottom:calc(100% + 8px);left:calc(50% - 18px);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#f6d97c;color:#294b3e;font-size:29px;font-weight:900;line-height:1;box-shadow:0 2px 0 #ac843c;pointer-events:none;animation:studio-guide-down 1.1s ease-in-out infinite}
-@keyframes studio-guide-down{50%{transform:translateY(5px)}}
-@media(prefers-reduced-motion:reduce){.studio-down-cue,body:has(.studio-drawing[data-next="continue"]) .mission-footer [data-action="advance"]::before{animation:none}}
+/* A single cue follows the action. It settles into a visible marker after four pulses. */
+#app .workshop-arrow, dialog .workshop-arrow{
+  display:inline-block;flex:none;width:26px;height:26px;min-width:26px;min-height:26px;
+  box-sizing:border-box;padding:3px;border-radius:50%;background:#f6d97c;color:#54360e;
+  vertical-align:middle;pointer-events:none;animation:workshop-point 1.1s ease-in-out 4;
+}
+.workshop-arrow.points-down{rotate:90deg}
+@keyframes workshop-point{50%{transform:translateX(3px);opacity:.38}}
+@media(prefers-reduced-motion:reduce){#app .workshop-arrow,dialog .workshop-arrow{animation:none}}
+#app .studio-showcase .studio-intro-arrow .workshop-arrow{width:24px;height:24px;min-width:24px;min-height:24px}
+#app .studio-title-cue{display:none;margin-inline-start:8px}
+#app .studio-drawing[data-next="title"] .studio-title-cue{display:inline-flex}
+#app .studio-empty .workshop-arrow{margin-top:5px}
+#app #main.stage-5 .workshop-guide{
+  display:flex;align-items:center;gap:8px;margin:0;color:#604314;
+  font-size:clamp(16px,1.25vw,21px)!important;font-weight:700;line-height:1.3;
+}
+#app #main.stage-5 .assembly > .workshop-guide{
+  position:absolute;inset-block-start:8px;inset-inline:0;margin-inline:auto;z-index:2;
+  width:max-content;max-width:calc(100% - 16px);padding:5px 9px;border-radius:10px;
+  background:#fff3cd;text-align:center;pointer-events:none;
+}
+#app #main.stage-5 label > .workshop-arrow,#app #main.stage-5 legend > .workshop-arrow{margin-inline-end:7px}
+#app #main.stage-5 label[data-workshop-next] + :is(input,textarea){
+  background:#fff3cd;border-color:#a76a1d;
+}
+#app #main.stage-5 [data-workshop-next="place"] .part-spot{outline:2px dashed #a76a1d;outline-offset:2px}
+#app #main.stage-5 .panel-tabs [data-workshop-next] .tab-num{position:relative;background:#f6d97c;color:#54360e}
+#app #main.stage-5 .panel-tabs [data-workshop-next] .tab-num > .workshop-arrow{
+  position:absolute;inset:50% auto auto 50%;translate:-50% -50%;
+}
+#app #main.stage-5 .panel-tabs .btn[data-workshop-next]{
+  background:#fff3cd!important;color:#54360e!important;border-color:#a76a1d;
+}
+#app #main.stage-5 .btn[data-workshop-next]{border-color:#a76a1d}
+#app #main.stage-5 .mission-footer > .btn.action-cue{animation:none}
+#app #main.stage-5 .mission-footer .primary > .workshop-arrow ~ .icon:last-child{display:none}
+#app #main.stage-5 .mission-footer .quiet > .workshop-arrow{rotate:180deg}
+#app #main.stage-5 .mission-footer .quiet > .workshop-arrow ~ .icon{display:none}
+#app #main.stage-5 .design-name > label[data-workshop-next]{justify-content:flex-start}
+#app #main.stage-5 .design-name > label[data-workshop-next] > .name-input-badge{margin-inline-start:auto}
+#app #main.stage-5 .studio-drawing[data-next="title"] [data-studio-field="title"]{background:#fff3cd;border-color:#a76a1d}

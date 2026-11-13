@@ -15,6 +15,7 @@ export const btn=(label,action,cls='',data='')=>`<button type="button" class="bt
 // Answer option: a radio-style circle says "pick one"; it fills with a check once chosen.
 export const choice=(label,action,value,selected=false,data='',extra='')=>btn(`<i class="choice-mark" aria-hidden="true">${selected?icon('check'):''}</i><span>${label}</span>`,action,`choice ${selected?'selected':''} ${extra}`,`data-value="${value}" aria-pressed="${selected}" ${data}`);
 export const actionGuide=text=>`<span class="action-guide">${icon('arrow')}<span>${text}</span></span>`;
+export const workshopArrow=direction=>icon('arrow', 'workshop-arrow'+(direction==='down'?' points-down':''));
 export function icon(name,cls=''){
   const media={play:'m9 5 11 7-11 7V5Z',pause:'M8 5v14M16 5v14',camera:'M3 7h5l2-3h4l2 3h5v14H3V7Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',expand:'M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5',shrink:'M4 9h5V4m11 5h-5V4M9 20v-5H4m11 5v-5h5'};
   if(media[name])return `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${media[name]}"/></svg>`;

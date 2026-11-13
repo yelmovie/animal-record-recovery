@@ -1,9 +1,10 @@
 import {normalizeStudio,studioShape,studioDrawingNext,studioIntroNext} from './studio.js';
 import {studioArtwork,studioIntroGuidance} from './studio-views.js';
+import {workshopArrow} from './presentation.js';
 import {strokeMarkup,drawStudioStroke,hsvToHex,hexToHsv} from './studio-brush.js';
 
 const clamp=(n,max)=>Math.max(0,Math.min(max,n));
-export function mountStudio(root,{getStudio,onChange,onDownload,onCommit}={}){
+export function mountStudio(root,{getStudio,onChange,onDownload}={}){
  const host=root.querySelector('[data-studio]');if(!host)return ()=>{};
  const surface=host.querySelector('[data-studio-surface]'),live=host.querySelector('[data-studio-live]'),wheel=host.querySelector('[data-studio-wheel]');
  let settings={...normalizeStudio(getStudio()).tools},hsv=hexToHsv(settings.color),current=null,pointer=null,wheelPointer=null,redo=[],disposed=false;
@@ -13,13 +14,23 @@ export function mountStudio(root,{getStudio,onChange,onDownload,onCommit}={}){
  const hint=host.querySelector('[data-studio-guidance]');
  const showcase=host.dataset.studio==='showcase';
  const introFields=showcase?[...host.querySelectorAll('[data-studio-intro-field]')]:[];
- const sendButton=showcase?root.querySelector('.mission-footer [data-action="advance"]'):null;
+ const footer=root.querySelector('.mission-footer');
  const guidance=()=>{
   const next=showcase?studioIntroNext(state()):studioDrawingNext(state());
   host.dataset.next=next;
   for(const field of introFields)field.toggleAttribute('data-current',field.dataset.studioIntroField===next);
-  sendButton?.classList.toggle('action-cue',next==='continue');
-  const message=showcase?studioIntroGuidance(next):{draw:'↓ 도화지에 내 발명을 그려 봐.',title:'↓ 그림에 어울리는 이름을 적어 줘.',continue:'이름 입력을 마치면 작품 소개로 이어져.'}[next];
+  const target=next==='continue'?footer?.querySelector('[data-action="advance"]'):
+    showcase&&next==='draw'?footer?.querySelector('[data-action="previous"]'):null;
+  const previous=footer?.querySelector('[data-workshop-next]');
+  if(previous!==target){
+    previous?.removeAttribute('data-workshop-next');
+    previous?.querySelector('.workshop-arrow')?.remove();
+    if(target){
+      target.dataset.workshopNext=next;
+      target.insertAdjacentHTML('afterbegin',workshopArrow());
+    }
+  }
+  const message=showcase?studioIntroGuidance(next):{draw:'도화지에 내 발명을 그려 봐.',title:'그림에 어울리는 이름을 적어 줘.',continue:'준비되면 아래 ‘작품 소개하기’를 눌러 줘.'}[next];
   if(hint&&hint.textContent!==message)hint.textContent=message;
  };
  const refresh=()=>{const s=state(),preview=host.querySelector('[data-studio-preview]');if(preview)preview.innerHTML=studioArtwork(s);const empty=host.querySelector('[data-studio-empty]');if(empty)empty.hidden=studioDrawingNext(s)!=='draw';const title=host.querySelector('[data-studio-title]');if(title)title.textContent=s.title||'아직 이름 없는 발명';const purpose=host.querySelector('[data-studio-purpose]');if(purpose)purpose.textContent=s.purpose||'어떻게 쓰는지 소개해 줘.';buttons();guidance();};
@@ -62,19 +73,18 @@ export function mountStudio(root,{getStudio,onChange,onDownload,onCommit}={}){
   else if(a==='download'){b.disabled=true;status('그림과 소개를 한 장에 담고 있어…');try{await(onDownload||downloadStudioArtwork)(state());if(!disposed)status('작품 이미지 다운로드를 시작했어!');}catch(error){if(!disposed)status('이미지를 저장하지 못했어. 잠시 뒤 다시 눌러 줘.');console.error('Studio artwork download failed',error);}finally{if(!disposed)b.disabled=false;}}controls();
  };
  const input=e=>{const field=e.target.dataset.studioField;if(field&&['title','audience','purpose','inspiration'].includes(field)){const s=state();s[field]=e.target.value;save(s);}
-  const assist=e.target.dataset.studioAssist;if(assist&&e.target.value){const s=state();s[assist]=e.target.value;const field=host.querySelector('[data-studio-field="'+assist+'"]');if(field)field.value=s[assist];save(s);status('고른 문장을 넣었어. 네 생각에 맞게 고쳐도 좋아.');onCommit?.();}
+  const assist=e.target.dataset.studioAssist;if(assist&&e.target.value){const s=state();s[assist]=e.target.value;const field=host.querySelector('[data-studio-field="'+assist+'"]');if(field)field.value=s[assist];save(s);status('고른 문장을 넣었어. 네 생각에 맞게 고쳐도 좋아.');}
   if(e.target.matches('[data-studio-width]')){settings.width=Math.max(1,Math.min(60,Number(e.target.value)||1));saveTools();}
   if(e.target.matches('[data-studio-brightness]')){hsv.v=clamp(Number(e.target.value),100);changeColor();}
   if(e.target.matches('[data-studio-custom-color]')){settings.color=e.target.value;hsv=hexToHsv(settings.color);if(settings.tool==='eraser')settings.tool='pen';saveTools();}
  };
- const commit=e=>{if(e.target.dataset.studioField)onCommit?.();};
  const keyboard=e=>{if(e.key==='Enter'&&!e.isComposing&&e.target.dataset.studioField&&(e.target.tagName==='INPUT'||e.ctrlKey||e.metaKey)){e.preventDefault();e.target.blur();return;}if(e.target===wheel&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft'||e.key==='ArrowRight')hsv.h=(hsv.h+(e.key==='ArrowLeft'?-3:3)+360)%360;if(e.key==='ArrowUp'||e.key==='ArrowDown')hsv.s=clamp(hsv.s+(e.key==='ArrowUp'?3:-3),100);if(e.key==='Home')hsv.s=0;if(e.key==='End')hsv.s=100;changeColor();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.closest('input,textarea,select')){e.preventDefault();finish();if(e.shiftKey)again();else undo();}};
  const resize=()=>host.querySelector('#studio-color-picker')?.hidePopover?.();
- host.addEventListener('click',click);host.addEventListener('input',input);host.addEventListener('focusout',commit);host.addEventListener('keydown',keyboard);
+ host.addEventListener('click',click);host.addEventListener('input',input);host.addEventListener('keydown',keyboard);
  surface?.addEventListener('pointerdown',down);surface?.addEventListener('pointermove',move);surface?.addEventListener('pointerup',finish);surface?.addEventListener('pointercancel',finish);surface?.addEventListener('lostpointercapture',finish);
  wheel?.addEventListener('pointerdown',wheelDown);wheel?.addEventListener('pointermove',wheelMove);wheel?.addEventListener('pointerup',wheelEnd);wheel?.addEventListener('pointercancel',wheelEnd);wheel?.addEventListener('lostpointercapture',wheelEnd);
  window.addEventListener('blur',finish);window.addEventListener('resize',resize);controls();buttons();guidance();
- return ()=>{finish();wheelEnd();disposed=true;host.removeEventListener('click',click);host.removeEventListener('input',input);host.removeEventListener('focusout',commit);host.removeEventListener('keydown',keyboard);surface?.removeEventListener('pointerdown',down);surface?.removeEventListener('pointermove',move);surface?.removeEventListener('pointerup',finish);surface?.removeEventListener('pointercancel',finish);surface?.removeEventListener('lostpointercapture',finish);wheel?.removeEventListener('pointerdown',wheelDown);wheel?.removeEventListener('pointermove',wheelMove);wheel?.removeEventListener('pointerup',wheelEnd);wheel?.removeEventListener('pointercancel',wheelEnd);wheel?.removeEventListener('lostpointercapture',wheelEnd);window.removeEventListener('blur',finish);window.removeEventListener('resize',resize);};
+ return ()=>{finish();wheelEnd();disposed=true;host.removeEventListener('click',click);host.removeEventListener('input',input);host.removeEventListener('keydown',keyboard);surface?.removeEventListener('pointerdown',down);surface?.removeEventListener('pointermove',move);surface?.removeEventListener('pointerup',finish);surface?.removeEventListener('pointercancel',finish);surface?.removeEventListener('lostpointercapture',finish);wheel?.removeEventListener('pointerdown',wheelDown);wheel?.removeEventListener('pointermove',wheelMove);wheel?.removeEventListener('pointerup',wheelEnd);wheel?.removeEventListener('pointercancel',wheelEnd);wheel?.removeEventListener('lostpointercapture',wheelEnd);window.removeEventListener('blur',finish);window.removeEventListener('resize',resize);};
 }
 
 function wrap(ctx,text,maxWidth){const lines=[];for(const paragraph of String(text).split('\n')){let line='';for(const letter of paragraph){if(line&&ctx.measureText(line+letter).width>maxWidth){lines.push(line);line=letter;}else line+=letter;}lines.push(line);}return lines;}
