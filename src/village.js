@@ -174,11 +174,17 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     if(haru){haru.x=start[0];haru.y=start[1];draw(haru);follow();placeMarkers();clearControls();}
     if(mori){mori.x=start[0]-40;mori.y=start[1]+6;draw(mori);mori.el.dataset.npc='mori';}
     // Position by feet in the existing village coordinate space; the camera projects to the scene.
-    const encounterOffsets=[[0,27],[-24,28],[-28,25],[24,20],[-25,28]];
     const encounters=haru&&!encounterPreview?mountVillageEncounters({host:scene,
       stages:COMMISSIONS.map((commission,i)=>{
-        const door=doorOf(String(i+1));if(!completed.includes(i+1)||!door)return null;
-        const [dx,dy]=encounterOffsets[i];return {name:j.buildings[i+1].name,x:door[0]+dx,y:door[1]+dy};
+        const building=j.buildings[i+1],door=building?.door;if(!completed.includes(i+1)||!door)return null;
+        const node=building.node??nearestNode(graph,door);
+        const path=graph.edges.find(edge=>edge.includes(node));
+        const neighbor=graph.nodes[path?.find(id=>id!==node)];
+        if(!neighbor)return null;
+        // The encounter must sit on a reachable path so both actors can touch it.
+        const [dx,dy]=[neighbor[0]-door[0],neighbor[1]-door[1]];
+        const step=Math.min(.72,36/Math.max(1,Math.hypot(dx,dy)));
+        return {name:building.name,x:door[0]+dx*step,y:door[1]+dy*step};
       }),progress:encounterProgress,onSave:onEncounterSave,blocked:()=>paused||overview||fitView||isBlocked(),
       reduced,tone:onEncounterTone,actors:[haru.el,mori?.el],
     }):null;
