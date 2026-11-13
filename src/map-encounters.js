@@ -257,7 +257,9 @@ export function mountMapEncounters({
     }else if(hasFocus){host.querySelector('canvas,[tabindex="0"]')?.focus({preventScroll:true});}
     if(now-lastSpeechLayout>=110){
       lastSpeechLayout=now;
-      layoutSpeech(host,[{el:callback},...foes.map(foe=>({el:foe.bubble,anchor:foe.actor}))]);
+      const relayout=()=>layoutSpeech(host,[{el:callback},...foes.map(foe=>({el:foe.bubble,anchor:foe.actor}))]);
+      relayout();
+      if(now-lastHit<100)view?.requestAnimationFrame(()=>{if(!closed)relayout();});
     }
     return {hero:output('hero',now),ally:output('ally',now)};
   }
