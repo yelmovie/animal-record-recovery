@@ -643,6 +643,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       const fresh=!s.observed.includes(id),tries=s.observeTries??={},first=fresh&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(fresh&&screen==='mission'&&stage===1&&step%2===0&&OBSERVE_PAIRS[round()].includes(owner)&&OBSERVE_REQUIRED[owner]===id)scheduleActivityProgress(continueForest);break;}
     case 'aha-pick':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o?.ahaQ||!s.observed.includes(id)||![0,1].includes(Number(value)))break;(s.ahaPicks??={})[id]=Number(value);render();break;}
     case 'zoom':zoom=!zoom;render();break;
+    case 'scan-use-image':if(screen==='mission'&&(stage===1||stage===3)&&step%2===0)fail3d();break;
     case 'scan-reset':viewer?.call('reset');break;
     case 'dome-tilt':toggleTilt(el);break;
     case 'compare-answer':{

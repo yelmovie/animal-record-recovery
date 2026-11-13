@@ -338,3 +338,7 @@ main.map-page{max-width:none;margin:0;padding:8px;height:calc(var(--app-height,1
 @media(max-width:700px){.photo-zoom{grid-template-columns:1fr}}
 .lens-notes .detail-crop{width:min(100%,320px)!important;height:220px!important}
 .candidate-count{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.candidate-count .case-hint{min-height:44px;font-size:16px}
+
+/* Give a slow or stalled 3D download a way to continue with the same observation. */
+#app #main .scan3d > .scan-use-image{position:absolute;inset:auto auto 16px 50%;translate:-50% 0;z-index:7;min-height:44px;white-space:nowrap}
+#app #main .scan3d:has(>.stage3d:not(.model-pending)) > .scan-use-image{display:none}
