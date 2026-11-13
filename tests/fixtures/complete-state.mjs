@@ -1,4 +1,4 @@
-// Full run (24 stars, all commissions, a saved artwork). Isolated QA/test use only.
+// Full run (24 completed activities, all commissions, a saved artwork). Isolated QA/test use only.
 import {campaignFixture} from './campaign-state.mjs';
 import {campaignDraft,missionRows,chooseCommission,claimCommission,RETEST,runCommissionTrial} from '../../src/campaign.js';
 import {createStudio} from '../../src/studio.js';

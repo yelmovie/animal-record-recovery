@@ -35,14 +35,35 @@
 #app #main .motion-player > .motion-fullscreen:hover { background: #3c614b; }
 #app #main .motion-player > .motion-fullscreen:focus-visible { outline: 3px solid #ffe083; outline-offset: 2px; }
 #app #main .motion-player-badge { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 5px 10px; border: 1px solid #ffffff26; border-radius: 6px; background: #10231ad9; color: #fff5d1; font: 400 16px/1.2 var(--font-display) !important; pointer-events: none; }
-#app #main .motion-start-button { position: absolute; inset: 0 0 50px; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; height: auto; margin: 0; padding: 0; border: 0; border-radius: 0; background: #00130d1a; box-shadow: none; color: #fff; transform: none; }
-#app #main .motion-start-button[hidden] { display: none !important; }
-#app #main .motion-play-disc { display: grid; place-items: center; width: clamp(76px, 7vw, 112px); height: clamp(54px, 5vw, 76px); padding-left: 4px; border: 2px solid #ffcfb780; border-radius: 18px; background: linear-gradient(#e75c41, #c9372f); box-shadow: 0 5px 0 #80271d, 0 10px 25px #0007; transition: transform .15s, background-color .15s; }
-#app #main .motion-play-disc > .icon { width: 38px; height: 38px; fill: currentColor; stroke-width: 1; }
-#app #main .motion-start-button > span:last-child { padding: 5px 12px; border-radius: 999px; background: #091c16cc; color: #fff9e8; font: 400 clamp(18px, 1.5vw, 25px)/1.2 var(--font-display) !important; }
-#app #main .motion-start-button:hover .motion-play-disc { transform: scale(1.06); }
-#app #main .motion-start-button:active .motion-play-disc { transform: translateY(3px); box-shadow: 0 2px 0 #80271d; }
-#app #main .motion-start-button:focus-visible { outline: 4px solid #ffe083; outline-offset: -5px; }
+/* All video players use the same icon-only overlay, centered in the video image. */
+:is(#app #main, dialog) .btn.video-play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: clamp(74px, 7vw, 104px);
+  height: clamp(48px, 4.5vw, 66px);
+  min-height: 0;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 15px;
+  background: #e7212b;
+  color: #fff;
+  box-shadow: 0 4px 16px #0006;
+  transform: none;
+}
+:is(#app #main, dialog) .btn.video-play-overlay[hidden] { display: none !important; }
+:is(#app #main, dialog) .btn.video-play-overlay:hover { background: #c91320; }
+:is(#app #main, dialog) .btn.video-play-overlay:focus-visible { outline: 3px solid #ffe083; outline-offset: 3px; }
+:is(#app #main, dialog) .btn.video-play-overlay .icon { width: 32px; height: 32px; fill: currentColor; }
+#app #main .motion-player > .video-play-overlay { inset-block-end: 50px; }
+#app #main .motion-player > .motion-photo-capture:disabled { visibility: hidden; }
+#app #main .motion-player { container-type: inline-size; }
+@container (max-width: 540px) {
+  #app #main .motion-player:not(.is-playing) > .motion-photo-capture > span { display: none; }
+}
 #app #main .motion-player-controls { position: absolute; bottom: 0; left: 0; right: 0; z-index: 4; display: flex; align-items: center; gap: 8px; min-height: 50px; padding: 2px 8px; background: linear-gradient(#10221ae0, #08130ff5); color: #fff; }
 #app #main .motion-player-controls .btn { flex: none; min-height: 44px; margin: 0; padding: 5px 10px; border: 0; border-radius: 8px; background: transparent; color: #fff9e7; box-shadow: none; font: 400 18px/1.2 var(--font-display); }
 #app #main .motion-control-play { display: grid; place-items: center; width: 44px; padding: 0 !important; }
@@ -105,9 +126,7 @@
 }
 @media (orientation: portrait) and (max-width: 900px) {
   #app #main .motion-player { height: clamp(190px, 24dvh, 260px); }
-  #app #main .motion-start-button > span:last-child { display: none; }
 }
-@media (max-height: 800px) { #app #main .motion-start-button > span:last-child { display: none; } }
 @media (max-width: 480px) {
   #app #main.museum-page .museum-photo-grid { grid-template-columns: minmax(0, 1fr); }
   #app #main .motion-channel h2 { font-size: 23px !important; }
@@ -116,4 +135,3 @@
 /* Keep playback, seeking and photo capture inside the same native fullscreen player. */
 #app #main .motion-player:fullscreen { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: #080e0b; }
 #app #main .motion-player:fullscreen > .motion-fullscreen { top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); }
-#app #main .motion-player:fullscreen .motion-start-button > span:last-child { display: block; }

@@ -1,7 +1,7 @@
 import {T,createStage,texture,blobShadow} from './stage3d.js';
 import {mat,loadAnimal} from './scanner3d.js';
 // Screen 06: one small diorama island under a glass dome, one sector per environment.
-// The learner swipes the camera around, finds the round's animals and taps them.
+// Each active observation turns toward its animal; dragging and tapping remain available.
 
 const R=6,TURN=Math.PI*2;
 // One shared atlas request; each surface uses a small repeating material tile.
@@ -53,7 +53,7 @@ const ZONES={
       instanced(new T.IcosahedronGeometry(.82,2).scale(1,1.2,1).translate(0,1.65,0),naturalMat('#3f7a3a'),trees),
       instanced(new T.ConeGeometry(.12,.35,5),naturalMat('#5f9a3f'),tufts),
       instanced(new T.SphereGeometry(.09,8,6),naturalMat('#f2d24b'),flowers.filter((_,i)=>i%2)),instanced(new T.SphereGeometry(.09,8,6),naturalMat('#f4f0f6'),flowers.filter((_,i)=>!(i%2))));
-    spot('rabbit',[0,3.2]);spot('butterfly',[-.45,4.4]);}},
+    spot('rabbit',[0,3.2]);spot('butterfly',[0,3.2]);}},
   pond:{ground:'#8db564',build(g,a,half,rand,spot){
     const c=new T.Vector3(3.3,0,2.1);
     for(let i=0;i<10;i++){const t=Math.PI*.55+i*.17,r=1.45+rand()*.2;reedClump(g,new T.Vector3(c.x+Math.cos(t)*r,.035,c.z+Math.sin(t)*r),.45+rand()*.25,rand()*TURN);}
@@ -83,7 +83,7 @@ const SCENERY=['../assets/adventure/dome-ground.webp','../assets/adventure/terra
 export function warm(ids){for(const path of SCENERY)new Image().src=new URL(path,import.meta.url).href;for(const id of ids)loadAnimal(id,{dome:true}).catch(()=>{});}
 export function create(host,opts){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let animals=[],key='',active=null,aimed=null,tilt=null,dead=false;
+  let animals=[],key='',active=null,aimed=null,tilt=null,dead=false,ready=false;
   const stage=createStage(host,{target:[0,.4,0],theta:0,phi:.95,radius:12.5,minR:5,maxR:17,minPhi:.45,maxPhi:1.35,fov:40,fps:30,
     label:'3D 생태 돔. 손가락으로 밀어 돌려 보고, 동물을 찾으면 눌러 봐.',pickables:()=>animals.filter(x=>x.model.userData.glb).map(x=>x.hit),onTap,tick,onFail:e=>opts.onFail?.(e)});
   const {scene}=stage,sun=new T.DirectionalLight('#fff4dc',2.2);sun.position.set(6,10,5);
@@ -116,7 +116,7 @@ export function create(host,opts){
   function addAnimal(t){
     const g=new T.Group(),model=new T.Group(),s=SCALE[t.animal]||.4,home=spots[t.animal]||at(angle(t.habitat),3);
     model.scale.setScalar(s);g.add(model);
-    // Keep the entire scene covered until all real models for this visit are ready.
+    // Each real animal appears as soon as its model is ready.
     const ready=loadAnimal(t.animal,{dome:true}).then(glb=>{if(dead||!animals.some(x=>x.model===model))return;model.add(glb);model.userData.glb=true;g.visible=true;pins();stage.request();});
     if(t.animal!=='marine'&&t.animal!=='butterfly')g.add(blobShadow(1.1*s/.4,.22));
     const hit=new T.Mesh(new T.SphereGeometry(1.1,10,8),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.position.y=.5;hit.userData.find=t.id;g.add(hit);
@@ -143,24 +143,31 @@ export function create(host,opts){
   }
   function onTap(hit){const id=hit?.object.userData.find;if(!id)return;const x=animals.find(a=>a.id===id);aim(x);if(x.look)opts.onLook?.(id);else opts.onFind?.(id);}
   // Aim the scanner at a found animal: glide in and centre it.
-  function aim(x){aimed=x.id;active=x.habitat;stage.goTo({theta:angle(x.habitat),radius:8,tx:x.home.x*.7,ty:.5,tz:x.home.z*.7});}
-  function faceZone(id){active=id;stage.goTo({theta:angle(id),phi:.92,radius:11,tx:at(angle(id),2.2).x,ty:.4,tz:at(angle(id),2.2).z});}
+  function aim(x){aimed=x.id;active=x.habitat;stage.goTo({theta:angle(x.habitat),phi:.95,radius:6.8,tx:x.home.x*.85,ty:.5,tz:x.home.z*.85});}
+  function faceZone(id){active=id;aimed=null;stage.goTo({theta:angle(id),phi:.92,radius:11,tx:at(angle(id),2.2).x,ty:.4,tz:at(angle(id),2.2).z});}
+  function focusActive(){
+    if(!ready)return;
+    const animal=animals.find(x=>x.habitat===opts.active&&x.found);
+    if(animal){if(aimed!==animal.id)aim(animal);}
+    else if(active!==opts.active)faceZone(opts.active);
+  }
   function pins(){
     const zoneLabels=opts.zones.map(id=>({pos:at(angle(id),R-.3,.25),normal:at(angle(id),1),cls:'zone',html:`<span>${opts.names[id]}</span>`}));
     stage.setPins([...zoneLabels,...animals.filter(x=>x.found).map(x=>({pos:x.pin,cls:'found',html:`<b>✓</b><span>${x.name}</span>`}))]);
   }
   function apply(o){
     opts=o;const all=[...o.targets,...(o.extras||[]).map(t=>({...t,look:true}))],k=all.map(t=>t.id).join();
-    if(k!==key){stage.setLoading(true);for(const x of animals){scene.remove(x.g);x.g.traverse(n=>{if(!n.userData.shared)n.geometry?.dispose();});}key=k;animals=o.targets.map(addAnimal);
-      Promise.all([sceneryReady,...animals.map(x=>x.ready)]).then(()=>{
-        if(dead||key!==k)return;stage.setLoading(false);
-        // Optional observations arrive after the required three; they never hold the lesson behind a spinner.
+    if(k!==key){ready=false;stage.setLoading(true);for(const x of animals){scene.remove(x.g);x.g.traverse(n=>{if(!n.userData.shared)n.geometry?.dispose();});}key=k;animals=o.targets.map(addAnimal);
+      const first=animals.find(x=>x.habitat===o.active)||animals[0];
+      for(const x of animals)x.ready.catch(error=>{if(!dead&&key===k)opts.onFail?.(error);});
+      Promise.all([sceneryReady,first.ready]).then(()=>{
+        if(dead||key!==k)return;ready=true;stage.setLoading(false);focusActive();
+        // Other animals continue loading after the first observation is already usable.
         const extras=all.filter(t=>t.look).map(addAnimal);animals.push(...extras);
         for(const x of extras)x.ready.catch(()=>{if(!dead&&key===k){scene.remove(x.g);animals=animals.filter(a=>a!==x);pins();stage.request();}});
       }).catch(error=>{if(!dead&&key===k)opts.onFail?.(error);});}
     else animals.forEach(x=>{x.found=all.find(t=>t.id===x.id)?.found;});
-    if(o.active!==active){if(aimed&&animals.find(x=>x.id===aimed)?.habitat===o.active)active=o.active;else faceZone(o.active);}
-    aimed=null;pins();stage.request();
+    focusActive();pins();stage.request();
   }
   // Optional tilt: device orientation nudges the orbit; no events within 1.5 s means no sensor.
   function applyTilt(){if(tilt.beta==null)return;stage.orbit.theta=tilt.theta0-(tilt.gamma-tilt.g0)*Math.PI/180*1.4;stage.orbit.phi=Math.max(.45,Math.min(1.35,tilt.phi0+(tilt.beta-tilt.b0)*Math.PI/180*.8));}

@@ -4,13 +4,13 @@ import {freshExpedition,restoreExpedition,taskReady,taskMistake,OBSERVATIONS,LIN
 import {activityView} from '../src/mission-views.js';
 
 test('observation shows the description only after the learner picks it from three',()=>{
-  const s=freshExpedition(),o=OBSERVATIONS.frog[0];
-  const html=activityView(s,{stage:1,step:0,focusIndex:0});
+  const s=freshExpedition(),o=OBSERVATIONS.frog[2];
+  const html=activityView(s,{stage:1,step:0,focusIndex:2});
   assert.equal((html.match(/data-action="observe"/g)||[]).length,3);
   assert.match(html,/data-value="right"/);
   for(const list of Object.values(OBSERVATIONS))for(const x of list)assert.equal(x.wrong.length,2,x.id);
   s.observed.push(o.id);
-  assert.match(activityView(s,{stage:1,step:0,focusIndex:0}),/기록했어/);
+  assert.match(activityView(s,{stage:1,step:0,focusIndex:2}),/기록했어/);
 });
 
 test('comparison screen no longer prints the observed answers next to the questions',()=>{

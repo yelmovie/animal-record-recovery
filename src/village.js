@@ -78,20 +78,20 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       if(cam&&Math.abs(cam[0]-x)<.5&&Math.abs(cam[1]-y)<.5)return;place(x,y);};
     // Hand mode: dragging slides the view, clamped to the map edges like the walking camera.
     let drag=null,dragged=false;
-    const onDown=e=>{dragged=false;if(!panning||overview||(e.button??0)>0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,cam:cam||[0,0]};};
+    const onDown=e=>{dragged=false;if(overview||fitView||isBlocked()||drag||(e.button??0)>0)return;if(root.classList.contains('travelling')){api.stop?.();onWalk?.();}drag={id:e.pointerId,x:e.clientX,y:e.clientY,cam:cam||[0,0]};};
     const onMove=e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!dragged&&Math.hypot(dx,dy)<8)return;
-      if(!dragged){dragged=true;scene.setPointerCapture?.(e.pointerId);scene.classList.add('dragging');}
+      if(!dragged){dragged=true;api.stop?.();onWalk?.();if(e.pointerType==='mouse')scene.setPointerCapture?.(e.pointerId);scene.classList.add('dragging');}
       free=true;place(Math.min(0,Math.max(scene.clientWidth-root.offsetWidth,drag.cam[0]+dx)),Math.min(0,Math.max(scene.clientHeight-root.offsetHeight,drag.cam[1]+dy)));};
-    const onUp=e=>{if(!drag||e.pointerId!==drag.id)return;drag=null;scene.classList.remove('dragging');};
+    const onUp=e=>{if(!drag||e.pointerId!==drag.id)return;drag=null;if(e.type==='pointercancel')dragged=false;scene.classList.remove('dragging');};
     // The click that ends a drag must not walk Haru or open the building under the finger.
     const onDragClick=e=>{if(!dragged)return;dragged=false;e.stopPropagation();e.preventDefault();};
     const onNativeDrag=e=>e.preventDefault();
     if(scene){scene.addEventListener('pointerdown',onDown);scene.addEventListener('pointermove',onMove);scene.addEventListener('pointerup',onUp);scene.addEventListener('pointercancel',onUp);scene.addEventListener('click',onDragClick,true);scene.addEventListener('dragstart',onNativeDrag);}
-    api.fit=()=>{api.stop?.();fitView=!fitView;free=false;root.closest('.map-page')?.classList.toggle('map-camera-fit',fitView);root.style.width=fitView?'min(100cqw, 100cqh * 16/9)':'';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed',String(fitView));cam=null;follow();};
-    api.pan=on=>{if(on&&(fitView||overview)){fitView=false;overview=false;root.closest('.map-page')?.classList.remove('map-camera-fit');root.closest('.map-page')?.classList.remove('map-overview');root.style.width='';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed','false');cam=null;free=false;follow();}panning=on;root.closest?.('.map-page')?.classList.toggle('map-pan',on);if(!on&&free){free=false;follow();}};
+    api.fit=()=>{api.stop?.();fitView=!fitView;free=false;root.closest('.map-page')?.classList.toggle('map-camera-fit',fitView);root.style.width=fitView?'min(100cqw, 100cqh * 16/9)':'';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed',String(fitView));cam=null;follow();syncResidentTalk();};
+    api.pan=on=>{if(on&&(fitView||overview)){fitView=false;overview=false;root.closest('.map-page')?.classList.remove('map-camera-fit');root.closest('.map-page')?.classList.remove('map-overview');root.style.width='';root.closest('.map-page')?.querySelector('[data-action="map-fit"]')?.setAttribute('aria-pressed','false');cam=null;free=false;follow();}panning=on;root.closest?.('.map-page')?.classList.toggle('map-pan',on);if(!on&&free){free=false;follow();}syncResidentTalk();};
     // While the camera slides, a marker that would sit under a corner icon or floating button fades out until it is clear.
     let controls=null;
-    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next,.map-camera-tools,.map-walk-help')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
+    const clearControls=()=>{controls??=[...doc.querySelectorAll('.screen-hud>nav,.map-direction,.map-next,.map-camera-tools')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
       const bounds=scene.getBoundingClientRect(),safe=parseFloat(doc.defaultView?.getComputedStyle(root).getPropertyValue('--hud-top'))||76;
       root.querySelectorAll('.map-marker[data-id]').forEach(m=>{m.style.translate='0px 0px';const initial=m.getBoundingClientRect(),[dx,dy]=markerSafeOffset(initial,{left:bounds.left+8,right:bounds.right-8,top:bounds.top+safe+6,bottom:bounds.bottom-8},bounds);m.style.translate=`${dx}px ${dy}px`;const q=m.getBoundingClientRect();m.classList.toggle('under-control',q.width>0&&controls.some(r=>q.left<r.right&&q.right>r.left&&q.top<r.bottom&&q.bottom>r.top));});};
     const onResize=()=>{cam=null;free=false;controls=null;follow();placeMarkers();clearControls();};doc.defaultView?.addEventListener('resize',onResize);
@@ -100,21 +100,22 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     const haru=sprite('haru','haru','하루 탐험가'),mori=sprite('mori','mori-follow',overview?'모리':'모리에게 길 물어보기',!overview);
     const trail=[];
     if(haru){haru.x=start[0];haru.y=start[1];draw(haru);follow();placeMarkers();clearControls();}
-    api.pan(panning);
     if(mori){mori.x=start[0]-40;mori.y=start[1]+6;draw(mori);mori.el.dataset.npc='mori';}
-    // NPCs face the player by their building; tapping one opens a speech bubble.
+    // The artwork stays in the village; only a nearby resident offers a talk label.
+    const residentTalk=[];
+    const syncResidentTalk=()=>{if(haru)for(const {el,name,d} of residentTalk){const near=!overview&&!fitView&&!panning&&Math.hypot(haru.x-d[0],haru.y-d[1])<=190;el.classList.toggle('near-talk',near);el.tabIndex=near?0:-1;el.setAttribute('aria-label',near?name+'에게 말 걸기':name);el.toggleAttribute('aria-hidden',!near);}};
     for(const npc of NPCS){const b=j.buildings[npc.near],d=b?.npc||(b?.door&&[b.door[0]+70,b.door[1]+10]);if(!d)continue;
       const el=doc.createElement('button');el.type='button';el.className='village-resident';el.dataset.npc=npc.id;el.setAttribute('aria-label',npc.name+'에게 말 걸기');
       const img=doc.createElement('img');img.alt='';img.src=BASE+'npc-'+npc.id+'.webp';img.draggable=false;el.append(img);
       const name=doc.createElement('span');name.textContent=npc.name;el.append(name);
       img.style.animationDelay=-(npc.near*.37)+'s';// staggered idle bob so the residents do not breathe in sync
-      Object.assign(el.style,{left:pct(d[0],W),top:pct(d[1],H),zIndex:String(10+Math.round(d[1]))});layer.append(el);
+      Object.assign(el.style,{left:pct(d[0],W),top:pct(d[1],H),zIndex:String(10+Math.round(d[1]))});layer.append(el);residentTalk.push({el,name:npc.name,d});
     }
-    root.addEventListener('click',onTap);
+    api.pan(panning);root.addEventListener('click',onTap);
     function onTap(e){
-      if(overview||paused||isBlocked())return;
+      if(overview||paused||isBlocked()||panning)return;
       const npcEl=e.target.closest?.('[data-npc]');
-      if(npcEl){e.stopPropagation();const npc=NPCS.find(n=>n.id===npcEl.dataset.npc);const text=npc?npcLine(npc,completed):null;onTalk?.(npc||{id:'mori',name:'모리'},text,npcEl);return;}
+      if(npcEl){e.stopPropagation();if(npcEl.classList.contains('village-resident')&&!npcEl.classList.contains('near-talk'))return;api.stop?.();onWalk?.();const npc=NPCS.find(n=>n.id===npcEl.dataset.npc);const text=npc?npcLine(npc,completed):null;onTalk?.(npc||{id:'mori',name:'모리'},text,npcEl);return;}
       if(e.target.closest?.('button,[data-action],.world-top,.world-bottom'))return;
       const r=layer.getBoundingClientRect();if(!r.width)return;
       const p=[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H];
@@ -123,42 +124,44 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       onWalk?.();walkTo(p,null);
     }
     function walkTo(point,arriveId){
-      if(!haru){if(arriveId!=null)onArrive?.(arriveId);return;}
-      api.stop?.();free=false;if(enterButton)enterButton.hidden=true;if(help)help.textContent='문까지 안내하고 있어. 방향키를 누르면 직접 걸을 수 있어.';
+      if(!haru){onWalk?.();onError?.();return;}
+      api.stop?.();free=false;if(help)help.textContent='문까지 안내하고 있어. 방향키를 누르면 직접 걸을 수 있어.';
       const from=nearestNode(graph,[haru.x,haru.y]),to=nearestNode(graph,point),ids=from&&to?villagePath(graph,from,to):[];
+      if(!ids.length){onWalk?.();return;}
       const pts=[...ids.map(id=>graph.nodes[id]),...(arriveId!=null?[point]:[])];
-      if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);follow();if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}if(arriveId!=null)onArrive?.(arriveId);else api.interact?.(35);return;}
+      if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);follow();if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}syncResidentTalk();if(arriveId!=null)onArrive?.(arriveId);else syncWalkUI();return;}
       cancelAnimationFrame(frame);let last=0;away=false;root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;
       const step=t=>{if(!active)return;if(paused||away||isBlocked()){last=0;frame=requestAnimationFrame(step);return;}const dt=Math.min(last?t-last:16,100);last=t;const p=pts[0],dx=p[0]-haru.x,dy=p[1]-haru.y,d=Math.hypot(dx,dy),v=dt*.4;
         if(d<=v){haru.x=p[0];haru.y=p[1];pts.shift();}else{const was=Math.floor(haru.f/3);haru.x+=dx/d*v;haru.y+=dy/d*v;haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=v/14;if(Math.floor(haru.f/3)>was)onStep?.();}
         trail.push([haru.x,haru.y,haru.dir]);if(trail.length>40)trail.shift();
         if(mori&&trail.length>14){const [mx,my,md]=trail[trail.length-14];const mdx=mx-mori.x,mdy=my-mori.y;if(Math.hypot(mdx,mdy)>.5){mori.f+=Math.hypot(mdx,mdy)/14;mori.dir=md;}mori.x=mx;mori.y=my;}
-        draw(haru);draw(mori);follow();
+        draw(haru);draw(mori);follow();syncResidentTalk();
         if(pts.length){frame=requestAnimationFrame(step);return;}
-        haru.f=0;haru.moving=false;haru.dir='down';draw(haru);if(mori){mori.f=0;mori.moving=false;mori.dir='down';draw(mori);}frame=null;root.classList.remove('travelling');if(arriveId!=null)onArrive?.(arriveId);else api.interact?.(35);};
+        haru.f=0;haru.moving=false;haru.dir='down';draw(haru);if(mori){mori.f=0;mori.moving=false;mori.dir='down';draw(mori);}frame=null;root.classList.remove('travelling');if(arriveId!=null)onArrive?.(arriveId);else syncWalkUI();};
       frame=requestAnimationFrame(step);
     }
-    const page=root.closest('.map-page'),help=page.querySelector('#map-walk-help'),enterButton=page.querySelector('[data-action="map-interact"]');
+    const page=root.closest('.map-page'),help=page.querySelector('#map-walk-help');
+    const nextButton=page.querySelector('.map-next > [data-action="map-select"]');
     const nearbyDoor=(radius=60)=>!haru?null:Object.entries(j.buildings).filter(([id,b])=>id!=='core'&&b.door&&Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y)<radius).sort(([,a],[,b])=>Math.hypot(a.door[0]-haru.x,a.door[1]-haru.y)-Math.hypot(b.door[0]-haru.x,b.door[1]-haru.y))[0];
     const syncWalkUI=(blockedDirection=null)=>{
       if(!haru||overview)return;const choices=availableDirections(graph,[haru.x,haru.y]),nearby=nearbyDoor();
       for(const b of page.querySelectorAll('[data-action="map-walk"]'))b.dataset.available=String(choices.includes(b.dataset.id));
-      if(enterButton){enterButton.hidden=!nearby;enterButton.textContent=nearby?(root.querySelector('.map-marker[data-id="'+nearby[0]+'"] b')?.textContent.trim()||'이곳')+' 들어가기':'문 앞 도착 · 들어가기';}
-      if(help){const arrows={up:'↑',down:'↓',left:'←',right:'→'};help.textContent=nearby?'문 앞에 도착했어. 들어가기 버튼이나 Enter를 눌러 봐.':blockedDirection?'이쪽엔 길이 없어. '+choices.map(d=>arrows[d]).join(' ')+' 방향으로 걸어 봐.':'방향키를 꾹 눌러 걸어 봐. 건물을 누르면 문까지 안내해.';}
-      controls=null;clearControls();
+      const nextAtDoor=nearby&&nearby[0]===nextButton?.dataset.id;
+      if(help){const arrows={up:'↑',down:'↓',left:'←',right:'→'};help.textContent=nearby?(nextAtDoor?'문 앞에 도착했어. 오른쪽 아래 버튼이나 Enter를 눌러 봐.':'문 앞에 도착했어. 장소 이름이나 Enter를 눌러 봐.'):blockedDirection?'이쪽엔 길이 없어. '+choices.map(d=>arrows[d]).join(' ')+' 방향으로 걸어 봐.':'방향키를 꾹 눌러 걸어 봐. 건물을 누르면 문까지 안내해.';}
+      controls=null;clearControls();syncResidentTalk();
     };
     api.stop=()=>{cancelAnimationFrame(frame);frame=null;manual=null;pending.length=0;root.classList.remove('travelling');for(const sp of [haru,mori])if(sp){sp.moving=false;sp.f=0;draw(sp);}syncWalkUI();};
-    api.move=id=>{const d=doorOf(String(id));if(d)walkTo(d,id);else onArrive?.(id);};
+    api.move=id=>{const d=doorOf(String(id));if(d)walkTo(d,id);else onWalk?.();};
     api.walk=(direction,options={})=>{
       if(overview||paused||isBlocked()||!haru)return;
       api.stop();onWalk?.();free=false;away=false;manual=createDirectionalWalker(graph,[haru.x,haru.y],direction,options);
-      root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;if(enterButton)enterButton.hidden=true;let last=0,walked=0;
+      root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;let last=0,walked=0;
       const step=t=>{if(!active||!manual)return;if(paused||away||isBlocked()){api.stop();return;}
         const dt=Math.min(last?t-last:16,50);last=t;const moved=manual.step(dt*.26),[x,y]=moved.point,dx=x-haru.x,dy=y-haru.y;
         if(moved.distance){walked+=moved.distance;const was=Math.floor(haru.f/3);haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=moved.distance/14;
           if(Math.floor(haru.f/3)>was)onStep?.();haru.x=x;haru.y=y;trail.push([x,y,haru.dir]);if(trail.length>40)trail.shift();
           if(mori&&trail.length>14){const [mx,my,md]=trail[trail.length-14];mori.f+=Math.hypot(mx-mori.x,my-mori.y)/14;mori.x=mx;mori.y=my;mori.dir=md;}
-          draw(haru);draw(mori);follow();}
+          draw(haru);draw(mori);follow();syncResidentTalk();}
         if(moved.done){api.stop();syncWalkUI(walked===0||moved.distance===0?direction:null);return;}frame=requestAnimationFrame(step);
       };frame=requestAnimationFrame(step);
     };

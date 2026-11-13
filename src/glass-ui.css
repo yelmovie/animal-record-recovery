@@ -44,13 +44,8 @@ dialog:not(:has(.creative-studio,.research-diary,.story-video)){background:#fffd
  #app #main.museum-page{padding-top:76px!important}
  #app .ending-page{overflow-x:hidden;max-width:100%}
 }
-#app #main#main .motion-start-button{inset:auto;left:50%;top:45%;transform:translate(-50%,-50%);width:180px;max-width:70%;height:100px;min-height:0;padding:8px;border-radius:18px;background:#183c2ed9;color:#fffbed;z-index:2}
-#app #main#main .motion-start-button:hover{transform:translate(-50%,-50%)}
 /* A filtered ancestor would trap fixed footer controls inside the paper. */
 #app #main#main.commission-page .commission-layout{backdrop-filter:none;-webkit-backdrop-filter:none}
-#app #main#main .motion-start-button{left:12px;top:12px;transform:none;width:140px;height:70px;max-width:45%;font-size:16px}
-#app #main#main .motion-start-button:hover{transform:none}
-#app #main#main .motion-play-disc{width:30px;height:30px}
 @media(max-height:650px) and (min-width:601px){#app .map-page .village-resident{transform:translate(-50%,-150%)}}
 @media(max-width:600px){
  #app #main#main.mission-page .mission-footer{position:relative;bottom:auto}

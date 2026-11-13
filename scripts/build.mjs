@@ -29,8 +29,9 @@ files.push('src/broadcast.css','src/research-diary.css','src/flashlight.js','src
 files.push('src/glass-ui.css');
 files.push('src/concept-focus.js','src/concept-focus.css','src/concepts.js','src/concept-video.js',...CONCEPTS.flatMap(c=>['webm','mp4','webp'].map(ext=>`assets/concepts/${c.id}.${ext}`)));
 files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.css','src/motion-player.css','assets/scenes/museum-gallery-v2.webp','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
+files.push(...['opening','rabbit','marine','duck','butterfly','camel','penguin','closing'].map(id=>`assets/audio/broadcast/${id}.mp3`));
 const dialogueResidents=['researcher','curator','ranger','detective','engineer'];
-files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after'].map(part=>`assets/audio/npc-dialogue/${id}-${part}-expanded.mp3`)));
+files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after','after-expanded','before-expanded'].map(part=>`assets/audio/npc-dialogue/${id}-${part}.mp3`)));
 // Ship and preload the entry's static dependencies, including any new modules.
 // Dynamic imports (3D) stay lazy and are listed with the other runtime assets.
 const preload=new Set();

@@ -71,6 +71,10 @@ export const OBSERVATIONS={
 // Animals the 3D scanner has models for; the rest are observed through the photo lens.
 export const SCAN_3D=['frog','crab','duck','rabbit','bat','sparrow','spider','ant'];
 export const OBSERVE_PAIRS=[['frog','crab'],['duck','rabbit'],['bat','sparrow'],['spider','ant']];
+// One required observation per animal. Other parts remain available for free exploration.
+export const OBSERVE_REQUIRED={frog:'frog-skin',crab:'crab-shell',duck:'duck-wing',rabbit:'rabbit-fur',bat:'bat-wing',sparrow:'sparrow-wing',spider:'spider-leg',ant:'ant-leg'};
+export const nextObservation=(s,round)=>OBSERVE_PAIRS[round].find(id=>!s.observed.includes(OBSERVE_REQUIRED[id]));
+export const forestAnswerCount=s=>Object.values(OBSERVE_REQUIRED).filter(id=>s.observed.includes(id)).length+COMPARES.reduce((total,questions,round)=>total+questions.filter(q=>s.compares[round][q.key]===`${q.key}-${q.answer}`).length,0);
 // The third item of a wrong option is the observed fact that disproves it.
 // Round 2 keeps keys fur/cover for saved records; the labels use wings/bill, which children tell apart more easily than feathers vs fur.
 export const COMPARES=[
@@ -141,7 +145,7 @@ export const proves=(c,ids)=>new Set(ids).size>=2&&ids.every(id=>clueOf(c,id))&&
 // Each alternative must be ruled out with an observed clue, not just an animal guess.
 export function exclusionsReady(c,a){return c.candidates.filter(id=>id!==a.candidate).every(id=>{const clue=clueOf(c,a.excluded?.[id]);return clue&&a.opened.includes(clue.id)&&clue.fits.includes(a.candidate)&&!clue.fits.includes(id);});}
 const normalizeExclusions=(c,x,opened)=>Object.fromEntries(c.candidates.flatMap(id=>opened.includes(x?.[id])?[[id,x[id]]]:[]));
-const groundsReady=(c,a)=>a.candidate===c.animal&&a.grounds.every(id=>a.opened.includes(id))&&proves(c,a.grounds);
+const groundsReady=(c,a)=>a.candidate===c.animal&&proves(c,a.opened);
 export const FEATURES=[['shell','거북의 단단한 등딱지'],['web','오리의 물갈퀴'],['fur','북극곰의 촘촘한 털']];
 export const STRUCTURES=[['dome','머리를 감싸는 단단한 덮개'],['wide','물을 미는 넓고 납작한 면'],['layer','공기를 머금는 여러 겹']];
 // Screen 09: a plain product and three places a part can go. [id, label, what the test shows with the part there].
@@ -159,7 +163,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',excluded:{},habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
+export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -175,6 +179,7 @@ function normalizeDesign(raw){
   if(Array.isArray(d.strokes))out.strokes=d.strokes.slice(0,30).filter(Array.isArray).map(line=>line.slice(0,250).filter(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)).map(([x,y])=>[Math.max(0,Math.min(320,x)),Math.max(0,Math.min(260,y))]));
   // Validate each saved trial from its choices; never trust a stored passed flag.
   out.trials=Array.isArray(d.trials)?d.trials.slice(-30).filter(t=>t&&typeof t==='object'&&Object.hasOwn(PROBLEMS,t.problem)).map(t=>{const choices={problem:t.problem,feature:safeChoice(t.feature,FEATURES.map(x=>x[0])),structure:safeChoice(t.structure,STRUCTURES.map(x=>x[0])),spot:placed(t,t.problem)};return {...choices,passed:testDesign(choices).passed};}):[];
+  if(out.feature)out.experiment.sourceSeen=true;
   out.trials=out.trials.filter(t=>t.problem===out.problem);
   out.experiment.trials=out.experiment.trials.filter(t=>t.problem===out.problem);
   return out;
@@ -198,7 +203,7 @@ export function restoreExpedition(raw,{strict=false}={}){
     if(input.version===1)return migrateLegacy(raw);
     if(![3,VERSION].includes(input.version))return base;
     const out=base;out.mapVillains=normalizeMapVillains(input.mapVillains);out.inquiry=normalizeInquiry(input.inquiry);
-    for(const key of ['soundEnabled','introSeen'])if(typeof input[key]==='boolean')out[key]=input[key];
+    for(const key of ['soundEnabled','introSeen','showAutoRun'])if(typeof input[key]==='boolean')out[key]=input[key];
     // soundEnabled is the effects switch; saves from before the split keep music in step with it.
     out.musicOn=typeof input.musicOn==='boolean'?input.musicOn:out.soundEnabled;
     if(Number.isFinite(input.musicVolume)&&input.musicVolume>=0&&input.musicVolume<=1)out.musicVolume=input.musicVolume;
@@ -274,17 +279,19 @@ export const countStage=(s,id)=>STAGES[id-1].tasks.filter((_,n)=>s.activities.in
 export function taskReady(s,stage,step){
   if(!Number.isInteger(stage)||stage<1||stage>5||!Number.isInteger(step)||step<0||step>=STAGES[stage-1].tasks.length)return false;
   const round=Math.floor(step/2);
-  if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>OBSERVATIONS[id].every(o=>s.observed.includes(o.id))):COMPARES[round].every(q=>s.compares[round][q.key]===`${q.key}-${q.answer}`);
+  if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>s.observed.includes(OBSERVE_REQUIRED[id])):COMPARES[round].every(q=>s.compares[round][q.key]===`${q.key}-${q.answer}`);
   if(stage===2){const key=round?s.criteria[1]:'wings',v=s.inquiry.verify[round];if(round&&!OWN_CRITERIA.includes(key))return false;if(step%2===0)return SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no'));return round?v.checked===key&&s.inquiry.reclass[1].revealed:v.ran&&v.cause==='opinion'&&OBSERVABLE.includes(v.fix)&&splitsAnimals(v.fix)&&v.checked===v.fix;}
   if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
-  if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(s.activities.includes(`4-${round*2}`)||exclusionsReady(c,a))&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
+  if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
   if(stage===5&&step>=2&&s.studio)return step===2?studioDrawingReady(s.studio):studioReady(s.studio);
-  if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot&&d.experiment.sourceSeen);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&testDesign(t).passed)&&d.explanation==='match';}
+  if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&testDesign(t).passed)&&d.explanation==='match';}
   return false;
 }
 export function claimTask(s,stage,step){
   if(!isStageOpen(s,stage)||!Number.isInteger(step)||step<0||step>=STAGES[stage-1].tasks.length||!Array.from({length:step},(_,n)=>`${stage}-${n}`).every(id=>s.activities.includes(id))||!taskReady(s,stage,step))return {ok:false};
   const key=`${stage}-${step}`,fresh=!s.activities.includes(key);if(fresh)s.activities.push(key);
+  if(stage===4)s.cases[Math.floor(step/2)].grounds=[...s.cases[Math.floor(step/2)].opened];
+  if(stage===5&&step===0)s.designs[0].experiment.sourceSeen=true;
   if(stage===4&&step%2===1)s.records.cases[Math.floor(step/2)]=JSON.parse(JSON.stringify(s.cases[Math.floor(step/2)]));
   if(stage===5&&step===3&&s.studio)s.studioRecord=normalizeStudio(s.studio);
   if(stage===5&&step%2===1&&!(step===3&&s.studio)){const i=Math.floor(step/2),d=normalizeDesign(s.designs[i]);s.designArchive??=[{},{}];s.designDrafts??=[{},{}];s.designArchive[i][d.problem]??=JSON.parse(JSON.stringify(d));s.designDrafts[i][d.problem]=JSON.parse(JSON.stringify(d));s.records.designs[i]??=JSON.parse(JSON.stringify(d));}
@@ -295,7 +302,7 @@ export function claimTask(s,stage,step){
 export function recordTrial(s,round){const d=s.designs[round];if(!d)return null;const result=testDesign(d);d.trials.push({problem:d.problem,feature:d.feature,structure:d.structure,spot:d.spot,passed:result.passed});if(d.trials.length>30)d.trials.shift();return result;}
 export function taskHint(stage,step){
   if(stage===5&&step>=2)return step===2?'동물에게 얻은 아이디어를 빈 도화지에 그려 봐. 마음껏 상상하고 네 발명품에 이름을 붙여 줘.':'누구를 돕는 발명인지, 어떻게 쓰는지, 어떤 동물에게 아이디어를 얻었는지 소개해 줘.';
-  if(stage===1)return step%2===0?'몸의 부분을 살펴보고 특징 기록을 눌러 줘. 동물마다 세 곳이야.':'직접 본 눈·다리·몸을 떠올려 같은 점과 다른 점을 다시 골라 봐.';
+  if(stage===1)return step%2===0?'동물마다 핵심 특징 하나를 살펴보고 맞는 설명을 골라 줘.':'직접 본 눈·다리·몸을 떠올려 같은 점과 다른 점을 다시 골라 봐.';
   if(stage===2)return step===2?'몸에서 누구나 확인할 수 있는 기준을 골라, 동물을 나눠 봐.':step%2===0?'지금의 기준을 한 번 더 읽고 동물의 몸을 살펴봐.':'예상을 고른 뒤 분류 바꾸기를 눌러 결과를 확인해 봐.';
   if(stage===3)return step%2===0?'세 장소에서 동물을 찾고, ‘찾을 장면’에 적힌 순간에 멈춰 기록해 줘.':'사는 곳 → 몸의 특징 → 움직이는 방법을 이어 봐.';
   if(stage===4)return step%2===0?'두 단서를 열어 기록한 뒤 알맞은 동물을 골라 줘.':'어느 곳에서, 어떤 몸의 부분으로 움직이는지 사진과 수첩을 다시 봐.';
@@ -306,10 +313,10 @@ export function taskHint(stage,step){
 export function taskMistake(s,stage,step){
   if(stage===5&&step>=2&&s.studio)return taskReady(s,stage,step)?null:{text:studioHint(s.studio,step),wrong:[]};
   const round=Math.floor(step/2),names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');
-  if(stage===1&&step%2===0){const id=OBSERVE_PAIRS[round].find(id=>OBSERVATIONS[id].some(o=>!s.observed.includes(o.id)));if(!id)return null;const missing=OBSERVATIONS[id].filter(o=>!s.observed.includes(o.id)).map(o=>o.label);return {text:`${ANIMALS[id].name}: ${withParticle(missing.join('·'))} 더 살펴봐. 오른쪽에서 맞는 설명을 골라 기록해 줘.`,wrong:[]};}
+  if(stage===1&&step%2===0){const id=nextObservation(s,round);if(!id)return null;const o=OBSERVATIONS[id].find(o=>o.id===OBSERVE_REQUIRED[id]);return {text:`${ANIMALS[id].name}의 ${withParticle(o.label)} 살펴보고 맞는 설명 하나를 골라 줘.`,wrong:[]};}
   if(stage===1){const out=[],slot=k=>k==='common'?'같은 점':'다른 점';for(const q of COMPARES[round]){const pick=s.compares[round][q.key];if(pick===`${q.key}-${q.answer}`)continue;const card=compareCards(round).find(c=>c.ref===pick);
     // A true statement in the other slot is about the slot; a false one gets the fact that disproves it.
-    out.push({key:'compare:'+q.key,text:!card?`‘${slot(q.key)}’ 칸이 비어 있어.`:card.why?`‘${card.label}’ 카드를 다시 봐. ${card.why}`:`${withParticle(`‘${card.label}’`,'은/는')} ${slot(q.key)}이 아니라 ${slot(card.key)}이야.`});}return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
+    out.push({key:'compare:'+q.key,text:!card?`‘${slot(q.key)}’ 설명을 하나 골라 줘.`:card.why?`‘${card.label}’ 설명을 다시 봐. ${card.why}`:`${withParticle(`‘${card.label}’`,'은/는')} ${slot(q.key)}이 아니라 ${slot(card.key)}이야.`});}return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
   if(stage===2&&round&&!OWN_CRITERIA.includes(s.criteria[1]))return {text:s.criteria[1]?`‘${CRITERIA[s.criteria[1]]}’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.`:'먼저 나눌 기준을 하나 골라 줘.',wrong:[]};
   if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));const aha=key==='wings'?bad.map(id=>ANIMALS[id].aha).find(Boolean):'';return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.${aha?' '+aha:''}`,wrong:bad.map(id=>'sort:'+id)}:null;}
   if(stage===2){const v=s.inquiry.verify[round];
@@ -328,14 +335,13 @@ export function taskMistake(s,stage,step){
       const left=CLUE_ENERGY-a.opened.length,open=fitting(c,a.opened);
       if(!a.candidate)return {text:'열어 본 단서와 맞는 동물을 골라 줘.',wrong:[]};
       if(a.candidate!==c.animal){const k=a.opened.map(id=>clueOf(c,id)).find(x=>!x.fits.includes(a.candidate));return {text:k?`${withParticle(ANIMALS[a.candidate].name,'은/는')} ‘${k.kind}: ${k.text}’ 단서와 맞지 않아.`:`지금 단서로는 ${names(open)} 중 누구인지 알 수 없어. ${left?'다른 단서를 더 조사해 봐.':'‘다시 조사’로 다른 단서를 골라 봐.'}`,wrong:['case:candidate']};}
-      if(a.grounds.length<2)return {text:'왜 그 동물인지 판단 근거 단서를 두 개 이상 골라 줘.',wrong:['case:grounds']};
-      if(!proves(c,a.grounds)){const also=fitting(c,a.grounds).filter(id=>id!==c.animal);return {text:open.length>1&&!left?`연 단서만으로는 ${withParticle(names(open))} 구별할 수 없어. ‘다시 조사’로 다른 종류의 단서를 골라 봐.`:`고른 근거는 ${names(also)}에게도 맞아. 다른 동물과 구별되는 단서를 근거로 골라 봐.`,wrong:['case:grounds']};}
-      if(!s.activities.includes(`4-${round*2}`)&&!exclusionsReady(c,a)){const rival=c.candidates.find(id=>id!==a.candidate&&(!a.opened.includes(a.excluded?.[id])||clueOf(c,a.excluded?.[id])?.fits.includes(id)));const clue=clueOf(c,a.excluded?.[rival]);return {text:clue?`‘${clue.kind}’ 단서는 ${ANIMALS[rival].name}에게도 맞아. 이 후보와 맞지 않는 다른 특징을 찾아 봐.`:'다른 후보와 비교해 봐. 각 후보에게 맞지 않는 단서를 발견 수첩에서 골라 줘.',wrong:['case:comparison']};}
+      if(a.opened.length<2)return {text:'서로 다른 단서를 두 개 이상 찾아 봐.',wrong:['case:clues']};
+      if(!proves(c,a.opened))return {text:`지금 단서는 ${names(open)}에게도 맞아. 다른 특징을 하나 더 찾아 봐.`,wrong:['case:clues']};
       if(step%2===0)return null;}
     const out=[];if(a.habitat!==c.habitat)out.push({key:'case:habitat',text:a.habitat?'‘만난 곳’을 다시 봐. 사진 속 풍경에 무엇이 있는지 살펴봐.':'‘만난 곳’을 아직 고르지 않았어.'});if(a.reason!==c.reason)out.push({key:'case:reason',text:a.reason?`‘어떻게 움직일까’를 다시 봐. ${c.reasonTip}`:'‘어떻게 움직일까’를 아직 고르지 않았어.'});return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
   // Results summary: name the one piece still missing (tests, what was learned, the note, or why the feature was borrowed).
   if(stage===5&&step%2===1){const d=s.designs[round],e=d.experiment,levels=new Set(e.trials.filter(t=>t.problem===d.problem).map(t=>t.level)),gap=[[levels.size<2,'lab:trials','서로 다른 모양 두 가지를 시험해 줘. 지금 고른 모양도 시험해 봐.'],[!e.reflection,'lab:reflection','‘어떤 점을 알게 됐어?’에서 하나를 골라 줘.'],[!e.note.trim(),'lab:note','바꾼 부분과 알게 된 점을 한 줄 적어 줘.'],[d.explanation!=='match','lab:explain',d.explanation?'색깔만 같다고 기능이 같지는 않아. 특징이 하는 일을 까닭으로 골라 봐.':'‘내 발명에 이 특징을 쓴 이유는?’에서 까닭을 골라 줘.']].find(g=>g[0]);if(gap)return {text:gap[2],wrong:[gap[1]]};}
-  if(stage===5&&step%2===0){const d=s.designs[round],base=PRODUCTS[d.problem]?.base||'물건',gap=[[!Object.hasOwn(PROBLEMS,d.problem),'design:problem','① 해결할 문제를 먼저 골라 줘.'],[!d.feature,'design:feature','② 빌릴 동물의 특징을 하나 골라 줘.'],[!d.experiment.sourceSeen,'design:source','② 동물 그림 옆의 ‘특징 기록’ 버튼을 눌러 관찰한 것을 기록해 줘.'],[!d.structure||!d.spot,'design:part',`③ 부품 하나를 ${base}의 자리에 붙여 줘. 부품을 누르고 자리 이름을 눌러도 돼.`],[!d.name.trim(),'design:name','발명품 이름을 적어 줘.']].find(g=>g[0]);return gap?{text:gap[2],wrong:[gap[1]]}:null;}
+  if(stage===5&&step%2===0){const d=s.designs[round],base=PRODUCTS[d.problem]?.base||'물건',gap=[[!Object.hasOwn(PROBLEMS,d.problem),'design:problem','① 해결할 문제를 먼저 골라 줘.'],[!d.feature,'design:feature','② 빌릴 동물의 특징을 하나 골라 줘.'],[!d.structure||!d.spot,'design:part',`③ 부품 하나를 ${base}의 자리에 붙여 줘. 부품을 누르고 자리 이름을 눌러도 돼.`],[!d.name.trim(),'design:name','발명품 이름을 적어 줘.']].find(g=>g[0]);return gap?{text:gap[2],wrong:[gap[1]]}:null;}
   return null;
 }
 export function availableTools(s){return STAGES.filter(t=>restoredPlaces(s).includes(t.id));}

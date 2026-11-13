@@ -17,32 +17,32 @@ export const STORIES={
   ]}
 };
 export function storyCue(kind,time){return STORIES[kind]?.cues.find(([start,end])=>time>=start&&time<end)||null;}
-export function storyView(s,v){const kind=v.screen==='outro'?'outro':'intro',story=STORIES[kind];return `<main id="main" tabindex="-1" class="story-screen" data-story="${kind}" aria-label="${story.title}"><video class="story-video" autoplay muted playsinline preload="auto" poster="./assets/story/${story.poster}.webp" aria-label="${story.title}"><source src="./assets/videos/story/${story.video}.mp4" type="video/mp4"></video><div class="story-top"><span>${story.title}</span>${btn('건너뛰기 '+icon('arrow'),'story-skip','story-skip')}</div><div class="story-caption" aria-live="off"><b></b><span></span></div><p class="story-status" role="status"></p><footer class="story-controls">${btn('일시정지','story-toggle','story-control','aria-label="영상 일시정지"')}<progress class="story-progress" max="${story.duration}" value="0" aria-label="영상 재생 진행"></progress><span class="story-time">0:00 / 0:24</span>${btn('전체화면','story-fullscreen','story-control')}</footer></main>`;}
+export function storyView(s,v){const kind=v.screen==='outro'?'outro':'intro',story=STORIES[kind];return `<main id="main" tabindex="-1" class="story-screen" data-story="${kind}" aria-label="${story.title}"><video class="story-video" muted playsinline preload="metadata" poster="./assets/story/${story.poster}.webp" aria-label="${story.title}"><source src="./assets/videos/story/${story.video}.mp4" type="video/mp4"></video>${btn(icon('play'),'story-toggle','story-start-button video-play-overlay','aria-label="이야기 영상 재생"')}<div class="story-top"><span>${story.title}</span>${btn('건너뛰기 '+icon('arrow'),'story-skip','story-skip')}</div><div class="story-caption" aria-live="off"><b></b><span></span></div><p class="story-status" role="status"></p><footer class="story-controls">${btn('재생','story-toggle','story-control','aria-label="영상 재생"')}<progress class="story-progress" max="${story.duration}" value="0" aria-label="영상 재생 진행"></progress><span class="story-time">0:00 / 0:24</span>${btn('전체화면','story-fullscreen','story-control')}</footer></main>`;}
 
 // One native media clock drives captions and completion. Disposing cancels all old callbacks.
 // volume: the outro carries the finale music in its own audio track (0 keeps it muted).
 export function createStoryPlayer(host,{onEnd,volume=0}={}){
   const video=host.querySelector('video'),kind=host.dataset.story,story=STORIES[kind];
-  const caption=host.querySelector('.story-caption'),speaker=caption.querySelector('b'),line=caption.querySelector('span'),progress=host.querySelector('progress'),time=host.querySelector('.story-time'),toggle=host.querySelector('[data-action="story-toggle"]'),status=host.querySelector('.story-status');
-  let disposed=false,lastCue=null;const listeners=[];
+  const caption=host.querySelector('.story-caption'),speaker=caption.querySelector('b'),line=caption.querySelector('span'),progress=host.querySelector('progress'),time=host.querySelector('.story-time'),toggle=host.querySelector('.story-control[data-action="story-toggle"]'),overlay=host.querySelector('.story-start-button'),status=host.querySelector('.story-status');
+  let disposed=false,failed=false,lastCue=null;const listeners=[];
   if(volume>0){video.muted=false;video.volume=Math.min(1,volume);}
   const listen=(name,fn)=>{video.addEventListener(name,fn);listeners.push([name,fn]);};
   const format=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
-  function sync(){if(disposed)return;const at=video.currentTime||0,cue=storyCue(kind,at),duration=Number.isFinite(video.duration)?video.duration:story.duration;progress.max=duration;progress.value=at;time.textContent=`${format(at)} / ${format(duration)}`;if(cue!==lastCue){speaker.textContent=cue?.[2]||'';line.textContent=cue?.[3]||'';caption.hidden=!cue;lastCue=cue;}toggle.textContent=video.paused?'재생':'일시정지';toggle.setAttribute('aria-label',video.paused?'영상 재생':'영상 일시정지');}
-  function play(fromButton=false){
-    if(disposed)return;
-    if(fromButton&&volume>0)video.muted=false;
+  function sync(){if(disposed)return;const at=video.currentTime||0,cue=storyCue(kind,at),duration=Number.isFinite(video.duration)?video.duration:story.duration;progress.max=duration;progress.value=at;time.textContent=`${format(at)} / ${format(duration)}`;if(cue!==lastCue){speaker.textContent=cue?.[2]||'';line.textContent=cue?.[3]||'';lastCue=cue;}caption.hidden=!cue||video.paused&&at===0;if(overlay)overlay.hidden=failed||!video.paused;toggle.textContent=video.paused?'재생':'일시정지';toggle.setAttribute('aria-label',video.paused?'영상 재생':'영상 일시정지');}
+  function play(allowSound=true){
+    if(disposed||failed)return;
+    if(allowSound&&volume>0)video.muted=false;
     video.play()?.catch(()=>{
       if(disposed)return;
-      if(!fromButton&&!video.muted){video.muted=true;play();return;}
+      if(!video.muted){video.muted=true;play(false);return;}
       status.textContent='재생을 눌러 마을로 들어가 봐.';sync();
     });
   }
   for(const name of ['timeupdate','loadedmetadata','play','pause','seeked'])listen(name,sync);
   listen('waiting',()=>{if(!disposed)status.textContent='마을 영상을 불러오는 중이야. 건너뛰기로 바로 이어 갈 수도 있어.';});
   listen('playing',()=>{status.textContent='';});
-  listen('error',()=>{status.textContent='영상을 불러오지 못했어. 건너뛰기를 누르면 바로 이어 갈 수 있어.';sync();});
+  listen('error',()=>{failed=true;status.textContent='영상을 불러오지 못했어. 건너뛰기를 누르면 바로 이어 갈 수 있어.';sync();});
   listen('ended',()=>{if(!disposed)onEnd?.();});
-  sync();play();
-  return {toggle(){if(video.paused)play(true);else video.pause();},pause(){video.pause();},destroy(){disposed=true;for(const [name,fn]of listeners)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));video.load();}};
+  sync();
+  return {toggle(){if(video.paused)play();else video.pause();},pause(){video.pause();},destroy(){disposed=true;for(const [name,fn]of listeners)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));video.load();}};
 }

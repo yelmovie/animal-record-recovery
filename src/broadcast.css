@@ -124,3 +124,18 @@
   #app #main.broadcast-request-page .broadcast-subject > p, #app #main.broadcast-request-page .broadcast-subject-progress { grid-column: 2; margin: 0; padding: 0; border: 0; }
   #app #main.broadcast-request-page .client-card .commission-tabs { justify-content: start; }
 }
+
+.broadcast-audio { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-block: 8px; }
+.broadcast-audio > button { min-height: 44px; flex: none; }
+.broadcast-audio-status { flex: 1 1 150px; font-size: 16px; line-height: 1.4; color: #3e5947; }
+
+.museum-broadcast .broadcast-audio-status { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* The resident sprite has closed/open mouth frames, driven by the playing voice. */
+.broadcast-scene-dialog .npc-scene-portrait{width:min(55dvh,66vw,470px);margin-left:calc(50% - min(27.5dvh,33vw,235px))}
+dialog#dialog.broadcast-scene-dialog[data-speaking] .npc-scene-portrait{animation:none;background-position-x:0%}
+dialog#dialog.broadcast-scene-dialog[data-mouth="open"] .npc-scene-portrait{background-position-x:100%}
+.broadcast-scene-dialog .npc-scene-line{max-height:25dvh;overflow:auto;min-height:2.9em}
+.broadcast-scene-dialog .npc-scene-actions{justify-content:space-between}
+.broadcast-scene-status::before{content:'●';display:inline-block;color:#b5532b;margin-right:8px}
+@media(max-height:600px){.broadcast-scene-dialog .npc-scene-portrait{width:42dvh;margin-left:calc(50% - 21dvh)}}

@@ -6,7 +6,7 @@ import {GLTFLoader} from './vendor/three/GLTFLoader.js';
 
 // size: longest side after fitting; yaw turns the model to face +x like the procedural ones
 // The replacement butterfly already has a volumetric, upright body; no legacy roll is needed.
-export const GLB={frog:{size:2.8,yaw:Math.PI/2-.15,revision:'20261018'},crab:{size:3.6,yaw:Math.PI/2,revision:'20261018'},duck:{size:2.8,yaw:Math.PI/2,revision:'20261018'},rabbit:{size:2.8,yaw:Math.PI/2,revision:'20261112-surface'},camel:{size:3,yaw:Math.PI/2,revision:'20261018'},penguin:{size:2.2,yaw:Math.PI/2,revision:'20261018'},butterfly:{size:2.6,yaw:Math.PI/2,revision:'20261018-butterfly'},marine:{size:2.4,yaw:Math.PI/2,revision:'20261018'},
+export const GLB={frog:{size:2.8,yaw:Math.PI/2-.15,revision:'20261018'},crab:{size:3.6,yaw:Math.PI/2,revision:'20261018'},duck:{size:2.8,yaw:Math.PI/2,revision:'20261018'},rabbit:{size:2.8,yaw:Math.PI/2,revision:'20261112-surface'},camel:{size:3,yaw:Math.PI/2,revision:'20261018'},penguin:{size:2.2,yaw:Math.PI/2,revision:'20261113-soft'},butterfly:{size:2.6,yaw:Math.PI/2,revision:'20261018-butterfly'},marine:{size:2.4,yaw:Math.PI/2,revision:'20261018'},
   bat:{size:3.6,yaw:0,revision:'20261112-rear-texture'},
   sparrow:{size:3.2,yaw:Math.PI/2,revision:'20261112-surface'},
   spider:{size:3.2,yaw:Math.PI/2,revision:'20261112'},
@@ -31,6 +31,46 @@ export function applyCrabColour(material){
   material.customProgramCacheKey=()=> 'crab-earth-v1';
   material.needsUpdate=true;
 }
+// Keep the ant texture's shading and fine detail while replacing its red base colour.
+function applyAntColour(material){
+  if(material.userData.antColour)return;
+  material.userData.antColour=true;
+  material.onBeforeCompile=shader=>{
+    shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
+      float antLuma = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+      diffuseColor.rgb = antLuma * vec3(0.40, 0.37, 0.34);
+    `);
+  };
+  material.customProgramCacheKey=()=> 'ant-charcoal';
+  material.needsUpdate=true;
+}
+export function softenPenguin(mesh){
+  const geometry=mesh.geometry,position=geometry?.attributes.position;
+  if(!position)return;
+  geometry.computeVertexNormals();
+  const normals=geometry.attributes.normal,shared=new Map(),keys=[];
+  for(let i=0;i<position.count;i++){
+    const key=[position.getX(i),position.getY(i),position.getZ(i)].map(n=>Math.round(n*1e7)).join(',');
+    keys.push(key);
+    const sum=shared.get(key)||new T.Vector3();
+    sum.x+=normals.getX(i);sum.y+=normals.getY(i);sum.z+=normals.getZ(i);
+    shared.set(key,sum);
+  }
+  for(const normal of shared.values())normal.normalize();
+  for(let i=0;i<position.count;i++){
+    const normal=shared.get(keys[i]);normals.setXYZ(i,normal.x,normal.y,normal.z);
+  }
+  normals.needsUpdate=true;
+  for(const material of [].concat(mesh.material||[])){
+    material.flatShading=false;
+    if(material.map){material.map.minFilter=T.LinearFilter;material.map.generateMipmaps=false;material.map.needsUpdate=true;}
+    material.normalScale?.set(.12,.12);
+    material.roughnessMap=null;
+    material.roughness=.95;
+    material.metalness=0;
+    material.needsUpdate=true;
+  }
+}
 const cache=new Map();
 // scan: 40k triangles, 1024px textures for the close-up scanner; dome: the light copy (~15k, 512px) for animals seen small inside the eco dome.
 // Both come from the full models by scripts/prepare-dome-models.py; the full ones stay in the repo only.
@@ -42,7 +82,7 @@ export function loadAnimal(id,{dome=false}={}){
     const root=g.scene,box=new T.Box3(),fit=GLB[id];root.rotation.set(0,fit.yaw,fit.roll||0);root.updateMatrixWorld(true);box.setFromObject(root);
     const size=box.getSize(new T.Vector3()),c=box.getCenter(new T.Vector3()),k=fit.size/Math.max(size.x,size.y,size.z);
     root.scale.setScalar(k);root.position.set(-c.x*k,-box.min.y*k,-c.z*k);
-    root.traverse(m=>{m.userData.shared=true;for(const material of [].concat(m.material||[])){if(!fit.revision)material.roughness=.7;material.metalness=0;if(id==='crab')applyCrabColour(material);}});
+    root.traverse(m=>{m.userData.shared=true;if(id==='penguin')softenPenguin(m);for(const material of [].concat(m.material||[])){if(!fit.revision)material.roughness=.7;material.metalness=0;if(id==='crab')applyCrabColour(material);else if(id==='ant')applyAntColour(material);}});
     const wrap=new T.Group();wrap.add(root);return wrap;
   }).catch(error=>{cache.delete(key);throw error;}));// a failed early fetch must not poison the real load
   return cache.get(key).then(w=>w.clone());

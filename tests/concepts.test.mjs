@@ -1,11 +1,9 @@
 import {test,mock} from 'node:test';
 import assert from 'node:assert/strict';
 import {CONCEPTS,MOTION_REPLAYS,LAB_CONCEPT,replayItem,replayUnlocked,activityUnlocked,captionAt} from '../src/concepts.js';
-import {conceptView,replayList,createConceptPlayer} from '../src/concept-video.js';
+import {conceptView,createConceptPlayer} from '../src/concept-video.js';
 import {freshExpedition} from '../src/expedition.js';
 import {ensureCampaign} from '../src/campaign.js';
-import {settingsContent} from '../src/shell-views.js';
-import {SETTINGS_TEXT} from '../src/settings-content.js';
 
 const ids=CONCEPTS.map(c=>c.id);
 const lab=(problem,levels)=>({problem,experiment:{sourceSeen:true,level:levels.at(-1),prediction:'more',reflection:'',note:'',peer:'',trials:levels.map(level=>({problem,level,prediction:'more'}))}});
@@ -65,23 +63,12 @@ test('sort, habitat and motion clips follow their activities',()=>{
  assert.equal(replayUnlocked(t,'camel'),true);assert.equal(replayUnlocked(t,'frog'),false);
 });
 
-test('settings list sits with the replays, fetches no video and says how to open locked clips',()=>{
- const s=freshExpedition();s.inquiry.motion.frog=1;const h=settingsContent(s),list=replayList(s);
- const at=t=>{const i=h.indexOf(t);assert.ok(i>=0,t);return i;};
- assert.ok(at(SETTINGS_TEXT.replayIntro)<at(SETTINGS_TEXT.replayVideos));assert.ok(at(SETTINGS_TEXT.replayVideos)<at('앱 정보 · 배움과 보상'));
- assert.doesNotMatch(list,/<source|preload="(auto|metadata)"/);
- assert.match(list,/data-id="frog"[^>]*>(?:(?!<\/button>).)*preload="none"/s);
- assert.match(list,/data-id="warm-fur" data-value="settings" aria-disabled="true" data-why="5장/);
- assert.equal((list.match(/aria-disabled="true"/g)||[]).length,12);
- assert.match(settingsContent(s,{replaysOpen:true}),/class="settings-card concept-replays" open/);
-});
-
-test('player view offers webm before mp4, a poster, DOM caption and a way back to the list',()=>{
- const h=conceptView('warm-fur','settings');
+test('player view offers webm before mp4, a poster, DOM caption and a way to close',()=>{
+ const h=conceptView('warm-fur');
  assert.ok(h.indexOf('warm-fur.webm')<h.indexOf('warm-fur.mp4'));
  assert.match(h,/<video class="concept-video" muted playsinline preload="metadata" poster="[^"]+warm-fur\.webp"/);
  assert.match(h,/class="concept-caption" role="status" aria-live="polite">몸에서는/);
- assert.match(h,/data-action="concept-back"/);assert.doesNotMatch(conceptView('frog'),/concept-end/);
+ assert.match(h,/data-action="close-dialog"/);assert.doesNotMatch(conceptView('frog'),/concept-end/);
  assert.equal(conceptView('nope'),'');assert.equal(replayItem('frog').kind,'motion');
 });
 
@@ -89,28 +76,26 @@ function fakePlayer({reject=false,reduced=false}={}){
  const on=()=>{const map={};return {map,addEventListener(n,f){(map[n]??=[]).push(f);},removeEventListener(n,f){map[n]=(map[n]||[]).filter(x=>x!==f);},fire(n){(map[n]||[]).forEach(f=>f());}};};
  const el=()=>({hidden:false,textContent:'',focus(){this.focused=true;},...on()});
  const sources=[{...on(),removed:false,removeAttribute(){this.removed=true;}},{...on(),removed:false,removeAttribute(){this.removed=true;}}];
- const video={...on(),readyState:0,currentTime:0,ended:false,muted:false,hidden:false,calls:[],play(){this.calls.push('play');return reject?Promise.reject(new Error('blocked')):Promise.resolve();},pause(){this.calls.push('pause');},load(){this.calls.push('load');},removeAttribute(a){this.calls.push('remove:'+a);},querySelectorAll:()=>sources};
- const parts={'.concept-video':video,'.concept-caption':el(),'.concept-cues':{...el(),hidden:true},'.concept-status':{...el(),hidden:true},'.concept-end':{...el(),hidden:true,remove(){}},'[data-action="concept-play"]':{...el(),hidden:true},'[data-action="concept-replay"]':{...el(),hidden:true}};
+ const video={...on(),readyState:0,currentTime:0,ended:false,muted:false,hidden:false,calls:[],play(){this.calls.push('play');if(reject)return Promise.reject(new Error('blocked'));this.fire('play');return Promise.resolve();},pause(){this.calls.push('pause');},load(){this.calls.push('load');},removeAttribute(a){this.calls.push('remove:'+a);},querySelectorAll:()=>sources};
+ const parts={'.concept-video':video,'.concept-caption':el(),'.concept-cues':{...el(),hidden:true},'.concept-status':{...el(),hidden:true},'.concept-end':{...el(),hidden:true,remove(){}},'[data-action="concept-play"]':el(),'[data-action="concept-replay"]':{...el(),hidden:true}};
  globalThis.matchMedia=()=>({matches:reduced});
  const playing=[];const player=createConceptPlayer({dataset:{concept:'warm-fur'},querySelector:q=>parts[q]},{onPlayingChange:v=>playing.push(v)});
  return {player,video,sources,parts,playing};
 }
 
-test('player starts muted after metadata, syncs the caption, and pins the last frame at the end',async()=>{
+test('player waits for a tap, syncs the caption, and pins the last frame at the end',async()=>{
  const {player,video,parts}=fakePlayer();
- assert.equal(video.muted,true);video.readyState=1;video.fire('loadedmetadata');await Promise.resolve();
- assert.deepEqual(video.calls,['play']);
+ assert.equal(video.muted,true);video.readyState=1;video.fire('loadedmetadata');assert.deepEqual(video.calls,[]);
+ player.play();assert.deepEqual(video.calls,['play']);assert.equal(parts['[data-action="concept-play"]'].hidden,true);
  video.currentTime=7;video.fire('timeupdate');assert.match(parts['.concept-caption'].textContent,/공기가 머물러서/);
  video.fire('ended');assert.equal(parts['.concept-end'].hidden,false);assert.equal(parts['[data-action="concept-replay"]'].hidden,false);assert.match(parts['.concept-caption'].textContent,/줄여 주는 거야/);
  player.replay();assert.equal(video.currentTime,0);assert.equal(parts['.concept-end'].hidden,true);
  player.destroy();assert.deepEqual(video.calls.slice(-3),['pause','remove:src','load']);
 });
 
-test('blocked autoplay and reduced motion show the play button instead of moving on their own',async()=>{
- const a=fakePlayer({reject:true});a.video.fire('loadedmetadata');await new Promise(r=>setTimeout(r));
+test('a blocked play attempt brings back the play button',async()=>{
+ const a=fakePlayer({reject:true});a.video.fire('loadedmetadata');a.player.play();await new Promise(r=>setTimeout(r));
  assert.equal(a.parts['[data-action="concept-play"]'].hidden,false);assert.equal(a.parts['[data-action="concept-play"]'].focused,true);a.player.destroy();
- const b=fakePlayer({reduced:true});b.video.fire('loadedmetadata');
- assert.deepEqual(b.video.calls,[]);assert.equal(b.parts['[data-action="concept-play"]'].hidden,false);b.player.destroy();
 });
 
 test('no metadata within 6 seconds (or a failed last source) shows the poster and every caption',()=>{

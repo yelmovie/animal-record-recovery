@@ -9,7 +9,7 @@ const fill=(s,stage,index,skip=[])=>{for(const r of missionRows(s,stage,index))i
 test('broadcast focus follows the first missing explanation without grading a draft or changing its subject',()=>{
  const s=campaignFixture();let html=commissionView(s,{stage:3,requestCard:1});
  assert.match(html,/data-broadcast-animal="marine"/);assert.match(html,/바다 물고기는 어디에 살까/);
- assert.match(html,/is-current" data-row="marine-place"/);assert.match(html,/broadcast-continue[^>]*disabled/);
+ assert.match(html,/is-current" data-row="marine-place"/);assert.doesNotMatch(html,/broadcast-continue/);
  chooseCommission(s,3,0,'marine-place','forest');html=commissionView(s,{stage:3,requestCard:1});
  assert.match(html,/is-current" data-row="marine-body"/);assert.match(html,/data-value="forest" aria-pressed="true"/);
  assert.doesNotMatch(html,/맞았어|정답이야/);
@@ -17,9 +17,9 @@ test('broadcast focus follows the first missing explanation without grading a dr
 
 test('broadcast next action points to the next unfinished animal and offers sending only after all subjects are filled',()=>{
  const s=campaignFixture();fill(s,3,0);let html=commissionView(s,{stage:3,requestCard:1});
- assert.match(html,/data-action="request-card" data-value="2"[^>]*>오리 설명 고르기/);
+ assert.match(html,/설명이 맞으면 다음 동물로 이어져/);
  fill(s,3,1);html=commissionView(s,{stage:3,requestCard:3});
- assert.match(html,/broadcast-continue[^>]*>답장 보내기/);assert.doesNotMatch(html,/broadcast-continue[^>]*disabled/);
+ assert.doesNotMatch(html,/data-action="commission-submit"/);assert.doesNotMatch(html,/broadcast-continue[^>]*disabled/);
  assert.match(html,/<details class="broadcast-script-preview"><summary>/);
 });
 
@@ -85,5 +85,5 @@ test('the special broadcast uses both selected explanations and the museum prese
  const c=requestCards(s,3,[2])[0],text=broadcastScript(c.rows,campaignDraft(s,3,2)).map(b=>b.text).join(' ');
  assert.match(text,/낙타의 넓적한 발바닥을 보세요.*모래 위를 걸을 때 쓰여요/);assert.match(text,/펭귄의 짧은 날개를 보세요.*바닷물 속을 헤엄칠 때 쓰여요/);
  chooseCommission(s,3,0,'rabbit-body','fin');
- const html=galleryView(s).split('museum-broadcast')[1];assert.match(html,/긴 뒷다리를 보세요/);assert.doesNotMatch(html,/지느러미를 보세요/);
+ const html=galleryView(s).split('class="museum-broadcast-station"')[1];assert.match(html,/긴 뒷다리를 보세요/);assert.doesNotMatch(html,/토끼를 만났어요\. 자, 지느러미를 보세요/);
 });

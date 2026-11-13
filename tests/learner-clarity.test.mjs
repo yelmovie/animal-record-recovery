@@ -66,11 +66,11 @@ test('travel buttons pick 으로/로 by the last sound of the place name',()=>{
  const html=page(s,v);assert.match(html,/생태의 물가로 가기/);assert.doesNotMatch(html,/물가으로/);
 });
 
-test('the map corner button says it is the next recommended place, not the walk in progress',()=>{
+test('the map corner button points to the next recommended place',()=>{
  const s=campaignFixture();s.adminUnlocked=true;
  const html=page(s,{screen:'map',stage:1,step:0,selectedStage:5,arrived:false,mapZoom:1,canGoBack:false});
  const corner=html.match(/<div class="map-next">([\s\S]*?)<\/div>/)[1];
- assert.match(text(corner),/다음 추천 장소\s*관찰의 숲으로 가기/);assert.match(corner,/data-action="map-select" data-id="1"/);
+ assert.match(text(corner),/분류의 정원으로 가기/);assert.match(corner,/data-action="map-select" data-id="2"/);
 });
 
 test('a link check names one slot in one sentence but still marks every slot to fix',()=>{

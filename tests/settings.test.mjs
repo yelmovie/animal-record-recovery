@@ -6,7 +6,7 @@ import {freshExpedition,restoreExpedition} from '../src/expedition.js';
 import {APP_VERSION,SETTINGS_TEXT} from '../src/settings-content.js';
 
 const pkg=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
-const html=(s=freshExpedition(),o)=>settingsContent(s,o);
+const html=(s=freshExpedition())=>settingsContent(s);
 
 test('settings version comes from package.json',()=>assert.equal(APP_VERSION,pkg.version));
 test('a persisted teacher unlock is discarded on reload while learning records survive',()=>{
@@ -18,6 +18,7 @@ test('settings follow the shared order: sound, why-replay, info, student, teache
   const h=html(),at=t=>{const i=h.indexOf(t);assert.ok(i>=0,t);return i;};
   const order=['배경 음악','효과음','배경 음악 크기',SETTINGS_TEXT.replayIntro,'앱 정보 · 배움과 보상','학생용 가이드','교사용 가이드','이미지·소리·저작권 고지','settings-footer'].map(at);
   assert.deepEqual(order,[...order].sort((a,b)=>a-b));
+  assert.doesNotMatch(h,/data-action="concept-open"|concept-replays|<video/);
   assert.match(h,/data-action="reset-confirm"[\s\S]*data-action="close-dialog"/);
 });
 

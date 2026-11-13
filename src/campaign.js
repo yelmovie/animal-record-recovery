@@ -105,7 +105,7 @@ export function campaignHint(s,stage,index){const d=campaignDraft(s,stage,index)
  const bad=missionRows(s,stage,index,d).find(r=>d.answers[r.key]!==r.answer);return bad?(d.answers[bad.key]?`${bad.label}: ${bad.hint}`:`‘${bad.label}’에 아직 기록을 놓지 않았어.`):'';
 }
 export const campaignDone=(s,stage,index)=>!!s.campaign?.records?.[missionKey(stage,index)];
-export const restoredPlaces=s=>s.completed.filter(id=>!s.campaign||s.campaign.grandfathered.includes(id)||(campaignDone(s,id,0)&&campaignDone(s,id,1)));
+export const restoredPlaces=s=>s.completed.filter(id=>id===1||!s.campaign||s.campaign.grandfathered.includes(id)||(campaignDone(s,id,0)&&campaignDone(s,id,1)));
 export const commissionCount=s=>Object.keys(s.campaign?.records||{}).filter(k=>!k.endsWith('-2')).length;
 export const requestCount=s=>COMMISSIONS.filter(c=>campaignDone(s,c.id,0)&&campaignDone(s,c.id,1)).length;
 export function campaignOpen(s,stage,index){return !!commission(stage,index)&&s.completed.includes(stage)&&(index<2||(campaignDone(s,stage,0)&&campaignDone(s,stage,1)));}
@@ -153,6 +153,11 @@ export function requestCards(s,stage,parts){return parts.flatMap(i=>{const m=com
  return [...groups.values()].map(list=>({part:i,kind:m.kind,rows:list,animal:m.kind==='return'?'':list[0].animal||''}));});}
 const answered=(d,r)=>Boolean(d.answers[r.key]);
 export function cardDone(s,stage,card){const d=campaignDraft(s,stage,card.part);if(card.kind==='retest')return campaignDone(s,stage,card.part)||campaignReady(s,stage,card.part,d);if(card.kind==='own-sort'&&!d.answers.criterion)return false;return card.rows.every(r=>answered(d,r));}
+export function cardReady(s,stage,card){
+ const d=campaignDraft(s,stage,card.part);
+ if(card.kind==='own-sort'||card.kind==='retest')return campaignReady(s,stage,card.part,d);
+ return card.rows.every(r=>d.answers[r.key]===r.answer);
+}
 export function cardProgress(s,stage,cards){let n=0,total=0;for(const c of cards){const d=campaignDraft(s,stage,c.part);if(c.kind==='retest'){total++;n+=cardDone(s,stage,c)?1:0;}else{total+=c.rows.length;n+=c.rows.filter(r=>answered(d,r)).length;}}return {answered:n,total};}
 // First blank answer in display order wins over a wrong one, so "submit" always says where to look next.
 export function requestGap(s,stage,parts){const pending=parts.filter(i=>!campaignDone(s,stage,i));

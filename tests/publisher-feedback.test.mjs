@@ -1,28 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {progress} from '../src/presentation.js';
-import {STAGES, freshExpedition} from '../src/expedition.js';
 import {SETTINGS_TEXT} from '../src/settings-content.js';
-
-test('review feedback: map, quest and reward stars follow every actual activity',()=>{
- assert.deepEqual(STAGES.map(stage=>stage.tasks.length),[8,2,4,6,4]);
- const state=freshExpedition();
- for(const stage of STAGES){
-  const count=stage.tasks.length;
-  const empty=progress(state,stage.id);
-  assert.equal((empty.match(/<svg /g)||[]).length,count);
-  assert.equal((empty.match(/class="earned"/g)||[]).length,0);
-  state.activities=[`${stage.id}-${count-1}`];
-  const last=progress(state,stage.id);
-  assert.equal((last.match(/class="earned"/g)||[]).length,1);
-  assert.match(last,/<i class="earned"><svg[\s\S]*<\/i>$/);
-  state.activities=stage.tasks.map((_,index)=>`${stage.id}-${index}`);
-  assert.equal((progress(state,stage.id).match(/class="earned"/g)||[]).length,count);
-  state.activities=[];
- }
- assert.equal(progress(state,99),'');
-});
 
 test('review feedback: official source domain and corrected Korean spacing remain consistent',()=>{
  assert.match(SETTINGS_TEXT.contentSource,/ncic\.re\.kr/);

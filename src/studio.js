@@ -37,8 +37,13 @@ const box=e=>{const r=e.width/2,xs=e.points.map(p=>p.x),ys=e.points.map(p=>p.y);
 const erasedAt=(p,width,erasers)=>erasers.some(e=>p.x>=e.x0&&p.x<=e.x1&&p.y>=e.y0&&p.y<=e.y1&&e.points.some((a,i)=>segmentDistance(p,a,e.points[i+1]||a)+width/2<=e.width/2));
 // ponytail: checks the sampled points of each line (≤1.5px apart), not every pixel; enough to tell "nothing left" from "something left".
 const hasDrawing=studio=>{const erasers=studio.strokes.map((s,index)=>s.tool==='eraser'?{...box(s),index}:null).filter(Boolean);return studio.strokes.some((stroke,i)=>stroke.tool!=='eraser'&&stroke.color!=='#ffffff'&&stroke.points.some(p=>!erasedAt(p,stroke.width,erasers.filter(e=>e.index>i))));};
-export function studioDrawingReady(value){const studio=normalizeStudio(value);return Boolean(studio.title.trim()&&hasDrawing(studio));}
-export function studioReady(value){const studio=normalizeStudio(value);return studioDrawingReady(studio)&&['audience','purpose','inspiration'].every(key=>studio[key].trim());}
+export function studioDrawingNext(value){const studio=normalizeStudio(value);if(!hasDrawing(studio))return 'draw';return studio.title.trim()?'continue':'title';}
+export function studioDrawingReady(value){return studioDrawingNext(value)==='continue';}
+export function studioIntroNext(value){
+  const studio=normalizeStudio(value);
+  return ['title','audience','purpose','inspiration'].find(key=>!studio[key].trim())||(hasDrawing(studio)?'continue':'draw');
+}
+export function studioReady(value){return studioIntroNext(value)==='continue';}
 export function studioHint(value,step=2){
   const studio=normalizeStudio(value);
   if(!hasDrawing(studio))return '빈 도화지에 네 발명 아이디어를 자유롭게 그려 봐. 정해진 모양은 없어!';

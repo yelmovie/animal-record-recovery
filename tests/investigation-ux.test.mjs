@@ -18,30 +18,22 @@ test('each mystery hides the full animal and discovered features stay in the not
  }
 });
 
-test('a selected guess leads to discovered evidence while unopened features cannot be submitted as grounds',()=>{
+test('the notebook displays collected clues and direct animal choices without reselecting evidence',()=>{
  const s=freshExpedition();Object.assign(s.cases[0],{opened:['place','foot'],candidate:'duck'});
  const html=activityView(s,{stage:4,step:0,clueIndex:2});
- assert.match(html,/내 가설 · 아직 확인 전/);assert.match(html,/>오리<\/b>/);
- assert.match(html,/추리에 쓸 단서를 눌러 줘/);
- assert.match(html,/data-action="case-ground" data-value="foot"/);
- assert.doesNotMatch(html,/data-action="case-ground" data-value="cover"/);
+ assert.match(html,/data-action="case-animal"/);assert.match(html,/>오리<\/b>/);
+ assert.match(html,/발견한 단서/);assert.ok(html.includes(CASES[0].clues[2].text));
+ assert.doesNotMatch(html,/추리에 쓸|data-action="case-ground"|data-action="case-compare"|후보 비교/);
 });
 
-test('the investigation footer names the next step without prematurely submitting a guess',()=>{
+test('the investigation footer has no second submit or evidence comparison action',()=>{
  const s=freshExpedition(),v={screen:'mission',stage:4,step:0,clueIndex:0};
- const footer=()=>page(s,v).split('<footer class="mission-footer">')[1];
- assert.match(footer(),/data-action="case-continue"[^>]*>손전등으로 단서 찾기/);
- s.cases[0].opened=['place','cover'];
- assert.match(footer(),/data-action="case-continue"[^>]*>누구인지 추리하기/);
+ for(const clues of [[],['place'],['place','cover']]){
+  s.cases[0].opened=clues;
+  assert.doesNotMatch(page(s,v).split('<footer class="mission-footer">')[1],/data-action="(?:case-continue|case-compare|advance)"/);
+ }
  s.cases[0].candidate='duck';
- assert.match(footer(),/data-action="case-continue"[^>]*>근거 2개 더 고르기/);
- assert.equal(investigationNext(s.cases[0],true).label,'근거 2개 더 고르기');
- s.cases[0].grounds=['place'];
- assert.equal(investigationNext(s.cases[0],true).label,'근거 1개 더 고르기');
- s.cases[0].grounds=['place','cover'];
- assert.match(footer(),/data-action="case-compare"/);
- s.cases[0].excluded={frog:'cover',fish:'cover',hen:'place'};
- assert.match(footer(),/data-action="advance"[^>]*>추리 확인하기/);
+ assert.equal(investigationNext(s.cases[0]).action,'advance');
 });
 
 test('flashlight pointer and keyboard focus move the same beam and cleanup removes all listeners',()=>{

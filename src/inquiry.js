@@ -19,6 +19,22 @@ export function addExperimentTrial(design){
  e.trials.push(trial);e.trials=e.trials.slice(-12);e.reflection='';return trial;
 }
 export function comparisonReady(d){const e=d.experiment;if(!e)return false;const trials=e.trials.filter(t=>t.problem===d.problem);return e.sourceSeen&&new Set(trials.map(t=>t.level)).size>=2&&trials.some(t=>t.level===e.level);}
+export function workshopDesignNext(d,picked=false){
+ if(!d.problem)return 'problem';
+ if(!d.name.trim())return 'name';
+ if(!d.feature)return 'feature';
+ if(!d.structure||!d.spot)return picked?'place':'part';
+ return 'continue';
+}
+export function workshopLabNext(d,summary){
+ const e=d.experiment;
+ if(summary===1)return 'summary';
+ if(summary===2)return !e.reflection?'reflection':!e.note.trim()?'note':d.explanation!=='match'?'explain':'continue';
+ const trials=e.trials.filter(t=>t.problem===d.problem);
+ if(comparisonReady(d))return 'compare';
+ if(trials.some(t=>t.level===e.level))return 'level';
+ return e.prediction?'test':'prediction';
+}
 export function experimentReady(d){return comparisonReady(d)&&Boolean(d.experiment.reflection)&&Boolean(d.experiment.note.trim());}
 // Completion marker retained for existing saves. New observations accept any
 // chosen moment; motionEvidence stores its real frame and motionPhotos its pixels.

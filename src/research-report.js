@@ -29,7 +29,7 @@ export function researchLines(s){
   const bank={...s.designDrafts?.[i]};if(s.designs[i].problem)bank[s.designs[i].problem]=s.designs[i];
   return Object.values(bank).filter(d=>!completed.some(c=>JSON.stringify(c)===JSON.stringify(d)));
  });
- return ['나의 동물 탐험 연구 기록','하루, 모리와 함께 동물의 특징을 찾아보았어.',`지금까지 탐험 별을 ${s.activities.length}개 모았고, 마을의 장소 ${restoredPlaces(s).length}곳에 기록을 되찾아 주었어.`,'',
+ return ['나의 동물 탐험 연구 기록','하루, 모리와 함께 동물의 특징을 찾아보았어.',`지금까지 마을의 장소 ${restoredPlaces(s).length}곳에 기록을 되찾아 주었어.`,'',
   ...STAGES.map(t=>`${t.name}에서 활동 ${t.tasks.length}개 중 ${countStage(s,t.id)}개를 해 보았어.`),'','[내가 관찰한 동물의 모습]',
   ...Object.entries(OBSERVATIONS).flatMap(([id,items])=>items.filter(o=>s.observed.includes(o.id)).map(o=>`${ANIMALS[id].name}의 ${withParticle(o.label)} 살펴봤어. ${o.text}${TRY_NOTE[observeTry(s,o.id)]}`)),
   ...(s.observed.length?[observeNote(s)]:[]),
@@ -62,7 +62,7 @@ export function researchDiaryEntries(s){
  return entries;
 }
 // Key result and next step before the long story; each diary chapter opens on request.
-const diarySummary=s=>{const art=s.studioRecord;return '<div class="diary-summary"><p><b>'+icon('star')+' 탐험 별 '+s.activities.length+'/'+STAGES.flatMap(t=>t.tasks).length+' · 되찾은 장소 '+restoredPlaces(s).length+'/5</b>'+(art?' · 내 작품 “'+esc(art.title)+'”':'')+'</p><p class="diary-next">다음 할 일: 제목을 눌러 장을 펼쳐 읽고, 가장 기억에 남는 발견 하나를 친구에게 소개해 봐.</p></div>';};
+const diarySummary=s=>{const art=s.studioRecord;return '<div class="diary-summary"><p><b>'+icon('book')+' 되찾은 장소 '+restoredPlaces(s).length+'/5</b>'+(art?' · 내 작품 “'+esc(art.title)+'”':'')+'</p><p class="diary-next">다음 할 일: 제목을 눌러 장을 펼쳐 읽고, 가장 기억에 남는 발견 하나를 친구에게 소개해 봐.</p></div>';};
 export function researchDiaryView(s){
  return '<article class="research-diary"><header class="diary-cover"><span>'+icon('leaf')+' 나의 자연 탐험 노트</span><h3>작은 발견을 모아 쓴 이야기</h3><p>하루, 모리와 함께 살펴보고 생각한 것을 남겼어.</p></header>'+diarySummary(s)+'<div class="diary-pages" tabindex="0" role="region" aria-label="나의 탐험 일기 본문">'+researchDiaryEntries(s).map(e=>'<details class="diary-entry"><summary><h3>'+esc(e.title)+'</h3></summary>'+(e.animals.length?'<div class="diary-stickers" aria-hidden="true">'+e.animals.map(id=>art(id,'diary-animal',true)).join('')+'</div>':'')+e.paragraphs.map(p=>'<p>'+esc(p)+'</p>').join('')+(e.photos.length?'<div class="diary-photo-strip">'+e.photos.map(([id,p])=>'<figure><img src="'+p.dataURL+'" width="'+p.width+'" height="'+p.height+'" alt="내가 찍은 '+esc(ANIMALS[id]?.name||({camel:'낙타',penguin:'펭귄'}[id]))+' 사진"><figcaption>'+esc(ANIMALS[id]?.name||({camel:'낙타',penguin:'펭귄'}[id]))+'의 순간을 담았어</figcaption></figure>').join('')+'</div>':'')+(e.artwork?'<div class="diary-artwork">'+studioArtwork(e.artwork)+'</div>':'')+'</details>').join('')+'<footer class="diary-signoff">다음에는 어떤 동물의 특징을 더 살펴볼까?<br><b>나의 탐험은 계속!</b></footer></div></article>';
 }

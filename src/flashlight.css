@@ -121,7 +121,17 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
 
 /* Habitat choice: tall cards down the left, and the scene turns into the chosen place (its ground under the animal, its sky and water behind). */
 #app #main#main.stage-4 .journey-stage { display: grid; grid-template-columns: clamp(150px, 15vw, 230px) minmax(0, 1fr); gap: 12px; flex: 1; min-height: 0; }
-#app #main#main.stage-4 .journey-stage > .journey-destinations { display: flex; flex-direction: column; gap: 10px; margin: 0; min-height: 0; }
+#app #main#main.stage-4 .journey-stage > .journey-destinations { display: flex; flex-direction: column; gap: 8px; margin: 0; min-height: 0; }
+#app #main.stage-4 .journey-choice-title { margin: 0; flex: none; font: 400 clamp(16px,1.3vw,22px)/1.25 var(--font-display); color: #fff2cd; }
+#app #main.stage-4 .journey-destinations > .retry-note { margin: 0; flex: none; }
+@media (max-width:850px) {
+  #app #main#main.stage-4 .journey-stage { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(180px,1fr); }
+  #app #main#main.stage-4 .journey-stage > .journey-destinations { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #app #main#main.stage-4 .journey-destinations > :is(.journey-choice-title,.retry-note) { grid-column:1/-1; }
+  #app #main#main.stage-4 .journey-stage .journey-place-art { min-height:48px; max-height:64px; }
+  #app #main#main.stage-4 .journey-stage .journey-portal { min-height:90px; font-size:clamp(16px,2.4vw,21px); }
+  #app #main.stage-4 .activity-workspace:has(>.animal-journey) { height:auto; grid-template-rows:auto auto; overflow:auto; }
+}
 #app #main#main.stage-4 .journey-stage .journey-portal { flex: 1; min-height: 0; justify-content: center; padding: 8px; font-size: clamp(19px, 1.4vw, 24px); }
 #app #main#main.stage-4 .journey-stage .journey-place-art { flex: 1; height: auto; min-height: 60px; max-height: 150px; background-size: 300% 400%; }
 #app #main#main.stage-4 .journey-stage > .journey-scene { min-height: 0; transition: background .6s ease; }
@@ -145,3 +155,9 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
 .case-comparison-row{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid #b8c6a6;border-radius:12px;background:#f6f8ed}
 .case-comparison-row>.animal{width:64px;height:64px}.case-comparison-row>span{flex:1;min-width:0}.case-comparison-row b{display:block;margin-bottom:6px}
 .case-comparison-row select{width:100%;max-width:100%;min-height:48px;font:inherit;color:#263f35;background:#fffdf5;border:1px solid #879b75;border-radius:8px;padding:6px}
+
+/* Keep found clues and direct animal choices together in the notebook. */
+#app #main.stage-4 .flashlight-notebook .flashlight-candidates { gap: 8px; }
+#app #main.stage-4 .flashlight-notebook .flashlight-candidate { min-height: 110px; padding: 7px; gap: 3px; }
+#app #main.stage-4 .flashlight-notebook .flashlight-candidate .animal { height: 68px; }
+#app #main.stage-4 .flashlight-notebook .flashlight-candidate b { font-size: 21px; }

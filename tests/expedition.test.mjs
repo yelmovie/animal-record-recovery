@@ -21,14 +21,14 @@ function complete(s,stage){for(let step=0;step<STAGES[stage-1].tasks.length;step
 test('classification has two core activities and other stages have four; a fresh expedition starts with one open place',()=>{
   const s=freshExpedition();assert.equal(STAGES.flatMap(t=>t.tasks).length,24);assert.equal(isStageOpen(s,1),true);for(const id of [0,2,3,4,5,6])assert.equal(isStageOpen(s,id),false);assert.equal(s.activities.length,0);assert.deepEqual(availableTools(s),[]);
 });
-test('eighteen activities award exactly eighteen stars and five usable tools, without repeat farming',()=>{
+test('activities are recorded once and unlock five usable tools',()=>{
   const s=freshExpedition();for(let stage=1;stage<=5;stage++){complete(s,stage);assert.equal(s.activities.length,STAGES.slice(0,stage).flatMap(t=>t.tasks).length);assert.equal(availableTools(s).length,stage);assert.equal(claimTask(s,stage,STAGES[stage-1].tasks.length-1).fresh,false);assert.equal(s.activities.length,STAGES.slice(0,stage).flatMap(t=>t.tasks).length);}
   assert.deepEqual(s.completed,[1,2,3,4,5]);assert.equal(collectedAnimals(s).length,16);
 });
 test('incomplete / skipped tasks and administrator preview cannot grant completion',()=>{
   const s=freshExpedition();assert.equal(claimTask(s,1,0).ok,false);solve(s,1,3);assert.equal(claimTask(s,1,3).ok,false);s.adminUnlocked=true;assert.equal(isStageOpen(s,5),true);assert.equal(claimTask(s,5,3).ok,false);assert.deepEqual(s.completed,[]);assert.equal(taskReady(s,1,4),false);
 });
-test('second observation pair needs its own six observations and comparison answers',()=>{
+test('second observation pair needs its own core observations and comparison answers',()=>{
   const s=freshExpedition();solve(s,1,0);assert.equal(taskReady(s,1,2),false);solve(s,1,2);assert.equal(taskReady(s,1,2),true);s.compares[1]={common:'fur',difference:'cover'};assert.equal(taskReady(s,1,3),false);solve(s,1,3);assert.equal(taskReady(s,1,3),true);
 });
 test('classification ends after sorting and repairing an observable criterion',()=>{
@@ -60,11 +60,11 @@ test('all route pairs traverse only neighboring graph waypoints and stay on the 
 });
 test('new renderers escape learner text in design, result and collection markup',()=>{
   const s=freshExpedition();solve(s,5,0);s.designs[0].name='<img src=x onerror=alert(1)>';const view={stage:5,step:0,round:0,screen:'mission'};const html=activityView(s,view);assert.ok(html.includes('&lt;img'));assert.ok(!html.includes('<img src=x'));
-  const ending=page(s,{...view,screen:'ending'});assert.ok(!ending.includes('<img src=x'));assert.ok(notebookContent(s).includes('탐험 별'));s.completed=[1];assert.ok(toolContent(s,1).includes('개구리'));
+  const ending=page(s,{...view,screen:'ending'});assert.ok(!ending.includes('<img src=x'));assert.ok(notebookContent(s).includes('받은 탐사 도구'));s.completed=[1];assert.ok(toolContent(s,1).includes('개구리'));
 });
 test('revisiting a draft cannot replace passed invention and evidence records with untested edits',()=>{
   const s=freshExpedition();for(let stage=1;stage<=5;stage++)complete(s,stage);
-  s.designs[0].name='수정 중';s.designs[0].structure='layer';s.cases[0].grounds=[];
+  s.designs[0].name='수정 중';s.designs[0].structure='layer';s.cases[0].opened=[];
   assert.equal(reportDesigns(s)[0].name,'물갈퀴 추진기');assert.equal(reportDesigns(s)[0].structure,'wide');assert.deepEqual(s.records.cases[0].grounds,['place','cover']);assert.equal(taskReady(s,4,1),false);
   const restored=restoreExpedition(JSON.stringify(s));assert.equal(reportDesigns(restored)[0].structure,'wide');assert.deepEqual(restored.records.cases[0].grounds,['place','cover']);
   const legacy=JSON.parse(JSON.stringify(s));legacy.records.cases[0]={traits:['feather','web'],candidate:'duck',habitat:'pond',reason:'paddle'};assert.deepEqual(restoreExpedition(JSON.stringify(legacy)).records.cases[0].grounds,['cover','foot'],'a pre-08 record survives as grounds');

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createStudio,normalizeStudio,studioDrawingReady,studioReady,studioHint} from '../src/studio.js';
+import {createStudio,normalizeStudio,studioDrawingReady,studioDrawingNext,studioReady,studioHint} from '../src/studio.js';
 import {freshExpedition,restoreExpedition,taskReady,claimTask,taskMistake} from '../src/expedition.js';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
 
@@ -84,4 +84,13 @@ test('a drawing erased away counts as empty; partial erasing keeps it, and judgi
  // Ink drawn after the eraser stays visible.
  assert.equal(studioDrawingReady({...base,strokes:[bigEraser,pen]}),true);
  assert.equal(studioDrawingReady({...base,strokes:[{...pen,points:[{x:5,y:5}]}]}),true);
+});
+
+test('drawing guidance follows visible ink, title and undo including erased legacy strokes',()=>{
+ const draft=createStudio();assert.equal(studioDrawingNext(draft),'draw');
+ draft.strokes=artwork().strokes;assert.equal(studioDrawingNext(draft),'title');
+ draft.title='구름 신발';assert.equal(studioDrawingNext(draft),'continue');
+ draft.title='  ';assert.equal(studioDrawingNext(draft),'title');
+ draft.strokes=[{color:'#294b3e',width:4,points:[{x:20,y:20}]},{tool:'eraser',color:'#ffffff',width:60,points:[{x:20,y:20}]}];
+ assert.equal(studioDrawingNext(draft),'draw');
 });

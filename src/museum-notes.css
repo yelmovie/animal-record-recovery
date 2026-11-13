@@ -41,7 +41,7 @@
 #app #main.museum-page .museum-case .museum-vitrine-content{width:100%;height:100%;min-height:0;max-height:none;overflow:hidden}
 #app #main.museum-page .museum-case .museum-specimens{flex-direction:row;flex-wrap:wrap;align-items:flex-end;align-content:flex-end;justify-content:center;gap:4px 6px;height:100%}
 #app #main.museum-page .museum-case .museum-specimens figure{flex:1 1 40%;width:auto;height:auto;max-height:100%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}
-#app #main.museum-page .museum-case .museum-specimens .animal{flex:none;width:100%;height:auto;min-height:0;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 6px 4px #0007)}
+#app #main.museum-page .museum-case .museum-specimens .animal{flex:none;width:100%;height:auto;min-height:0;aspect-ratio:1;object-fit:contain;filter:var(--animal-colour,) drop-shadow(0 6px 4px #0007)}
 #app #main.museum-page .museum-case .museum-specimens figcaption{font-size:clamp(15px,1.1vw,19px)!important;line-height:1.1;color:#fff4d5}
 /* Collection number is written on the wooden panel below the brass plate. */
 #app #main.museum-page .museum-case>.museum-plinth{position:absolute;inset:73% 20% auto;height:9%;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:none;box-shadow:none;color:#f1dfae}
@@ -154,3 +154,72 @@
 /* The open notebook floats over the room instead of inside the request card, so the card never grows a scrollbar for it. */
 #app #main:not(.broadcast-request-page) .request-card>.commission-evidence[open],#app #main:not(.broadcast-request-page) .commission-work .commission-evidence[open]{position:fixed!important;inset:50% 2vw auto auto!important;margin:0;transform:translateY(-46%) rotate(-1deg);z-index:3800}
 #app #main#main.broadcast-request-page .commission-evidence[open]{position:fixed!important;inset:50% 2vw auto auto!important;width:min(900px,max(47vw,560px),94vw);max-width:none;margin:0;transform:translateY(-46%) rotate(-1deg);z-index:3800}
+
+/* Center the exhibit and give the record, rather than the frame, the visual weight. */
+#app #main.museum-page .museum-exhibit > .museum-room-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto) minmax(0,1fr);text-align:center;gap:8px 16px;padding:12px 18px}
+#app #main.museum-page .museum-room-heading .museum-room-number{justify-self:end;align-self:center}
+#app #main.museum-page .museum-room-heading h2,#app #main.museum-page .museum-heading h1{font-family:var(--font-body);font-weight:800}
+#app #main.museum-page .museum-room-heading .museum-curator{justify-self:start;margin:0;text-align:left}
+#app #main.museum-page .museum-room-heading .museum-curator span{color:#f3dba5}
+#app #main.museum-page .museum-display>.museum-label{align-self:center;text-align:center;min-height:0;padding:clamp(24px,5.5vh,52px) clamp(15px,4vw,44px)}
+#app #main.museum-page .museum-display>.museum-label h3{font-family:var(--font-body);font-weight:800}
+#app #main.museum-page .museum-display>.museum-label :is(.museum-entry,.studio-introduction){text-align:start}
+#app #main.museum-page .museum-exhibit > .museum-room-footer{position:static;width:100%;justify-content:center;justify-self:center;flex-wrap:wrap;gap:12px;background:transparent}
+#app #main.museum-page .museum-room-footer>.btn{margin:0}
+#app #main.museum-page .museum-curator-note{max-width:min(60ch,100%);margin:0;padding:5px 12px;border:1px solid #bfa36c77;border-radius:10px;background:#132a22f2;color:#fff4d6;text-align:center}
+#app #main.museum-page .museum-curator-note summary{padding:4px;cursor:pointer;font-size:16px}
+#app #main.museum-page .museum-curator-note p{margin:4px 0;padding:2px 8px;font-size:17px}
+#app #main.museum-page .museum-exhibit:has(>.museum-broadcast-station){grid-template-rows:auto auto;grid-auto-rows:auto;overflow:auto}
+#app #main.museum-page .museum-broadcast-station{grid-column:1/-1;width:min(100%,920px);justify-self:center;margin:0 auto;padding:clamp(14px,2vw,26px);border:1px solid #94b9b0;border-radius:18px;background:#122d27f7;color:#fff4d6;text-align:center}
+#app #main.museum-page .museum-broadcast-station h3{margin:0;font:800 clamp(23px,2.4vw,34px)/1.25 var(--font-body);color:#fff4d6}
+#app #main.museum-page .museum-broadcast-station>header{display:block;padding:0 0 8px;background:none;border:0;box-shadow:none}
+#app #main.museum-page .museum-broadcast-station header>p{margin:6px 0;color:#e1e8d7}
+#app #main.museum-page .museum-broadcast-station button[data-broadcast-clips]{background:#ead3a0;color:#243d33;border-color:#ead3a0;font-weight:800}
+#app #main.museum-page .museum-broadcast-station .broadcast-audio{justify-content:center;margin:8px 0 12px}
+#app #main.museum-page .museum-broadcast-station .broadcast-audio-status{color:#e1e8d7}
+#app #main.museum-page .museum-broadcast-scenes>.panel-tabs{justify-content:center;gap:8px;margin-bottom:10px}
+#app #main.museum-page .museum-broadcast-scenes>.panel-tabs>.btn{margin:0;padding:6px 12px;min-height:44px}
+#app #main.museum-page .museum-broadcast-scenes>.panel-tabs>.btn+.btn::before{content:none}
+#app #main.museum-page .museum-broadcast-scenes .tab-num{display:none}
+#app #main.museum-page .museum-broadcast-scene{padding:10px 12px;border-radius:12px;background:#e9efde;color:#263f34}
+#app #main.museum-page .museum-broadcast-scene[data-broadcast-chapter="1"]{background:#f8edce}
+#app #main.museum-page .museum-broadcast-scene[data-broadcast-chapter="2"]{background:#e4edf0}
+#app #main.museum-page .museum-broadcast-scene h4{margin:0;font:800 clamp(19px,1.8vw,27px)/1.25 var(--font-body)}
+#app #main.museum-page .museum-broadcast-cast{display:flex;justify-content:center;gap:clamp(16px,8vw,80px)}
+#app #main.museum-page .museum-broadcast-cast figure{margin:0;padding:4px 0}
+#app #main.museum-page .museum-broadcast-cast .animal{width:clamp(76px,12vw,150px);height:clamp(76px,12dvh,122px);object-fit:contain}
+#app #main.museum-page .museum-broadcast-cast figcaption{font-weight:800;font-size:17px}
+#app #main.museum-page .museum-broadcast-station .museum-cast-summary{max-width:64ch;margin:6px auto;padding:0;list-style:none}
+#app #main.museum-page .museum-broadcast-station .museum-cast-summary li{margin:4px 0;font-size:clamp(16px,1.35vw,20px);color:#263f34}
+#app #main.museum-page .museum-broadcast-station .museum-more{width:min(100%,58ch);margin:8px auto 0;color:#263f34;text-align:start}
+@media(max-width:750px){
+ #app #main.museum-page .museum-exhibit > .museum-room-heading{grid-template-columns:auto minmax(0,1fr) auto;justify-content:center;padding-inline:10px}
+ #app #main.museum-page .museum-exhibit > .museum-room-heading::after{content:'';width:34px}
+ #app #main.museum-page .museum-room-heading .museum-curator{display:none}
+ #app #main.museum-page .museum-exhibit>.museum-display:not(.museum-studio){grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;height:auto;max-height:none}
+ #app #main.museum-page .museum-display>.museum-case{grid-column:1;grid-row:1;justify-self:center;height:195px}
+ #app #main.museum-page .museum-display>.museum-label{grid-column:1;grid-row:2;padding:25px 18px}
+ #app #main.museum-page .museum-exhibit{grid-template-rows:auto;grid-auto-rows:auto;overflow:auto}
+}
+
+#app #main.museum-page .museum-room-5:has(>.museum-studio){grid-template-rows:auto minmax(290px,1fr) auto auto;overflow:auto}
+#app #main.museum-page .museum-studio .studio-introduction>h2{display:none}
+#app #main.museum-page .museum-studio .studio-introduction dd{overflow-wrap:anywhere}
+#app #main.museum-page>footer .btn[data-action="download"]{background:#253d32;color:#fff4d7;border-color:#a58d5c}
+
+/* Keep the broadcast scene in the same scroll flow as its room heading. */
+#app #main.museum-page .museum-room-3:has(>.museum-broadcast-station){display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:auto}
+#app #main.museum-page .museum-room-3:has(>.museum-broadcast-station)[hidden]{display:none}
+#app #main.museum-page .museum-room-3:has(>.museum-broadcast-station)>*{flex:none}
+#app #main.museum-page .museum-broadcast-station .broadcast-audio-status{flex:0 1 auto}
+#app #main.museum-page .museum-art-actions{justify-content:center;justify-self:center}
+@media(min-width:850px){#app #main.museum-page>.museum-heading{left:50%;transform:translateX(-50%);justify-content:center;white-space:nowrap}}
+@media(max-width:750px){
+ #app #main.museum-page>.museum-heading{left:108px;right:62px;justify-content:center}
+ #app #main.museum-page>.museum-heading>h1{max-width:none;padding-inline:9px;font-size:16px!important}
+ #app #main.museum-page>.museum-heading>[data-action="ending"]{display:none}
+ #app #main.museum-page .museum-exhibits>.panel-tabs{display:flex;justify-content:flex-start;overflow-x:auto}
+ #app #main.museum-page .museum-exhibits>.panel-tabs>.btn{flex:0 0 auto;white-space:nowrap;font-size:16px!important;padding-inline:10px}
+ #app #main.museum-page .museum-exhibit > .museum-room-heading{grid-template-columns:34px minmax(0,1fr) 34px}
+ #app #main.museum-page .museum-room-heading .museum-room-number{font-size:24px!important}
+}

@@ -43,7 +43,7 @@ dialog .scanner-device .note-tabs .btn.on{background:#9fe0a0;color:#173022;borde
 dialog .scanner-device .note-page[hidden]{display:none}
 dialog .scanner-device .note-page{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:16px;align-items:stretch}
 dialog .scan-window{position:relative;overflow:hidden;min-height:240px;border-radius:14px;background:radial-gradient(circle at 50% 45%,#e9f6e4,#b9d4b4 70%,#8fb08a);display:grid;place-items:center}
-dialog .scan-window .animal{width:86%;height:86%;object-fit:contain;filter:drop-shadow(0 8px 6px #1d2a1f55)}
+dialog .scan-window .animal{width:86%;height:86%;object-fit:contain;filter:var(--animal-colour,) drop-shadow(0 8px 6px #1d2a1f55)}
 dialog .scan-window .scan-frame{position:absolute;inset:10px;border:3px solid #2f8f4e;border-radius:10px;-webkit-mask:linear-gradient(#000 0 0) top left/22% 22% no-repeat,linear-gradient(#000 0 0) top right/22% 22% no-repeat,linear-gradient(#000 0 0) bottom left/22% 22% no-repeat,linear-gradient(#000 0 0) bottom right/22% 22% no-repeat;mask:linear-gradient(#000 0 0) top left/22% 22% no-repeat,linear-gradient(#000 0 0) top right/22% 22% no-repeat,linear-gradient(#000 0 0) bottom left/22% 22% no-repeat,linear-gradient(#000 0 0) bottom right/22% 22% no-repeat}
 dialog .scan-window .scan-line{position:absolute;left:0;right:0;top:0;height:18%;background:linear-gradient(#5fe08000,#5fe08066 70%,#7ff09a);border-bottom:2px solid #7ff09a;animation:scan-sweep 2.4s ease-in-out infinite alternate}
 @keyframes scan-sweep{from{transform:translateY(-20%)}to{transform:translateY(470%)}}
@@ -116,8 +116,7 @@ dialog .compass-slots .animal,dialog .compass-slots .unknown i{width:clamp(70px,
 /* Shorter screens (laptops, landscape tablets): panels fit without an inner scrollbar.
    Secondary hints step aside first; the task, the choices and the inputs keep their size. */
 @media (max-height:900px){
- #app .studio-showcase .studio-steps-tip,#app .studio-showcase .studio-download-note{display:none}
- #app .studio-showcase .studio-steps li{padding-block:2px}
+ #app .studio-showcase .studio-download-note{display:none}
  #app .studio-showcase .studio-intro-field textarea{min-height:0;height:calc(2.6em + 8px);rows:2}
  #app .studio-showcase .studio-introduction{gap:6px}
  #app .studio-notebook .studio-next-hint{display:none}
@@ -130,8 +129,6 @@ dialog .compass-slots .animal,dialog .compass-slots .unknown i{width:clamp(70px,
  #app #main.stage-3 .habitat-notes{gap:6px}
 }
 @media (max-height:900px){
- /* The numbered fields (①–④) already show the order; the chip row repeats it. */
- #app .studio-showcase .studio-steps{display:none}
  #app .studio-notebook>.studio-eyebrow{display:none}
  #app #main.stage-3 .habitat-notes .motion-player{max-height:240px}
  #app #main.stage-3 .habitat-notes .motion-player :is(video,img,canvas){max-height:240px;object-fit:contain}

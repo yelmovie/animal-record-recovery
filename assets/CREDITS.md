@@ -218,3 +218,9 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 | 참새 | `source/20261112/sparrow.glb` | `scan/sparrow.glb` |
 
 `scripts/prepare-scanner-models.py`에서 Blender로 각 표본을 약 5만 6천 삼각형으로 줄였다. 겹치는 꼭짓점을 연결해 표면을 다듬고, 원본 색 텍스처의 몸통 부분에만 주변 색을 부드럽게 섞었다. 털 결, 날개막과 깃털 끝의 형태는 남겼다. 색 텍스처는 박쥐와 토끼 1792px, 참새 1536px이며 요철 텍스처는 768px다. 박쥐의 눈에는 작은 반사광을 색 텍스처에 더했다. 박쥐의 평평한 등과 날개 뒷면에는 원본 GLB의 색을 1536×1024로 다시 투영해 최적화 과정에서 늘어난 날개맥과 털 결을 복원했다. 원본은 표의 경로에 보존했고 생태돔 파일은 변경하지 않았다.
+
+### 2026-11-13 진행 음성과 펭귄 표면 보정
+
+`audio/broadcast/*.mp3` 8개는 ElevenLabs eleven_v4의 Aria 음성으로 생성한 생태 탐방 원고를 오프닝·동물별 설명·클로징으로 나눈 파일이다. 완성한 원고의 동물 순서에 맞춰 재생한다. `audio/npc-dialogue/mori-welcome.mp3`, `videos/story/intro-light.mp4`, `videos/story/outro.mp4`의 하루·모리 대사는 사용자 선택에 따라 Higgsfield의 ElevenLabs `elevenlabs_v4`로 생성했다. 하루는 Dylan, 모리는 Maeve 프리셋으로 고정했다. 인사 1개와 영상 대사 10개를 같은 캐릭터별 음성으로 편집했으며 원래 영상의 장면 시간에 맞춰 배치했다. 배경 음악은 기존 소스를 사용했다. 생성 ID와 음성 인식 검수 문구는 `docs/npc-dialogue-voice.json`에 있다.
+
+`models/dome/penguin.glb`는 기존 `models/penguin.glb`를 UV 경계를 보존하며 약 2만 삼각형으로 최적화했다. 2048px 색 텍스처와 이어지는 표면 법선을 사용하고, 색 경계가 번지던 밉맵을 끄고 거친 요철 맵을 제외해 깃털 표면을 정리했다. 원본 모델은 보존했다.

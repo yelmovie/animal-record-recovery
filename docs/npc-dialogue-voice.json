@@ -202,24 +202,255 @@
     },
     {
       "key": "mori-welcome",
-      "voice": "sena - Friendly, Cheerful",
-      "voiceId": "vJ170fCwESgE1tjW39So",
-      "text": "안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!",
-      "prompt": "안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!",
       "speaker": "mori",
-      "model": "eleven_v4",
-      "provider": "ElevenLabs",
-      "flowId": "Rv5HUROOikpVUYJswuxL",
-      "nodeId": "1FWhMZbHp5NhL5GlIQJf",
-      "generationId": "uZ1anIafKtLgDY365uEK",
-      "asr": "안녕? 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고 찾은 특징으로 기록을 복구해보자. 네가 그렇게 생각한 까닭도 함께 들려줘.",
-      "asrScore": 1.0,
-      "endingScore": 1.0,
-      "lufs": -17.1,
-      "peakDbtp": -2.2,
-      "duration": 10.64,
-      "sha256": "2f7cdfb82b3b8316be9891a19ef70db3fd4e2286b37584d06a6d9d3fe5b38f71",
-      "project": 2
+      "voice": "Maeve",
+      "voiceId": "64cf4f1a-61c8-5938-9aea-83d12b2e1d13",
+      "generationId": "53eaed08-a54f-487f-b478-091c7971dce7",
+      "source": "mori-maeve.mp3",
+      "provider": "Higgsfield / ElevenLabs",
+      "model": "elevenlabs_v4",
+      "text": "안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!",
+      "asr": "안녕, 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해보자. 네가 그렇게 생각한 까닭도 함께 들려줘.",
+      "duration": 10.453333,
+      "sha256": "f6e4eb4dfcee431d38d2c4f15ac0c33b9264a08a5e7376eb8a60d9646a80c84e",
+      "lufs": -17.4,
+      "updated": "2026-11-13",
+      "verification": "Whisper CPU transcription, Earshot analysis, dist browser playback, replay and close cleanup"
     }
-  ]
+  ],
+  "broadcast": {
+    "provider": "ElevenLabs",
+    "model": "eleven_v4",
+    "voice": "Aria - Bright & Youthful Korean",
+    "voiceId": "O2KReOFLpoR65nz6C9Se",
+    "generationId": "CoT2qm49Aa9au1g4sbwW",
+    "flowId": "wB8ZuJmfI41eFDspkP6w",
+    "direction": "밝고 또렷한 생태 탐방 방송",
+    "text": "탐방대 여러분 안녕하세요 레인저 하늘이에요 오늘은 숲과 들에서 토끼를 만났어요 자 긴 뒷다리를 보세요 토끼는 땅을 박차고 뛰어요 오늘은 바닷물 속에서 바다 물고기를 만났어요 자 지느러미와 꼬리를 보세요 바다 물고기는 물 속에서 헤엄쳐요 오늘은 연못과 물가에서 오리를 만났어요 자 물갈퀴 달린 발을 보세요 오리는 발로 물을 밀며 헤엄쳐요 오늘은 꽃이 핀 풀밭에서 나비를 만났어요 자 날개를 보세요 나비는 날개를 움직여 날아요 낙타의 넓적한 발바닥을 보세요 모래 위를 걸을 때 쓰여요 펭귄의 짧은 날개를 보세요 바닷물 속을 헤엄칠 때 쓰여요 몸의 특징과 움직임을 함께 관찰해 보세요 다음 탐방에서 또 만나요",
+    "clips": [
+      {
+        "file": "assets/audio/broadcast/opening.mp3",
+        "text": "탐방대 여러분 안녕하세요 레인저 하늘이에요",
+        "sha256": "fa7120abe8ece7f9a03f3ff6db1756c16cdd219dd39c17a028998625550abbb2"
+      },
+      {
+        "file": "assets/audio/broadcast/rabbit.mp3",
+        "text": "오늘은 숲과 들에서 토끼를 만났어요. 자, 긴 뒷다리를 보세요. 토끼는 땅을 박차고 뛰어요.",
+        "sha256": "4998925b91e422c25b6995b8912fea9f4d26c5055d9b7200e5fd8061670ab8e4"
+      },
+      {
+        "file": "assets/audio/broadcast/marine.mp3",
+        "text": "오늘은 바닷물 속에서 바다 물고기를 만났어요. 자, 지느러미와 꼬리를 보세요. 바다 물고기는 물 속에서 헤엄쳐요.",
+        "sha256": "08538e657345841a8c98b582c0db7ead99c0bf9e1ac8e3b96a756c674691ee26"
+      },
+      {
+        "file": "assets/audio/broadcast/duck.mp3",
+        "text": "오늘은 연못과 물가에서 오리를 만났어요. 자, 물갈퀴 달린 발을 보세요. 오리는 발로 물을 밀며 헤엄쳐요.",
+        "sha256": "04c087714fae9eb6c9a134d939b5412a1eea31da5ec4415f0053aeb539c60c43"
+      },
+      {
+        "file": "assets/audio/broadcast/butterfly.mp3",
+        "text": "오늘은 꽃이 핀 풀밭에서 나비를 만났어요. 자, 날개를 보세요. 나비는 날개를 움직여 날아요.",
+        "sha256": "2ab5deb2b9c94bbb8532e7549711e31a0e340741cac48ac4cc4e82b9ef3109f7"
+      },
+      {
+        "file": "assets/audio/broadcast/camel.mp3",
+        "text": "낙타의 넓적한 발바닥을 보세요. 모래 위를 걸을 때 쓰여요.",
+        "sha256": "9de6ab10a645e314c379f4629fcbca17750787c32a754ef7eb9940119fa6fd94"
+      },
+      {
+        "file": "assets/audio/broadcast/penguin.mp3",
+        "text": "펭귄의 짧은 날개를 보세요. 바닷물 속을 헤엄칠 때 쓰여요.",
+        "sha256": "b67460b1e8318d94627bf039e0e52a59455e595d0fa7aae6eab72fdc0f226c75"
+      },
+      {
+        "file": "assets/audio/broadcast/closing.mp3",
+        "text": "몸의 특징과 움직임을 함께 관찰해보세요. 다음 탐방에서 또 만나요.",
+        "sha256": "e4510ac66ee551fbf2adc1c7e974e432eca2bdfec801066d991507e05618b48f"
+      }
+    ]
+  },
+  "introMoriUpdate": {
+    "date": "2026-11-13",
+    "file": "assets/videos/story/intro-light.mp4",
+    "sha256": "27c8f00b12e425ac62f4f74da30a0ca712a3686692c211bf1c9bf748841ae1ed",
+    "firstLine": {
+      "provider": "ElevenLabs",
+      "model": "eleven_v4",
+      "voiceId": "bQlkYuipD5BHEhntA5iz",
+      "generationId": "Bu1lphpTvbvAYxp9d2Qo"
+    },
+    "remainingLines": {
+      "engine": "Qwen3-TTS-12Hz-0.6B-Base local",
+      "reference": "new synthetic Mori welcome",
+      "reason": "ElevenLabs generation credit limit"
+    },
+    "music": "assets/music/village-theme.mp3",
+    "speechStarts": [
+      0.04,
+      5,
+      9.08,
+      13.04,
+      17.08
+    ],
+    "verification": "All five lines transcribed with local Whisper, 24 seconds, original video stream preserved",
+    "supersededBy": "characterVoiceUpdate"
+  },
+  "characterVoiceUpdate": {
+    "date": "2026-11-13",
+    "provider": "Higgsfield / ElevenLabs",
+    "model": "elevenlabs_v4",
+    "selection": "User selected Dylan for Haru and Maeve for Mori. Each character uses one fixed preset for all spoken dialogue.",
+    "characters": {
+      "haru": {
+        "voice": "Dylan",
+        "voiceId": "b847bc29-f184-583a-8ad9-d1f1e16d1a60",
+        "generationId": "ce60897b-d48b-44b3-94e1-22c396f2946f",
+        "source": "haru-dylan.mp3"
+      },
+      "mori": {
+        "voice": "Maeve",
+        "voiceId": "64cf4f1a-61c8-5938-9aea-83d12b2e1d13",
+        "generationId": "53eaed08-a54f-487f-b478-091c7971dce7",
+        "source": "mori-maeve.mp3"
+      }
+    },
+    "similarityBoost": 0.85,
+    "sourceDirectory": "output/higgsfield-voices-and-layout-20261113/voice",
+    "clips": [
+      {
+        "id": "intro-0",
+        "speaker": "haru",
+        "start": 0,
+        "end": 5,
+        "text": "저 다리를 건너면 자연 기록 마을이야. 같이 가자!",
+        "tempo": 1,
+        "true_peak_dbtp": -4.4,
+        "lufs": -17.0
+      },
+      {
+        "id": "intro-1",
+        "speaker": "mori",
+        "start": 5,
+        "end": 9,
+        "text": "어? 관찰 기록이 뒤섞여서 수정의 빛이 약해졌어.",
+        "tempo": 1.0269856770833334,
+        "true_peak_dbtp": -1.5,
+        "lufs": -17.0
+      },
+      {
+        "id": "intro-2",
+        "speaker": "mori",
+        "start": 9,
+        "end": 13,
+        "text": "직접 관찰한 사실을 모으면 기록을 다시 연결할 수 있어.",
+        "tempo": 1.09385859375,
+        "true_peak_dbtp": -5.0,
+        "lufs": -17.0
+      },
+      {
+        "id": "intro-3",
+        "speaker": "haru",
+        "start": 13,
+        "end": 17,
+        "text": "다섯 장소를 탐험하며 주민들의 부탁을 해결해 보자!",
+        "tempo": 1,
+        "true_peak_dbtp": -3.0,
+        "lufs": -17.0
+      },
+      {
+        "id": "intro-4",
+        "speaker": "mori",
+        "start": 17,
+        "end": 24,
+        "text": "먼저 관찰소로 가자. 어떤 동물을 만나게 될까?",
+        "tempo": 1,
+        "true_peak_dbtp": -3.6,
+        "lufs": -16.8
+      },
+      {
+        "id": "outro-0",
+        "speaker": "mori",
+        "start": 0,
+        "end": 4,
+        "text": "마지막 기록이 도착했어. 다섯 빛이 모두 연결됐어!",
+        "tempo": 1.0698674479166668,
+        "true_peak_dbtp": -3.3,
+        "lufs": -17.0
+      },
+      {
+        "id": "outro-1",
+        "speaker": "haru",
+        "start": 4,
+        "end": 10,
+        "text": "우리가 관찰하고, 비교하고, 만들어 낸 기록이야.",
+        "tempo": 1,
+        "true_peak_dbtp": -2.3,
+        "lufs": -17.0
+      },
+      {
+        "id": "outro-2",
+        "speaker": "mori",
+        "start": 10,
+        "end": 16,
+        "text": "책이 있는 전시관으로 가자. 네 발견이 기다리고 있어.",
+        "tempo": 1,
+        "true_peak_dbtp": -3.8,
+        "lufs": -17.0
+      },
+      {
+        "id": "outro-3",
+        "speaker": "haru",
+        "start": 16,
+        "end": 20,
+        "text": "드디어 문이 열렸어!",
+        "tempo": 1,
+        "true_peak_dbtp": -6.7,
+        "lufs": -17.0
+      },
+      {
+        "id": "outro-4",
+        "speaker": "mori",
+        "start": 20,
+        "end": 24,
+        "text": "이제 네가 만든 자연의 기록을 함께 둘러보자.",
+        "tempo": 1,
+        "true_peak_dbtp": -2.9,
+        "lufs": -17.0
+      },
+      {
+        "id": "mori-welcome",
+        "speaker": "mori",
+        "text": "안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!",
+        "tempo": 1,
+        "true_peak_dbtp": -1.4,
+        "lufs": -17.0
+      }
+    ],
+    "assets": [
+      {
+        "file": "assets/audio/npc-dialogue/mori-welcome.mp3",
+        "sha256": "f6e4eb4dfcee431d38d2c4f15ac0c33b9264a08a5e7376eb8a60d9646a80c84e"
+      },
+      {
+        "file": "assets/videos/story/intro-light.mp4",
+        "sha256": "5d06d3e76634eca9d30f534ead6e1179759afded7123e8a510dcbc664ecb0b5b"
+      },
+      {
+        "file": "assets/videos/story/outro.mp4",
+        "sha256": "851a4a6869507b7610ac965468dac08ff7ef25760bf246e3f300fd467a79bd9b"
+      }
+    ],
+    "verification": {
+      "transcription": "All 11 spoken lines present. Korean 네/내 is phonetically ambiguous in ASR.",
+      "video": "24 seconds each. Original video stream SHA-256 preserved.",
+      "introLufs": -20.7,
+      "outroLufs": -20.5,
+      "browser": "Mac Chrome dist preview. New isolated state played the full intro and Mori welcome, replay and close cleanup. A completed fictional QA state played the full outro. All ten captions matched their native playback times. Served asset hashes matched source files."
+    },
+    "music": {
+      "intro": "assets/music/village-theme.mp3",
+      "outro": "Original music-only outro preserved in external source archive"
+    }
+  }
 }

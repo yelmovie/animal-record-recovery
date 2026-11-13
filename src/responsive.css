@@ -695,3 +695,8 @@
 #app #main .lens-notes > :is(.aha-predict,.aha-note) { grid-row: 5; }
 #app #main .lens-notes > :is(.observe-next,.observe-complete) { grid-row: 6; }
 #app #main .lens-notes > .pair-status { grid-row: 7; }
+
+/* Free forest exploration follows the completed answer and its navigation row. */
+#app #main.stage-1 .lens-notes > .forest-fact { grid-column: 2; grid-row: 3; margin: 0; }
+#app #main.stage-1 .lens-notes > .forest-explore-label { grid-column: 1 / -1; grid-row: 4; }
+#app #main.stage-1 .lens-notes > .forest-extra { grid-column: 1 / -1; grid-row: 8; }

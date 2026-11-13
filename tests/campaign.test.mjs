@@ -9,8 +9,13 @@ function solve(s,stage,index){
  if(stage===5&&index<2){for(const level of [1,RETEST[s.records.designs[index].problem].target]){d.level=level;d.prediction='more';runCommissionTrial(s,stage,index);}chooseCommission(s,stage,index,'choice',String(RETEST[s.records.designs[index].problem].target));chooseCommission(s,stage,index,'reason','fit');}
  else for(const r of missionRows(s,stage,index))chooseCommission(s,stage,index,r.key,r.answer);
 }
-test('base completion keeps stars but does not restore the place or unlock the next one until both commissions pass',()=>{
- const s=freshExpedition();ensureCampaign(s);s.activities=['1-0','1-1','1-2','1-3'];s.completed=[1];assert.equal(isStageOpen(s,2),false);assert.deepEqual(availableTools(s),[]);assert.equal(campaignOpen(s,1,1),true);assert.equal(claimCommission(s,1,1).ok,false);solve(s,1,0);assert.equal(claimCommission(s,1,0).ok,true);assert.deepEqual(restoredPlaces(s),[]);solve(s,1,1);assert.equal(claimCommission(s,1,1).ok,true);assert.deepEqual(restoredPlaces(s),[1]);assert.equal(isStageOpen(s,2),true);assert.equal(availableTools(s).length,1);assert.equal(s.activities.length,4);
+test('forest completion opens the next place while later places still require both commissions',()=>{
+ const s=campaignFixture();s.completed=[1,2];
+ assert.deepEqual(restoredPlaces(s),[1]);assert.equal(isStageOpen(s,2),true);assert.equal(isStageOpen(s,3),false);
+ assert.equal(availableTools(s).length,1);
+ solve(s,2,0);claimCommission(s,2,0);assert.equal(isStageOpen(s,3),false);
+ solve(s,2,1);claimCommission(s,2,1);assert.equal(isStageOpen(s,3),true);
+ assert.deepEqual(restoredPlaces(s),[1,2]);assert.deepEqual(s.campaign.records['1-0'],undefined);
 });
 test('all ten commissions and five optional challenges can be completed; replay never adds stars or duplicate records',()=>{
  const s=campaignFixture();for(let stage=1;stage<=5;stage++)for(let index=0;index<=2;index++){solve(s,stage,index);assert.equal(claimCommission(s,stage,index).ok,true,`${stage}-${index}`);assert.equal(claimCommission(s,stage,index).fresh,false);}
@@ -25,7 +30,7 @@ test('old awarded places and tools stay available, while new commissions start u
 });
 test('malformed and forged commission saves cannot create a badge or bypass mission order',()=>{
  const s=campaignFixture();s.campaign.records={'1-0':{answers:{'frog-label':'shell'}},'1-1':{answers:{duck:'feather',rabbit:'fur',same:'legs'}},'5-0':{answers:{choice:'2',reason:'fit'},trials:[{problem:'swim',level:2,prediction:'more'}]}};s.campaign.grandfathered=[7,'1'];
- const out=restoreExpedition(JSON.stringify(s));assert.equal(commissionCount(out),0);assert.deepEqual(restoredPlaces(out),[]);
+ const out=restoreExpedition(JSON.stringify(s));assert.equal(commissionCount(out),0);assert.deepEqual(restoredPlaces(out),[1]);
 });
 test('changing own classification criterion clears previous placements and truth follows the selected question',()=>{
  const s=campaignFixture();solve(s,2,0);claimCommission(s,2,0);solve(s,2,1);assert.equal(campaignReady(s,2,1),true);chooseCommission(s,2,1,'criterion','legs');assert.deepEqual(campaignDraft(s,2,1).answers,{criterion:'legs'});assert.equal(campaignReady(s,2,1),false);for(const r of missionRows(s,2,1))chooseCommission(s,2,1,r.key,r.answer);assert.equal(campaignReady(s,2,1),true);assert.equal(chooseCommission(s,2,1,'criterion','cute'),false);
@@ -58,7 +63,7 @@ test('both request parts are reachable as cards with distinct action scopes and 
  const s=campaignFixture(),first=commissionView(s,{stage:2,commissionIndex:0,requestCard:0}),html=commissionView(s,{stage:2,commissionIndex:0,requestCard:1});
  assert.match(first,/data-request-part="0"/);assert.match(html,/data-request-part="1"/);assert.match(first,/data-action="request-card" data-value="1"/);
  assert.match(html,/data-commission-index="1" data-action="pick"/);
- assert.equal((html.match(/data-action="commission-submit"/g)||[]).length,1);
+ assert.equal((html.match(/data-action="commission-submit"/g)||[]).length,0);
  assert.doesNotMatch(html,/본 미션|응용 미션/);
 });
 test('invention requests continue the latest finished product first and label both archived projects explicitly',()=>{

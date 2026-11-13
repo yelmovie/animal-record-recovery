@@ -1,16 +1,17 @@
+import {mountBroadcastAudio} from './broadcast-audio.js';
 import {researchDiaryView} from './research-report.js';
 import {createRecordStorage,storageMessage} from './record-storage.js';
-import {mountFlashlight,clueFoundView,flashlightGuessView,caseComparisonView} from './flashlight.js';
+import {mountFlashlight,clueFoundView,flashlightGuessView} from './flashlight.js';
 import {normalizeStudio} from './studio.js';
 import {mountStudio,downloadStudioArtwork} from './studio-runtime.js';
 import {createMotionPlayer,videoFrameAt,toggleMotionFullscreen} from './motion-video.js';
 import {createStoryPlayer} from './story-player.js';
 import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
-import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
+import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionView,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
-import {art,mori,icon,btn,esc,withParticle,toolArt} from './presentation.js';
+import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
+import {art,mori,icon,btn,esc,withParticle,toolArt,actionGuide} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
 import {createVillage} from './village.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -18,7 +19,7 @@ import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
-import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,requestGap,firstOpenCard} from './campaign.js';
+import {COMMISSIONS,ensureCampaign,campaignDraft,campaignDone,campaignReady,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,cardReady,requestGap,firstOpenCard} from './campaign.js';
 
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
 const recordStore=createRecordStorage({getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
@@ -26,9 +27,9 @@ const loadedRecord=recordStore.read();
 let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(loadedRecord.status);
 ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
-let studentSnapshot=null,mapWalkVersion=0,autoRun=null,clearStar=null,pairRewardTimer=null;
-// relook: an observation id whose choices stay closed after a wrong pick until that part is looked at again.
-let clearNpcVoice=null;
+let studentSnapshot=null,autoRun=null,activityTimer=null;
+// relook identifies the observation that needs a reminder after an incorrect choice.
+let clearNpcVoice=null,completionTimer=null,completionRoute=null;
 let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
@@ -57,10 +58,11 @@ function setupPanels(){
       // The gallery opens on the room of the place the learner just finished, not always room 1.
       let current=Math.min(panelPages.get(key)??(selector==='.museum-exhibits'?Math.max(0,stage-1):0),panels.length-1);
       const nav=document.createElement('nav');nav.className='panel-tabs';nav.setAttribute('aria-label','내용 선택');
-      panels.forEach((panel,i)=>{const button=document.createElement('button');button.type='button';button.className='btn quiet';const num=document.createElement('span');num.className='tab-num';num.textContent=String(i+1);button.append(num,labels?.[i]||panel.querySelector('h2,h3,b,legend')?.textContent||`${i+1}번 기록`);button.addEventListener('click',()=>{current=i;panelPages.set(key,i);update();if(selector==='.museum-exhibits')host.scrollTop=0;});nav.append(button);});
+      panels.forEach((panel,i)=>{const button=document.createElement('button');button.type='button';button.className='btn quiet';const num=document.createElement('span');num.className='tab-num';num.textContent=String(i+1);button.append(num,labels?.[i]||panel.querySelector('h2,h3,b,legend')?.textContent||`${i+1}번 기록`);button.addEventListener('click',()=>{current=i;panelPages.set(key,i);update();if(selector==='.museum-exhibits'){host.scrollTop=0;panels[i].scrollTop=0;}});nav.append(button);});
       // Steps read as a sequence: finished panels get a check, and once the open one is finished the next tab says "다음".
       const finished=p=>p.classList.contains('done')||(()=>{const groups=[...p.querySelectorAll('.choices,.problem-options,.design-choices')],name=p.querySelector('#invention-name');return groups.length>0&&groups.every(g=>g.querySelector('.selected'))&&(!name||!!name.value.trim());})();
-      function update(){const done=panels.map(finished),next=done[current]?done.findIndex((d,i)=>i>current&&!d):-1;panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));nav.children[i].classList.toggle('tab-done',done[i]);nav.children[i].classList.toggle('tab-next',i===next);});
+      function update(){const done=panels.map(finished);if(selector==='.design-options')done[2]=!!(s.designs[0].structure&&s.designs[0].spot);const next=selector!=='.design-options'&&done[current]?done.findIndex((d,i)=>i>current&&!d):-1;panels.forEach((p,i)=>{p.hidden=i!==current;nav.children[i].setAttribute('aria-pressed',String(i===current));nav.children[i].classList.toggle('tab-done',done[i]);nav.children[i].classList.toggle('tab-next',i===next);});
+        if(selector==='.design-options'||selector==='.experiment-lab')syncWorkshopCue();
         if(selector==='.case-activity'&&stage===4&&step%2===0){
           const a=s.cases[round()],next=investigationNext(a,current===1),button=app.querySelector?.('.mission-footer > .primary'),hint=app.querySelector?.('.investigation-next');
           if(button){button.innerHTML=esc(next.label)+' '+icon('arrow');button.dataset.action=next.action;button.classList.toggle('action-cue',!!a.candidate&&!next.why);if(next.why){button.setAttribute('aria-disabled','true');button.dataset.why=next.why;}else{button.removeAttribute('aria-disabled');delete button.dataset.why;}}
@@ -72,6 +74,7 @@ function setupPanels(){
     });
   };
   tabs('.museum-exhibits',':scope > .museum-exhibit');
+  tabs('.museum-broadcast-scenes',':scope > .museum-broadcast-scene',['숲과 바다','연못과 꽃밭','사막과 추운 바다'].filter((_,i)=>campaignDone(s,3,i)));
   // The landscape certificate shows every invention together, without name tabs.
   tabs('.case-activity',':scope > section',step%2?['사는 곳','움직이는 방법']:['동물 선택','근거 연결']);
   tabs('.verify-steps',':scope > .verify-step',['검증','이유 찾기','기준 고치기']);
@@ -82,11 +85,52 @@ function setupPanels(){
     tabs('.lab-summary',':scope > section',['결과 비교','내 생각']);
   }
 }
-let renderedRoute='',unmountStudio=null,unmountFlashlight=null;
+// Keep one visible workshop cue and let the learner revisit any completed tab.
+const workshopTab={problem:0,name:0,feature:1,part:2,place:2};
+function syncWorkshopCue(){
+  if(screen!=='mission'||stage!==5||step>1||report?.passed===false)return;
+  const workspace=app.querySelector?.('.activity-workspace');
+  if(!workspace)return;
+  const previousCue=workspace.querySelector('.workshop-guide');
+  workspace.querySelector('.workshop-tab-cue')?.classList.remove('workshop-tab-cue');
+  const d=s.designs[0],next=step===0?workshopDesignNext(d,picked?.ref?.startsWith('part-')):workshopLabNext(d,labSummary);
+  const targets={problem:['.problem-options','해결할 문제를 골라 줘.'],name:['.design-name > label','발명품 이름을 적어 줘.'],feature:['.design-choices','빌릴 특징을 하나 골라 줘.'],part:['.part-tray','붙일 부품을 골라 줘.'],place:['.part-tray','그림에서 붙일 자리를 골라 줘.'],level:['.level-buttons','이번엔 다른 모양을 골라 줘.'],prediction:['.prediction-options','결과를 예상해 봐.'],test:['[data-action="experiment-run"]','지금 모양을 시험해 봐.'],reflection:['.reflection-options','알게 된 점을 하나 골라 줘.'],note:['label[for="experiment-note"]','바꾼 부분과 알게 된 점을 적어 줘.'],explain:['.invention-explanation .inline-options','이 특징을 쓴 이유를 골라 줘.']};
+  const footer=app.querySelector?.('.mission-footer .primary');
+  footer?.classList.toggle('workshop-continue-cue',step===1&&['summary','compare','continue'].includes(next));
+  workspace.classList.toggle('workshop-place-next',next==='place');
+  if(!targets[next]){previousCue?.remove();return;}
+  const [selector,text]=targets[next],target=workspace.querySelector(selector);
+  if(previousCue?.dataset.step===next)return;
+  previousCue?.remove();
+  if(step===0&&workshopTab[next]!==undefined){
+    const tab=workspace.querySelectorAll('.design-options > .panel-tabs > .btn')[workshopTab[next]];
+    if(tab?.getAttribute('aria-pressed')==='false'){tab.classList.add('workshop-tab-cue');return;}
+  }
+  if(target?.closest('[hidden]')){workspace.querySelector('.panel-tabs > .btn:first-child')?.classList.add('workshop-tab-cue');return;}
+  if(target?.tagName==='LABEL')target.insertAdjacentHTML('afterbegin','<span class="workshop-guide" data-step="'+next+'" aria-hidden="true">'+actionGuide('')+'</span>');
+  else target?.insertAdjacentHTML('beforebegin','<p class="workshop-guide" data-step="'+next+'" role="status">'+actionGuide(text)+'</p>');
+}
+function progressWorkshopReflection(){
+  if(screen==='mission'&&stage===5&&step===1&&labSummary===2&&taskReady(s,5,1))scheduleActivityProgress(()=>{
+    if(!['experiment-note','peer-note'].includes(document.activeElement?.id)&&taskReady(s,5,1))advance();
+  });
+}
+function progressWorkshopDesign(){
+  if(screen!=='mission'||stage!==5||step!==0||sketching)return;
+  const next=workshopDesignNext(s.designs[0]),tab=workshopTab[next];
+  if(next==='continue'&&taskReady(s,5,0)){
+    scheduleActivityProgress(()=>{if(!sketching&&taskReady(s,5,0)&&document.activeElement?.id!=='invention-name')advance();});
+  }else if(tab!==undefined){
+    const button=app.querySelectorAll?.('.design-options > .panel-tabs > .btn')[tab];
+    if(button?.getAttribute('aria-pressed')==='false')button.click();
+  }
+}
+let renderedRoute='',unmountStudio=null,unmountFlashlight=null,unmountBroadcast=null;
 // One village theme everywhere; it keeps quiet while a story or concept video is open (the outro carries its own finale music).
 function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:'village');}
 function render(){
-  clearStar?.();clearStar=null;if(pairRewardTimer!=null)globalThis.clearTimeout?.(pairRewardTimer);pairRewardTimer=null;
+  clearActivityProgress();
+  unmountBroadcast?.();unmountBroadcast=null;
   unmountFlashlight?.();unmountFlashlight=null;
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
@@ -106,9 +150,18 @@ function render(){
   map?.destroy();map=null;
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
-  setupPanels();
+  setupPanels();syncWorkshopCue();
+  unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
+    setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
+  },onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
+    if(screen==='commission'&&!requestParts(stage,commissionIndex).every(part=>campaignDone(s,stage,part)))progressRequest();
+  }});
   unmountFlashlight=mountFlashlight(app.querySelector?.('[data-flashlight]'),{onSelect(index){act('flashlight-clue',{dataset:{value:String(index)}});}});
-  if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{s.studio=next;save();}});
+  if(app.querySelector?.('[data-studio]'))unmountStudio=mountStudio(app,{getStudio:()=>s.studio,onChange:next=>{clearActivityProgress();s.studio=next;save();},onCommit:()=>{
+    if(screen==='mission'&&stage===5&&step>=2&&taskReady(s,stage,step))scheduleActivityProgress(()=>{
+      if(!document.activeElement?.matches?.('[data-studio-field]')&&taskReady(s,stage,step))advance();
+    });
+  }});
   app.querySelectorAll('.request-part,.motion-observer,.lens-notes').forEach((el,i)=>{if(scroll[i]!==undefined)el.scrollTop=scroll[i];});
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   app.querySelectorAll('.note-book').forEach((el,i)=>{if(notePages[i]>0)turnNotePage(el,notePages[i],false);});
@@ -119,14 +172,12 @@ function render(){
   sync3d();
   mountMotionPlayer();
   if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
-  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk(){mapWalkVersion++;autoEnter=false;arrived=false;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);},onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  if(screen==='map')map=createVillage(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){cancelMapWalk();const tip=document.querySelector('#travel-text');if(tip){tip.classList.add('is-error');tip.innerHTML='지도를 불러오지 못했어. 기록은 그대로야. '+btn('다시 불러오기','retry-images','quiet');}},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(screen!=='map'||selectedStage!==id)return;arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
-    // A building the learner picked opens as soon as Haru reaches its door; the walk after a restore only arrives.
+    // Enter only the building the learner picked once Haru reaches its door.
     if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}save();
   }});
-  // Right after a restore, stay by the building until it has lit up, then head to the next place.
-  if(screen==='map'&&!mapOverview&&!arrived&&flashed){const m=map,intent=mapWalkVersion,destination=selectedStage;if(typeof setTimeout==='function')setTimeout(()=>{if(map===m&&mapWalkVersion===intent&&selectedStage===destination)m.move(destination);},2400);}
   if(data)[...app.querySelectorAll('[data-action]')].find(el=>Object.entries(data).every(([k,v])=>el.dataset[k]===v))?.focus({preventScroll:true});
   placeFeedback();
   save();
@@ -185,13 +236,13 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){cancelCompletion();if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 // One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
 function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
 function resetNpcDialogue(){if(!clearNpcVoice)return;clearNpcVoice();clearNpcVoice=null;dialog.classList.remove('npc-scene-dialog');}
-function modal(title,content,{showClose=true}={}){resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
+function modal(title,content,{showClose=true}={}){if(screen==='map'){map?.stop?.();cancelMapWalk();}unmountBroadcast?.stop?.();cancelCompletion();clearActivityProgress();resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   if(s.introSeen){go('map');return;}
   openStory('intro');
@@ -209,21 +260,26 @@ function finishStory(){
   go(target);
 }
 // Keep the map tip and campaign actions; present the resident in the native dialogue.
-function talk(npc,text,marker){
+function talk(npc,text,marker,{automatic=false,onEnd}={}){
   if(dialog.open)return;
   const restored=restoredPlaces(s),id=Number(npc.near),mori=npc.id==='mori',completed=restored.includes(id);
   const next=STAGES.find(t=>!restored.includes(t.id)&&isStageOpen(s,t.id));
   const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 복구하면 ${withParticle(next.reward,'을/를')} 받아! 건물이나 길을 누르면 같이 걸어갈게.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');
   const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;
   const finalLine=!mori&&restored.length===STAGES.length?line:'';
-  const letter=!mori&&campaignOpen(s,id,0)?id:null;
+  const letter=!automatic&&!mori&&campaignOpen(s,id,0)?id:null;
   const spoken=finalLine?npc.after:line;
   stopMotion();map?.pause?.();dialog.classList.add('npc-scene-dialog');
-  dialog.innerHTML=npcDialogue(npc,spoken,{mori,completed,finalLine,letter});
+  dialog.innerHTML=npcDialogue(npc,spoken,{mori,completed,finalLine,letter,compact:automatic});
   dialog.showModal();
   dialog.querySelector('.npc-scene-next')?.focus({preventScroll:true});
   marker?.classList.add('is-speaking-npc');
-  const stopVoice=mountNpcVoice(dialog,npc,completed,{enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
+  const stopVoice=mountNpcVoice(dialog,npc,completed,{compact:automatic,onEnd,onPlaying:duration=>{
+    if(automatic&&completionRoute&&Number.isFinite(duration)){
+      globalThis.clearTimeout?.(completionTimer);
+      completionTimer=globalThis.setTimeout?.(finishCompletion,duration*1000+750)??null;
+    }
+  },enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
     setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
   }});
   clearNpcVoice=()=>{stopVoice();marker?.classList.remove('is-speaking-npc');};
@@ -232,77 +288,193 @@ function talk(npc,text,marker){
 function warmStage(id){const r=Math.floor((s.step[id]||0)/2);
   if(id===1){const pair=OBSERVE_PAIRS[r]||[],first=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0];if(SCAN_3D.includes(first))warm3d('scanner',[first]);}
   if(id===3)warm3d('dome',DISCOVERIES.slice(r*3,r*3+3).map(d=>d.animal));}
+function cancelMapWalk(){
+  autoEnter=false;arrived=false;
+  const tip=document.querySelector('#travel-text');if(tip)tip.textContent=mapTip(s);
+  const next=document.querySelector('.map-next > .primary');if(next){next.disabled=false;next.removeAttribute?.('aria-busy');}
+}
 function selectMap(id){
   if(screen==='map'&&mapOverview&&Number.isInteger(id)&&STAGES[id-1]){mapOverview=false;render();}
-  if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;mapWalkVersion++;map?.stop?.();autoEnter=false;selectedStage=id;arrived=false;
+  if(!Number.isInteger(id)||!STAGES[id-1]||screen!=='map')return;map?.stop?.();cancelMapWalk();selectedStage=id;
   document.querySelectorAll('.map-marker[data-action="map-select"]').forEach(el=>{el.classList.toggle('current',Number(el.dataset.id)===id);el.setAttribute('aria-pressed',String(Number(el.dataset.id)===id));});
   document.querySelector('#quest-panel').innerHTML=questPanel(s,view());
-  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;warmStage(id);document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
+  if(isStageOpen(s,id)){setQuestOpen(false);autoEnter=true;const next=document.querySelector('.map-next > .primary');if(next){next.disabled=true;next.setAttribute?.('aria-busy','true');}warmStage(id);document.querySelector('#travel-text').textContent=`모리: ${withParticle(STAGES[id-1].name,'으로/로')} 가는 중이야. 문 앞에 닿으면 들어가자!`;map.move(id);}
   else{document.querySelector('#travel-text').textContent=mapTip(s);explainLocked(id);}
 }
 function explainLocked(id){
   const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))||STAGES[id-2];
-  modal('아직 들어갈 수 없어요 · '+STAGES[id-1].name,`<div class="map-lock-guide">${mori(2)}<div><h3>먼저 ${withParticle(next.name)} 복구해 줘!</h3><p>탐구 활동과 주민의 부탁을 마치면 다음 장소가 열려.</p></div></div><div class="dialog-actions">${btn('지도 둘러보기','close-dialog','quiet')}${btn(withParticle(next.name,'으로/로')+' 가기','locked-next','primary',`data-id="${next.id}"`)}</div>`);
+  modal('아직 들어갈 수 없어요 · '+STAGES[id-1].name,`<div class="map-lock-guide">${mori(2)}<div><h3>먼저 ${withParticle(next.name)} 복구해 줘!</h3><p>${next.id===1?'핵심 관찰과 비교 16개를 마치면 분류의 정원이 열려.':'탐구 활동과 주민의 부탁을 마치면 다음 장소가 열려.'}</p></div></div><div class="dialog-actions">${btn('지도 둘러보기','close-dialog','quiet')}${btn(withParticle(next.name,'으로/로')+' 가기','locked-next','primary',`data-id="${next.id}"`)}</div>`);
 }
-function setQuestOpen(open){questOpen=open;const page=document.querySelector('.map-page'),panel=document.querySelector('#quest-panel');page?.classList?.toggle('quest-open',open);if(panel)panel.inert=!open;document.querySelectorAll('[data-action="quest-toggle"]').forEach(el=>el.setAttribute('aria-expanded',String(open)));if(open){autoEnter=false;map?.pause?.();panel?.querySelector?.('button')?.focus({preventScroll:true});}else map?.resume?.();document.querySelector('.map-scene')?.scrollTo?.({left:0,top:0});}
+function setQuestOpen(open){questOpen=open;const page=document.querySelector('.map-page'),panel=document.querySelector('#quest-panel');page?.classList?.toggle('quest-open',open);if(panel)panel.inert=!open;document.querySelectorAll('[data-action="quest-toggle"]').forEach(el=>el.setAttribute('aria-expanded',String(open)));if(open){map?.stop?.();cancelMapWalk();map?.pause?.();panel?.querySelector?.('button')?.focus({preventScroll:true});}else map?.resume?.();document.querySelector('.map-scene')?.scrollTo?.({left:0,top:0});}
 function enter(id,replay=false){
   if(!isStageOpen(s,id)){if(screen==='map'&&STAGES[id-1])explainLocked(id);return;}playSound(s.soundEnabled,'door');stage=id;step=s.step[id]??Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
   if(replay)step=0;
   if(step>0&&!s.activities.includes(`${id}-${step-1}`))step=Math.min(STAGES[id-1].tasks.length-1,countStage(s,id));
-  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem)d.problem='swim';}go('mission');
+  selectedStage=id;activeHabitat='forest';zoom=false;focusIndex=0;focusForestObservation();clueIndex=0;sketching=false;if(stage===5&&step<2){const d=s.designs[0];if(!d.problem)d.problem='swim';}focusMotion();go('mission');if(!s.activities.includes(`${stage}-${step}`)&&taskReady(s,stage,step))scheduleActivityProgress(stage===1?continueForest:stage===2?continueGarden:advance);
 }
 function reviewActivities(id){
   if(!isStageOpen(s,id))return;const t=STAGES[id-1];
-  modal(t.name+' · 활동 선택',`<p>해 보고 싶은 활동을 골라. 보관한 기록과 받은 별은 그대로야.</p><div class="review-activities">${t.tasks.map((title,index)=>{
+  modal(t.name+' · 활동 선택',`<p>해 보고 싶은 활동을 골라. 보관한 관찰과 비교 기록은 그대로야.</p><div class="review-activities">${t.tasks.map((title,index)=>{
     const earned=s.activities.includes(`${id}-${index}`),open=index===0||s.activities.includes(`${id}-${index-1}`);
     return btn(`${earned?'✓ ':''}${index+1}. ${title}`,'review-open','secondary',`data-id="${id}" data-value="${index}" ${open?'':'disabled'}`);
   }).join('')}</div>${s.completed.includes(id)?`<div class="dialog-actions">${btn('주민 의뢰 보기','commission-open','primary',`data-id="${id}" data-value="0"`)}</div>`:''}`);
 }
 function reviewOpen(id,index){
   if(!isStageOpen(s,id)||!STAGES[id-1]?.tasks[index]||(index>0&&!s.activities.includes(`${id}-${index-1}`)))return;
-  dialog.close();stage=id;step=index;selectedStage=id;focusIndex=0;clueIndex=0;zoom=false;sketching=false;activeHabitat='forest';go('mission');
+  dialog.close();stage=id;step=index;selectedStage=id;focusIndex=0;focusForestObservation();clueIndex=0;zoom=false;sketching=false;activeHabitat='forest';focusMotion();go('mission');
 }
 function advance(){
+  if(screen!=='mission')return;
   stopMotion();
   const result=claimTask(s,stage,step);if(!result.ok){const m=isStageOpen(s,stage)?taskMistake(s,stage,step):null;if(stage===4&&step%2===0&&m?.wrong?.some(k=>k.startsWith('case:')))panelPages.set(panelKey('.case-activity'),m.wrong.includes('case:candidate')?0:1);return say(m?.text||taskHint(stage,step),false,m?.wrong);}
   playSound(s.soundEnabled,true);
-  if(step===STAGES[stage-1].tasks.length-1){save();render();requestCommission(stage);return;}
+  if(step===STAGES[stage-1].tasks.length-1){
+    save();
+    if(stage===1){completeStage();return;}
+    openCommission(stage);
+    if(stage===5&&s.studioRecord)submitCommission();
+    return;
+  }
   const pairDone=stage===1&&step%2===1&&result.fresh?Math.floor(step/2):-1;
-  labSummary=false;step++;s.step[stage]=step;focusIndex=0;clueIndex=0;feedback=null;
-  report=null;zoom=false;sketching=false;activeHabitat='forest';render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=result.fresh?'별 하나 받았어! 다음 탐구로 이어 가자!':'다음 탐구로 이어 가자!';if(result.fresh)flyStar();
-  if(pairDone>=0){const rewardStep=step;pairRewardTimer=globalThis.setTimeout?.(()=>{pairRewardTimer=null;if(screen==='mission'&&stage===1&&step===rewardStep&&!dialog.open)pairReward(pairDone);},900);}
+  labSummary=false;step++;s.step[stage]=step;focusIndex=0;focusForestObservation();clueIndex=0;feedback=null;
+  report=null;zoom=false;sketching=false;activeHabitat='forest';focusMotion();render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent='다음 탐구로 이어 가자!';
+  if(pairDone>=0)pairReward(pairDone);
 }
-// After each pair comparison, show the discovery and continue to the next animals.
-function pairReward(r){const [a,b]=OBSERVE_PAIRS[r],[same,diff]=COMPARES[r].map(q=>q.options.find(o=>o[0]===q.answer)[1]),seen=OBSERVE_PAIRS.flat().flatMap(id=>OBSERVATIONS[id]).filter(o=>s.observed.includes(o.id)).length;
-  modal('발견 카드 · '+withParticle(ANIMALS[a].name,'과/와')+' '+ANIMALS[b].name,`<div class="pair-reward"><p class="pair-found">${icon('star')}<span><b>같은 점</b> ${same}<br><b>다른 점</b> ${diff}</span></p><p class="pair-progress">1장 진도 · 비교 ${r+1}/4 · 특징 관찰 ${seen}/24</p></div><div class="dialog-actions">${btn('다음 동물 관찰하기 '+icon('arrow'),'close-dialog','primary','autofocus')}</div>`,{showClose:false});}
-// A star lands on the activity progress. Scene changes cancel its sound, animation and DOM together.
-function flyStar(){
+// Pair discoveries use a brief notice, keeping the next animals immediately available.
+function pairReward(r){
+  const [a,b]=OBSERVE_PAIRS[r];
   if(typeof document.createElement!=='function')return;
-  clearStar?.();
-  const progressChip=document.querySelector('.guide-progress'),chip=progressChip?.getBoundingClientRect().width?progressChip:document.querySelector('.mission-guide h1'),target=chip?.getBoundingClientRect(),still=matchMedia('(prefers-reduced-motion: reduce)').matches,el=document.createElement('div');el.className='star-fly';el.setAttribute('aria-hidden','true');el.innerHTML=icon('star')+'<b>+1</b>';document.body.append(el);
-  let timer=null,animation=null,pulse=null,tag=null,active=true,landed=false;
-  clearStar=()=>{active=false;clearTimeout(timer);animation?.cancel();pulse?.cancel();el.remove();tag?.remove();chip?.classList.remove('star-pop');};
-  const land=()=>{if(!active||landed)return;landed=true;el.remove();if(!chip?.isConnected)return;playSound(s.soundEnabled,'star');tag=document.createElement('span');tag.className='star-pop-tag';tag.setAttribute('aria-hidden','true');tag.textContent=' ★ '+countStage(s,stage)+'/'+STAGES[stage-1].tasks.length+' · +1';chip.classList.add('star-pop');chip.append(tag);timer=setTimeout(()=>{tag.remove();chip.classList.remove('star-pop');},800);if(!still)pulse=chip.animate?.([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:260,easing:'ease-out'});};
-  if(!el.animate||!target?.width||still){land();return;}
-  const dx=target.left+target.width/2-innerWidth/2,dy=target.top+target.height/2-innerHeight/2;
-  animation=el.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:0},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.3},{transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(.2)',opacity:.8}],{duration:700,easing:'cubic-bezier(.5,0,.3,1)'});animation.onfinish=land;
+  const notice=document.createElement('p');notice.className='forest-notice';notice.setAttribute('role','status');
+  notice.textContent=`${ANIMALS[a].name}·${ANIMALS[b].name} 비교 완료! ${forestAnswerCount(s)}/16`;
+  document.querySelector('#main')?.append(notice);
+  globalThis.setTimeout?.(()=>notice.remove(),1800);
 }
-
-function previous(){labSummary=false;stopMotion();if(step===0){go('map');return;}step--;report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
+function focusForestObservation(animal){
+  if(stage!==1||step%2!==0)return;
+  s.activeAnimal=animal||nextObservation(s,round())||OBSERVE_PAIRS[round()][0];
+  focusIndex=OBSERVATIONS[s.activeAnimal].findIndex(o=>o.id===OBSERVE_REQUIRED[s.activeAnimal]);
+}
+function clearActivityProgress(){
+  if(activityTimer!==null)globalThis.clearTimeout?.(activityTimer);
+  activityTimer=null;
+}
+function continueForest(){
+  if(screen!=='mission'||stage!==1||dialog.open)return;
+  feedback=null;
+  if(step%2===0&&nextObservation(s,round())){focusForestObservation();render();}
+  else if(step%2===1&&COMPARES[round()].some(q=>s.compares[round()][q.key]!==`${q.key}-${q.answer}`))render();
+  else advance();
+  document.querySelector('#main')?.focus({preventScroll:true});
+}
+const activityRoute=()=>[screen,stage,step,commissionIndex,requestCard,activeHabitat].join(':');
+function scheduleActivityProgress(next,{inDialog=false}={}){
+  clearActivityProgress();
+  const answeredRoute=activityRoute();
+  activityTimer=globalThis.setTimeout?.(()=>{
+    activityTimer=null;
+    if(activityRoute()===answeredRoute&&(!dialog.open||inDialog))next();
+  },650)??null;
+}
+// Resume an interrupted transition after a dialog or a backgrounded tablet returns.
+function resumeActivityProgress(){
+  if(document.hidden)return;
+  if(completionRoute){
+    globalThis.clearTimeout?.(completionTimer);
+    completionTimer=globalThis.setTimeout?.(finishCompletion,4500)??null;return;
+  }
+  if(dialog.open){
+    return;
+  }
+  if(screen==='commission'){
+    if(!requestParts(stage,commissionIndex).every(part=>campaignDone(s,stage,part)))progressRequest();
+    return;
+  }
+  if(screen!=='mission'||s.activities.includes(`${stage}-${step}`))return;
+  if(stage===1){
+    if(!app.querySelector?.('.forest-extra[open]')&&(taskReady(s,stage,step)||step%2===0&&s.observed.includes(OBSERVE_REQUIRED[s.activeAnimal])))scheduleActivityProgress(continueForest);
+  }else if(stage===3&&step%2===0){
+    const current=DISCOVERIES.slice(round()*3,round()*3+3).find(d=>d.habitat===activeHabitat);
+    if(current&&s.inquiry.motion[current.animal]!==undefined)scheduleActivityProgress(continueMotion);
+  }else if(taskReady(s,stage,step)&&!(stage===5&&step!==1))scheduleActivityProgress(stage===2&&step===0?continueGarden:advance);
+  else if(stage===5&&step===1&&!labSummary&&comparisonReady(s.designs[round()]))scheduleActivityProgress(()=>{labSummary=1;render();});
+}
+function progressAnswer(showError=false){
+  if(screen!=='mission')return;
+  if(taskReady(s,stage,step)){scheduleActivityProgress(advance);return;}
+  if(showError){const mistake=taskMistake(s,stage,step);if(mistake)say(mistake.text,false,mistake.wrong);}
+}
+function progressInvestigation(){
+  if(s.cases[round()].candidate)progressAnswer(true);
+}
+function focusMotion(){
+  if(stage!==3||step%2!==0)return;
+  const animals=DISCOVERIES.slice(round()*3,round()*3+3);
+  const next=animals.find(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME)||animals[0];
+  activeHabitat=next.habitat;
+  if(!s.discovered.includes(next.id))s.discovered.push(next.id);
+}
+function continueMotion(){
+  if(taskReady(s,stage,step)){advance();return;}
+  focusMotion();motionPhase=0;feedback=null;render();
+}
+function cancelCompletion(){
+  if(completionTimer!==null)globalThis.clearTimeout?.(completionTimer);
+  completionTimer=null;completionRoute=null;
+}
+function finishCompletion(){
+  if(!completionRoute||document.hidden||screen!=='reward'||stage!==completionRoute.stage)return;
+  const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));
+  cancelCompletion();dialog.close();resetNpcDialogue();
+  if(!next){openStory('outro');return;}
+  restoredFlash=stage;selectedStage=stage;go('map');selectMap(next.id);
+}
+function completeStage(){
+  restoredFlash=stage;go('reward');
+  const c=COMMISSIONS[stage-1],npc={id:c.portrait,name:c.npc,near:String(stage),after:c.thanks};
+  completionRoute={stage};
+  talk(npc,c.thanks,null,{automatic:true,onEnd:finishCompletion});
+  completionTimer=globalThis.setTimeout?.(finishCompletion,Math.max(4500,c.thanks.length*125))??null;
+}
+function continueGarden(){
+  advance();
+  if(screen==='mission'&&stage===2&&step===1){
+    s.inquiry.verify[0].ran=true;
+    panelPages.set(panelKey('.verify-steps'),1);
+    render();
+  }
+}
+function progressRequest(){
+  if(screen!=='commission')return;
+  const cards=requestCards(s,stage,requestParts(stage,commissionIndex)),card=cards[requestCard];
+  if(!card)return;
+  if(!cardReady(s,stage,card)){
+    const draft=campaignDraft(s,stage,card.part);
+    const wrong=card.rows.find(row=>draft.answers[row.key]&&draft.answers[row.key]!==row.answer);
+    if(wrong)say(wrong.hint,false,['row:'+wrong.key]);
+    else if(card.rows.every(row=>draft.answers[row.key]))say(campaignHint(s,stage,card.part));
+    return;
+  }
+  scheduleActivityProgress(()=>{
+    const next=cards.findIndex(item=>!cardReady(s,stage,item));
+    if(next<0){submitCommission();return;}
+    requestCard=next;commissionIndex=cards[next].part;feedback=null;render();
+  });
+}
+function previous(){labSummary=false;stopMotion();if(step===0){go('map');return;}step--;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
-  if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission')step=route.step;if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
+  if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
 }
-function settings(replaysOpen=false){modal('설정',settingsContent(s,{replaysOpen}));if(replaysOpen)dialog.querySelector?.('.concept-replays')?.scrollIntoView?.({block:'start'});}
+function settings(){modal('설정',settingsContent(s));}
 // Silent clip with DOM captions; the village music stops while it is open and returns when the dialog closes.
-function openConcept(id,back){if(!replayUnlocked(s,id))return;const item=replayItem(id);modal(item.title,conceptView(id,back==='settings'?'settings':''));conceptPlayer=createConceptPlayer(dialog.querySelector?.('.concept-player'));syncMusic();}
+function openConcept(id){if(!replayUnlocked(s,id))return;const item=replayItem(id);modal(item.title,conceptView(id));conceptPlayer=createConceptPlayer(dialog.querySelector?.('.concept-player'));syncMusic();}
 function togglePreview(){
   if(studentSnapshot){s=studentSnapshot;studentSnapshot=null;stage=s.stage;step=s.step[stage]||0;selectedStage=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||STAGES.at(-1).id;navigation.reset();dialog.close();go('map');}
   else{save();studentSnapshot=JSON.parse(JSON.stringify(s));s=JSON.parse(JSON.stringify(s));s.adminUnlocked=true;render();}
 }
 function notebook(){modal('우리 탐험대의 가방',notebookContent(s));}
 function tool(id){const t=STAGES[id-1];if(!t||!restoredPlaces(s).includes(id))return;if(!s.toolUses.includes(String(id)))s.toolUses.push(String(id));save();modal(`${toolArt(t.id)} ${t.reward}`,id===1?lensTool('duck',2):toolContent(s,id));}
-function lensTool(id,index){if(!Object.hasOwn(OBSERVATIONS,id))id='duck';const o=OBSERVATIONS[id][Math.max(0,Math.min(2,index))];return '<div class="inline-options">'+Object.keys(OBSERVATIONS).map(a=>btn(a==='frog'?'개구리':a==='crab'?'게':a==='duck'?'오리':'토끼','lens-animal',a===id?'selected':'quiet','data-id="'+a+'"')).join('')+'</div><div class="detail-crop tool-crop" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+art(id)+'</div><p>'+o.text+'</p><div class="inline-options">'+OBSERVATIONS[id].map((o,i)=>btn(o.label,'lens-part','quiet','data-id="'+id+'" data-value="'+i+'"')).join('')+'</div>';}
+function lensTool(id,index){if(!Object.hasOwn(OBSERVATIONS,id))id='duck';const o=OBSERVATIONS[id][Math.max(0,Math.min(2,index))];return '<div class="inline-options">'+Object.keys(OBSERVATIONS).map(a=>btn(ANIMALS[a].name,'lens-animal',a===id?'selected':'quiet','data-id="'+a+'"')).join('')+'</div><div class="detail-crop tool-crop" style="--focus-x:'+o.x+';--focus-y:'+o.y+'">'+art(id)+'</div><p>'+o.text+'</p><div class="inline-options">'+OBSERVATIONS[id].map((o,i)=>btn(o.label,'lens-part','quiet','data-id="'+id+'" data-value="'+i+'"')).join('')+'</div>';}
 function moveLens(e,surface){const label=document.querySelector('.lens-notes h2'),caption=document.querySelector('.lens-notes>p'),record=document.querySelector('.lens-notes [data-action=observe]');if(label)label.textContent='자유롭게 확대 중';if(caption)caption.textContent='관찰할 부분에서 손을 떼어 줘.';if(record)record.disabled=true;const box=surface.getBoundingClientRect(),x=Math.max(0,Math.min(100,(e.clientX-box.left)/box.width*100)),y=Math.max(0,Math.min(100,(e.clientY-box.top)/box.height*100));for(const el of [surface,document.querySelector('#lens-detail')]){if(el){el.style.setProperty('--focus-x',x);el.style.setProperty('--focus-y',y);}}}
 function stopMotionFrame(){if(motionRAF!==null){window.cancelAnimationFrame(motionRAF);motionRAF=null;}}
 function mountMotionPlayer(){
@@ -320,17 +492,16 @@ function syncAutoButton(){const b=document.querySelector('[data-action="auto-run
 function stopAuto(text){if(!autoRun)return;cancelLater(autoRun.timer);autoRun=null;if(text){feedback={good:true,text};render();document.querySelector('#announcer').textContent=text;}else syncAutoButton();}
 // The next hands-on press as [action, dataset, wait ms], or a sentence telling the learner what is theirs to do.
 function autoNext(a){
-  // Observe, then answer: bring one unrecorded part into view, wait for the learner's own choice (and '알고 보니' pick), then go on.
-  if(stage===1&&step%2===0){const pair=OBSERVE_PAIRS[round()],parts=pair.flatMap(id=>OBSERVATIONS[id].map((o,i)=>({id,i,o})));
-    const pending=p=>!s.observed.includes(p.o.id)||(p.o.ahaQ&&s.ahaPicks?.[p.o.id]===undefined);
-    const current=parts.find(p=>p.id===(pair.includes(s.activeAnimal)?s.activeAnimal:pair[0])&&p.i===focusIndex),open=current&&pending(current)?current:parts.find(pending);
-    if(!open)return '두 동물의 모든 부분을 기록했어. ‘다음으로’를 눌러 비교해 봐.';
-    if(open!==current){if(a.waiting){a.waiting=false;return [null,null,1500];}return ['inspect',{id:open.id,value:String(open.i)},1700];}
-    if(!a.waiting){a.waiting=true;const text=s.observed.includes(open.o.id)?'‘알고 보니’ 질문도 네가 골라 줘. 고르면 다음 부분으로 넘어가.':'이 부분을 잘 보고 맞는 설명을 골라 줘. 고르면 다음 부분으로 넘어가.';
-      feedback={good:true,text};const bubble=document.querySelector('.guide-buddy p');if(bubble)bubble.textContent=text;document.querySelector('#announcer').textContent=text;}
+  // The helper only focuses required observations. Answers always come from the learner.
+  if(stage===1&&step%2===0){
+    const animal=nextObservation(s,round());
+    if(!animal)return '두 동물의 핵심 특징을 기록했어. 비교로 이어 가자.';
+    const index=OBSERVATIONS[animal].findIndex(o=>o.id===OBSERVE_REQUIRED[animal]);
+    if(s.activeAnimal!==animal||focusIndex!==index)return ['inspect',{id:animal,value:String(index)},1200];
+    if(!a.waiting){a.waiting=true;document.querySelector('#announcer').textContent='핵심 특징을 보고 맞는 설명을 골라 줘.';}
     return [null,null,600];}
   if(stage===3&&step%2===0){const d=DISCOVERIES.slice(round()*3,round()*3+3).find(x=>s.inquiry.motion[x.animal]===undefined);
-    if(!d)return '세 마리 사진을 모두 골랐어. ‘다음으로’를 눌러 줘.';
+    if(!d)return '세 마리 사진을 기록했어. 다음 활동으로 이어져.';
     if(activeHabitat!==d.habitat)return ['habitat',{id:d.habitat},1200];
     if(!s.discovered.includes(d.id))return ['discover',{id:d.id},1600];
     if(!motionPlayer)return ['motion-capture',{id:d.animal},1600];
@@ -374,7 +545,7 @@ function download(){
 // Only says why saving stopped; backup and restore were removed from the app (2026-10-26).
 function storageHelp(){modal('기록 저장 안내',`<p role="status">${esc(storageMessage(recordStore.status)||'기록은 현재 브라우저에 자동 저장돼.')}</p><div class="dialog-actions">${btn('닫기','close-dialog','secondary')}</div>`);}
 function openCommission(id,index=0){
-  if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;stage=id;commissionIndex=index;evidenceOpen=false;go('commission');
+  if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;stage=id;commissionIndex=index;evidenceOpen=false;go('commission');if(!requestParts(stage,index).every(part=>campaignDone(s,stage,part))&&cardReady(s,stage,requestCards(s,stage,requestParts(stage,index))[requestCard]))progressRequest();
 }
 function requestCommission(id,index=0){
   if(!isStageOpen(s,id)||!campaignOpen(s,id,index))return;
@@ -388,19 +559,20 @@ function showGap(){const parts=requestParts(stage,commissionIndex),gap=requestGa
   const cards=requestCards(s,stage,parts),k=cards.findIndex(c=>c.part===gap.index&&(c.kind==='own-sort'||c.kind==='retest'||c.rows.some(r=>r.key===gap.key)));
   if(commissionIndex<2)commissionIndex=gap.index;if(k>=0)requestCard=k;say(gap.text,false,gap.key?['row:'+gap.key]:[]);}
 // The last challenge is part of every place: the two requests lead straight into it, and the reward waits until it is done.
-const challengeLeft=()=>campaignOpen(s,stage,2)&&!campaignDone(s,stage,2);
+const challengeLeft=()=>stage!==2&&campaignOpen(s,stage,2)&&!campaignDone(s,stage,2);
 function toChallenge(){openCommission(stage,2);say('부탁을 해결했어! 이제 마지막 도전으로 이 장소를 완성하자.',true);}
 function submitCommission(){
+  if(screen!=='commission')return;
   if(commissionIndex<2){
     const result=claimRequest(s,stage);
     if(!result.ok)return showGap();
-    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return toChallenge();restoredFlash=stage;go('reward');return;
+    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return toChallenge();completeStage();return;
   }
   const result=claimCommission(s,stage,commissionIndex);
   if(!result.ok)return showGap();
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
   if(commissionIndex===1&&challengeLeft())return toChallenge();
-  if(commissionIndex>=1){restoredFlash=stage;go('reward');return;}
+  if(commissionIndex>=1){completeStage();return;}
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
 }
 // Flips the observation notebook in place so the page-turn animation is not lost to a re-render.
@@ -413,6 +585,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     if(picked&&Number(picked.commissionIndex)!==part)picked=null;commissionIndex=part;
   }
   switch(action){
+    case 'auto-run-visibility':s.showAutoRun=!s.showAutoRun;if(!s.showAutoRun)stopAuto();save();render();settings();break;
     case 'home':go('home');break;
     case 'start':start();break;
     case 'story-intro':openStory('intro');break;
@@ -431,8 +604,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'map-interact':map?.interact?.();break;
     case 'map-walk':autoEnter=false;map?.walk?.(id);break;
     // Hand toggle: no re-render, so the walking map and its camera keep their place.
-    case 'map-fit':mapPan=false;map?.pan?.(false);map?.fit?.();document.querySelector('[data-action="map-pan"]')?.setAttribute('aria-pressed','false');break;
-    case 'map-pan':mapPan=!mapPan;map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
+    case 'map-fit':mapPan=false;map?.stop?.();cancelMapWalk();map?.pan?.(false);map?.fit?.();document.querySelector('[data-action="map-pan"]')?.setAttribute('aria-pressed','false');break;
+    case 'map-pan':mapPan=!mapPan;map?.stop?.();cancelMapWalk();map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
     case 'map-prev':case 'map-next':selectMap(Math.max(1,Math.min(5,selectedStage+(action==='map-prev'?-1:1))));break;
     case 'enter':enter(Number(id));break;
     case 'replay-stage':enter(Number(id),true);break;
@@ -443,8 +616,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'commission-accept':if(isStageOpen(s,Number(id))&&campaignOpen(s,Number(id),0)){dialog.close();openCommission(Number(id),campaignDone(s,Number(id),0)&&!campaignDone(s,Number(id),1)?1:0);}break;
     case 'commission-part':if(screen==='commission'&&[0,1].includes(Number(value))&&campaignOpen(s,stage,Number(value))){commissionIndex=Number(value);requestCard=null;feedback=null;picked=null;render();}break;
     case 'request-card':if(screen==='commission'){const n=requestCards(s,stage,requestParts(stage,commissionIndex)).length,k=Number(value);if(Number.isInteger(k)&&k>=0&&k<n){requestCard=k;feedback=null;picked=null;render();}}break;
-    case 'commission-choice':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,key,value)){feedback=null;render();}break;
-    case 'commission-sort':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,id,value)){picked=null;feedback=null;render();}break;
+    case 'commission-choice':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,key,value)){feedback=null;render();progressRequest();}break;
+    case 'commission-sort':if(screen==='commission'&&chooseCommission(s,stage,commissionIndex,id,value)){picked=null;feedback=null;render();progressRequest();}break;
     case 'commission-submit':if(screen==='commission')submitCommission();break;
     case 'commission-next':if(screen==='commission'){if(commissionIndex<2&&campaignDone(s,stage,0)&&campaignDone(s,stage,1)){if(challengeLeft())toChallenge();else go('reward');}else if(commissionIndex===2)go('reward');}break;
     case 'note-page':turnNotePage(el.closest('.note-book'),Number(value));return;
@@ -460,31 +633,41 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       if(id){if(!OBSERVE_PAIRS[round()]?.includes(id))return;s.activeAnimal=id;zoom=false;}
       focusIndex=Math.max(0,Math.min(2,Number(value)||0));if(relook&&OBSERVATIONS[s.activeAnimal]?.[focusIndex]?.id===relook)relook=null;feedback=null;render();break;
     }
-    case 'animal-tab':focusIndex=0;if(OBSERVE_PAIRS[round()].includes(id)){s.activeAnimal=id;zoom=false;feedback=null;render();}break;
+    case 'animal-tab':if(OBSERVE_PAIRS[round()].includes(id)){focusForestObservation(id);zoom=false;feedback=null;render();}break;
     // A wrong description sends the learner to the evidence: the specimen zooms to that part. A first-try match is called out.
-    case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o)return;const owner=Object.keys(OBSERVATIONS).find(k=>OBSERVATIONS[k].includes(o));
-      if(value&&value!=='right'){if(relook===id)return;relook=id;const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+withParticle(o.look||o.label)+' 다시 봐!',false,['observe:'+value]);}
-      const tries=s.observeTries??={},first=!s.observed.includes(id)&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(first)toast('한 번에 맞혔어! 눈으로 잘 확인했네.');break;}
+    case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o||s.observed.includes(id))return;const owner=Object.keys(OBSERVATIONS).find(k=>OBSERVATIONS[k].includes(o));
+      if(value&&value!=='right'){relook=id;const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+withParticle(o.look||o.label)+' 다시 봐!',false,['observe:'+value]);}
+      const fresh=!s.observed.includes(id),tries=s.observeTries??={},first=fresh&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(fresh&&screen==='mission'&&stage===1&&step%2===0&&OBSERVE_PAIRS[round()].includes(owner)&&OBSERVE_REQUIRED[owner]===id)scheduleActivityProgress(continueForest);break;}
     case 'aha-pick':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o?.ahaQ||!s.observed.includes(id)||![0,1].includes(Number(value)))break;(s.ahaPicks??={})[id]=Number(value);render();break;}
     case 'zoom':zoom=!zoom;render();break;
     case 'scan-reset':viewer?.call('reset');break;
     case 'dome-tilt':toggleTilt(el);break;
+    case 'compare-answer':{
+      if(screen!=='mission'||stage!==1||step%2!==1)return;
+      const question=COMPARES[round()].find(q=>q.key===key),answers=s.compares[round()];
+      if(!question||answers[key]===`${key}-${question.answer}`)return;
+      const option=question.options.find(([candidate])=>value===`${key}-${candidate}`);
+      if(!option)return;
+      answers[key]=value;
+      if(value!==`${key}-${question.answer}`)return say(option[2]||'두 동물의 모습을 다시 살펴봐.',false,['compare:'+key]);
+      playSound(s.soundEnabled,'correct');feedback={good:true,text:option[1],answeredCompare:key};render();
+      scheduleActivityProgress(continueForest);break;
+    }
     case 'compare':{const c=s.compares[round()];for(const k of ['common','difference'])if(c[k]===value)delete c[k];if(['common','difference'].includes(key))c[key]=value;feedback=null;render();break;}
     case 'sort':{if(!SORT_ANIMALS.includes(id))break;if(value==='pool')delete s.sorts[round()][id];else s.sorts[round()][id]=value;feedback=null;render();
+      if(stage===2&&step===0&&SORT_ANIMALS.every(animal=>s.sorts[0][animal]))scheduleActivityProgress(continueGarden);
       // A card that breaks the everyday guess (a bird that cannot fly, a sea animal that is not a fish) explains itself once it lands in the right place.
       const key=round()?s.criteria[1]:'wings';if(value===(ANIMALS[id][key]?'yes':'no')&&ANIMALS[id].aha)toast('알고 보니! '+ANIMALS[id].aha,document.querySelector(`.drag-card[data-id="${id}"]`)||el);break;}
     case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;
-    case 'habitat':stopMotion();if(Object.hasOwn(HABITATS,id)||Object.hasOwn(DOME_ZONES,id))activeHabitat=id;feedback=null;render();break;
+    case 'habitat':{stopMotion();if(Object.hasOwn(HABITATS,id)||Object.hasOwn(DOME_ZONES,id))activeHabitat=id;const d=DISCOVERIES.slice(round()*3,round()*3+3).find(x=>x.habitat===id);if(d&&!s.discovered.includes(d.id))s.discovered.push(d.id);if(DOME_ZONES[id])looked.add(id);feedback=null;render();break;}
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
-    case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();break;}
+    case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();progressAnswer(Object.keys(l).length===3);break;}
     case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;
     case 'place':{if(!picked){playSound(s.soundEnabled);toast('먼저 옮길 카드를 눌러 줘.',el);break;}const {action,dataset}=dropData(picked,el.dataset);dropCard(action,dataset);return;}
-    case 'flashlight-clue':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],k=c.clues[Number(value)];if(k)modal('발견한 단서',clueFoundView(c,Number(value),s.cases[round()].opened.includes(k.id)));}break;
-    case 'flashlight-collect':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k)break;const fresh=!a.opened.includes(k.id);if(fresh)a.opened.push(k.id);dialog.close();feedback=null;save();render();if(fresh)playSound(s.soundEnabled,'star');document.querySelector('.flashlight-hotspot[data-value="'+value+'"]')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=k.kind+' 단서를 발견 수첩에 붙였어. '+(a.opened.length<2?'다른 특징도 찾아보자.':'이 단서가 다른 동물과 어떻게 다른지 생각해 봐.');}break;
+    case 'flashlight-clue':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],k=c.clues[Number(value)];if(k){if(s.cases[round()].opened.includes(k.id))modal('발견한 단서',clueFoundView(c,Number(value),true));else act('flashlight-collect',{dataset:{value}});}}break;
+    case 'flashlight-collect':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k)break;const fresh=!a.opened.includes(k.id);if(fresh)a.opened.push(k.id);dialog.close();feedback=null;save();render();if(fresh)playSound(s.soundEnabled,'star');document.querySelector('.flashlight-hotspot[data-value="'+value+'"]')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=k.kind+' 단서를 발견 수첩에 붙였어. '+(a.opened.length<2?'다른 특징도 찾아보자.':'모은 단서에 맞는 동물을 골라 봐.');progressInvestigation();}break;
     case 'flashlight-guess':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()];if(a.opened.length<2){say('손전등으로 서로 다른 단서를 두 개 이상 찾아 봐.');break;}modal('이 동물은 누구일까?',flashlightGuessView(c,a));}break;
-    case 'case-compare':if(stage===4&&step%2===0&&s.cases[round()].candidate)modal('후보 비교 · 왜 아닐까?',caseComparisonView(CASES[round()],s.cases[round()]));break;
-    case 'case-comparison-done':dialog.close();render();break;
-    case 'case-animal':if(stage===4&&CASES[round()].candidates.includes(id)){s.cases[round()].candidate=id;dialog.close();feedback=null;render();document.querySelector('.flashlight-note:not(.locked)')?.focus();}break;
+    case 'case-animal':if(screen==='mission'&&stage===4&&step%2===0&&s.cases[round()].opened.length>=2&&CASES[round()].candidates.includes(id)){s.cases[round()].candidate=id;dialog.close();feedback=null;render();document.querySelector('.flashlight-note:not(.locked)')?.focus();progressInvestigation();}break;
     case 'case-continue':{
       if(stage!==4||step%2!==0)break;
       const a=s.cases[round()];
@@ -494,25 +677,24 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       document.querySelector('.flashlight-note:not(.locked):not(.selected)')?.focus();break;
     }
     case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:'',excluded:{}});clueIndex=0;feedback=null;render();break;
-    case 'case-ground':{const a=s.cases[round()];if(!a.opened.includes(value))break;a.grounds=a.grounds.includes(value)?a.grounds.filter(g=>g!==value):[...a.grounds,value];feedback=null;render();break;}
     // Spent energy stays spent even when the answer changes (screen 08); 'case-reset' starts a fresh investigation.
     case 'clue-spend':{const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k||a.opened.includes(k.id))break;if(a.opened.length>=CLUE_ENERGY)return say('조사 에너지를 다 썼어. 연 단서로 판단하거나 ‘다시 조사’를 눌러 봐.');a.opened.push(k.id);feedback=null;save();render();break;}
-    case 'case-habitat':s.cases[round()].habitat=value;feedback=null;render();break;
-    case 'case-reason':s.cases[round()].reason=value;feedback=null;render();break;
+    case 'case-habitat':{const a=s.cases[round()],c=CASES[round()];if(!Object.hasOwn(HABITATS,value))break;a.habitat=value;save();if(value!==c.habitat){say('사진 속 풍경과 비교해서 사는 곳을 다시 골라 봐.',false,['case:habitat']);break;}feedback=null;render();progressAnswer(!!a.reason);break;}
+    case 'case-reason':{const a=s.cases[round()],c=CASES[round()];if(a.habitat!==c.habitat||!c.reasons.some(([id])=>id===value))break;a.reason=value;save();feedback=null;render();progressAnswer(true);break;}
     case 'design-problem':{const prior=s.designs[round()].problem;if(!selectDesignProblem(s,round(),value))break;report=null;feedback={good:true,text:`${PROBLEMS[prior]?.product||'이전 초안'} 기록은 그대로 보관했어. ${PROBLEMS[value].product} 초안을 이어서 만들어 봐.`};render();break;}
     case 'source-seen':s.designs[round()].experiment.sourceSeen=true;feedback={good:true,text:'이 특징을 물건의 어느 부분에 쓸까?'};render();break;
-    case 'design-choice':if(['feature','structure'].includes(key))s.designs[round()][key]=value;s.designs[round()].explanation='';report=null;feedback=null;render();break;
+    case 'design-choice':if(['feature','structure'].includes(key))s.designs[round()][key]=value;if(key==='feature')s.designs[round()].experiment.sourceSeen=true;s.designs[round()].explanation='';report=null;feedback=null;render();progressWorkshopDesign();break;
     // A part dropped on a spot of the product (screen 09); dropped back on the tray it comes off.
-    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback={good:true,text:key==='pool'?'부품을 상자로 돌려놓았어. 그린 선은 그대로야.':PRODUCTS[d.problem].spots.find(x=>x[0]===key)[1]+'에 부품을 붙였어. 시험해서 기능을 확인해 봐.'};render();break;}
+    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback={good:true,text:key==='pool'?'부품을 상자로 돌려놓았어. 그린 선은 그대로야.':PRODUCTS[d.problem].spots.find(x=>x[0]===key)[1]+'에 부품을 붙였어. 시험해서 기능을 확인해 봐.'};render();if(key!=='pool')progressWorkshopDesign();break;}
     case 'studio-download':if(s.studioRecord)downloadStudioArtwork(s.studioRecord).catch(()=>say('그림을 저장하지 못했어. 다시 눌러 줘.'));break;
-    case 'sketch-toggle':sketching=!sketching;render();break;
+    case 'sketch-toggle':sketching=!sketching;render();if(!sketching)progressWorkshopDesign();break;
     case 'sketch-undo':s.designs[round()].strokes.pop();render();break;
     case 'test':report=recordTrial(s,round());feedback={good:report.passed,text:report.passed?'특징과 구조가 연결됐어! 이제 아래 설명 카드도 골라 봐.':'바꿀 부분을 찾은 거야! 설계를 고쳐 다시 시험해 봐.'};render();break;
-    case 'explain':s.designs[round()].explanation=value;feedback=null;render();break;
-    case 'verify-run':s.inquiry.verify[0].ran=true;feedback=null;render();break;
-    case 'verify-cause':s.inquiry.verify[0].cause=value;feedback=null;render();break;
-    case 'verify-fix':s.inquiry.verify[0].fix=value;feedback=null;render();break;
-    case 'verify-recheck':{const x=s.inquiry.verify[0];if(!x.fix)break;x.checked=x.fix;feedback=null;render();if(!OBSERVABLE.includes(x.fix))say(`‘${CRITERIA[x.fix]}’로도 결과가 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`);break;}
+    case 'explain':s.designs[round()].explanation=value;feedback=null;render();if(value==='match')progressWorkshopReflection();else progressAnswer(true);break;
+    case 'verify-run':s.inquiry.verify[0].ran=true;panelPages.set(panelKey('.verify-steps'),1);feedback=null;render();break;
+    case 'verify-cause':s.inquiry.verify[0].cause=value;if(value==='opinion')panelPages.set(panelKey('.verify-steps'),2);feedback=null;render();if(value!=='opinion')progressAnswer(true);break;
+    case 'verify-fix':s.inquiry.verify[0].fix=value;act('verify-recheck',{dataset:{}});break;
+    case 'verify-recheck':{const x=s.inquiry.verify[0];if(!x.fix)break;x.checked=x.fix;feedback=null;render();if(!OBSERVABLE.includes(x.fix))say(`‘${CRITERIA[x.fix]}’로도 결과가 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`);else progressAnswer(true);break;}
     case 'verify-own':if(OWN_CRITERIA.includes(s.criteria[1]))s.inquiry.verify[1].checked=s.criteria[1];feedback=null;render();break;
     case 'sort-predict':s.inquiry.reclass[round()].prediction=value;s.inquiry.reclass[round()].revealed=false;render();break;
     case 'sort-reveal':{const before=groupRects();if(s.inquiry.reclass[round()].prediction)s.inquiry.reclass[round()].revealed=true;render();flipGroups(before);break;}
@@ -534,14 +716,15 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       s.inquiry.motion[id]=MOTION_KEY_FRAME;s.inquiry.motionEvidence[id]={frame,phase:motionPhase,source:motionPlayer?'video':'diagram'};
       if(photo)(s.inquiry.motionPhotos??={})[id]=photo;
       save();say(photo?'찰칵! 전시관에 보낼 사진 한 장을 골랐어. 사진 속 동물의 몸과 움직임을 살펴봐.':'설명 그림의 관찰 기록을 남겼어. 영상이 다시 열리면 전시 사진도 찍어 봐.',true);
+      if(DISCOVERIES.slice(round()*3,round()*3+3).some(d=>d.animal===id))scheduleActivityProgress(continueMotion);
     }break;
     case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=1;feedback=null;render();break;
     case 'summary-page':if(labSummary&&['1','2'].includes(value)){labSummary=Number(value);feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}break;
     case 'lab-back':labSummary=false;render();break;
     case 'experiment-level':s.designs[round()].experiment.level=Math.max(1,Math.min(3,Number(value)||1));s.designs[round()].experiment.reflection='';render();break;
     case 'prediction':s.designs[round()].experiment.prediction=value;render();break;
-    case 'reflection':s.designs[round()].experiment.reflection=value;render();break;
-    case 'experiment-run':{const d=s.designs[round()];if(!d.experiment.sourceSeen||!d.experiment.prediction){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}report=recordTrial(s,round());if(!report.passed){say('시험해 보니 맞지 않는 조건이 있어. 점검표를 보고 설계를 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();break;}
+    case 'reflection':s.designs[round()].experiment.reflection=value;render();progressWorkshopReflection();break;
+    case 'experiment-run':{const d=s.designs[round()];if(!d.experiment.sourceSeen||!d.experiment.prediction){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}report=recordTrial(s,round());if(!report.passed){say('시험해 보니 맞지 않는 조건이 있어. 점검표를 보고 설계를 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();if(comparisonReady(d))scheduleActivityProgress(()=>{labSummary=1;render();});break;}
     case 'feature-zoom':{if(!['web','shell','fur'].includes(el.dataset.kind))break;modal('동물 특징 크게 보기',`<div class="feature-enlargement">${anatomy(el.dataset.kind)}</div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
     case 'photo-zoom':{const img=el.querySelector('img');if(!img)break;if(relook){relook=null;render();}const x=el.style.getPropertyValue('--focus-x')||50,y=el.style.getPropertyValue('--focus-y')||50;modal('사진 크게 보기',`<div class="photo-zoom"><div class="detail-crop zoom-crop" style="--focus-x:${Number(x)};--focus-y:${Number(y)}"><img src="${esc(img.src)}" alt="${esc(img.alt)} 확대"></div><figure class="zoom-whole"><img src="${esc(img.src)}" alt="${esc(img.alt)} 전체"><span class="zoom-ring" style="left:${Number(x)}%;top:${Number(y)}%"></span><figcaption>전체 모습에서 동그라미가 확대한 곳이야.</figcaption></figure></div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
     case 'lens-animal':modal('확대 관찰',lensTool(id,0));break;
@@ -549,16 +732,15 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'notebook':notebook();break;
     case 'tool':tool(Number(id));break;
     case 'settings':settings();break;
-    case 'concept-open':openConcept(id,value);break;
+    case 'concept-open':openConcept(id);break;
     case 'concept-play':conceptPlayer?.play();break;
     case 'concept-replay':conceptPlayer?.replay();break;
-    case 'concept-back':settings(true);break;
     case 'music-toggle':s.musicOn=s.musicOn===false;save();syncMusic();settings();break;
     case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
     case 'admin':togglePreview();settings();break;
     case 'preview-end':if(studentSnapshot)togglePreview();break;
-    case 'close-dialog':dialog.close();break;
-    case 'reset-confirm':modal('탐험 기록을 초기화할까요?',`<p>관찰 기록·탐험 별·탐사 도구·주민 답장·발명 작품과 그림·이전 버전 기록이 이 기기에서 모두 지워져요. 소리 설정은 그대로 남아요.</p><div class="dialog-actions">${btn('취소','close-dialog','secondary','autofocus')}${btn('기록 지우기','reset','danger')}</div>`);break;
+    case 'close-dialog':if(completionRoute){finishCompletion();break;}dialog.close();resumeActivityProgress();break;
+    case 'reset-confirm':modal('탐험 기록을 초기화할까요?',`<p>관찰 기록·탐사 도구·주민 답장·발명 작품과 그림·이전 버전 기록이 이 기기에서 모두 지워져요. 소리 설정은 그대로 남아요.</p><div class="dialog-actions">${btn('취소','close-dialog','secondary','autofocus')}${btn('기록 지우기','reset','danger')}</div>`);break;
     case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
@@ -583,17 +765,24 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-action]')
 document.addEventListener('input',e=>{
   if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);save();return;}
   if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setMusicVolume(s.musicVolume);syncMusic();save();return;}
-  if(e.target.id==='experiment-note'||e.target.id==='peer-note'){s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();return;}
+  if(e.target.id==='experiment-note'||e.target.id==='peer-note'){clearActivityProgress();s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();syncWorkshopCue();return;}
   if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();save();return;}
-  if(e.target.id==='invention-name'){const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
+  if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();}});
 document.addEventListener('change',e=>{
  if(e.target.id==='experiment-level')render();
- const id=e.target.dataset?.caseExclusion;if(!id||stage!==4||step%2!==0)return;
- const c=CASES[round()],a=s.cases[round()],value=e.target.value;
- if(!c.candidates.includes(id)||id===a.candidate||value&&!a.opened.includes(value))return;
- a.excluded??={};if(value)a.excluded[id]=value;else delete a.excluded[id];save();
- const count=dialog.querySelector?.('[data-comparison-count]');if(count)count.textContent=c.candidates.filter(id=>id!==a.candidate&&a.excluded[id]).length+'/'+(c.candidates.length-1)+' 후보의 비교 근거를 골랐어.';
+ if(e.target.id==='experiment-note'||e.target.id==='peer-note')progressWorkshopReflection();
+ if(e.target.id==='invention-name')queueMicrotask(progressWorkshopDesign);
+
+});
+document.addEventListener('keydown',e=>{
+ if(e.isComposing||e.key!=='Enter')return;
+ if(e.target.id==='invention-name'){e.preventDefault();e.target.blur();}
+ if(e.target.id==='experiment-note'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.target.blur();}
+});
+document.addEventListener('focusout',e=>{
+ if(e.target.id==='experiment-note'||e.target.id==='peer-note')progressWorkshopReflection();
+ if(e.target.id==='invention-name'&&screen==='mission'&&stage===5&&step===0&&taskReady(s,5,0))progressWorkshopDesign();
 });
 document.addEventListener('fullscreenchange',paintMotion);
 function sketchPoint(e,svg){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return [Math.round(Math.max(0,Math.min(320,p.x))),Math.round(Math.max(0,Math.min(260,p.y)))];}
@@ -602,10 +791,11 @@ document.addEventListener('pointermove',e=>{if(lensPointer&&e.pointerId===lensPo
 for(const name of ['pointerup','pointercancel'])document.addEventListener(name,e=>{if(lensPointer&&e.pointerId===lensPointer.id){const animalId=lensPointer.surface.dataset.animal,list=OBSERVATIONS[animalId],x=Number(lensPointer.surface.style.getPropertyValue('--focus-x')),y=Number(lensPointer.surface.style.getPropertyValue('--focus-y'));focusIndex=list.reduce((best,o,i)=>(o.x-x)**2+(o.y-y)**2<(list[best].x-x)**2+(list[best].y-y)**2?i:best,0);lensPointer=null;render();}if(stroke&&e.pointerId===stroke.id){stroke=null;save();}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role=button][data-action]')){e.preventDefault();e.target.click();return;}if(dialog.open||screen!=='map'||e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(e.key==='Escape'&&questOpen){setQuestOpen(false);document.querySelector('[data-action="quest-toggle"]')?.focus();return;}if(questOpen)return;if(e.key==='Enter'&&!e.target?.closest?.('button,a,summary')){e.preventDefault();map?.interact?.();}});
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
-dialog.addEventListener('close',()=>{resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();});
+document.addEventListener('toggle',e=>{if(e.target.open&&e.target.classList?.contains('forest-extra'))clearActivityProgress();},true);
+dialog.addEventListener('close',()=>{resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();resumeActivityProgress();});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();
   // The on-screen keyboard shrinks the visual viewport: bring the field being typed in back to the middle once it has opened.
   const keepField=()=>{const el=document.activeElement;if(el?.matches?.('textarea,input[type=text],input:not([type])'))setTimeout(()=>el.scrollIntoView?.({block:'center',behavior:'smooth'}),250);};
-  document.addEventListener('focusin',keepField);window.visualViewport?.addEventListener('resize',keepField);document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMotion(false);storyPlayer?.pause();silence();}});}
+  document.addEventListener('focusin',keepField);window.visualViewport?.addEventListener('resize',keepField);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearActivityProgress();stopMotion(false);storyPlayer?.pause();silence();}else resumeActivityProgress();});}
 enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;dropCard(action,dataset);});
 render();
