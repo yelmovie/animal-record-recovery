@@ -4,7 +4,7 @@ const active=new Set(),plays=[],lastStart={};
 const FILES={tap:.5,correct:.55,retry:.75,star:1.4,stamp:.7,fanfare:.8,talk:.45,step:.6,door:.45,page:.7};
 const buffers={},loading={};
 // Synth fallback while a file is still loading or failed: [notes, gap, wave, top-note length].
-const SYNTH={talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
+const SYNTH={'encounter-one':[[234],0,'triangle',.07,.10],'encounter-two':[[570,285],.04,'triangle',.11,.09],'encounter-exit':[[420,360,290,210],.052,'sine',.16,.10],'encounter-contact':[[202,162],.045,'triangle',.10,.08],talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
 export function silence(){
   for(const source of active){try{source.stop();}catch{ /* Already ended. */ }}
   active.clear();plays.length=0;

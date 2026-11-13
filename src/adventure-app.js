@@ -224,7 +224,7 @@ function mountVillage(flashed){
  const current=()=>screen==='map'&&!mapFailed&&mapRender===revision;
  const start=()=>{
   if(!current())return;
-  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{s.mapEncounters={...s.mapEncounters,...next};save();},onEncounterTone:(kind,hits)=>playSound(s.soundEnabled,kind==='finish'?'encounter-exit':kind==='contact'?'encounter-contact':hits===2?'encounter-two':'encounter-one'),isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(!current()||selectedStage!==id)return;
     arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
