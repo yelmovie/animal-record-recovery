@@ -12,7 +12,7 @@ import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonRe
 import {motionView,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
 import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,reportDesigns,selectDesignProblem,motionOpen,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,actionGuide} from './presentation.js';
-import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext} from './shell-views.js';
+import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {createVillage} from './village.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {createNavigation} from './navigation.js';
@@ -29,7 +29,7 @@ ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
 let studentSnapshot=null,autoRun=null,activityTimer=null;
 // relook identifies the observation that needs a reminder after an incorrect choice.
-let clearNpcVoice=null,completionTimer=null,completionRoute=null;
+let clearNpcVoice=null,completionTimer=null,completionRoute=null,pendingRestoration=null;
 let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
@@ -330,7 +330,7 @@ function advance(){
   playSound(s.soundEnabled,true);
   if(step===STAGES[stage-1].tasks.length-1){
     save();
-    if(stage===1){completeStage();return;}
+    if(stage===1){completeStage(result.firstStage);return;}
     openCommission(stage);
     if(stage===5&&s.studioRecord)submitCommission();
     return;
@@ -425,11 +425,12 @@ function finishCompletion(){
   if(!completionRoute||document.hidden||screen!=='reward'||stage!==completionRoute.stage)return;
   const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));
   cancelCompletion();dialog.close();resetNpcDialogue();
-  if(!next){openStory('outro');return;}
-  restoredFlash=stage;selectedStage=stage;go('map');selectMap(next.id);
+  restoredFlash=pendingRestoration;pendingRestoration=null;selectedStage=next?.id??stage;
+  go('map');
 }
-function completeStage(){
-  restoredFlash=stage;go('reward');
+function completeStage(fresh=false){
+  if(fresh)pendingRestoration=stage;
+  go('reward');
   const c=COMMISSIONS[stage-1],npc={id:c.portrait,name:c.npc,near:String(stage),after:c.thanks};
   completionRoute={stage};
   talk(npc,c.thanks,null,{automatic:true,onEnd:finishCompletion});
@@ -566,10 +567,12 @@ function submitCommission(){
   if(commissionIndex<2){
     const result=claimRequest(s,stage);
     if(!result.ok)return showGap();
+    if(result.fresh&&result.restored)pendingRestoration=stage;save();
     playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return toChallenge();completeStage();return;
   }
   const result=claimCommission(s,stage,commissionIndex);
   if(!result.ok)return showGap();
+  save();
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
   if(commissionIndex===1&&challengeLeft())return toChallenge();
   if(commissionIndex>=1){completeStage();return;}
@@ -594,7 +597,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'story-toggle':storyPlayer?.toggle();break;
     case 'story-fullscreen':storyFullscreen();break;
     case 'intro-done':s.introSeen=true;dialog.close();go('map');break;
-    case 'map':if(screen==='reward')restoredFlash=stage;selectedStage=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||5;arrived=true;go('map');break;
+    case 'map':if(screen==='reward'){restoredFlash=pendingRestoration;pendingRestoration=null;}selectedStage=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||5;arrived=true;go('map');break;
     case 'map-overview':case 'map-explore':if(screen==='map'&&restoredPlaces(s).length===STAGES.length){mapOverview=action==='map-overview';questOpen=false;autoEnter=false;render();document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=mapOverview?'다섯 장소를 모두 복구한 마을이야. 중앙 코어가 빛나고 있어.':'마을 산책을 시작해. 길이나 건물을 눌러 봐.';}break;
     case 'map-select':selectMap(Number(id));break;
     case 'quest-toggle':setQuestOpen(!questOpen);return;
@@ -604,8 +607,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'map-interact':map?.interact?.();break;
     case 'map-walk':autoEnter=false;map?.walk?.(id);break;
     // Hand toggle: no re-render, so the walking map and its camera keep their place.
-    case 'map-fit':mapPan=false;map?.stop?.();cancelMapWalk();map?.pan?.(false);map?.fit?.();document.querySelector('[data-action="map-pan"]')?.setAttribute('aria-pressed','false');break;
-    case 'map-pan':mapPan=!mapPan;map?.stop?.();cancelMapWalk();map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
+    case 'map-fit':cancelMapWalk();map?.fit?.();mapPan=document.querySelector('[data-action="map-pan"]')?.getAttribute('aria-pressed')==='true';break;
+    case 'map-pan':mapPan=el.getAttribute?.('aria-pressed')!=='true';map?.stop?.();cancelMapWalk();map?.pan?.(mapPan);el.setAttribute('aria-pressed',String(mapPan));document.querySelector('#announcer').textContent=mapPan?'손바닥 켜짐. 지도를 손가락으로 밀어서 둘러봐.':'손바닥 꺼짐. 하루 쪽으로 화면이 돌아왔어.';break;
     case 'map-prev':case 'map-next':selectMap(Math.max(1,Math.min(5,selectedStage+(action==='map-prev'?-1:1))));break;
     case 'enter':enter(Number(id));break;
     case 'replay-stage':enter(Number(id),true);break;
@@ -735,6 +738,12 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'concept-open':openConcept(id);break;
     case 'concept-play':conceptPlayer?.play();break;
     case 'concept-replay':conceptPlayer?.replay();break;
+    case 'map-sound':{
+      if(screen!=='map')return;
+      const on=!hasSound(s),label=on?'소리 끄기':'소리 켜기';
+      s.soundEnabled=on;s.musicOn=on;save();if(!on)silence();syncMusic();
+      el.innerHTML=icon(on?'sound':'muted');el.setAttribute('aria-label',label);el.setAttribute('aria-pressed',String(on));el.title=label;break;
+    }
     case 'music-toggle':s.musicOn=s.musicOn===false;save();syncMusic();settings();break;
     case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
     case 'admin':togglePreview();settings();break;
@@ -752,7 +761,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
-const CLICK_SOUND={sound:null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
+const CLICK_SOUND={sound:null,'map-sound':null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){if(typeof document.createElement!=='function')return;let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');}
 // A hint stays readable until the learner taps again (no timer that hides it mid-sentence).
 const hideToast=()=>document.querySelector('#hint-toast')?.classList.remove('show');document.addEventListener('pointerdown',hideToast,true);if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{hideToast();fitBubble();});

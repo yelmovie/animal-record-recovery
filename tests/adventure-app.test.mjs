@@ -517,13 +517,14 @@ test('request cards grade immediately, retry immediately and progress across eve
  }
 });
 
-test('completion automatically opens compact NPC dialogue and travels to the next building once',()=>{
+test('completion opens the compact NPC dialogue then returns to the map for the restoration once',()=>{
  for(const stage of [1,2,3,4,5]){
-  const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+`;s.campaign=freshCampaign(${JSON.stringify(Array.from({length:stage},(_,i)=>i+1))});stage=${stage};completeStage()`);
-  assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/잠시 뒤 다음 장소로 이동해/);
+  const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+`;s.campaign=freshCampaign(${JSON.stringify(Array.from({length:stage},(_,i)=>i+1))});stage=${stage};completeStage(true)`);
+  assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/잠시 뒤 지도로 돌아가/);
   assert.doesNotMatch(a.dialog.innerHTML,/npc-scene-detail|편지 읽기/);
-  a.flushTimers();assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),stage===5?'outro':'map');
-  if(stage<5){assert.equal(a.run('selectedStage'),stage+1);assert.equal(a.run('autoEnter'),true);}
+  a.flushTimers();assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'map');
+  assert.equal(a.run('selectedStage'),Math.min(stage+1,5));assert.equal(a.run('autoEnter'),false);
+  assert.equal(a.run('pendingRestoration'),null);
   const after=a.run('screen');a.flushTimers();assert.equal(a.run('screen'),after);
  }
  const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+';stage=1;completeStage();go("home")');a.flushTimers();assert.equal(a.run('screen'),'home');

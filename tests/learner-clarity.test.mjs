@@ -69,7 +69,7 @@ test('travel buttons pick 으로/로 by the last sound of the place name',()=>{
 test('the map corner button points to the next recommended place',()=>{
  const s=campaignFixture();s.adminUnlocked=true;
  const html=page(s,{screen:'map',stage:1,step:0,selectedStage:5,arrived:false,mapZoom:1,canGoBack:false});
- const corner=html.match(/<div class="map-next">([\s\S]*?)<\/div>/)[1];
+ const corner=html.match(/<div class="map-next">([\s\S]*?)<p id="travel-text"/)[1];
  assert.match(text(corner),/분류의 정원으로 가기/);assert.match(corner,/data-action="map-select" data-id="2"/);
 });
 
