@@ -33,7 +33,11 @@ export async function toggleMotionFullscreen(player){
 // Keep the media clock authoritative. A stalled or seeking video cannot grant a record.
 export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpdate=()=>{},onError=()=>{}}={}){
  const video=host?.querySelector('.motion-video');if(!video)return null;
- let alive=true,pendingPhase=phase,viewed=false,requested=false;
+ let alive=true,pendingPhase=phase,viewed=false,requested=false,stallTimer;
+ const clearStall=()=>clearTimeout(stallTimer);
+ const fail=()=>{clearStall();if(alive)onError();};
+ // A stalled network request may never dispatch a media error. Let the learner continue with the diagram.
+ const watchStall=()=>{clearStall();if(playing)stallTimer=setTimeout(fail,12000);};
  const events=[];
  const listen=(name,fn)=>{video.addEventListener(name,fn);events.push([name,fn]);};
  const duration=()=>Number.isFinite(video.duration)&&video.duration>0?video.duration:0;
@@ -43,14 +47,17 @@ export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpda
  function play(){
   if(!alive)return;playing=true;requested=true;
   if(video.ended||percent()>=99.9)seek(0);
+  watchStall();
   const promise=video.play();
-  promise?.catch(()=>{if(alive){video.pause();update();}});
+  promise?.catch(()=>{if(alive){clearStall();video.pause();update();}});
  }
  video.muted=true;video.playbackRate=slow?.45:1;
  listen('loadedmetadata',()=>{if(!alive)return;seek(pendingPhase);if(playing)play();});
- listen('playing',()=>{viewed=true;update();});
+ listen('playing',()=>{clearStall();viewed=true;update();});
+ listen('waiting',watchStall);
+ listen('ended',clearStall);
  for(const name of ['timeupdate','play','pause','seeking','seeked','ended','loadeddata','canplay','waiting'])listen(name,update);
- listen('error',()=>{if(alive)onError();});
+ listen('error',fail);
  if(video.readyState>=1)seek(pendingPhase);
  if(playing)play();
  return {
@@ -65,8 +72,8 @@ export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpda
     return {dataURL,width:canvas.width,height:canvas.height,time:video.currentTime,duration:duration(),phase:percent()};
    }catch{return null;}
   },
-  play,pause(){playing=false;video.pause();update();},seek,
+  play,pause(){playing=false;clearStall();video.pause();update();},seek,
   setSlow(value){video.playbackRate=value?.45:1;},
-  destroy(){alive=false;for(const [name,fn]of events)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.load();}
+  destroy(){alive=false;clearStall();for(const [name,fn]of events)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.load();}
  };
 }

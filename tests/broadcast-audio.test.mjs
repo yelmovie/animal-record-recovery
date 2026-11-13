@@ -35,3 +35,13 @@ test('broadcast listen control is visible outside folded manuscript details',()=
  assert.match(html,/data-broadcast-lines=/);
  assert.match(html,/레인저 하늘이에요/);
 });
+
+test('special broadcast offers both field videos without requiring optional dome photos',()=>{
+ const state=freshExpedition();ensureCampaign(state);state.completed=[1,2,3];
+ const main=commissionView(state,{stage:3,commissionIndex:0,requestCard:0});
+ const extra=commissionView(state,{stage:3,commissionIndex:2,requestCard:0});
+ assert.deepEqual(Object.keys(state.inquiry.motion),[]);
+ assert.doesNotMatch(main,/data-action="broadcast-video"/);
+ assert.match(extra,/data-action="broadcast-video"[^>]*data-id="camel"/);
+ assert.match(extra,/data-action="broadcast-video"[^>]*data-id="penguin"/);
+});

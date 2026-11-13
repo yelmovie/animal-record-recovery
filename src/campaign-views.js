@@ -120,11 +120,14 @@ function broadcastCard(s,c,d,v){
   <p class="broadcast-next-step" role="status">${ready?'설명이 맞으면 다음 동물로 이어져.':'한 줄에 설명 하나씩 골라 줘.'}</p>
   ${broadcastAudioControl(c.rows,d,broadcastScript(c.rows,d))}<details class="broadcast-script-preview"><summary>${icon('sound')} 내가 만든 방송 원고 보기</summary>${broadcastResult(c,d,ready,false)}</details></section></div>`;
 }
+function specialBroadcastEvidence(){
+ return '<div class="broadcast-video-evidence"><b>영상을 보고 단서를 찾아 봐</b><div>'+[['camel','낙타'],['penguin','펭귄']].map(([id,name])=>btn(icon('play')+' '+name+' 움직임 보기','broadcast-video','secondary',`data-id="${id}"`)).join('')+'</div></div>';
+}
 function cardWork(s,stage,c,d,v,challenge){
  if(c.kind==='own-sort'||c.kind==='sort')return sortView(s,stage,c.part,d,v);
  if(c.kind==='retest')return retestView(s,c.part,d);
  if(c.kind==='broadcast'&&c.animal)return broadcastCard(s,c,d,v);
- return `<div class="card-body"><div class="card-questions">${c.rows.map((r,i)=>rowView(r,d,i,v,c.animal?short(r.label):r.label)).join('')}</div>${cardResult(c,d,challenge)}</div>`;
+ return `<div class="card-body"><div class="card-questions">${stage===3&&challenge?specialBroadcastEvidence():''}${c.rows.map((r,i)=>rowView(r,d,i,v,c.animal?short(r.label):r.label)).join('')}</div>${cardResult(c,d,challenge)}</div>`;
 }
 function deckNav(s,stage,cards,k,v,progress,ready){
  const chip=(x,n)=>{const dx=campaignDraft(s,stage,x.part),got=x.kind==='retest'?'':` <small>${x.rows.filter(r=>dx.answers[r.key]).length}/${x.rows.length}</small>`,ok=cardReady(s,stage,x),miss=v.feedback?.wrong?.some(w=>x.rows.some(r=>'row:'+r.key===w));

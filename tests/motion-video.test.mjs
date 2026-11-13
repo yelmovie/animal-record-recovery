@@ -66,3 +66,13 @@ test('a pause before metadata cancels pending autoplay, and errors reach the fal
  video.dispatchEvent(new Event('error'));assert.equal(errors,1);
  player.destroy();video.dispatchEvent(new Event('error'));assert.equal(errors,1);
 });
+
+test('a video that never starts falls back, but a paused video or a resumed stream does not',t=>{
+ t.mock.timers.enable({apis:['setTimeout']});
+ const video=new Video();let errors=0;
+ const player=createMotionPlayer({querySelector:()=>video},{onError:()=>errors++});
+ player.play();player.pause();t.mock.timers.tick(12001);assert.equal(errors,0);
+ player.play();video.dispatchEvent(new Event('playing'));t.mock.timers.tick(12001);assert.equal(errors,0);
+ video.dispatchEvent(new Event('waiting'));t.mock.timers.tick(12001);assert.equal(errors,1);
+ player.destroy();
+});

@@ -139,3 +139,15 @@ dialog#dialog.broadcast-scene-dialog[data-mouth="open"] .npc-scene-portrait{back
 .broadcast-scene-dialog .npc-scene-actions{justify-content:space-between}
 .broadcast-scene-status::before{content:'●';display:inline-block;color:#b5532b;margin-right:8px}
 @media(max-height:600px){.broadcast-scene-dialog .npc-scene-portrait{width:42dvh;margin-left:calc(50% - 21dvh)}}
+
+.broadcast-video-evidence {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #a8b797;
+  border-radius: 12px;
+  background: #eef3e2;
+  color: #2d513b;
+}
+.broadcast-video-evidence > div { display: flex; flex-wrap: wrap; gap: 8px; }
+#app #main .broadcast-video-evidence .btn { min-height: 44px; font-size: clamp(16px, 1.2vw, 20px) !important; }

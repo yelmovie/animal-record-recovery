@@ -468,7 +468,7 @@ function back(){labSummary=false;stopMotion();
 }
 function settings(){modal('설정',settingsContent(s));}
 // Silent clip with DOM captions; the village music stops while it is open and returns when the dialog closes.
-function openConcept(id){if(!replayUnlocked(s,id))return;const item=replayItem(id);modal(item.title,conceptView(id));conceptPlayer=createConceptPlayer(dialog.querySelector?.('.concept-player'));syncMusic();}
+function openConcept(id,{broadcastEvidence=false}={}){if(!broadcastEvidence&&!replayUnlocked(s,id))return;const item=replayItem(id);modal(item.title,conceptView(id));conceptPlayer=createConceptPlayer(dialog.querySelector?.('.concept-player'));syncMusic();}
 function togglePreview(){
   if(studentSnapshot){s=studentSnapshot;studentSnapshot=null;stage=s.stage;step=s.step[stage]||0;selectedStage=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||STAGES.at(-1).id;navigation.reset();dialog.close();go('map');}
   else{save();studentSnapshot=JSON.parse(JSON.stringify(s));s=JSON.parse(JSON.stringify(s));s.adminUnlocked=true;render();}
@@ -736,6 +736,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'tool':tool(Number(id));break;
     case 'settings':settings();break;
     case 'concept-open':openConcept(id);break;
+    case 'broadcast-video':if(screen==='commission'&&stage===3&&commissionIndex===2&&campaignOpen(s,3,2)&&['camel','penguin'].includes(id))openConcept(id,{broadcastEvidence:true});break;
     case 'concept-play':conceptPlayer?.play();break;
     case 'concept-replay':conceptPlayer?.replay();break;
     case 'map-sound':{
