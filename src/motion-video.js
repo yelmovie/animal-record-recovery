@@ -32,7 +32,7 @@ export async function toggleMotionFullscreen(player){
 
 // Keep the media clock authoritative. A stalled or seeking video cannot grant a record.
 export function createMotionPlayer(host,{phase=0,playing=false,slow=false,onUpdate=()=>{},onError=()=>{}}={}){
- const video=host?.querySelector('.motion-video');if(!video)return null;
+ const video=host?.querySelector('video.motion-video');if(!video)return null;
  let alive=true,pendingPhase=phase,viewed=false,requested=false,stallTimer;
  const clearStall=()=>clearTimeout(stallTimer);
  const fail=()=>{clearStall();if(alive)onError();};

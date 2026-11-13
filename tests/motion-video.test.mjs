@@ -76,3 +76,8 @@ test('a video that never starts falls back, but a paused video or a resumed stre
  video.dispatchEvent(new Event('waiting'));t.mock.timers.tick(12001);assert.equal(errors,1);
  player.destroy();
 });
+
+test('a poster left in the optional-video fallback is not a playable element',()=>{
+ const host={querySelector:selector=>selector==='.motion-video'?{tagName:'IMG'}:null};
+ assert.equal(createMotionPlayer(host),null);
+});
