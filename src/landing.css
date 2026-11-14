@@ -1,11 +1,11 @@
 /* Landing-only glyph subsets of NanumSquare Neo. New characters fall back to the full font. */
 @font-face{font-family:'AnimalRecordLanding';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/landing-regular.woff2') format('woff2')}
 @font-face{font-family:'AnimalRecordLanding';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/landing-bold.woff2') format('woff2')}
-.boot-message, .skip-link { font-family: 'AnimalRecordLanding', system-ui, sans-serif; }
+.boot-message, .skip-link { font-family: 'AnimalRecordLanding', NanumSquareNeo, system-ui, sans-serif; }
 
 /* Title artwork and the opening scene share a single, responsive composition. */
 .museum-landing {
-  --font-body: 'AnimalRecordLanding', 'Malgun Gothic', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-body: 'AnimalRecordLanding', 'NanumSquareNeo', 'Malgun Gothic', 'Apple SD Gothic Neo', system-ui, sans-serif;
   --font-landing: var(--font-body);
   --font-display: var(--font-landing);
   font-family: var(--font-landing);

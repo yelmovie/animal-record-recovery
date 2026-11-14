@@ -21,7 +21,7 @@ test('every stylesheet uses the shared font or inherits it, including request sy
   const css=(await read('src/'+name)).replace(/\/\*[\s\S]*?\*\//g,'');
   for(const [,family] of css.matchAll(/font-family\s*:\s*([^;}]+)/g)){
    // The two landing faces are glyph subsets of NanumSquare Neo with an OFL-safe name.
-   if(name==='landing.css'&&/^'AnimalRecordLanding'(?:, var\(--font-body\)|, system-ui, sans-serif)?$/.test(family.trim()))continue;
+   if(name==='landing.css'&&/^'AnimalRecordLanding'(?:, var\(--font-body\)|, NanumSquareNeo, system-ui, sans-serif)?$/.test(family.trim()))continue;
    assert.match(family,/^(?:['"]?NanumSquareNeo|var\(--font-|inherit)/,name+': '+family);
   }
  }
