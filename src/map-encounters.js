@@ -181,7 +181,7 @@ export function mountMapEncounters({
       if(foe.hits>=HITS&&now>=Math.max(foe.poseUntil,foe.saidUntil)){foe.el.hidden=true;continue;}
       const dHome=distance(hero,foe.s),patrol=villainPatrol(now,foe.i);
       const animate=!stop&&!calm&&foe.hits<HITS&&now>=foe.poseUntil;
-      const radius=Math.min(34,reach*.40);
+      const radius=Math.min(foe.s.patrolRadius??34,reach*.40);
       // Slow the movement near the learner, then hold the actual position on a hit.
       const span=dHome<=reach*.75?radius*.32:radius;
       if(calm)foe.point=foe.s;

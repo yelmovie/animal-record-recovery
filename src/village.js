@@ -181,6 +181,14 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
         const path=graph.edges.find(edge=>edge.includes(node));
         const neighbor=graph.nodes[path?.find(id=>id!==node)];
         if(!neighbor)return null;
+        // Two village entrances share a tight terrace with their resident. Use the next
+        // stretch of actual pavement, keeping the NPC's meeting spot out of combat.
+        const beyond=i===1?'ringW':i===3?'dirt':null;
+        if(beyond&&graph.nodes[beyond]&&graph.edges.some(edge=>edge.includes(beyond)&&edge.includes(path?.find(id=>id!==node)))){
+          const next=graph.nodes[beyond],dx=next[0]-neighbor[0],dy=next[1]-neighbor[1];
+          const step=Math.min(.8,76/Math.max(1,Math.hypot(dx,dy)));
+          return {name:building.name,x:neighbor[0]+dx*step,y:neighbor[1]+dy*step,patrolRadius:15};
+        }
         // The encounter must sit on a reachable path so both actors can touch it.
         const [dx,dy]=[neighbor[0]-door[0],neighbor[1]-door[1]];
         const step=Math.min(.72,36/Math.max(1,Math.hypot(dx,dy)));
