@@ -150,10 +150,8 @@ function progressWorkshopReflection(){
 }
 function progressWorkshopDesign(){
   if(screen!=='mission'||stage!==5||step!==0||sketching)return;
-  const next=workshopDesignNext(s.designs[0]),tab=workshopTab[next];
-  if(next==='continue'&&taskReady(s,5,0)){
-    scheduleActivityProgress(()=>{if(!sketching&&taskReady(s,5,0)&&document.activeElement?.id!=='invention-name')advance();});
-  }else if(tab!==undefined){
+  const tab=workshopTab[nextWorkshopDesign()];
+  if(tab!==undefined){
     const button=app.querySelectorAll?.('.design-options > .panel-tabs > .btn')[tab];
     if(button?.getAttribute('aria-pressed')==='false')button.click();
   }

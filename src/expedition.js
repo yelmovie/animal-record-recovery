@@ -122,14 +122,14 @@ export const CASES=[
     {id:'foot',kind:'발',icon:'search',crop:[50,86],text:'발가락 사이에 물갈퀴가 있어.',fits:['duck','frog']},
     {id:'move',kind:'이동 모습',icon:'scan',text:'땅에서는 두 다리로 뒤뚱뒤뚱 걸어.',fits:['duck','hen']},
     {id:'life',kind:'생활 장면',icon:'book',text:'부리로 먹이를 찾아 먹어.',fits:['duck','hen']}],
-   habitat:'pond',reason:'paddle',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['burrow','긴 뒷다리로 땅을 박차고 뛰어'],['fly','지느러미로 물속을 헤엄쳐']],reasonTip:'근거로 낸 단서 중 발에 있던 것을 떠올려 봐.',sentence:'오리는 연못과 물가에서 물갈퀴로 물을 밀며 헤엄쳐.',legacy:{feather:'cover',web:'foot'}},
+   habitat:'pond',reason:'paddle',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['burrow','긴 뒷다리로 땅을 박차고 뛰어'],['fly','지느러미로 물속을 헤엄쳐']],reasonTip:'발의 모양을 본 단서를 다시 열고, 고른 설명과 비교해 봐.',sentence:'오리는 연못과 물가에서 물갈퀴로 물을 밀며 헤엄쳐.',legacy:{feather:'cover',web:'foot'}},
   {id:'rabbit',animal:'rabbit',title:'풀밭에서 만난 친구',candidates:['rabbit','frog','bat','hen'],clues:[
     {id:'place',kind:'발견 장소',icon:'leaf',place:'forest',text:'풀과 나무가 자라는 들판의 땅 위에서 발견됐어.',fits:['rabbit','hen']},
     {id:'fur',kind:'몸의 모습',icon:'search',crop:[51,48],text:'몸이 털로 덮여 있어.',fits:['rabbit','bat']},
     {id:'ears',kind:'귀',icon:'search',crop:[46,18],text:'크고 길쭉한 귀가 있어.',fits:['rabbit','bat']},
     {id:'move',kind:'이동 모습',icon:'scan',text:'긴 뒷다리로 땅을 박차고 뛰어.',fits:['rabbit','frog']},
     {id:'life',kind:'생활 장면',icon:'book',text:'낮에는 굴이나 어두운 곳에 숨어 쉬어.',fits:['rabbit','bat']}],
-   habitat:'forest',reason:'jump',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['fin','지느러미로 바닷속을 헤엄쳐']],reasonTip:'사진에서 토끼의 뒷다리 모양을 살펴봐.',sentence:'토끼는 숲과 들의 땅에서 긴 뒷다리로 뛰어다녀.',legacy:{ears:'ears',fur:'fur'}},
+   habitat:'forest',reason:'jump',reasons:[['paddle','물갈퀴로 물을 밀며 헤엄쳐'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['fin','지느러미로 바닷속을 헤엄쳐']],reasonTip:'찾은 단서를 다시 열고, 움직이는 모습과 고른 설명을 비교해 봐.',sentence:'토끼는 숲과 들의 땅에서 긴 뒷다리로 뛰어다녀.',legacy:{ears:'ears',fur:'fur'}},
   // The front paws or the tiny eyes alone point to the mole; place and fur only narrow it down.
   {id:'mole',animal:'mole',title:'땅속에서 만난 친구',candidates:['mole','rabbit','frog','bat'],clues:[
     {id:'place',kind:'발견 장소',icon:'leaf',place:'forest',text:'풀밭 아래 흙 속 굴에서 발견됐어.',fits:['mole','rabbit']},
@@ -137,7 +137,7 @@ export const CASES=[
     {id:'eyes',kind:'눈',icon:'search',crop:[73,37],text:'눈이 털 속에 묻힐 만큼 아주 작아.',fits:['mole']},
     {id:'fur',kind:'몸의 모습',icon:'search',crop:[40,42],text:'짧고 촘촘한 털로 덮여 있어.',fits:['mole','rabbit','bat']},
     {id:'life',kind:'생활 장면',icon:'book',text:'앞발로 흙을 파서 굴을 넓히며 지렁이를 찾아 먹어.',fits:['mole']}],
-   habitat:'forest',reason:'dig',reasons:[['dig','삽 같은 앞발로 흙을 파며 굴속을 다녀'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['paddle','물갈퀴로 물을 밀며 헤엄쳐']],reasonTip:'근거로 낸 단서 중 앞발 모양을 떠올려 봐.',sentence:'두더지는 숲과 들의 땅속에서 삽 같은 앞발로 흙을 파며 다녀.',aha:'눈이 작아도 괜찮아. 어두운 땅속에서는 예민한 코와 수염으로 먹이를 찾아.',legacy:{}},
+   habitat:'forest',reason:'dig',reasons:[['dig','삽 같은 앞발로 흙을 파며 굴속을 다녀'],['jump','긴 뒷다리로 땅을 박차고 뛰어'],['paddle','물갈퀴로 물을 밀며 헤엄쳐']],reasonTip:'찾은 단서를 다시 열고, 몸이 움직이는 방법과 고른 설명을 비교해 봐.',sentence:'두더지는 숲과 들의 땅속에서 삽 같은 앞발로 흙을 파며 다녀.',aha:'눈이 작아도 괜찮아. 어두운 땅속에서는 예민한 코와 수염으로 먹이를 찾아.',legacy:{}},
 ];
 export const clueOf=(c,id)=>c.clues.find(x=>x.id===id);
 // Candidates every given clue is true for.
