@@ -29,7 +29,7 @@ ensureCampaign(s);
 // Teacher previews use a separate in-memory copy of the student's records.
 let studentSnapshot=null,autoRun=null,activityTimer=null;
 // relook identifies the observation that needs a reminder after an incorrect choice.
-let clearNpcVoice=null,pendingRestoration=null;
+let clearNpcVoice=null,completionTimer=null,completionRoute=null,pendingRestoration=null;
 let relook=null,commissionIndex=0,requestCard=null,caseHint=false,evidenceOpen=false,motionPlayer=null,storyPlayer=null,conceptPlayer=null;
 const failedMotionVideos=new Set();
 let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedback=null,map=null,arrived=true,activeHabitat='forest',zoom=false,labSummary=false,focusIndex=0,clueIndex=0,motionPhase=0,motionPlaying=false,motionSlow=false,motionRAF=null,motionTime=0,lensPointer=null,sketching=false,stroke=null,report=null,restoredFlash=null,picked=null,viewer=null,tilt=false,questOpen=false,autoEnter=false;
@@ -290,13 +290,13 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function go(where){repairingWorkshop=false;if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){repairingWorkshop=false;cancelCompletion();if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 // One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
 function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
 function resetNpcDialogue(){if(!clearNpcVoice)return;clearNpcVoice();clearNpcVoice=null;dialog.classList.remove('npc-scene-dialog');}
-function modal(title,content,{showClose=true}={}){if(screen==='map'){map?.stop?.();cancelMapWalk();}unmountBroadcast?.stop?.();clearActivityProgress();resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
+function modal(title,content,{showClose=true}={}){if(screen==='map'){map?.stop?.();cancelMapWalk();}unmountBroadcast?.stop?.();cancelCompletion();clearActivityProgress();resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   const where=expeditionResume(s);
   if(where==='mission'){enter(s.stage);return;}
@@ -316,21 +316,26 @@ function finishStory(){
   go(target);
 }
 // Keep the map tip and campaign actions; present the resident in the native dialogue.
-function talk(npc,text,marker,{compact=false}={}){
+function talk(npc,text,marker,{automatic=false,onEnd}={}){
   if(dialog.open)return;
   const restored=restoredPlaces(s),id=Number(npc.near),mori=npc.id==='mori',completed=restored.includes(id);
   const next=STAGES.find(t=>!restored.includes(t.id)&&isStageOpen(s,t.id));
   const line=text||(next?`다음은 ${withParticle(next.name,'이야/야')}. 복구하면 ${withParticle(next.reward,'을/를')} 받아! 건물이나 길을 누르면 같이 걸어갈게.`:'다섯 기록을 모두 되찾았어. 캠프로 돌아가자!');
   const tip=document.querySelector('#travel-text');if(tip)tip.textContent=`${npc.name}: ${line}`;
   const finalLine=!mori&&restored.length===STAGES.length?line:'';
-  const letter=!compact&&!mori&&campaignOpen(s,id,0)?id:null;
+  const letter=!automatic&&!mori&&campaignOpen(s,id,0)?id:null;
   const spoken=finalLine?npc.after:line;
   stopMotion();map?.pause?.();dialog.classList.add('npc-scene-dialog');
-  dialog.innerHTML=npcDialogue(npc,spoken,{mori,completed,finalLine,letter,compact});
+  dialog.innerHTML=npcDialogue(npc,spoken,{mori,completed,finalLine,letter,compact:automatic});
   dialog.showModal();
   dialog.querySelector('.npc-scene-next')?.focus({preventScroll:true});
   marker?.classList.add('is-speaking-npc');
-  const stopVoice=mountNpcVoice(dialog,npc,completed,{compact,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
+  const stopVoice=mountNpcVoice(dialog,npc,completed,{compact:automatic,onEnd,onPlaying:duration=>{
+    if(automatic&&completionRoute&&Number.isFinite(duration)){
+      globalThis.clearTimeout?.(completionTimer);
+      completionTimer=globalThis.setTimeout?.(finishCompletion,duration*1000+750)??null;
+    }
+  },enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
     setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
   }});
   clearNpcVoice=()=>{stopVoice();marker?.classList.remove('is-speaking-npc');};
@@ -388,7 +393,7 @@ function advance(){
     save();
     if(stage===1){completeStage(result.firstStage);return;}
     openCommission(stage);
-    if(stage===5&&s.studioRecord&&!campaignDone(s,5,1))submitCommission();
+    if(stage===5&&s.studioRecord)submitCommission();
     return;
   }
   const pairDone=stage===1&&step%2===1&&result.fresh?Math.floor(step/2):-1;
@@ -434,6 +439,10 @@ function scheduleActivityProgress(next,{inDialog=false}={}){
 // Resume an interrupted transition after a dialog or a backgrounded tablet returns.
 function resumeActivityProgress(){
   if(document.hidden)return;
+  if(completionRoute){
+    globalThis.clearTimeout?.(completionTimer);
+    completionTimer=globalThis.setTimeout?.(finishCompletion,4500)??null;return;
+  }
   if(dialog.open){
     return;
   }
@@ -470,9 +479,24 @@ function continueMotion(){
   if(taskReady(s,stage,step)){advance();return;}
   focusMotion();motionPhase=0;feedback=null;render();
 }
+function cancelCompletion(){
+  if(completionTimer!==null)globalThis.clearTimeout?.(completionTimer);
+  completionTimer=null;completionRoute=null;
+}
+function finishCompletion(){
+  if(!completionRoute||document.hidden||screen!=='reward'||stage!==completionRoute.stage)return;
+  const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));
+  cancelCompletion();dialog.close();resetNpcDialogue();
+  restoredFlash=pendingRestoration;pendingRestoration=null;selectedStage=next?.id??stage;
+  go('map');
+}
 function completeStage(fresh=false){
   if(fresh)pendingRestoration=stage;
   go('reward');
+  const c=COMMISSIONS[stage-1],npc={id:c.portrait,name:c.npc,near:String(stage),after:c.thanks};
+  completionRoute={stage};
+  talk(npc,c.thanks,null,{automatic:true,onEnd:finishCompletion});
+  completionTimer=globalThis.setTimeout?.(finishCompletion,Math.max(4500,c.thanks.length*125))??null;
 }
 function continueGarden(){
   advance();
@@ -619,7 +643,7 @@ function showGap(){const parts=requestParts(stage,commissionIndex),gap=requestGa
   const cards=requestCards(s,stage,parts),k=cards.findIndex(c=>c.part===gap.index&&(c.kind==='own-sort'||c.kind==='retest'||c.rows.some(r=>r.key===gap.key)));
   if(commissionIndex<2)commissionIndex=gap.index;if(k>=0)requestCard=k;say(gap.text,false,gap.key?['row:'+gap.key]:[]);}
 // The last challenge is part of every place: the two requests lead straight into it, and the reward waits until it is done.
-const challengeLeft=()=>![2,5].includes(stage)&&campaignOpen(s,stage,2)&&!campaignDone(s,stage,2);
+const challengeLeft=()=>stage!==2&&campaignOpen(s,stage,2)&&!campaignDone(s,stage,2);
 function toChallenge(){openCommission(stage,2);say('부탁을 해결했어! 이제 마지막 도전으로 이 장소를 완성하자.',true);}
 function submitCommission(){
   if(screen!=='commission')return;
@@ -656,11 +680,6 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'story-toggle':storyPlayer?.toggle();break;
     case 'story-fullscreen':storyFullscreen();break;
     case 'intro-done':s.introSeen=true;dialog.close();go('map');break;
-    case 'reward-voice':if(screen==='reward'){
-      const c=COMMISSIONS[stage-1];
-      talk({id:c.portrait,name:c.npc,near:String(stage),after:c.thanks},c.thanks,null,{compact:true});
-    }break;
-    case 'next-expedition':if(screen==='reward'&&Number(id)===nextMapActivity()&&!restoredPlaces(s).includes(Number(id))){dialog.close();pendingRestoration=null;enter(Number(id));}break;
     case 'map':if(screen==='reward'){restoredFlash=pendingRestoration;pendingRestoration=null;}selectedStage=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id))?.id||5;arrived=true;go('map');break;
     case 'map-overview':case 'map-explore':if(screen==='map'&&restoredPlaces(s).length===STAGES.length){mapOverview=action==='map-overview';questOpen=false;autoEnter=false;render();document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=mapOverview?'다섯 장소를 모두 복구한 마을이야. 중앙 코어가 빛나고 있어.':'마을 산책을 시작해. 길이나 건물을 눌러 봐.';}break;
     case 'map-select':selectMap(Number(id));break;
@@ -746,7 +765,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'flashlight-clue':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],k=c.clues[Number(value)];if(k){if(s.cases[round()].opened.includes(k.id))modal('발견한 단서',clueFoundView(c,Number(value),true));else act('flashlight-collect',{dataset:{value}});}}break;
     case 'flashlight-collect':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k)break;const fresh=!a.opened.includes(k.id);if(fresh)a.opened.push(k.id);dialog.close();feedback=null;save();render();if(fresh)playSound(s.soundEnabled,'star');document.querySelector('.flashlight-hotspot[data-value="'+value+'"]')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=k.kind+' 단서를 발견 수첩에 붙였어. '+(a.opened.length<2?'다른 특징도 찾아보자.':'모은 단서에 맞는 동물을 골라 봐.');progressInvestigation();}break;
     case 'flashlight-guess':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()];if(a.opened.length<2){say('손전등으로 서로 다른 단서를 두 개 이상 찾아 봐.');break;}modal('이 동물은 누구일까?',flashlightGuessView(c,a));}break;
-    case 'case-animal':if(screen==='mission'&&stage===4&&step%2===0&&s.cases[round()].opened.length>=2&&CASES[round()].candidates.includes(id)){const a=s.cases[round()],c=CASES[round()];a.candidate=id;if(id===c.animal&&a.opened.includes('place'))a.habitat=c.habitat;dialog.close();feedback=null;render();document.querySelector('.flashlight-note:not(.locked)')?.focus();progressInvestigation();}break;
+    case 'case-animal':if(screen==='mission'&&stage===4&&step%2===0&&s.cases[round()].opened.length>=2&&CASES[round()].candidates.includes(id)){s.cases[round()].candidate=id;dialog.close();feedback=null;render();document.querySelector('.flashlight-note:not(.locked)')?.focus();progressInvestigation();}break;
     case 'case-continue':{
       if(stage!==4||step%2!==0)break;
       const a=s.cases[round()];
@@ -827,7 +846,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
     case 'admin':togglePreview();settings();break;
     case 'preview-end':if(studentSnapshot)togglePreview();break;
-    case 'close-dialog':dialog.close();resumeActivityProgress();break;
+    case 'close-dialog':if(completionRoute){finishCompletion();break;}dialog.close();resumeActivityProgress();break;
     case 'reset-confirm':modal('탐험 기록을 초기화할까요?',`<p>관찰 기록·탐사 도구·주민 답장·발명 작품과 그림·이전 버전 기록이 이 기기에서 모두 지워져요. 소리 설정은 그대로 남아요.</p><div class="dialog-actions">${btn('취소','close-dialog','secondary','autofocus')}${btn('기록 지우기','reset','danger')}</div>`);break;
     case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
