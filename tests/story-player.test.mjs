@@ -10,8 +10,8 @@ function harness(){
  let ended=0;const player=createStoryPlayer(host,{onEnd:()=>ended++});
  return {player,video,speaker,line,caption,progress,time,toggle,status,listeners,get ended(){return ended;}};
 }
-test('story captions follow the actual media clock across scene boundaries and seeking',()=>{
- const h=harness();assert.equal(h.video.paused,true);h.player.toggle();assert.equal(h.video.paused,false);assert.equal(h.speaker.textContent,'하루');h.video.currentTime=5;h.video.emit('timeupdate');assert.equal(h.speaker.textContent,'모리');assert.match(h.line.textContent,/수정/);h.player.toggle();assert.equal(h.video.paused,true);h.video.currentTime=1;h.video.emit('seeked');assert.match(h.line.textContent,/다리/);assert.equal(h.progress.value,1);h.player.destroy();
+test('intro starts on mount and captions follow the media clock across scene boundaries and seeking',()=>{
+ const h=harness();assert.equal(h.video.paused,false);assert.equal(h.speaker.textContent,'하루');h.video.currentTime=5;h.video.emit('timeupdate');assert.equal(h.speaker.textContent,'모리');assert.match(h.line.textContent,/수정/);h.player.toggle();assert.equal(h.video.paused,true);h.video.currentTime=1;h.video.emit('seeked');assert.match(h.line.textContent,/다리/);assert.equal(h.progress.value,1);h.player.destroy();
  for(const kind of Object.keys(STORIES)){assert.equal(storyCue(kind,-1),null);assert.equal(storyCue(kind,24),null);for(let at=0;at<24;at+=.25)assert.ok(storyCue(kind,at),`${kind} subtitle gap ${at}`);}
 });
 test('story failure keeps a visible escape path and disposing prevents stale completion',()=>{
@@ -19,11 +19,15 @@ test('story failure keeps a visible escape path and disposing prevents stale com
  const completed=harness();completed.video.emit('ended');assert.equal(completed.ended,1);completed.player.destroy();
 });
 
-test('outro plays its finale music at the set volume and falls back to muted when the browser blocks sound',async()=>{
+test('outro starts on mount at the set volume and retries muted when the browser blocks sound',async()=>{
  const node=()=>({textContent:'',hidden:false,setAttribute(){}}),caption={...node(),querySelector:()=>node()};
- const make=blocked=>{const video={muted:true,volume:1,currentTime:0,duration:24,paused:true,tries:0,addEventListener(){},removeEventListener(){},play(){this.tries++;if(blocked&&!this.muted)return Promise.reject(new Error('NotAllowedError'));this.paused=false;return Promise.resolve();},pause(){},removeAttribute(){},querySelectorAll(){return[];},load(){}};
-  const host={dataset:{story:'outro'},querySelector:s=>s==='video'?video:s==='.story-caption'?caption:node()};return {video,host};};
- const ok=make(false);createStoryPlayer(ok.host,{volume:.4}).toggle();assert.equal(ok.video.muted,false);assert.equal(ok.video.volume,.4);
- const blocked=make(true);createStoryPlayer(blocked.host,{volume:.4}).toggle();await new Promise(r=>setTimeout(r));assert.equal(blocked.video.muted,true);assert.equal(blocked.video.paused,false,'video still plays muted');
- const quiet=make(false);createStoryPlayer(quiet.host,{volume:0}).toggle();assert.equal(quiet.video.muted,true);
+ const make=reject=>{const video={muted:true,volume:1,currentTime:0,duration:24,paused:true,tries:0,addEventListener(){},removeEventListener(){},play(){this.tries++;if(reject(this))return Promise.reject(new DOMException('Autoplay blocked','NotAllowedError'));this.paused=false;return Promise.resolve();},pause(){this.paused=true;},removeAttribute(){},querySelectorAll(){return[];},load(){}};
+  const overlay=node(),status=node();
+  const host={dataset:{story:'outro'},querySelector:s=>s==='video'?video:s==='.story-caption'?caption:s==='.story-start-button'?overlay:s==='.story-status'?status:node()};return {video,host,overlay,status};};
+ const ok=make(()=>false);createStoryPlayer(ok.host,{volume:.4});assert.equal(ok.video.muted,false);assert.equal(ok.video.volume,.4);assert.equal(ok.video.tries,1);
+ const blocked=make(v=>!v.muted);createStoryPlayer(blocked.host,{volume:.4});assert.equal(blocked.overlay.hidden,true);
+ await new Promise(r=>setImmediate(r));assert.equal(blocked.video.muted,true);assert.equal(blocked.video.paused,false);assert.equal(blocked.video.tries,2);
+ const quiet=make(()=>false);createStoryPlayer(quiet.host,{volume:0});assert.equal(quiet.video.muted,true);
+ const denied=make(()=>true);createStoryPlayer(denied.host,{volume:.4});
+ await new Promise(r=>setImmediate(r));assert.equal(denied.overlay.hidden,false);assert.match(denied.status.textContent,/재생 버튼/);
 });
