@@ -223,3 +223,16 @@ dialog:has(.resident-letter) .letter-more>p{margin:0 0 .65em;font-size:clamp(17p
 #app .habitat-diorama.extra-zone .extra-look{position:relative;inset:auto;transform:none;translate:none;width:min(92%,640px);padding:0;border:4px solid #fff;border-radius:16px;overflow:hidden;background:none;box-shadow:0 8px 20px #2a3a2640}
 #app .habitat-diorama.extra-zone .extra-look img{display:block;width:100%;height:auto}
 #app .habitat-diorama.extra-zone .extra-look>span{position:absolute;right:10px;top:10px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#fff;color:#355b3d}
+
+/* Keep one question visible and let long science terms wrap at tablet widths. */
+#app .pace-evidence,#app .journey-known-place{margin:0;padding:10px 14px;background:#e9f1e7;border-radius:12px;color:#284832}
+#app #main#main.broadcast-request-page .broadcast-pairs{display:block;padding:0}
+#app #main#main.broadcast-request-page .broadcast-pairs .record-options{display:grid!important;grid-template-columns:1fr;justify-content:stretch;gap:7px}
+#app #main#main.broadcast-request-page .broadcast-pairs .commission-choice{width:100%!important;min-height:44px;white-space:normal;text-align:left;justify-content:flex-start}
+#app .reward-screen .pace-actions{flex-wrap:wrap;gap:10px 14px}
+#app .reward-screen .pace-actions>.btn{padding-inline:18px;min-height:52px}
+#app .reward-extras{align-self:center}
+#app .reward-extras[open]{flex:0 1 100%}
+#app .reward-extras>summary{display:flex;justify-content:center;width:max-content;margin:auto;cursor:pointer;min-height:44px}
+#app .reward-extra-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px}
+#app .reward-extra-buttons>.btn{min-height:44px}

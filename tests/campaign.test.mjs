@@ -60,7 +60,7 @@ test('a partially completed old request keeps archived evidence while the remain
  assert.equal(JSON.stringify(s.campaign.records['1-0']),archive);assert.equal(requestCount(restoreExpedition(JSON.stringify(s))),1);
 });
 test('both request parts are reachable as cards with distinct action scopes and one reply',()=>{
- const s=campaignFixture(),first=commissionView(s,{stage:2,commissionIndex:0,requestCard:0}),html=commissionView(s,{stage:2,commissionIndex:0,requestCard:1});
+ const s=campaignFixture(),first=commissionView({...s,sorts:[{},{}]},{stage:2,commissionIndex:0,requestCard:0}),html=commissionView(s,{stage:2,commissionIndex:0,requestCard:1});
  assert.match(first,/data-request-part="0"/);assert.match(html,/data-request-part="1"/);assert.match(first,/data-action="request-card" data-value="1"/);
  assert.match(html,/data-commission-index="1" data-action="pick"/);
  assert.equal((html.match(/data-action="commission-submit"/g)||[]).length,0);

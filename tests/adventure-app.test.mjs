@@ -80,7 +80,7 @@ test('the village overview unlocks only after all five places are restored, incl
  assert.equal(a.run('s.completed.length'),5);assert.equal(a.run('restoredPlaces(s).length'),1);assert.equal(a.run('mapOverview'),false);
  a.run('s.campaign=freshCampaign([1,2,3,4]);go("map")');assert.equal(a.run('mapOverview'),false);
  a.run('s.campaign=freshCampaign([1,2,3,4,5]);stage=5;go("reward")');
- assert.match(a.app.innerHTML,/data-action="story-outro"[^>]*>전시관 문 열기 영상 보기/,'the last restoration leads straight to the finale video');assert.match(a.app.innerHTML,/data-action="map"[^>]*>복구된 마을 먼저 보기/);
+ assert.match(a.app.innerHTML,/data-action="gallery"[^>]*>내 전시관 바로 보기/);assert.match(a.app.innerHTML,/data-action="story-outro"[^>]*>엔딩 영상 보기/);
  a.run('act("map",{dataset:{}})');assert.equal(a.run('screen'),'map');assert.equal(a.run('mapOverview'),true);assert.match(a.app.innerHTML,/중앙 코어 점등/);
  assert.doesNotMatch(a.app.innerHTML,/class="map-direction"/);
  a.run('act("story-outro",{dataset:{}});finishStory()');assert.equal(a.run('screen'),'gallery');
@@ -203,7 +203,7 @@ test('extra dome animals open their own optional videos without changing the req
 });
 
 test('forest completion offers optional commissions whose reply atomically saves both records',()=>{
- const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';stage=1;step=7;screen="mission";advance()');assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,true);assert.match(a.app.innerHTML,/전시 설명판 더 만들어 보기 · 선택/);a.run("act('commission-open',{dataset:{id:'1'}})");assert.equal(a.dialog.open,true);
+ const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';stage=1;step=7;screen="mission";advance()');assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,false);assert.match(a.app.innerHTML,/전시 설명판 · 선택/);a.run("act('commission-open',{dataset:{id:'1'}})");assert.equal(a.dialog.open,true);
  a.run("act('close-dialog',{dataset:{}})");assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'reward');
  a.run("act('commission-open',{dataset:{id:'1'}});act('commission-accept',{dataset:{id:'1'}})");assert.equal(a.run('screen'),'commission');assert.equal(a.dialog.open,false);
  for(const [key,value]of Object.entries({'frog-label':'bare','frog-proof':'skin','crab-label':'claw','crab-proof':'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value,commissionIndex:'0'})}})`);
@@ -265,8 +265,8 @@ test('guided invention leads to an empty creative studio, then preserves artwork
  assert.equal(a.run('step'),3);assert.match(a.app.innerHTML,/data-studio="showcase"/);assert.doesNotMatch(a.app.innerHTML,/data-action="lab-summary"/);
  a.run('advance()');assert.equal(a.dialog.open,false);
  a.run('s.studio.audience="산책하는 친구";s.studio.purpose="발을 따뜻하게 감싸 줘";s.studio.inspiration="토끼의 털";advance()');
- assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);assert.equal(a.run('s.studioRecord.title'),'구름 신발');
- a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);
+ assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'reward');assert.equal(a.run('s.studioRecord.title'),'구름 신발');
+ a.run('act("commission-open",{dataset:{id:"5",value:"2"}})');assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);
  const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,24);
 });
 test('reset keeps the teacher\'s sound settings',()=>{
@@ -275,7 +275,7 @@ test('reset keeps the teacher\'s sound settings',()=>{
 });
 
 test('request cards move with the deck buttons and a blank reply jumps to the card holding the first blank',()=>{
- const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';openCommission(3,0)');
+ const a=appHarness();a.run('s='+JSON.stringify(campaignFixture())+';s.discovered=[];openCommission(3,0)');
  assert.equal(a.run('requestCard'),0);assert.match(a.app.innerHTML,/data-row="rabbit-place"/);
  a.run("act('request-card',{dataset:{value:'2'}})");assert.equal(a.run('requestCard'),2);assert.match(a.app.innerHTML,/data-row="duck-place"/);
  a.run("act('request-card',{dataset:{value:'9'}})");assert.equal(a.run('requestCard'),2);
@@ -333,7 +333,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
   for(const id of model.OBSERVE_PAIRS[r]){act('observe',{id:model.OBSERVE_REQUIRED[id],value:'right'});a.run('continueForest()');}
   for(const q of model.COMPARES[r]){act('compare-answer',{key:q.key,value:`${q.key}-${q.answer}`});a.run('continueForest()');}
  }
- assert.equal(activityCount(),8);assert.equal(a.dialog.open,true);assert.equal(a.run('screen'),'reward');
+ assert.equal(activityCount(),8);assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'reward');
  act('commission-open',{id:'1'});finishRequest(1);
  a.run('enter(2)');for(const id of model.SORT_ANIMALS){act('pick',{ref:'sort-'+id,id});act('place',{dropAction:'sort',zone:model.ANIMALS[id].wings?'yes':'no'});}
  tapTwice('advance()');act('verify-run');act('verify-cause',{value:'opinion'});act('verify-fix',{value:'wings'});act('verify-recheck');a.run('advance()');
@@ -363,8 +363,8 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  assert.equal(activityCount(),22);
  a.run('s.studio={...s.studio,title:"날개 우산",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:400,y:300}]}]};advance()');
  a.run('s.studio.audience="비 오는 날 걷는 친구";s.studio.purpose="날개처럼 넓게 덮어 줘";s.studio.inspiration="오리 날개";advance()');
- assert.equal(activityCount(),24);assert.equal(a.dialog.open,false);finishRequest(5);
- const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,24);assert.equal(Object.keys(saved.campaign.records).length,14,'the repeated garden challenge is optional');
+ assert.equal(activityCount(),24);assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'reward');
+ const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,24);assert.equal(Object.keys(saved.campaign.records).length,13,'garden and workshop challenges are optional');
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.doesNotMatch(a.app.innerHTML,/탐험 별/);
  act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|처음 고른 설명이 맞은 곳 12곳/);
@@ -426,7 +426,7 @@ test('normal forest answers auto-advance to restoration in exactly sixteen respo
    answers++;a.flushTimers();
   }
  }
- assert.equal(answers,16);assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,true);
+ assert.equal(answers,16);assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,false);
  const saved=model.restoreExpedition(a.saved);assert.equal(saved.observed.length,8);assert.equal(saved.activities.length,8);
  assert.deepEqual(campaign.restoredPlaces(saved),[1]);assert.deepEqual(saved.campaign.records,{});
 });
@@ -449,8 +449,7 @@ test('garden answers move through sorting, verification and requests without nex
  assert.equal(a.run("panelPages.get(panelKey('.verify-steps'))"),2);
  a.run("act('verify-fix',{dataset:{value:'wings'}})");a.flushTimers();
  assert.equal(a.run('screen'),'commission');assert.equal(a.dialog.open,false);
- a.run("act('commission-choice',{dataset:{key:'reason',value:'wings',commissionIndex:'0'}})");a.flushTimers();
- assert.equal(a.run('requestCard'),1);
+ assert.equal(a.run('requestCard'),0);assert.match(a.app.innerHTML,/data-request-part="1"/);
  a.run("act('commission-choice',{dataset:{key:'criterion',value:'six',commissionIndex:'1'}})");
  for(const id of ['hen','bat','bee','snail'])a.run(`act('commission-sort',{dataset:{id:'${id}',value:'${id==='bee'?'yes':'no'}',commissionIndex:'1'}})`);
  a.flushTimers();assert.equal(a.run('campaignDone(s,2,2)'),false);
@@ -514,6 +513,7 @@ test('request cards grade immediately, retry immediately and progress across eve
     if(card.kind==='own-sort')a.run(`chooseCommission(s,stage,${card.part},'criterion','six')`);
     const rows=a.run(`requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard].rows`);
     for(const r of rows){
+     if(a.run(`Object.hasOwn(explorationAnswers(s,stage,${card.part}),${JSON.stringify(r.key)})`))continue;
      const wrong=r.options.find(([value])=>value!==r.answer)?.[0];
      if(wrong){a.run(`act('commission-choice',{dataset:{key:'${r.key}',value:'${wrong}',commissionIndex:'${card.part}'}})`);assert.equal(a.run('feedback.good'),false);}
      a.run(`act('commission-choice',{dataset:{key:'${r.key}',value:'${r.answer}',commissionIndex:'${card.part}'}})`);
@@ -521,23 +521,22 @@ test('request cards grade immediately, retry immediately and progress across eve
     a.flushTimers();
    }
   }
-  if(stage!==2){assert.equal(a.run('commissionIndex'),2);a.run(`for(const row of missionRows(s,stage,2))act('commission-choice',{dataset:{key:row.key,value:row.answer,commissionIndex:'2'}})`);a.flushTimers();}
-  assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,true);
+  if(![2,5].includes(stage)){assert.equal(a.run('commissionIndex'),2);a.run(`for(const row of missionRows(s,stage,2))act('commission-choice',{dataset:{key:row.key,value:row.answer,commissionIndex:'2'}})`);a.flushTimers();}
+  assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,false);
   assert.equal(a.run('campaignDone(s,stage,0)&&campaignDone(s,stage,1)'),true);
  }
 });
 
-test('completion opens the compact NPC dialogue then returns to the map for the restoration once',()=>{
- for(const stage of [1,2,3,4,5]){
-  const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+`;s.campaign=freshCampaign(${JSON.stringify(Array.from({length:stage},(_,i)=>i+1))});stage=${stage};completeStage(true)`);
-  assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/잠시 뒤 지도로 돌아가/);
-  assert.doesNotMatch(a.dialog.innerHTML,/npc-scene-detail|편지 읽기/);
-  a.flushTimers();assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'map');
-  assert.equal(a.run('selectedStage'),Math.min(stage+1,5));assert.equal(a.run('autoEnter'),false);
-  assert.equal(a.run('pendingRestoration'),null);
-  const after=a.run('screen');a.flushTimers();assert.equal(a.run('screen'),after);
- }
- const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+';stage=1;completeStage();go("home")');a.flushTimers();assert.equal(a.run('screen'),'home');
+test('a reward opens immediately and the player chooses whether to listen or continue',()=>{
+ const a=appHarness({clock:true});a.run('s=freshExpedition();s.completed=[1];stage=1;completeStage(true)');
+ a.flushTimers();assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,false);
+ assert.match(a.app.innerHTML,/data-action="next-expedition"[^>]*data-id="2"/);
+ a.run("act('reward-voice',{dataset:{}})");assert.equal(a.dialog.open,true);
+ assert.match(a.dialog.innerHTML,/복구 축하 인사/);
+ a.run("act('close-dialog',{dataset:{}})");a.flushTimers();
+ assert.equal(a.run('screen'),'reward');
+ a.run("act('next-expedition',{dataset:{id:'2'}})");
+ assert.equal(a.run('screen'),'mission');assert.equal(a.run('stage'),2);
 });
 
 test('teacher demo button is hidden by default and its setting survives reload',()=>{
@@ -575,6 +574,6 @@ test('backgrounding postpones automatic movement until the activity is visible a
  const a=appHarness({clock:true});a.run("s.adminUnlocked=true;enter(3);s.inquiry.motion.rabbit=MOTION_KEY_FRAME;document.hidden=true;resumeActivityProgress()");
  a.flushTimers();assert.equal(a.run('activeHabitat'),'forest');
  a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('activeHabitat'),'pond');
- a.run('s.completed=[1];stage=1;completeStage();document.hidden=true');a.flushTimers();assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,true);
- a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('screen'),'map');assert.equal(a.run('selectedStage'),2);
+ a.run('s.completed=[1];stage=1;completeStage();document.hidden=true');a.flushTimers();assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,false);
+ a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('screen'),'reward');
 });

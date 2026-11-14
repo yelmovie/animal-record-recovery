@@ -4,10 +4,11 @@ import {campaignFixture} from './fixtures/campaign-state.mjs';
 import {campaignDraft,missionRows,chooseCommission,requestParts,requestCards,cardProgress,requestGap,claimRequest} from '../src/campaign.js';
 import {commissionView,broadcastScript,galleryView} from '../src/campaign-views.js';
 
+const legacy=()=>{const s=campaignFixture();s.discovered=[];s.inquiry.motion={};s.links={frog:{},crab:{}};s.sorts[0]={};return s;};
 const fill=(s,stage,index,skip=[])=>{for(const r of missionRows(s,stage,index))if(!skip.includes(r.key))chooseCommission(s,stage,index,r.key,r.answer);};
 
 test('broadcast focus follows the first missing explanation without grading a draft or changing its subject',()=>{
- const s=campaignFixture();let html=commissionView(s,{stage:3,requestCard:1});
+ const s=legacy();let html=commissionView(s,{stage:3,requestCard:1});
  assert.match(html,/data-broadcast-animal="marine"/);assert.match(html,/바다 물고기는 어디에 살까/);
  assert.match(html,/is-current" data-row="marine-place"/);assert.doesNotMatch(html,/broadcast-continue/);
  chooseCommission(s,3,0,'marine-place','forest');html=commissionView(s,{stage:3,requestCard:1});
@@ -16,7 +17,7 @@ test('broadcast focus follows the first missing explanation without grading a dr
 });
 
 test('broadcast next action points to the next unfinished animal and offers sending only after all subjects are filled',()=>{
- const s=campaignFixture();fill(s,3,0);let html=commissionView(s,{stage:3,requestCard:1});
+ const s=legacy();fill(s,3,0);let html=commissionView(s,{stage:3,requestCard:1});
  assert.match(html,/설명이 맞으면 다음 동물로 이어져/);
  fill(s,3,1);html=commissionView(s,{stage:3,requestCard:3});
  assert.doesNotMatch(html,/data-action="commission-submit"/);assert.doesNotMatch(html,/broadcast-continue[^>]*disabled/);
@@ -24,7 +25,7 @@ test('broadcast next action points to the next unfinished animal and offers send
 });
 
 test('the ecology request becomes four animal cards of place → body → life, twelve answers in all',()=>{
- const s=campaignFixture(),cards=requestCards(s,3,requestParts(3,0));
+ const s=legacy(),cards=requestCards(s,3,requestParts(3,0));
  assert.deepEqual(cards.map(c=>c.animal),['rabbit','marine','duck','butterfly']);
  assert.ok(cards.every(c=>c.rows.length===3));
  assert.deepEqual(cards[0].rows.map(r=>r.key),['rabbit-place','rabbit-body','rabbit-life']);
@@ -33,7 +34,7 @@ test('the ecology request becomes four animal cards of place → body → life, 
 });
 
 test('every request and challenge is split into cards that keep all rows exactly once',()=>{
- const s=campaignFixture();
+ const s=legacy();
  for(let stage=1;stage<=5;stage++)for(const index of [0,2]){const parts=requestParts(stage,index),cards=requestCards(s,stage,parts);
   assert.ok(cards.length>=1);
   for(const i of parts)assert.deepEqual(cards.filter(c=>c.part===i).flatMap(c=>c.rows.map(r=>r.key)),missionRows(s,stage,i).map(r=>r.key));
@@ -43,7 +44,7 @@ test('every request and challenge is split into cards that keep all rows exactly
 });
 
 test('submitting with blanks points at the first empty answer in display order, even if an earlier one is wrong',()=>{
- const s=campaignFixture();fill(s,3,0);chooseCommission(s,3,0,'rabbit-place','sea');fill(s,3,1,['butterfly-body']);
+ const s=legacy();fill(s,3,0);chooseCommission(s,3,0,'rabbit-place','sea');fill(s,3,1,['butterfly-body']);
  assert.equal(claimRequest(s,3).ok,false);
  const gap=requestGap(s,3,requestParts(3,0));
  assert.equal(gap.index,1);assert.equal(gap.key,'butterfly-body');assert.equal(gap.missing,true);assert.match(gap.text,/나비 · 날 때 쓰는 부분/);
@@ -52,7 +53,7 @@ test('submitting with blanks points at the first empty answer in display order, 
 });
 
 test('the request screen shows one card, overall progress and a jump list, never the answers',()=>{
- const s=campaignFixture();chooseCommission(s,3,0,'rabbit-place','forest');
+ const s=legacy();chooseCommission(s,3,0,'rabbit-place','forest');
  const html=commissionView(s,{stage:3,commissionIndex:0,requestCard:0});
  assert.match(html,/1\/12/);assert.equal((html.match(/data-action="request-card"/g)||[]).length>=4,true);
  assert.match(html,/data-row="rabbit-place"/);assert.doesNotMatch(html,/data-row="duck-place"/);
@@ -62,7 +63,7 @@ test('the request screen shows one card, overall progress and a jump list, never
 });
 
 test('ecology scripts read as spoken field reports for all four selected animals',()=>{
- const s=campaignFixture();fill(s,3,0);fill(s,3,1);
+ const s=legacy();fill(s,3,0);fill(s,3,1);
  const scripts=requestCards(s,3,[0,1]).map(c=>broadcastScript(c.rows,campaignDraft(s,3,c.part)));
  for(const script of scripts){assert.equal(script[0].cue,'오프닝');assert.equal(script.at(-1).cue,'클로징');assert.match(script[0].text,/레인저 하늘/);}
  assert.match(scripts[0][1].text,/숲과 들에서 토끼를 만났어요.*긴 뒷다리를 보세요.*토끼는 땅을 박차고 뛰어요/);
@@ -72,7 +73,7 @@ test('ecology scripts read as spoken field reports for all four selected animals
 });
 
 test('broadcast drafts retain blanks and wrong choices without revealing or correcting answers',()=>{
- const s=campaignFixture(),c=requestCards(s,3,[0])[0],d=campaignDraft(s,3,0);
+ const s=legacy(),c=requestCards(s,3,[0])[0],d=campaignDraft(s,3,0);
  let text=broadcastScript(c.rows,d).map(b=>b.text).join(' ');
  assert.match(text,/〔사는 곳〕.*〔몸의 부분〕.*〔움직임〕/);assert.doesNotMatch(text,/숲과 들|긴 뒷다리|땅을 박차고/);
  chooseCommission(s,3,0,'rabbit-place','sea');chooseCommission(s,3,0,'rabbit-body','fin');chooseCommission(s,3,0,'rabbit-life','swim');
@@ -81,7 +82,7 @@ test('broadcast drafts retain blanks and wrong choices without revealing or corr
 });
 
 test('the special broadcast uses both selected explanations and the museum preserves the submitted script',()=>{
- const s=campaignFixture();fill(s,3,0);fill(s,3,1);assert.equal(claimRequest(s,3).ok,true);fill(s,3,2);
+ const s=legacy();fill(s,3,0);fill(s,3,1);assert.equal(claimRequest(s,3).ok,true);fill(s,3,2);
  const c=requestCards(s,3,[2])[0],text=broadcastScript(c.rows,campaignDraft(s,3,2)).map(b=>b.text).join(' ');
  assert.match(text,/낙타의 넓적한 발바닥을 보세요.*모래 위를 걸을 때 쓰여요/);assert.match(text,/펭귄의 짧은 날개를 보세요.*바닷물 속을 헤엄칠 때 쓰여요/);
  chooseCommission(s,3,0,'rabbit-body','fin');

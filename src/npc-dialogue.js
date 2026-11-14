@@ -19,7 +19,7 @@ export function npcDialogue(npc,line,{mori,completed,finalLine,letter,compact=fa
       </div>`}
       ${extra?`<p class="npc-scene-context">${esc(extra)}</p>`:''}
       <div class="npc-scene-actions">
-        <span>${compact?'잠시 뒤 지도로 돌아가':mori?'탐험 친구':completed?'복구한 장소':'마을 주민'}</span>
+        <span>${compact?'복구 축하 인사':mori?'탐험 친구':completed?'복구한 장소':'마을 주민'}</span>
         <button class="npc-scene-replay" type="button" data-npc-replay hidden>다시 듣기</button>
         ${letter?`<button class="npc-scene-next" type="button" data-action="commission-letter" data-id="${letter}">편지 읽기</button>`:'<button class="npc-scene-next" type="button" data-action="close-dialog">이야기 마치기</button>'}
       </div>

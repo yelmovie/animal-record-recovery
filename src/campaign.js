@@ -1,6 +1,7 @@
 // Museum commissions extend the core investigations. Awarded evidence is
 // snapshotted separately from editable drafts, so replay cannot rewrite an exhibit.
 import {studioReady} from './studio.js';
+import {MOTION_KEY_FRAME} from './inquiry.js';
 import {withParticle} from './korean.js';
 const row=(key,label,options,answer,hint,animal='')=>({key,label,options,answer,hint,animal});
 const yesNo=[['yes','O'],['no','X']];
@@ -19,7 +20,7 @@ export const COMMISSIONS=[
    row('rabbit','토끼의 몸을 덮은 것',[['scale','비늘'],['feather','깃털'],['fur','털']],'fur','토끼의 몸 표면 기록을 확인해 봐.','rabbit'),
    row('same','둘의 같은 점',[['web','둘 다 물갈퀴가 있어'],['legs','둘 다 다리로 땅을 디딜 수 있어'],['wing','둘 다 날개가 있어']],'legs','서로 다른 점만 보지 말고, 두 동물 모두에게 있는 부분도 찾아봐.')]},
  ],challenge:{title:'한 문장 바로잡기',intro:'안내 방송에 잘못 들어간 문장 하나를 고쳐 줘.',kind:'repair',rows:[row('fix','“개구리와 게는 둘 다 껍데기가 있다.”',[['both','둘 다 털이 있다'],['crab','게는 껍데기, 개구리는 맨살이 드러나 있다'],['frog','개구리에게만 껍데기가 있다']],'crab','몸 표면 두 기록을 나란히 비교해 봐.')]}},
- {id:2,npc:'큐레이터 준',portrait:'curator',title:'새 동물의 전시 자리를 정해 줘',exhibit:'내 기준 분류 정원',thanks:'네 기준을 따라 다른 연구원도 같은 자리에 카드를 놓았어!',badge:'공정한 분류가',tool:'관찰 렌즈',letter:[
+ {id:2,npc:'큐레이터 준',portrait:'curator',title:'새 동물의 전시 자리를 정해 줘',exhibit:'내 기준 분류 정원',thanks:'네 기준으로 동물들이 제자리를 찾았어!',badge:'공정한 분류가',tool:'관찰 렌즈',letter:[
   '분류 정원에 새 친구들이 찾아왔어. 닭과 박쥐가 같은 칸에 놓여 있는데, 몸의 어떤 특징을 보고 함께 놓았는지 설명해 줄래?',
   '이번에는 너희가 직접 기준을 정해서 새 친구들의 자리를 나눠 주면 좋겠어. 몸을 보고 누구나 확인할 수 있는 기준으로 O와 X 칸에 놓아 줘.',
  ],missions:[
@@ -55,7 +56,7 @@ export const COMMISSIONS=[
    row('a-place','첫 기록이 발견된 곳',[['pond','연못과 물가'],['desert','건조한 사막'],['sea','깊은 바닷속']],'pond','개구리의 서식지 수첩을 펼쳐 봐.'),
    row('b','단단한 껍데기 + 집게다리',[['crab','게'],['rabbit','토끼'],['frog','개구리']],'crab','껍데기만 보지 말고 집게도 함께 확인해.'),
    row('b-life','두 번째 기록의 생활',[['fly','날개로 날아'],['walk','여러 다리로 갯벌을 걸어'],['jump','긴 뒷다리로 뛰어']],'walk','게가 갯벌을 지나간 장면을 떠올려 봐.')]},
-  {title:'새로 도착한 두 기록',intro:'새 기록 두 장이 왔어. 단서 두 개가 모두 맞는 동물을 찾아 줘.',kind:'return',rows:[
+  {title:'새로 도착한 두 기록',intro:'단서에 맞는 동물과, 비슷한 동물과 구별하는 특징을 함께 골라 줘.',kind:'return',rows:[
    row('a','투명한 날개 + 여섯 개의 다리',[['bat','박쥐'],['bee','벌'],['hen','닭']],'bee','날개는 셋 모두 있지만 다리 수는 달라.'),
    row('a-proof','박쥐와 구별하는 데 쓴 단서',[['wing','날개가 있다'],['six','다리가 여섯 개다'],['cute','귀엽다']],'six','둘 다 날개가 있으니 다른 특징을 확인해야 해.'),
    row('b','나선 모양 껍데기 + 다리 없이 기어감',[['crab','게'],['snail','달팽이'],['fish','금붕어']],'snail','껍데기 모양과 이동할 때 쓰는 부분을 함께 살펴봐.'),
@@ -88,6 +89,32 @@ export function missionRows(s,stage,index,d=campaignDraft(s,stage,index)){
  if(m.kind==='own-sort')return ['hen','bat','bee','snail'].map((id,i)=>row(id,['닭','박쥐','벌','달팽이'][i],yesNo,SORT_TRUTH[d.answers.criterion]?.includes(id)?'yes':'no','선택한 기준에 해당하는 몸 부분을 다시 확인해 봐.',id));
  return m.rows;
 }
+// Reuse verified exploration records without inserting choices into editable drafts.
+const BROADCAST_PLACES={rabbit:['forest-rabbit','forest'],marine:['coast-marine','sea'],duck:['pond-duck','pond'],butterfly:['forest-butterfly','flowers']};
+export function explorationAnswers(s,stage,index){
+ if(stage===2&&index===0&&s.activities?.includes('2-0')&&s.sorts?.[0]?.hen==='yes'&&s.sorts[0].bat==='yes')return {reason:'wings'};
+ if(stage===3&&index<2)return Object.fromEntries(Object.entries(BROADCAST_PLACES).flatMap(([id,[place,value]])=>
+  s.discovered?.includes(place)&&s.inquiry?.motion?.[id]===MOTION_KEY_FRAME?[[id+'-place',value]]:[]));
+ if(stage===4&&index===0){
+  const a={};
+  const frog=s.links?.frog,crab=s.links?.crab;
+  if(s.activities?.includes('3-1')&&frog?.environment==='pond'&&frog.body==='web'&&frog.life==='swim')Object.assign(a,{a:'frog','a-place':'pond'});
+  if(s.activities?.includes('3-3')&&crab?.environment==='coast'&&crab.body==='legs'&&crab.life==='walk')Object.assign(a,{b:'crab','b-life':'walk'});
+  return a;
+ }
+ return {};
+}
+export function requestDraft(s,stage,index,d=campaignDraft(s,stage,index)){
+ const saved=s.campaign?.records?.[missionKey(stage,index)];
+ // Reopening an exhibit reads its awarded snapshot, independent of replay edits.
+ return saved||{...d,answers:{...d.answers,...explorationAnswers(s,stage,index)}};
+}
+export function pairedOptions(first,second){
+ if(!first||!second||first.options.length!==second.options.length)return [];
+ const n=first.options.length;
+ const offset=(second.options.findIndex(o=>o[0]===second.answer)-first.options.findIndex(o=>o[0]===first.answer)+n)%n;
+ return first.options.map((option,i)=>[option,second.options[(i+offset)%n]]);
+}
 export function campaignReady(s,stage,index,d=campaignDraft(s,stage,index)){
  if(stage===5&&index<2&&s.studioRecord)return studioReady(s.studioRecord);
  const m=commission(stage,index);if(!m)return false;
@@ -96,13 +123,14 @@ export function campaignReady(s,stage,index,d=campaignDraft(s,stage,index)){
   const p=designProblem(s,index),r=RETEST[p],levels=new Set(d.trials.filter(t=>t.problem===p).map(t=>t.level));
   return !!r&&levels.size>=2&&levels.has(r.target)&&d.answers.choice===String(r.target)&&d.answers.reason==='fit';
  }
- return missionRows(s,stage,index,d).every(r=>d.answers[r.key]===r.answer);
+ const answers={...d.answers,...explorationAnswers(s,stage,index)};
+ return missionRows(s,stage,index,d).every(r=>answers[r.key]===r.answer);
 }
 export function campaignHint(s,stage,index){const d=campaignDraft(s,stage,index),m=commission(stage,index);
  if(stage===5&&index<2&&s.studioRecord)return '내 발명 그리기와 작품 소개를 완성해 줘.';
  if(m.kind==='own-sort'&&!Object.hasOwn(SORT_KEYS,d.answers.criterion))return '먼저 몸에서 확인할 수 있는 분류 기준을 골라 줘.';
  if(m.kind==='retest'){const p=designProblem(s,index),r=RETEST[p];if(!r)return '먼저 두 발명품을 완성해 줘.';const tried=new Set(d.trials.filter(t=>t.problem===p).map(t=>t.level));if(tried.size<2)return '서로 다른 모양을 두 가지 이상 시험해 줘. 시험 전에 예상도 골라 봐.';if(!tried.has(r.target)||d.answers.choice!==String(r.target))return '시험 표의 두 항목과 손님의 부탁을 함께 비교해 봐. 아직 안 해 본 모양도 시험할 수 있어.';return '그 모양을 고른 이유를 손님의 부탁과 연결해 줘.';}
- const bad=missionRows(s,stage,index,d).find(r=>d.answers[r.key]!==r.answer);return bad?(d.answers[bad.key]?`${bad.label}: ${bad.hint}`:`‘${bad.label}’에 아직 기록을 놓지 않았어.`):'';
+ const answers=requestDraft(s,stage,index,d).answers,bad=missionRows(s,stage,index,d).find(r=>answers[r.key]!==r.answer);return bad?(answers[bad.key]?`${bad.label}: ${bad.hint}`:`‘${bad.label}’에 아직 기록을 놓지 않았어.`):'';
 }
 export const campaignDone=(s,stage,index)=>!!s.campaign?.records?.[missionKey(stage,index)];
 export const restoredPlaces=s=>s.completed.filter(id=>id===1||!s.campaign||s.campaign.grandfathered.includes(id)||(campaignDone(s,id,0)&&campaignDone(s,id,1)));
@@ -120,10 +148,10 @@ export function claimRequest(s,stage){
 }
 export function claimCommission(s,stage,index){
  if(!campaignOpen(s,stage,index)||(index===1&&!campaignDone(s,stage,0))||!campaignReady(s,stage,index))return {ok:false};
- const c=ensureCampaign(s),key=missionKey(stage,index),fresh=!c.records[key];if(fresh)c.records[key]=clone(campaignDraft(s,stage,index));return {ok:true,fresh,restored:restoredPlaces(s).includes(stage)};
+ const c=ensureCampaign(s),key=missionKey(stage,index),fresh=!c.records[key];if(fresh)c.records[key]=clone(requestDraft(s,stage,index));return {ok:true,fresh,restored:restoredPlaces(s).includes(stage)};
 }
 export function chooseCommission(s,stage,index,key,value){
- if(!campaignOpen(s,stage,index))return false;const d=campaignDraft(s,stage,index),m=commission(stage,index);
+ if(!campaignOpen(s,stage,index)||Object.hasOwn(explorationAnswers(s,stage,index),key))return false;const d=campaignDraft(s,stage,index),m=commission(stage,index);
  if(key==='criterion'&&m.kind==='own-sort'&&Object.hasOwn(SORT_KEYS,value)){if(d.answers.criterion!==value)d.answers={criterion:value};return true;}
  if(m.kind==='retest'&&((key==='choice'&&['1','2','3'].includes(value))||(key==='reason'&&['fit','big','looks'].includes(value)))){d.answers[key]=value;return true;}
  const r=missionRows(s,stage,index,d).find(r=>r.key===key);if(!r?.options.some(o=>o[0]===value))return false;d.answers[key]=value;return true;
@@ -139,7 +167,7 @@ export function normalizeCampaign(raw,s){
    for(const [k,v]of Object.entries(cleanObject(input.answers)))if(/^[a-z-]{1,24}$/.test(k)&&typeof v==='string'&&v.length<32)d.answers[k]=v;
    if(stage===2&&index===0&&!d.answers.reason&&['hen','bat','bee'].every(id=>d.answers[id]==='yes')&&d.answers.snail==='no')d.answers.reason='wings';
    if(Array.isArray(input.trials))d.trials=input.trials.slice(0,9).filter(t=>t&&Object.hasOwn(RETEST,t.problem)&&[1,2,3].includes(t.level)&&['more','same','less'].includes(t.prediction)).map(t=>({problem:t.problem,level:t.level,prediction:t.prediction}));
-   if(area==='drafts')out.drafts[key]=d;else if(s.completed.includes(stage)&&(index===0||out.records[missionKey(stage,index-1)])&&campaignReady(s,stage,index,d))out.records[key]=d;
+   if(area==='drafts')out.drafts[key]=d;else if(s.completed.includes(stage)&&(index===0||out.records[missionKey(stage,index-1)])&&campaignReady(s,stage,index,d)&&missionRows(s,stage,index,d).every(r=>r.answer===d.answers[r.key]))out.records[key]=d;
   }
  }
  return out;
@@ -148,24 +176,24 @@ export function campaignReport(s,narrative=false){return COMMISSIONS.flatMap(c=>
 // A request is answered one card at a time: one animal's chain, one lost record, or a whole sort/test.
 export const requestParts=(stage,index)=>index===2?[2]:stage===5?[1,0]:[0,1];
 export function requestCards(s,stage,parts){return parts.flatMap(i=>{const m=commission(stage,i),rows=missionRows(s,stage,i);
- if(!m)return [];if(!rows.length||m.kind==='own-sort'||m.kind==='retest')return [{part:i,kind:m.kind,rows,animal:''}];
+ if(!m)return [];const known=explorationAnswers(s,stage,i);if(!campaignDone(s,stage,i)&&rows.length&&rows.every(r=>Object.hasOwn(known,r.key)))return [];if(!rows.length||m.kind==='own-sort'||m.kind==='retest')return [{part:i,kind:m.kind,rows,animal:''}];
  const groups=new Map();for(const r of rows){const g=m.kind==='return'?r.key.split('-')[0]:r.animal||'common';if(!groups.has(g))groups.set(g,[]);groups.get(g).push(r);}
  return [...groups.values()].map(list=>({part:i,kind:m.kind,rows:list,animal:m.kind==='return'?'':list[0].animal||''}));});}
 const answered=(d,r)=>Boolean(d.answers[r.key]);
-export function cardDone(s,stage,card){const d=campaignDraft(s,stage,card.part);if(card.kind==='retest')return campaignDone(s,stage,card.part)||campaignReady(s,stage,card.part,d);if(card.kind==='own-sort'&&!d.answers.criterion)return false;return card.rows.every(r=>answered(d,r));}
+export function cardDone(s,stage,card){const d=requestDraft(s,stage,card.part);if(card.kind==='retest')return campaignDone(s,stage,card.part)||campaignReady(s,stage,card.part,d);if(card.kind==='own-sort'&&!d.answers.criterion)return false;return card.rows.every(r=>answered(d,r));}
 export function cardReady(s,stage,card){
- const d=campaignDraft(s,stage,card.part);
+ const d=requestDraft(s,stage,card.part);
  if(card.kind==='own-sort'||card.kind==='retest')return campaignReady(s,stage,card.part,d);
  return card.rows.every(r=>d.answers[r.key]===r.answer);
 }
-export function cardProgress(s,stage,cards){let n=0,total=0;for(const c of cards){const d=campaignDraft(s,stage,c.part);if(c.kind==='retest'){total++;n+=cardDone(s,stage,c)?1:0;}else{total+=c.rows.length;n+=c.rows.filter(r=>answered(d,r)).length;}}return {answered:n,total};}
+export function cardProgress(s,stage,cards){let n=0,total=0;for(const c of cards){const d=requestDraft(s,stage,c.part);if(c.kind==='retest'){total++;n+=cardDone(s,stage,c)?1:0;}else{total+=c.rows.length;n+=c.rows.filter(r=>answered(d,r)).length;}}return {answered:n,total};}
 // First blank answer in display order wins over a wrong one, so "submit" always says where to look next.
 export function requestGap(s,stage,parts){const pending=parts.filter(i=>!campaignDone(s,stage,i));
- for(const i of pending){const d=campaignDraft(s,stage,i),m=commission(stage,i);
+ for(const i of pending){const d=requestDraft(s,stage,i),m=commission(stage,i);
   if(m.kind==='own-sort'&&!SORT_KEYS[d.answers.criterion])return {index:i,key:'criterion',missing:true,text:'먼저 몸에서 확인할 수 있는 분류 기준을 골라 줘.'};
   if(m.kind==='own-sort'&&!splitsArrivals(d.answers.criterion))return {index:i,key:'criterion',text:`‘${SORT_KEYS[d.answers.criterion]}’로 나누면 네 동물이 모두 ${(SORT_TRUTH[d.answers.criterion]||[]).length?'O':'X'} 칸이야. 두 무리로 나뉘는 기준을 골라 봐.`};
   const blank=missionRows(s,stage,i,d).find(r=>!answered(d,r));if(blank)return {index:i,key:blank.key,missing:true,text:`‘${blank.label}’ 칸이 아직 비어 있어. 그 카드로 옮겨 뒀어.`};}
  const i=pending.find(i=>!campaignReady(s,stage,i));if(i===undefined)return null;
- const d=campaignDraft(s,stage,i),bad=missionRows(s,stage,i,d).find(r=>d.answers[r.key]!==r.answer);
+ const d=requestDraft(s,stage,i),bad=missionRows(s,stage,i,d).find(r=>d.answers[r.key]!==r.answer);
  return {index:i,key:bad?.key||'',missing:false,text:campaignHint(s,stage,i)};}
-export function firstOpenCard(s,stage,parts){const k=requestCards(s,stage,parts).findIndex(c=>!cardDone(s,stage,c));return Math.max(0,k);}
+export function firstOpenCard(s,stage,parts){const k=requestCards(s,stage,parts).findIndex(c=>!cardReady(s,stage,c));return Math.max(0,k);}
