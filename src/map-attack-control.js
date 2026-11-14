@@ -11,10 +11,15 @@ html body button.map-attack-dock[data-map-attack-dock]:not([hidden]){
  background:#3f2c58!important;color:#fff4da!important;
  box-shadow:0 3px 0 #251635,0 1px 10px #17262464!important;
  transform:none!important;pointer-events:auto!important;touch-action:manipulation;
- cursor:pointer;vertical-align:middle;
+ cursor:pointer;vertical-align:middle;align-content:center;gap:1px;
+ font-size:12px;font-weight:800;line-height:1;
 }
 html body button.map-attack-dock[data-map-attack-dock][hidden]{display:none!important}
-html body button.map-attack-dock[data-map-attack-dock]>svg{display:block;width:30px;height:30px;pointer-events:none}
+html body button.map-attack-dock[data-map-attack-dock]:not([data-in-range]){background:#514762!important}
+html body button.map-attack-dock[data-map-attack-dock]>svg{display:block;width:22px;height:22px;pointer-events:none}
+.map-attack-hint{position:absolute;right:0;bottom:calc(100% + 8px);width:max-content;max-width:65vw;padding:8px 10px;border-radius:8px;background:#352347;color:#fff4da;font-size:14px;line-height:1.35;white-space:normal;pointer-events:none}
+.map-next:has(>[data-action=map-overview]) .map-attack-hint{bottom:calc(100% + var(--map-cta-height) + 26px)}
+.map-attack-hint[hidden]{display:none}
 html body button.map-attack-dock[data-map-attack-dock]:hover{background:#583c78!important}
 html body button.map-attack-dock[data-map-attack-dock]:active{background:#2e2043!important}
 html body button.map-attack-dock[data-map-attack-dock]:focus-visible{outline:3px solid #fff!important;outline-offset:3px}
@@ -27,7 +32,7 @@ export function dockMapAttack(button,findHand){
   const sheet=doc.createElement('style');sheet.dataset.mapAttackDockStyle='';sheet.textContent=styles;doc.head.append(sheet);
  }
  button.classList.add('map-attack-dock');button.dataset.mapAttackDock='';
- button.innerHTML=icon;button.title='공격 · 스페이스바';
+ button.innerHTML=icon+'<span aria-hidden="true">공격</span>';button.title='공격 · 스페이스바';
  return ()=>{
   const hand=findHand();
   if(!hand?.isConnected||!hand.parentElement)return false;

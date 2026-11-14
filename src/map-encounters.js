@@ -90,6 +90,11 @@ export function mountMapEncounters({
   attack.setAttribute('aria-keyshortcuts','J Space');
   layer.append(attack);
   const syncDock=dockMapAttack(attack,()=>doc.querySelector('[data-action=map-pan]'));
+  const approach='악당 가까이 가서 공격해 봐.';
+  const attackHint=doc.createElement('span');
+  attackHint.className='map-attack-hint';attackHint.textContent=approach;
+  attackHint.hidden=true;attackHint.setAttribute('aria-hidden','true');attack.append(attackHint);
+  let hintUntil=0;
 
   const foes=stages.filter(s=>(record[s.id]||0)<HITS).map((s,i)=>{
     const el=doc.createElement('span');
@@ -122,8 +127,12 @@ export function mountMapEncounters({
     live.textContent=text;
   }
   function hit(){
-    if(closed||!current||!last||paused())return;
+    if(closed||attack.hidden||!last||paused())return;
     const time=view?.performance.now()??performance.now();
+    if(!current){
+      hintUntil=time+2400;attackHint.hidden=false;live.textContent=approach;
+      return;
+    }
     if(time-lastHit<REPEAT||current.hits>=HITS||distance(last.hero,current.point)>reach)return;
     const foe=current,n=++foe.hits;lastHit=time;
     clearUntil=0;callback.hidden=true;
@@ -154,7 +163,7 @@ export function mountMapEncounters({
     if(Math.hypot(event.clientX-start.x,event.clientY-start.y)<18)hit();
   },{signal});
   view?.addEventListener('keydown',event=>{
-    if(!current||attack.hidden||event.defaultPrevented||event.isComposing||event.ctrlKey||event.metaKey||event.altKey||paused()||
+    if(attack.hidden||event.defaultPrevented||event.isComposing||event.ctrlKey||event.metaKey||event.altKey||paused()||
       !(event.code==='KeyJ'||event.code==='Space'))return;
     const el=event.target;
     if(el instanceof view.HTMLElement&&(el.closest('input,textarea,select,[contenteditable]')||event.code==='Space'&&el!==attack&&el.closest('button,a,summary,[role=button]')))return;
@@ -263,12 +272,12 @@ export function mountMapEncounters({
     }
     lastNear=current;
     const hasFocus=doc.activeElement===attack;
-    attack.hidden=!(syncDock()&&current);
-    if(current){
-      const remaining=HITS-current.hits;
-      const description=`${current.s.name}의 악당 공격, ${remaining}번 남음`;
-      if(attack.getAttribute('aria-label')!==description)attack.setAttribute('aria-label',description);
-    }
+    attack.hidden=!(syncDock()&&!stop&&foes.some(foe=>foe.hits<HITS));
+    attack.toggleAttribute('data-in-range',Boolean(current));
+    if(current||attack.hidden)hintUntil=0;
+    attackHint.hidden=now>=hintUntil;
+    const description=current?`공격: ${current.s.name}의 악당, ${HITS-current.hits}번 남음`:'공격: 악당에게 가까이 가야 해요';
+    if(attack.getAttribute('aria-label')!==description)attack.setAttribute('aria-label',description);
     if(attack.hidden&&hasFocus){host.querySelector('canvas,[tabindex="0"]')?.focus({preventScroll:true});}
     if(now-lastSpeechLayout>=110){
       lastSpeechLayout=now;
