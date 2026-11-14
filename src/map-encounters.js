@@ -67,7 +67,7 @@ export function normalizeMapHits(value,ids) {
  */
 export function mountMapEncounters({
   host,controls=host,stages,progress={},onSave=()=>{},blocked=()=>false,reduced=()=>false,
-  clearStage=()=>null,requiredFoes=0,art,tone=()=>{},palette='#a855f7',reach=90,contact=22,
+  clearStage=()=>null,requiredFoes=0,art,tone=()=>{},onApproach=()=>false,palette='#a855f7',reach=90,contact=22,
 }) {
   const handles=new AbortController(),{signal}=handles;
   const doc=host.ownerDocument,view=doc.defaultView;
@@ -90,9 +90,8 @@ export function mountMapEncounters({
   attack.setAttribute('aria-keyshortcuts','J Space');
   layer.append(attack);
   const syncDock=dockMapAttack(attack,()=>doc.querySelector('[data-action=map-pan]'));
-  const approach='악당 가까이 가서 공격해 봐.';
   const attackHint=doc.createElement('span');
-  attackHint.className='map-attack-hint';attackHint.textContent=approach;
+  attackHint.className='map-attack-hint';
   attackHint.hidden=true;attackHint.setAttribute('aria-hidden','true');attack.append(attackHint);
   let hintUntil=0;
 
@@ -116,7 +115,7 @@ export function mountMapEncounters({
   const distance=(p,q)=>p?Math.hypot(p.x-q.x,p.y-q.y):Infinity;
   const paused=()=>doc.hidden||blocked()||Boolean(host.closest('[inert]'))||Boolean(doc.querySelector('dialog[open]'));
   const pose={hero:null,ally:null};
-  let current=null,lastNear=null,lastHit=-Infinity,lastTone=-Infinity,saved={},last=null,closed=false;
+  let current=null,approaching=null,lastNear=null,lastHit=-Infinity,lastTone=-Infinity,saved={},last=null,closed=false;
 
   function speak(foe,text,time){
     for(const other of foes)if(other!==foe){other.saidUntil=0;other.bubble.hidden=true;}
@@ -127,14 +126,34 @@ export function mountMapEncounters({
     live.textContent=text;
   }
   function hit(){
-    if(closed||attack.hidden||!last||paused())return;
+    if(closed||attack.hidden||!last||paused()||approaching)return;
     const time=view?.performance.now()??performance.now();
-    if(!current){
-      hintUntil=time+2400;attackHint.hidden=false;live.textContent=approach;
-      return;
+    if(time-lastHit<REPEAT)return;
+    if(current&&distance(last.hero,current.point)<=reach){strike(current,time);return;}
+    const remaining=foes.filter(foe=>foe.hits<HITS);
+    const visible=remaining.filter(foe=>!foe.el.hidden);
+    const target=(visible.length?visible:remaining).reduce((best,foe)=>
+      !best||distance(last.hero,foe.point)<distance(last.hero,best.point)?foe:best,null);
+    if(!target)return;
+    approaching=target;
+    message('악당에게 다가가는 중…',Infinity);
+    const done=arrived=>{
+      approaching=null;hintUntil=0;attackHint.hidden=true;
+      if(!arrived||closed||paused())return;
+      const now=view?.performance.now()??performance.now();
+      if(distance(last.hero,target.point)<=reach)strike(target,now);
+      else message('악당 가까이에서 다시 눌러 봐.',now+2400);
+    };
+    if(!onApproach(target.s,done)){
+      done(false);message('악당 가까이에서 다시 눌러 봐.',time+2400);
     }
-    if(time-lastHit<REPEAT||current.hits>=HITS||distance(last.hero,current.point)>reach)return;
-    const foe=current,n=++foe.hits;lastHit=time;
+  }
+  function message(text,until){
+    hintUntil=until;attackHint.textContent=text;attackHint.hidden=false;live.textContent=text;
+  }
+  function strike(foe,time){
+    if(foe.hits>=HITS||time-lastHit<REPEAT)return;
+    const n=++foe.hits;lastHit=time;
     clearUntil=0;callback.hidden=true;
     if(Math.abs(foe.point.x-last.hero.x)>3)foe.facing=last.hero.x<foe.point.x?-1:1;
     const calm=still(),duration=calm?170:n===HITS?660:360;
@@ -163,11 +182,13 @@ export function mountMapEncounters({
     if(Math.hypot(event.clientX-start.x,event.clientY-start.y)<18)hit();
   },{signal});
   view?.addEventListener('keydown',event=>{
+    const space=event.code==='Space'||event.key===' ';
     if(attack.hidden||event.defaultPrevented||event.isComposing||event.ctrlKey||event.metaKey||event.altKey||paused()||
-      !(event.code==='KeyJ'||event.code==='Space'))return;
+      !(event.code==='KeyJ'||space))return;
     const el=event.target;
-    if(el instanceof view.HTMLElement&&(el.closest('input,textarea,select,[contenteditable]')||event.code==='Space'&&el!==attack&&el.closest('button,a,summary,[role=button]')))return;
-    event.preventDefault();if(!event.repeat)hit();
+    if(el instanceof view.HTMLElement&&(el.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])')||
+      space&&el!==attack&&el.closest(':focus-visible:is(button,a,summary,[role=button]):not([data-action="map-pan"],[data-action="map-walk"])')))return;
+    event.preventDefault();event.stopPropagation();if(!event.repeat)hit();
   },{signal,capture:true});
 
   function output(actor,time){
@@ -274,9 +295,10 @@ export function mountMapEncounters({
     const hasFocus=doc.activeElement===attack;
     attack.hidden=!(syncDock()&&!stop&&foes.some(foe=>foe.hits<HITS));
     attack.toggleAttribute('data-in-range',Boolean(current));
-    if(current||attack.hidden)hintUntil=0;
+    if((current&&!approaching)||attack.hidden)hintUntil=0;
     attackHint.hidden=now>=hintUntil;
-    const description=current?`공격: ${current.s.name}의 악당, ${HITS-current.hits}번 남음`:'공격: 악당에게 가까이 가야 해요';
+    const description=approaching?'공격: 악당에게 다가가는 중':
+      current?`공격: ${current.s.name}의 악당, ${HITS-current.hits}번 남음`:'공격: 가까운 악당에게 다가가 공격';
     if(attack.getAttribute('aria-label')!==description)attack.setAttribute('aria-label',description);
     if(attack.hidden&&hasFocus){host.querySelector('canvas,[tabindex="0"]')?.focus({preventScroll:true});}
     if(now-lastSpeechLayout>=110){

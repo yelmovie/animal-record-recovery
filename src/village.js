@@ -173,6 +173,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
     const trail=[];
     if(haru){haru.x=start[0];haru.y=start[1];draw(haru);follow();placeMarkers();clearControls();}
     if(mori){mori.x=start[0]-40;mori.y=start[1]+6;draw(mori);mori.el.dataset.npc='mori';}
+    let attackArrival=null;
     // Position by feet in the existing village coordinate space; the camera projects to the scene.
     const encounters=haru&&!encounterPreview?mountVillageEncounters({host:scene,clearIndex:flash===null?null:Number(flash)-1,
       stages:COMMISSIONS.map((commission,i)=>{
@@ -195,6 +196,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
         return {name:building.name,x:door[0]+dx*step,y:door[1]+dy*step};
       }),progress:encounterProgress,onSave:onEncounterSave,blocked:()=>paused||overview||fitView||isBlocked(),
       reduced,tone:onEncounterTone,actors:[haru.el,mori?.el],
+      onApproach(point,done){onWalk?.();return walkTo([point.x,point.y],null,done);},
     }):null;
     let encounterFrame=0;
     const drawEncounters=now=>{
@@ -227,13 +229,19 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       const hit=buildingAt(j.buildings,p),marker=hit&&root.querySelector(`.map-marker[data-id="${hit}"]`);if(marker){marker.click();return;}
       onWalk?.();walkTo(p,null);
     }
-    function walkTo(point,arriveId){
-      if(!haru){onWalk?.();onError?.();return;}
-      api.stop?.();resumeFollow();if(help)help.textContent='문까지 안내하고 있어. 방향키를 누르면 직접 걸을 수 있어.';
+    function walkTo(point,arriveId,onAttackArrival){
+      if(!haru){onWalk?.();onError?.();return false;}
+      api.stop?.();resumeFollow();if(help)help.textContent=onAttackArrival?'악당에게 다가가는 중이야.':'문까지 안내하고 있어. 방향키를 누르면 직접 걸을 수 있어.';
       const from=nearestNode(graph,[haru.x,haru.y]),to=nearestNode(graph,point),ids=from&&to?villagePath(graph,from,to):[];
-      if(!ids.length){onWalk?.();return;}
+      if(!ids.length){onWalk?.();return false;}
+      attackArrival=onAttackArrival;
+      function finishWalk(){
+        const done=attackArrival;attackArrival=null;
+        if(arriveId!=null)onArrive?.(arriveId);else syncWalkUI();
+        done?.(true);
+      }
       const pts=[...ids.map(id=>graph.nodes[id]),...(arriveId!=null?[point]:[])];
-      if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);follow();if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}syncResidentTalk();if(arriveId!=null)onArrive?.(arriveId);else syncWalkUI();return;}
+      if(reduced()||!pts.length){const p=pts.at(-1)||point;haru.x=p[0];haru.y=p[1];draw(haru);follow();if(mori){mori.x=p[0]-40;mori.y=p[1]+6;draw(mori);}syncResidentTalk();finishWalk();return true;}
       cancelAnimationFrame(frame);let last=0;away=false;root.classList.add('travelling');haru.moving=true;if(mori)mori.moving=true;
       const step=t=>{if(!active)return;if(paused||away||isBlocked()){last=0;frame=requestAnimationFrame(step);return;}const dt=Math.min(last?t-last:16,100);last=t;const p=pts[0],dx=p[0]-haru.x,dy=p[1]-haru.y,d=Math.hypot(dx,dy),v=dt*.4;
         if(d<=v){haru.x=p[0];haru.y=p[1];pts.shift();}else{const was=Math.floor(haru.f/3);haru.x+=dx/d*v;haru.y+=dy/d*v;haru.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');haru.f+=v/14;if(Math.floor(haru.f/3)>was)onStep?.();}
@@ -241,8 +249,8 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
         if(mori&&trail.length>14){const [mx,my,md]=trail[trail.length-14];const mdx=mx-mori.x,mdy=my-mori.y;if(Math.hypot(mdx,mdy)>.5){mori.f+=Math.hypot(mdx,mdy)/14;mori.dir=md;}mori.x=mx;mori.y=my;}
         draw(haru);draw(mori);follow();syncResidentTalk();
         if(pts.length){frame=requestAnimationFrame(step);return;}
-        haru.f=0;haru.moving=false;haru.dir='down';draw(haru);if(mori){mori.f=0;mori.moving=false;mori.dir='down';draw(mori);}frame=null;root.classList.remove('travelling');if(arriveId!=null)onArrive?.(arriveId);else syncWalkUI();};
-      frame=requestAnimationFrame(step);
+        haru.f=0;haru.moving=false;haru.dir='down';draw(haru);if(mori){mori.f=0;mori.moving=false;mori.dir='down';draw(mori);}frame=null;root.classList.remove('travelling');finishWalk();};
+      frame=requestAnimationFrame(step);return true;
     }
     const page=root.closest('.map-page'),help=page.querySelector('#map-walk-help');
     const nextButton=page.querySelector('.map-next > [data-action="map-select"]');
@@ -254,7 +262,7 @@ export function createVillage(root,{position='entrance',completed=[],flash=null,
       if(help){const arrows={up:'↑',down:'↓',left:'←',right:'→'};help.textContent=nearby?(nextAtDoor?'문 앞에 도착했어. 오른쪽 아래 버튼이나 Enter를 눌러 봐.':'문 앞에 도착했어. 장소 이름이나 Enter를 눌러 봐.'):blockedDirection?'이쪽엔 길이 없어. '+choices.map(d=>arrows[d]).join(' ')+' 방향으로 걸어 봐.':'방향키를 꾹 눌러 걸어 봐. 건물을 누르면 문까지 안내해.';}
       controls=null;clearControls();syncResidentTalk();
     };
-    api.stop=()=>{cancelAnimationFrame(frame);frame=null;manual=null;pending.length=0;root.classList.remove('travelling');for(const sp of [haru,mori])if(sp){sp.moving=false;sp.f=0;draw(sp);}syncWalkUI();};
+    api.stop=()=>{cancelAnimationFrame(frame);frame=null;manual=null;pending.length=0;const done=attackArrival;attackArrival=null;done?.(false);root.classList.remove('travelling');for(const sp of [haru,mori])if(sp){sp.moving=false;sp.f=0;draw(sp);}syncWalkUI();};
     api.move=id=>{const d=doorOf(String(id));if(d)walkTo(d,id);else onWalk?.();};
     api.walk=(direction,options={})=>{
       if(paused||isBlocked()||!haru)return;

@@ -27,7 +27,7 @@ export function normalizeVillageEncounters(value,legacy) {
   return {...normalizeMapHits(previous,STAGES.map(([id])=>id)),...normalizeMapHits(value,STAGES.map(([id])=>id))};
 }
 
-export function mountVillageEncounters({host,stages,progress,onSave,blocked,reduced,tone,actors,clearIndex}) {
+export function mountVillageEncounters({host,stages,progress,onSave,blocked,reduced,tone,actors,clearIndex,onApproach}) {
   const points=stages.flatMap((stage,i)=>{
     if(!stage||!STAGES[i])return [];
     const [id,prop,first,again,hitOne,hitTwo,finish]=STAGES[i];
@@ -35,7 +35,7 @@ export function mountVillageEncounters({host,stages,progress,onSave,blocked,redu
   });
   if(!points.some(({id})=>(progress?.[id]||0)<3))return null;
   const runtime=mountMapEncounters({requiredFoes:5,host,stages:points,progress,onSave,blocked,reduced,tone,art,palette,clearStage:()=>STAGES[clearIndex]?.[0],
-    reach:76,contact:23});
+    onApproach,reach:76,contact:23});
   const layer=host.querySelector('.map-encounter-layer');
   const poses=reactions.map((src,i)=>{
     const el=document.createElement('span');

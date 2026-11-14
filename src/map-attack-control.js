@@ -15,7 +15,7 @@ html body button.map-attack-dock[data-map-attack-dock]:not([hidden]){
  font-size:12px;font-weight:800;line-height:1;
 }
 html body button.map-attack-dock[data-map-attack-dock][hidden]{display:none!important}
-html body button.map-attack-dock[data-map-attack-dock]:not([data-in-range]){background:#514762!important}
+html body button.map-attack-dock[data-map-attack-dock][data-in-range]{border-color:#ffdc81!important}
 html body button.map-attack-dock[data-map-attack-dock]>svg{display:block;width:22px;height:22px;pointer-events:none}
 .map-attack-hint{position:absolute;right:0;bottom:calc(100% + 8px);width:max-content;max-width:65vw;padding:8px 10px;border-radius:8px;background:#352347;color:#fff4da;font-size:14px;line-height:1.35;white-space:normal;pointer-events:none}
 .map-next:has(>[data-action=map-overview]) .map-attack-hint{bottom:calc(100% + var(--map-cta-height) + 26px)}
@@ -32,7 +32,7 @@ export function dockMapAttack(button,findHand){
   const sheet=doc.createElement('style');sheet.dataset.mapAttackDockStyle='';sheet.textContent=styles;doc.head.append(sheet);
  }
  button.classList.add('map-attack-dock');button.dataset.mapAttackDock='';
- button.innerHTML=icon+'<span aria-hidden="true">공격</span>';button.title='공격 · 스페이스바';
+ button.innerHTML=icon+'<span aria-hidden="true">공격</span>';button.title='공격 (스페이스바) · 멀면 다가가서 공격해요';
  return ()=>{
   const hand=findHand();
   if(!hand?.isConnected||!hand.parentElement)return false;
