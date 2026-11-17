@@ -209,11 +209,11 @@
 
 - 없음(코드·그림·배포 기준). `backdrop-coast`는 12:34에 생성돼 같은 날 추가 배포로 넣었다(아래 「추가 배포」). 바다 원경은 수평선이 그림 아래쪽에 있어 잘라내는 띠를 17% 낮췄다.
 - `props-shore` 넷째 소품(들꽃)은 줄기 사이에 흰 얼룩이 남아 쓰지 않았다.
-- 내장 임시 원본 정리(`gpt-image.sh -c`)는 잠금 순서를 받는 대로 실행되게 걸어 두었다. 결과는 아래 「추가 배포」 끝에 적는다.
+- 내장 임시 원본 정리는 끝났다(아래 「추가 배포」 끝).
 
 ### 추가 배포 (2026-11-17 12:37)
 
 - 커밋 `768690a`(바다 원경 `assets/relay/backdrop-coast.webp`), `main` 푸시. 운영 버전 `60f685bf-e9dc-40a2-848d-ca7572a38faa`.
 - 운영 확인: `build-info.js` 커밋 `768690a`·`dirty:false`, `src/relay3d.js`·`src/relay-course.js`·`backdrop-coast.webp`의 SHA-256이 `dist/`와 같음. 운영 주소에서 갯벌 구간을 열어 바다·모래언덕 원경이 보이고 콘솔 오류가 없는 것을 확인했다. 시험 뒤 그 브라우저의 기록은 원래대로(활동 0개) 되돌렸다.
 - 검증: `npm run check` 통과, `npm test` 299개 통과, `npm run build` 통과.
-- 내장 임시 원본: 10장(`backdrop-forest·pond·coast`, `tile-grass·mud·sand·hedge`, `props-trees`, `props-shore`, `prop-arch`)의 정리(`gpt-image.sh -c`)를 잠금 래퍼로 걸어 두었다. 잠금 대기가 길어 이 문서를 쓰는 시점에는 끝나지 않았다. 로그는 `.tmp/relay-qa/clean.log`, 남은 것은 `gpt-image.sh -l`로 확인한다.
+- 내장 임시 원본: 10장(`backdrop-forest·pond·coast`, `tile-grass·mud·sand·hedge`, `props-trees`, `props-shore`, `prop-arch`)을 잠금 래퍼로 `gpt-image.sh -c` 해서 모두 지웠다(12:58 끝). `gpt-image.sh -l`에 이 프로젝트 원본이 0개인 것을 확인했다. 외장 원본 10장은 `image/relay-20261117/`에 그대로 있다.
