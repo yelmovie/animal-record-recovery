@@ -28,7 +28,8 @@ export function stepRunner(r,frame,input,choose){
  const out={chose:[],end:false};if(r.ended)return out;
  const dt=Math.min(.05,Math.max(0,frame))/5,len=Math.hypot(input.x,input.z),ix=len>1?input.x/len:input.x,iz=len>1?input.z/len:input.z;
  for(let i=0;i<5&&!r.ended;i++){
-  r.vx=approach(r.vx,ix*SPEED,18*dt);r.vz=approach(r.vz,iz*SPEED,18*dt);
+  // Quick to start and stop, so a tap reads as a step and letting go stops right away.
+  r.vx=approach(r.vx,ix*SPEED,40*dt);r.vz=approach(r.vz,iz*SPEED,40*dt);
   let x=r.x+r.vx*dt;const z=clamp(r.z+r.vz*dt,-HALF+RADIUS,HALF-RADIUS);
   // No going back through a row already passed; the path ends a little after the finish.
   x=clamp(x,r.back,FINISH+.5);

@@ -140,15 +140,20 @@ export function create(host,options){
   function place(dt){const goal=Math.max(START+2,Math.min(FINISH-2,runner.x+2.2)),k=reduced()?1:Math.min(1,dt*4);view.x+=(goal-view.x)*k;camera.position.set(view.x+.4,9.2,16.5);camera.lookAt(view.x+.9,1.3,0);if(backdrop)backdrop.position.x=view.x;}
 
   // Input: the on-screen pad first, the keyboard beside it.
-  const held={pad:null,keys:new Set()},running=()=>!dead&&!document.hidden&&!document.querySelector('#dialog')?.open&&!runner.ended&&!o.paused;
+  // Input: the on-screen pad first, the keyboard beside it. A short tap (a child tapping an arrow, or a quick key press)
+  // still walks one clear step: every press keeps its direction for at least STEP_MS before it is let go.
+  const STEP_MS=420,held=new Map(),running=()=>!dead&&!document.hidden&&!document.querySelector('#dialog')?.open&&!runner.ended&&!o.paused;
+  const now=()=>performance.now();
+  const press=(source,dir)=>{held.set(source,{dir,since:now(),until:0});request();};
+  const letGo=source=>{const h=held.get(source);if(h)h.until=h.since+STEP_MS;};
+  const release=()=>held.clear();
   const root=document.querySelector('#app')||document.body,abort=new AbortController(),on=(target,type,fn)=>target.addEventListener(type,fn,{signal:abort.signal});
-  const pad=bindDirectionPad(root,'[data-run-dir]',b=>b.dataset.runDir,{press:d=>{held.pad=d;},release:()=>{held.pad=null;},cancel:()=>{held.pad=null;},blocked:()=>!running()});
-  const release=()=>{held.pad=null;held.keys.clear();};
+  const pad=bindDirectionPad(root,'[data-run-dir]',b=>b.dataset.runDir,{press:d=>press('pad',d),release:()=>letGo('pad'),cancel:()=>letGo('pad'),tap:d=>{press('pad',d);letGo('pad');},blocked:()=>!running()});
   const typing=e=>e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])');
-  on(document,'keydown',e=>{if(!running()||typing(e)||e.ctrlKey||e.altKey||e.metaKey)return;const d=mapKeyDirection(e);if(d){held.keys.add(d);e.preventDefault();}});
-  on(document,'keyup',e=>{const d=mapKeyDirection(e);if(d)held.keys.delete(d);});
+  on(document,'keydown',e=>{if(!running()||typing(e)||e.ctrlKey||e.altKey||e.metaKey)return;const d=mapKeyDirection(e);if(!d)return;e.preventDefault();const key='key:'+(e.code||e.key),h=held.get(key);if(!h||h.until)press(key,d);});
+  on(document,'keyup',e=>{if(mapKeyDirection(e))letGo('key:'+(e.code||e.key));});
   on(window,'blur',release);on(document,'visibilitychange',()=>{release();if(!document.hidden)request();});
-  const input=()=>{const d=new Set(held.keys);if(held.pad)d.add(held.pad);return {x:(d.has('right')?1:0)-(d.has('left')?1:0),z:(d.has('down')?1:0)-(d.has('up')?1:0)};};
+  const input=()=>{const t=now(),d=new Set();for(const [k,h] of held){if(h.until&&t>=h.until){held.delete(k);continue;}d.add(h.dir);}return {x:(d.has('right')?1:0)-(d.has('left')?1:0),z:(d.has('down')?1:0)-(d.has('up')?1:0)};};
   function choose(row,lane){
     const ok=!!o.onChoose?.(row,lane);
     if(!ok){const g=gates[row][lane];g.flash=1;release();pad.clear();}
