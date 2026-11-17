@@ -1,4 +1,4 @@
-// 3D screens (02 scanner, 06 dome, the optional relay) load three.js only when opened. Without WebGL — or with ?2d in
+// 3D screens (02 scanner, 06 dome, 07 life path) load three.js only when opened. Without WebGL — or with ?2d in
 // the address — the 2D screens stay, and a failed load or a lost context falls back to them too.
 let support=null;
 export function can3d(){
@@ -11,7 +11,7 @@ export function can3d(){
   return support;
 }
 export function disable3d(){support=false;}
-const load=kind=>kind==='dome'?import('./dome3d.js'):kind==='relay'?import('./relay3d.js'):import('./scanner3d.js');
+const load=kind=>kind==='dome'?import('./dome3d.js'):kind==='linkrun'?import('./link-run3d.js'):import('./scanner3d.js');
 // The handle exists right away; the real viewer arrives when its module has loaded.
 export function mount3d(kind,host,opts){
   let viewer=null,dead=false,last=opts;

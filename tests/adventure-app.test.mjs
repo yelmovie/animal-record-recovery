@@ -7,8 +7,7 @@ import * as motionVideo from '../src/motion-video.js';
 import * as flashlight from '../src/flashlight.js';
 import * as storyPlayer from '../src/story-player.js';
 import * as campaign from '../src/campaign.js';
-import * as relayRules from '../src/relay.js';
-import * as relayViews from '../src/relay-views.js';
+import * as linkCourse from '../src/link-course.js';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -38,7 +37,7 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
   const timers=new Map();let timerId=0;
   const clockTools=clock?{setTimeout(fn){timers.set(++timerId,fn);return timerId;},clearTimeout(id){timers.delete(id);}}:{};
-  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...relayRules,...relayViews,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,flushTimers(){const pending=[...timers.values()];timers.clear();for(const fn of pending)fn();},music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -581,30 +580,18 @@ test('backgrounding postpones automatic movement until the activity is visible a
  a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('screen'),'map');assert.equal(a.run('selectedStage'),2);
 });
 
-test('optional relay: closed before stage 3 is finished, then pick, cross and save without touching completion',()=>{
- const early=appHarness({three:true});early.run("act('relay-open',{dataset:{}})");assert.equal(early.run('screen'),'home');assert.equal(early.run('relay'),null);
- const state=model.freshExpedition();state.introSeen=true;state.activities=['3-0','3-1','3-2','3-3'];state.completed=[3];state.discovered=model.DISCOVERIES.map(d=>d.id);for(const d of model.DISCOVERIES)state.inquiry.motion[d.animal]=1;
- const off=appHarness({storedRecord:JSON.stringify(state)});off.run("act('relay-open',{dataset:{}})");assert.equal(off.run('screen'),'home','without 3D the relay never opens');
- const a=appHarness({three:true,storedRecord:JSON.stringify(state)}),act=(name,data={})=>a.run(`act(${JSON.stringify(name)},{dataset:${JSON.stringify(data)}})`);
- act('relay-open');assert.equal(a.run('screen'),'relay');assert.match(a.app.innerHTML,/data-3d="relay"/);assert.equal(a.run('relay.phase'),'pick');
- act('relay-pick',{id:'frog'});assert.equal(a.run('relay.phase'),'pick');assert.match(a.app.innerHTML,/개구리는 연못과 물가에서 만났어/);
- act('relay-pick',{id:'penguin'});assert.equal(a.run('relay.animal'),'','an animal that was not found cannot be picked');
- act('relay-pick',{id:'rabbit'});assert.equal(a.run('relay.phase'),'ready');act('relay-repick');assert.equal(a.run('relay.phase'),'pick');act('relay-pick',{id:'rabbit'});
- a.run("opts3d('relay').onEnd()");assert.equal(a.run('relay.section'),0,'a section cannot end before it starts');
- act('relay-go');assert.equal(a.run('relay.phase'),'run');assert.equal(a.run("opts3d('relay').token"),1);
- a.run("const o=opts3d('relay');o.onFall(1);o.onFall(2)");assert.equal(a.run('relay.hint'),false);a.run("opts3d('relay').onFall(3)");assert.equal(a.run('relay.hint'),true);assert.match(a.app.innerHTML,/relay-hint/);
- a.run("opts3d('relay').onEnd()");assert.equal(a.run('relay.section'),1);assert.deepEqual(JSON.parse(a.saved).relay,{picks:{forest:'rabbit'},done:false});
- for(const id of ['duck','butterfly','crab']){act('relay-pick',{id});act('relay-go');a.run("opts3d('relay').onEnd()");}
- assert.equal(a.run('relay.phase'),'done');const saved=model.restoreExpedition(a.saved);assert.deepEqual(saved.relay,{picks:{forest:'rabbit',pond:'duck',sky:'butterfly',coast:'crab'},done:true});
- assert.deepEqual(saved.completed,[3]);assert.deepEqual(saved.activities,state.activities,'no activity is added or removed');
- act('relay-again');assert.equal(a.run('relay.section'),0);assert.equal(a.run('relay.phase'),'pick');
- act('relay-exit');assert.equal(a.run('screen'),'map');assert.equal(a.run('relay'),null);
- // A 3D failure while the relay is open returns to the map; the rest of the app keeps working.
- act('relay-open');a.run('fail3d()');assert.equal(a.run('screen'),'map');assert.match(a.announcer.textContent,/3D 달리기 화면을 열 수 없어/);a.run('enter(3)');assert.equal(a.run('screen'),'mission');
-});
-test('teacher preview can try the relay without writing to the student record',()=>{
- const a=appHarness({three:true}),before=a.saved;a.run("togglePreview();act('relay-open',{dataset:{}})");assert.equal(a.run('screen'),'relay');
- a.run("act('relay-pick',{dataset:{id:'marine'}})");assert.match(a.app.innerHTML,/바다 물고기는 바다와 갯벌에서 만났어/);
- a.run("act('relay-pick',{dataset:{id:'butterfly'}});act('relay-go',{dataset:{}});opts3d('relay').onEnd()");assert.equal(a.run('relay.section'),1);
- const stored=JSON.parse(a.saved||before||'{}');assert.ok(!stored.relay||Object.keys(stored.relay.picks).length===0);
+test('screen 07 in 3D: each gate records the same link answer as a card and the activity continues as before',()=>{
+ const state=model.freshExpedition();state.introSeen=true;state.activities=['1-0','1-1','1-2','1-3','1-4','1-5','1-6','1-7','2-0','2-1','2-2','2-3','3-0'];state.completed=[1,2];state.discovered=model.DISCOVERIES.slice(0,3).map(d=>d.id);for(const d of model.DISCOVERIES.slice(0,3))state.inquiry.motion[d.animal]=1;state.stage=3;state.step={3:1};
+ const a=appHarness({three:true,clock:true,storedRecord:JSON.stringify(state)});a.run('enter(3)');assert.equal(a.run('step'),1);
+ assert.match(a.app.innerHTML,/data-3d="linkrun" data-animal="frog"/);assert.ok(!a.app.innerHTML.includes('data-drop-action="link"'),'no card board in 3D');
+ assert.match(a.app.innerHTML,/개구리에게 맞는 문으로 걸어가/);
+ const o=()=>a.run("opts3d('linkrun')"),wrong=(linkCourse.answerLane('frog',0)+1)%3;
+ assert.equal(o().onChoose(0,wrong),false);assert.match(a.app.innerHTML,/link-run-slot[^"]*retry/);assert.ok(!model.restoreExpedition(a.saved).activities.includes('3-1'));
+ for(const row of [0,1,2])assert.equal(o().onChoose(row,linkCourse.answerLane('frog',row)),true);
+ assert.deepEqual(JSON.parse(a.saved).links.frog,{environment:'pond',body:'web',life:'swim'});
+ a.flushTimers();assert.ok(model.restoreExpedition(a.saved).activities.includes('3-1'),'the existing rule completes the activity');assert.equal(a.run('step'),2);
+ // Without 3D the card board is still there, so no device is stuck.
+ const off=appHarness({storedRecord:JSON.stringify(state)});off.run('enter(3)');assert.match(off.app.innerHTML,/data-drop-action="link"/);assert.ok(!off.app.innerHTML.includes('data-3d="linkrun"'));
+ // The optional relay challenge is gone everywhere.
+ assert.ok(!a.app.innerHTML.includes('relay'));a.run("act('relay-open',{dataset:{}})");assert.equal(a.run('screen'),'mission');
 });

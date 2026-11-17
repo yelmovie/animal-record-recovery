@@ -4,7 +4,6 @@ import {withParticle} from './korean.js';
 import {normalizeExperiment,normalizeInquiry,experimentReady,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {normalizeCampaign,restoredPlaces,missionRows} from './campaign.js';
 import {normalizeStudio,studioDrawingReady,studioReady,studioHint} from './studio.js';
-import {freshRelay,normalizeRelay} from './relay.js';
 // Learning and progression are independent of the image / map presentation.
 import {restoreState as restoreLegacy, testDesign as testChoices, PROBLEMS} from './model.js';
 export {PROBLEMS};
@@ -165,7 +164,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',excluded:{},habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
+export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.5,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -263,8 +262,6 @@ export function restoreExpedition(raw,{strict=false}={}){
     out.mapPosition=safeChoice(input.mapPosition,['entrance','1','2','3','4','5','camp'],'entrance');
     if(input.legacy&&typeof input.legacy==='object')out.legacy=restoreLegacy(JSON.stringify(input.legacy));
     if(input.campaign)out.campaign=normalizeCampaign(input.campaign,out);
-    // Optional relay challenge (added 2026-11): absent in older saves, re-checked against the stage-3 records.
-    out.relay=normalizeRelay(input.relay,out);
     return out;
   }catch(error){if(strict)throw error;return base;}
 }

@@ -10,7 +10,7 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
+import {LINKS,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -18,8 +18,7 @@ import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
-import {RELAY_SECTIONS,relayOpen,relayAnimals,relayCheck,relayCross,relayNext} from './relay.js';
-import {relayEntry,RELAY_TITLE} from './relay-views.js';
+import {KEYS as LINK_KEYS,rowOptions} from './link-course.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,requestDraft,pairedOptions,campaignDone,campaignReady,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,cardReady,requestGap,firstOpenCard} from './campaign.js';
 
 export function openFromLanding(action){
@@ -38,10 +37,8 @@ let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedba
 let mapOverview=restoredPlaces(s).length===STAGES.length,mapPan=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
-// Optional relay stage (screen 'relay'): which section, the chosen animal and the step (pick → ready → run → done). Only crossed sections are saved.
-let relay=null;
 const round=()=>Math.floor(step/2);
-const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:screen==='mission'&&(stage===1||stage===3)&&step%2===0&&can3d(),pinned:[...pinned],looked:[...looked],relay,tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:screen==='mission'&&(stage===3||stage===1&&step%2===0)&&can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
@@ -263,8 +260,6 @@ function sync3d(){
   if(viewer?.kind===kind)viewer.attach(host,opts3d(kind));else{viewer?.destroy();viewer=mount3d(kind,host,opts3d(kind));}
 }
 function fail3d(){disable3d();viewer?.destroy();viewer=null;
-  // The relay has no picture version: leave it and keep everything else as it was.
-  if(screen==='relay'){go('map');const text='이 기기에서는 3D 달리기 화면을 열 수 없어. 다른 활동은 그대로 할 수 있어.';document.querySelector('#announcer').textContent=text;const tip=document.querySelector('#travel-text');if(tip)tip.textContent=text;return;}
   render();document.querySelector('#announcer').textContent='3D 화면을 열 수 없어서 그림 화면으로 바꿨어.';}
 const tapAnchor=pt=>({getBoundingClientRect:()=>({left:pt.x,top:pt.y,width:0,height:0})});
 function opts3d(kind){
@@ -278,13 +273,14 @@ function opts3d(kind){
       onLook(zone){if(!DOME_ZONES[zone])return;stopMotion();looked.add(zone);activeHabitat=zone;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=domeCaption(s,DOME_ZONES[zone]);},
       targets:list.map(d=>({id:d.id,animal:d.animal,habitat:d.habitat,name:ANIMALS[d.animal].name,found:s.discovered.includes(d.id)})),
       onFind(id){const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;stopMotion();activeHabitat=d.habitat;playSound(s.soundEnabled,s.discovered.includes(id)?undefined:'correct');act('discover',{dataset:{id}});document.querySelector('#announcer').textContent=`${withParticle(ANIMALS[d.animal].name)} 찾았어! 움직임을 살펴봐.`;}};}
-  if(kind==='relay'&&relay){const run=relay;
-    return {section:run.section,animal:run.animal,phase:run.phase,token:run.token,onFail:fail3d,
-      onPiece(){playSound(s.soundEnabled,'star');},
-      onFall(count){if(relay!==run)return;playSound(s.soundEnabled,'retry');if(count>=3&&!run.hint){run.hint=true;render();}},
-      onEnd(){if(relay!==run||run.phase!=='run')return;const section=RELAY_SECTIONS[run.section],result=relayCross(s,section.id,run.animal);if(!result.ok)return;run.used[section.id]=run.animal;run.hint=false;run.note='';run.wrong='';
-        const last=run.section===RELAY_SECTIONS.length-1;if(last)run.phase='done';else{run.section++;run.phase='pick';run.animal='';}
-        playSound(s.soundEnabled,last?'fanfare':'stamp');render();document.querySelector('#announcer').textContent=last?`${RELAY_TITLE}를 끝까지 해냈어!`:`${section.title}을 지났어. 다음 길을 지나갈 동물을 골라 줘.`;document.querySelector('#main')?.focus({preventScroll:true});}};}
+  // Screen 07 in 3D: each gate is a card choice, judged and recorded by the same 'link' action as the cards.
+  if(kind==='linkrun'){const id=round()?'crab':'frog';
+    return {animal:id,links:{...s.links[id]},onFail:fail3d,
+      onChoose(row,lane){const key=LINK_KEYS[row],option=rowOptions(id,row)[lane];if(screen!=='mission'||stage!==3||!option)return false;
+        act('link',{dataset:{id,key,value:option.value,kind:key}});const ok=s.links[id][key]===option.value&&option.value===LINKS[id].answer[row];
+        if(!ok){const m=taskMistake(s,stage,step);say(m?.text||'다른 문을 골라 봐.',false,m?.wrong||[]);return false;}
+        playSound(s.soundEnabled,'correct');if(!taskReady(s,stage,step)){feedback={good:true,text:`‘${['사는 곳','몸의 특징','움직이는 방법'][row]}’ 문을 지났어! 다음 줄로 가 보자.`};render();document.querySelector('#announcer').textContent=feedback.text;}
+        return true;}};}
   return {onFail:fail3d};
 }
 // Optional tilt (screen 06): iOS asks permission inside the tap; no permission or no sensor leaves drag only.
@@ -304,11 +300,7 @@ function flipGroups(before){
   document.querySelectorAll('.group-animal[data-id]').forEach(el=>{const a=before.get(el.dataset.id),b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(Math.abs(dx)+Math.abs(dy)<2)return;const moved=el.classList.contains('moved');
     el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:`translate(${dx/2}px,${dy/2-(moved?46:0)}px) scale(${moved?1.15:1})`,offset:.5},{transform:'none'}],{duration:moved?950:600,delay:moved?200:0,easing:'cubic-bezier(.3,.7,.2,1)',fill:'backwards'});});
 }
-function openRelay(){
-  if(!relayOpen(s)||!can3d())return;
-  stage=3;relay={section:relayNext(s),phase:'pick',animal:'',note:'',wrong:'',hint:false,token:0,used:{}};go('relay');
-}
-function go(where){if(where!=='relay')relay=null;repairingWorkshop=false;cancelCompletion();if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+function go(where){repairingWorkshop=false;cancelCompletion();if(dialog.open)dialog.close();requestCard=null;caseHint=false;labSummary=false;autoEnter=false;picked=null;stopMotion();screen=where;if(where==='map'){mapOverview=restoredPlaces(s).length===STAGES.length;questOpen=false;mapPan=false;}feedback=null;report=null;stroke=null;render();document.querySelector('#announcer').textContent='';document.querySelector('#main')?.classList?.add('screen-enter');document.querySelector('#main')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 // One sound per placement: a rejected card already plays 'retry' through say(), so 'drop' is only for accepted ones.
 let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
@@ -396,7 +388,7 @@ function reviewActivities(id){
   modal(t.name+' · 활동 선택',`<p>해 보고 싶은 활동을 골라. 보관한 관찰과 비교 기록은 그대로야.</p><div class="review-activities">${t.tasks.map((title,index)=>{
     const earned=s.activities.includes(`${id}-${index}`),open=index===0||s.activities.includes(`${id}-${index-1}`);
     return btn(`${earned?'✓ ':''}${index+1}. ${title}`,'review-open','secondary',`data-id="${id}" data-value="${index}" ${open?'':'disabled'}`);
-  }).join('')}${id===3?relayEntry(s,can3d(),'secondary'):''}</div>${s.completed.includes(id)?`<div class="dialog-actions">${btn('주민 의뢰 보기','commission-open','primary',`data-id="${id}" data-value="0"`)}</div>`:''}`);
+  }).join('')}</div>${s.completed.includes(id)?`<div class="dialog-actions">${btn('주민 의뢰 보기','commission-open','primary',`data-id="${id}" data-value="0"`)}</div>`:''}`);
 }
 function reviewOpen(id,index){
   if(!isStageOpen(s,id)||!STAGES[id-1]?.tasks[index]||(index>0&&!s.activities.includes(`${id}-${index-1}`)))return;
@@ -543,8 +535,8 @@ function progressRequest(){
 }
 function previous(){repairingWorkshop=stage===5&&step===1&&report?.passed===false;labSummary=false;stopMotion();if(step===0){go('map');return;}step--;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
-  let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)||route.screen==='relay'))route=navigation.back();
-  if(!route)return;relay=null;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
+  let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
+  if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
 }
 function settings(){modal('설정',settingsContent(s));}
 // Silent clip with DOM captions; the village music stops while it is open and returns when the dialog closes.
@@ -741,12 +733,6 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'commission-predict':if(screen==='commission'&&['more','same','less'].includes(value)){campaignDraft(s,stage,commissionIndex).prediction=value;feedback=null;render();}break;
     case 'commission-trial':if(screen==='commission'){if(!runCommissionTrial(s,stage,commissionIndex))say('시험 전에 결과를 예상해 줘. 예상은 틀려도 괜찮아.');else{feedback={good:true,text:'시험 결과를 표에 적었어. 두 항목을 함께 비교해 줘.'};render();}}break;
     case 'gallery':go('gallery');break;
-    case 'relay-open':openRelay();break;
-    case 'relay-exit':if(screen==='relay')go('map');break;
-    case 'relay-pick':if(screen==='relay'&&relay?.phase==='pick'&&relayAnimals(s).includes(id)){const check=relayCheck(RELAY_SECTIONS[relay.section].id,id);relay.note=check.text;relay.wrong=check.ok?'':id;if(check.ok){relay.animal=id;relay.phase='ready';}playSound(s.soundEnabled,check.ok?'correct':'retry');render();document.querySelector('#announcer').textContent=check.text;}break;
-    case 'relay-repick':if(screen==='relay'&&relay?.phase==='ready'){relay.phase='pick';relay.animal='';relay.note='';render();}break;
-    case 'relay-go':if(screen==='relay'&&relay?.phase==='ready'){relay.phase='run';relay.hint=false;relay.token++;render();document.activeElement?.blur?.();}break;
-    case 'relay-again':if(screen==='relay'&&relay?.phase==='done'){relay={section:0,phase:'pick',animal:'',note:'',wrong:'',hint:false,token:relay.token+1,used:{}};render();}break;
     case 'advance':advance();break;
     case 'previous':previous();break;
     case 'nav-back':back();break;
@@ -890,7 +876,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
-const CLICK_SOUND={'relay-pick':null,sound:null,'map-sound':null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
+const CLICK_SOUND={sound:null,'map-sound':null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){if(typeof document.createElement!=='function')return;let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');}
 // A hint stays readable until the learner taps again (no timer that hides it mid-sentence).
 const hideToast=()=>document.querySelector('#hint-toast')?.classList.remove('show');document.addEventListener('pointerdown',hideToast,true);if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{hideToast();fitBubble();});

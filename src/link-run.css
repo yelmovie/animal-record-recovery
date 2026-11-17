@@ -1,0 +1,44 @@
+/* Screen 07 in 3D (stage 3 「개구리의 생활」·「게의 생활」): the path fills the activity area, the three slots sit on top,
+   the direction pad bottom left. Gate labels are DOM pins drawn over the canvas. */
+/* The path takes the whole activity area: below the corner buttons, above the footer (same frame as the card board). */
+#app .mission-page .activity-workspace>.link-run{grid-column:1/-1;position:absolute;inset:calc(var(--hud-top) + 4px) 14px 84px;width:auto;height:auto;min-height:0;margin:0;padding:0;border-radius:20px;border:3px solid var(--ui-frame,#4a3a22);overflow:hidden;background:#cfe7f3;isolation:isolate;box-shadow:0 6px 0 #4a3a2266}
+.link-run-stage{position:absolute;inset:0}
+.link-run-stage .scan-loading{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#2f4d3a;font-size:20px;font-weight:700}
+.link-run-stage:has(.link-run3d) .scan-loading{display:none}
+.link-run3d{position:absolute;inset:0}
+.link-run3d canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+.link-run-pins{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.link-run-pin{position:absolute;left:0;top:0;max-width:170px;padding:5px 10px;border-radius:12px;background:#fffbe9f2;border:2px solid #4a3a22;color:#2c2414;font-size:16px;font-weight:800;line-height:1.3;text-align:center;word-break:keep-all;box-shadow:0 3px 0 #4a3a2240;white-space:normal}
+.link-run-pin::after{content:'';position:absolute;left:50%;bottom:-8px;translate:-50% 0;border:7px solid transparent;border-top-color:#4a3a22;border-bottom:0}
+.link-run-pin[hidden]{display:none}
+
+.link-run :is(.link-run-head,.run-pad,.link-run-help,.link-run-note){position:absolute;z-index:3}
+.link-run-head{top:10px;left:10px;right:10px;display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:16px;background:#fffbe9eb;border:2px solid #4a3a22}
+#app #main .link-run-head .animal{width:52px;height:52px;object-fit:contain;flex:none}
+.link-run-head h2{margin:0;font-size:20px;white-space:nowrap}
+.link-run-head .overline{font-size:13px}
+.link-run-slots{list-style:none;margin:0 0 0 auto;padding:0;display:flex;align-items:center;gap:4px;min-width:0}
+.link-run-slots>.icon{width:18px;height:18px;flex:none;color:#6c7d55}
+.link-run-slot{display:flex;flex-direction:column;min-width:0;padding:4px 10px;border-radius:12px;background:#f4f6e8;border:2px solid #c9d4b2}
+.link-run-slot span{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:800;color:#5d6b48;white-space:nowrap}
+.link-run-slot span b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#2f5d42;color:#fffdf2;font-size:12px}
+.link-run-slot strong{font-size:15px;color:#2c2414;word-break:keep-all}
+.link-run-slot.empty strong{color:#8a8470;font-weight:600}
+.link-run-slot.filled{background:#e5f2d2;border-color:#3d6b45}
+.link-run-slot.retry{background:#fbeadc;border-color:#c2643a}
+.link-run-slot{position:relative}
+/* The hint for a wrong gate hangs under its slot instead of stretching the top bar over the path. */
+#app #main .link-run-slot .retry-note{position:absolute;top:calc(100% + 10px);right:0;z-index:5;width:max-content;max-width:280px;margin:0;padding:8px 12px;border-radius:12px;background:#fff3c9;border:2px solid #c2643a;color:#6b2f14;font-size:16px;line-height:1.4;word-break:keep-all;box-shadow:0 4px 0 #4a3a2233}
+
+/* Direction pad: 60px targets, bottom left. */
+.run-pad{left:12px;bottom:46px;display:grid;grid-template:repeat(3,60px)/repeat(3,60px);gap:4px;touch-action:none;user-select:none;-webkit-user-select:none}
+.run-dir{width:60px;height:60px;padding:0;border:2px solid #4a3a22;border-radius:16px;background:#fffbe9eb;color:#3a2c12;font-size:24px;display:grid;place-items:center;touch-action:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.run-dir-up{grid-area:1/2}.run-dir-left{grid-area:2/1}.run-dir-right{grid-area:2/3}.run-dir-down{grid-area:3/2}
+.run-dir.is-held{background:#f1c95a;transform:translateY(2px)}
+.link-run-help{right:12px;bottom:46px;max-width:min(420px,52%);margin:0;padding:8px 12px;border-radius:14px;background:#fffbe9eb;border:2px solid #4a3a2266;color:#3a3122;font-size:16px;line-height:1.45;word-break:keep-all;display:flex;gap:6px;align-items:flex-start}
+.link-run-help .icon{width:18px;height:18px;flex:none;margin-top:3px}
+.link-run-note{left:50%;bottom:8px;translate:-50% 0;margin:0;padding:3px 10px;border-radius:10px;background:#fffbe9d9;color:#5d5340;font-size:13px;white-space:nowrap}
+
+@media (max-width:1100px){.link-run-head h2,.link-run-head .overline{display:none}.link-run-slot strong{font-size:14px}}
+@media (max-height:700px){.run-pad{grid-template:repeat(3,52px)/repeat(3,52px);bottom:40px}.run-dir{width:52px;height:52px}.link-run-help{bottom:40px;font-size:15px}}
+@media (prefers-reduced-motion:reduce){.run-dir.is-held{transform:none}}

@@ -217,3 +217,16 @@
 - 운영 확인: `build-info.js` 커밋 `768690a`·`dirty:false`, `src/relay3d.js`·`src/relay-course.js`·`backdrop-coast.webp`의 SHA-256이 `dist/`와 같음. 운영 주소에서 갯벌 구간을 열어 바다·모래언덕 원경이 보이고 콘솔 오류가 없는 것을 확인했다. 시험 뒤 그 브라우저의 기록은 원래대로(활동 0개) 되돌렸다.
 - 검증: `npm run check` 통과, `npm test` 299개 통과, `npm run build` 통과.
 - 내장 임시 원본: 10장(`backdrop-forest·pond·coast`, `tile-grass·mud·sand·hedge`, `props-trees`, `props-shore`, `prop-arch`)을 잠금 래퍼로 `gpt-image.sh -c` 해서 모두 지웠다(12:58 끝). `gpt-image.sh -l`에 이 프로젝트 원본이 0개인 것을 확인했다. 외장 원본 10장은 `image/relay-20261117/`에 그대로 있다.
+
+## 바꾼 결정: 선택 도전 → 3장 생활 잇기 활동 자체를 3D로 (2026-11-17 오후, 사용자 지시)
+
+사용자 지시: "여기(개구리의 생활 카드 화면) 카드 선택 로직 제거하고, 선택으로 넣지 말고 3D 게임이 여기서 이어지게 해 줘."
+
+- **넣은 자리**: 3장 둘째·넷째 활동 `3-1` 「개구리의 생활」, `3-3` 「게의 생활」. 영상 관찰 활동 `3-0`·`3-2`는 그대로다. 이제 필수 활동이므로 학습 완료 흐름 안에 있다.
+- **하는 일**: 길에 줄이 셋(사는 곳 → 몸의 특징 → 움직이는 방법), 줄마다 기존 카드 세 장이 이름표 붙은 문 세 개가 된다. 맞는 문을 지나면 위쪽 칸이 채워지고, 틀린 문은 닫히며 한 걸음 물러난다. 정답 문은 줄마다 다른 길에 있다(개구리 3·1·2번째, 게 2·3·1번째 줄).
+- **판정·저장**: 문을 지나는 순간 기존 카드 동작(`act('link')`)을 그대로 불러 `links.frog`·`links.crab`에 남기고, 틀리면 기존 `taskMistake` 문장을 보여 준다. 완료는 기존 `taskReady`/`claimTask`가 정한다. 저장 형식은 바뀌지 않았다(선택 도전용 `relay` 필드만 없앴다. 그 필드는 같은 날 한 시간 남짓만 있었고 다른 곳에서 읽지 않는다).
+- **카드 화면**: 3D가 되는 기기에서는 보이지 않는다. WebGL이 없거나 `?2d`이거나 3D가 끊기면 원래 카드 화면이 나온다. 카드를 완전히 지우면 그런 기기에서 3장을 끝낼 수 없어서 대체 화면으로만 남겼다(공통 지침의 "기존 2D 화면은 대체 화면으로 남김").
+- **없앤 것**: 「세 곳 이어달리기」(`src/relay.js`, `relay-views.js`, `relay3d.js`, `relay-course.js`, `relay.css`와 테스트), 지도·활동 선택·복구 완료 화면의 버튼, `relay` 저장 필드.
+- **새 파일**: `src/link-course.js`(줄·문 배치와 이동, three 없음), `src/link-run3d.js`(3D), `src/link-run.css`, `tests/link-course.test.mjs`. 고친 파일: `src/mission-views.js`(3D일 때 `linkRunView`), `src/adventure-app.js`(`use3d`를 3장 홀수 활동까지, `opts3d('linkrun')`), `src/shell-views.js`(안내 문장), `src/view3d.js`, `src/expedition.js`, `scripts/build.mjs`, `index.html`, `tests/adventure-app.test.mjs`, `README.md`. 생성 그림(`assets/relay/`)은 그대로 다시 썼다.
+- **점검해서 고친 것**: 3D가 활동 영역 전체를 차지하게, 틀린 칸 안내를 말풍선으로(위쪽 칸이 길을 가리지 않게), 문 이름표가 동물을 가리지 않게 문 위로, 지나온 줄 이름표는 숨김(위쪽 칸에 표시), 화면 끝에서 잘리는 이름표는 감춤, 세 갈래 오솔길로 문마다 길이 이어지게, 카메라를 조금 높여 세 갈래가 겹치지 않게, 한 문을 두 번 지난 것으로 세던 오류 수정.
+- **검증(로컬, macOS)**: `npm run check` 통과, `npm test` 287개 통과, `npm run build` 통과. 미리보기 1280×800·1024×768·960×540에서 키보드와 화면 방향판(포인터 이벤트)으로 개구리·게 길 완주 → `links` 기록, `3-1`·`3-3` 완료, 3장 복구와 주민 의뢰로 이어짐. 틀린 문 → 물러남과 모리 안내, `?2d`에서 카드 화면, 움직임 줄이기에서 완주, 콘솔 오류 없음. 실제 태블릿은 확인하지 못했다.
