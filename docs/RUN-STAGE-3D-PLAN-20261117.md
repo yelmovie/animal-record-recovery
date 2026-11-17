@@ -1,6 +1,6 @@
 # 02 동물기록 복구작전 · 3D 달리기 스테이지 계획 · 2026-11-17
 
-**현재 단계: 계획 문서.** 코드, 이미지, 배포는 손대지 않았다. 공통 규격은 [공통 계획](../../_shared/RUN-STAGE-3D-PLAN-20261117.md)에 있다.
+**현재 단계: 구현·운영 배포 끝(2026-11-17).** 아래 계획은 처음 쓴 그대로 두었고, 코드를 읽고 바꾼 결정은 「계획 확정」에, 결과는 문서 끝 「구현 결과」에 있다. 공통 규격은 [공통 계획](../../_shared/RUN-STAGE-3D-PLAN-20261117.md)에 있다.
 
 ## 한 줄 요약
 
@@ -168,17 +168,45 @@
 | `props-shore` | Isolated cut-out sticker sheet with a real alpha channel: the whole canvas outside the four objects is 100% transparent, with no backdrop panel, no coloured band, no glow and no haze. Four separate objects in one row on a fully transparent background, evenly spaced with wide clear gaps between them, each one whole and uncropped, straight front view, no ground, no cast shadow: first a mossy grey boulder, second a seaside rock with barnacles and a little seaweed, third an upright clump of green kelp seaweed fronds, fourth a cluster of tall cosmos and daisy wildflowers on thin stems. All four bases sit on the same bottom line. | 이끼 바위·바닷가 바위·해초·들꽃(4개로 나눔) |
 | `prop-arch` | One object on a fully transparent background, whole and uncropped, straight front view, no ground, no cast shadow: a rustic wooden garden arch gate made of two posts and a curved top, wrapped in a leafy green garland with small white and yellow flowers. The opening under the arch is empty and transparent. | 도착 아치 |
 
-- 2026-11-17 12:26 사용량 한도로 여기서 멈춤. **커밋까지 함, 푸시·운영 배포는 아직.**
+- 2026-11-17 12:26 사용량 한도로 한 번 멈췄다가 이어서 진행. 12:31 운영 배포, 12:33 운영 주소 확인 끝.
 
-## 구현 결과 (2026-11-17, 중간 기록 — 배포 전)
+## 구현 결과 (2026-11-17)
 
-- 한 일: 선택 도전 「세 곳 이어달리기」 네 구간(숲과 들 길·연못 물길·꽃밭 위 하늘길·바다와 갯벌 길) 구현. 갯벌 구간까지 붙였다. 생성 그림 10개 파일(`assets/relay/`: 배경 2, 바닥 무늬 4, 소나무·참나무·꽃덤불, 도착 아치) 적용.
-- 바뀐 파일: 새 파일 `src/relay.js`, `src/relay-course.js`, `src/relay3d.js`, `src/relay-views.js`, `src/relay.css`, `scripts/prepare-relay-art.mjs`, `tests/relay.test.mjs`, `tests/relay-course.test.mjs`, `assets/relay/*.webp`. 고친 파일 `src/expedition.js`(`relay` 필드), `src/adventure-app.js`, `src/shell-views.js`, `src/view3d.js`, `scripts/build.mjs`, `index.html`, `tests/adventure-app.test.mjs`, `README.md`.
-- 실행한 검증(macOS, Node 24): `npm run check` 통과, `npm test` 299개 통과, `npm run build` 통과(달리기 모듈·그림이 `dist/`에 복사됨). 로컬 미리보기(127.0.0.1:4173, 앱 안 브라우저)에서 1280×800·1024×768·960×540으로 키보드와 터치 방향판(포인터 이벤트) 완주, 기록 저장, 새로고침 뒤 이어 하기, 3장 전 숨김, `?2d` 안내, 교사 미리보기 비저장, 세 번 떨어지면 힌트, 설정 창이 열리면 멈춤, 움직임 줄이기, 화면 요소 겹침·잘림 없음, 콘솔 오류 없음을 확인했다.
-- 확인 방법의 한계: 앱 안 브라우저 창이 숨겨져 있어 화면 갱신(requestAnimationFrame)을 타이머로 바꿔 끼워 검사했다. 자동 주행은 길 정보를 읽는 봇이 키·포인터 이벤트를 보내는 방식이다. 실제 태블릿 터치와 성능(30fps)은 확인하지 못했다.
-- **남은 일(이어서 할 순서)**
-  1. 그림 두 장: `backdrop-coast`(첫 시도 실패), `props-shore`(첫 결과는 배경이 반투명 흰색이라 반려, `props-shore-rejected.png`). 12:19에 다시 걸어 둔 대기열이 끝났으면 `image/relay-20261117/`에 있다. 있으면 `node scripts/prepare-relay-art.mjs "/Volumes/T7 Shield/DevCaches/tools/wrangler-4.154.0/node_modules/sharp"` 실행 → `src/relay-course.js`의 `RELAY_ART`에 `backdrop-coast`, `prop-boulder`, `prop-searock`, `prop-kelp`, `prop-flowers` 추가 → 화면 확인. 없으면 `.tmp/relay-qa/gen.sh backdrop-coast props-shore < /dev/null`.
-  2. `npm run check && npm test && npm run build` → 커밋 → `main` 푸시 → 운영 배포(`wrangler deploy`, SSD의 wrangler 4.154.0) → https://animal-record-recovery.yelsam.workers.dev 에서 `build-manifest.json`의 커밋과 달리기 화면 확인.
-  3. 내장 임시 원본 정리: 적용을 확인한 그림마다 잠금 래퍼로 `gpt-image.sh -c "<image/relay-20261117/이름.png>"`, 끝에 `-l`로 남은 것 확인(반려한 그림 포함).
-  4. 이 절을 최종 결과(커밋 해시·배포 버전)로 고치고 `graphify update .` 실행.
-- 미리보기 브라우저의 127.0.0.1:4173 저장소에 QA용 열쇠 `qa.boot`와 시험용 진행 기록을 넣어 두었다(운영 주소와 무관).
+**상태: `main` 푸시와 운영 배포까지 끝.** 3장 「생태의 물가」의 탐색 네 개를 마치면 선택 도전 「세 곳 이어달리기」가 열린다.
+
+### 한 일
+
+- 네 구간을 모두 구현했다: 숲과 들 길(토끼·나비), 연못 물길(개구리·오리), 꽃밭 위 하늘길(나비), 바다와 갯벌 길(게·바다 물고기). 갯벌 구간까지 붙였다.
+- 판정은 3장 자료(`DISCOVERIES`·`MOTIONS`)만 읽는다. 빠르기·높이·시간·순위는 어디에도 없다.
+- 생성 그림 13개 파일을 적용했다(`assets/relay/`, 합계 약 1.2MB): 배경 2(숲·연못), 바닥 무늬 4(풀·갯벌·모래·꽃 울타리), 소품 7(소나무·참나무·꽃덤불·이끼 바위·바닷가 바위·해초·도착 아치). 동물은 3장의 기존 그림 6장을 그대로 세워 썼다(새로 그리지 않았으므로 생김새는 기존 검수 그대로다).
+- 겹침·잘림·물리 점검으로 고친 것: 동물이 갈대·바위 앞뒤로 제대로 가려짐, 물에 빠지면 바로 쉼터로 돌아옴, 그림자가 물 위에 뜨지 않음, 헤엄치는 동물의 몸 아래쪽이 물에 잠겨 비침, 바닷속 바위를 낮은 바위로, 하늘길의 잎 덩어리는 나비가 밑을 지날 때 비쳐 보임, 연못·바다 길의 보이지 않는 벽을 연잎 줄·유목·모래톱으로 눈에 보이게, 출발 앞과 도착 뒤에 풀밭을 이어 화면 끝이 비지 않음, 넓은 화면에서 배경이 끊기지 않음, 낮은 화면(960×540)에서 고르기 창과 아래 안내가 겹치지 않음.
+
+### 바뀐 파일
+
+- 새 파일: `src/relay.js`, `src/relay-course.js`, `src/relay3d.js`, `src/relay-views.js`, `src/relay.css`, `scripts/prepare-relay-art.mjs`, `tests/relay.test.mjs`, `tests/relay-course.test.mjs`, `assets/relay/*.webp`(13개)
+- 고친 파일: `src/expedition.js`(`relay` 필드 추가·복원), `src/adventure-app.js`(화면 `relay`, 동작 6개, 3D 연결), `src/shell-views.js`(화면 등록, 지도 장소 패널·복구 완료 화면의 버튼), `src/view3d.js`(종류 `relay`), `scripts/build.mjs`, `index.html`, `tests/adventure-app.test.mjs`, `README.md`
+- 기존 탐험 `3-0`·`3-2`, 완료 조건, 자동 진행, 기존 저장 필드는 바꾸지 않았다.
+
+### 검증 (macOS arm64, Node 24.22.2)
+
+- `npm run check` 통과, `npm test` 299개 통과(이번에 추가한 것 20개: 규칙·저장 10, 길·이동 8, 앱 흐름 2), `npm run build` 통과.
+- 로컬 미리보기(127.0.0.1:4173, 앱 안 브라우저, 1280×800·1024×768·960×540): 키보드와 터치 방향판·동작 버튼(포인터 이벤트)으로 네 구간 완주, 다른 동물 조합으로 다시 완주, 기록 저장과 새로고침 뒤 이어 하기, 3장 전에는 버튼·글자가 화면 어디에도 없음, `?2d`에서 버튼이 안내만 함, 교사 미리보기에서 여섯 동물이 나오고 학생 기록에 남지 않음, 같은 곳에서 세 번 떨어지면 모리 힌트, 설정 창이 열리면 멈춤, 그만하기로 나가면 3D 해제, 움직임 줄이기에서 완주, 화면 요소 겹침·잘림·44px 미만 버튼 없음, 콘솔 오류 없음.
+- 운영 주소: 아래 「배포」 참고.
+
+### 배포
+
+- 커밋: `b1770b9`(달리기 본체), `6943074`(바닷가 소품·양 끝 풀밭). `main`에 푸시했다(`05ec136..6943074`).
+- 운영: Cloudflare Worker `animal-record-recovery`, 버전 `be56aaec-32eb-4602-a7cb-9309c25d3924`, https://animal-record-recovery.yelsam.workers.dev (SSD의 wrangler 4.154.0으로 `wrangler deploy`).
+- 운영 확인(2026-11-17 12:33): `build-info.js`와 `build-manifest.json`의 커밋이 `6943074`, `dirty:false`. `src/relay3d.js`·`relay-course.js`·`relay.js`·`relay-views.js`·`adventure-app.js`와 그림 2개의 SHA-256이 `dist/`와 같다. 운영 주소에서 3장을 마친 시험 기록으로 버튼이 보이고 네 구간(토끼→오리→나비→게)을 끝까지 지나 `relay.done`이 저장됐다. 시험 뒤 그 브라우저에 원래 있던 기록(활동 0개)으로 되돌렸고, 그 상태에서는 지도와 3장 패널 어디에도 버튼이 없다.
+
+### 확인하지 못한 것
+
+- 실제 태블릿(iPad Safari·Android Chrome)의 터치·성능. 화면 버튼은 포인터 이벤트를 보내는 방식으로만 확인했다.
+- 앱 안 브라우저 창이 숨겨져 있어 화면 갱신(requestAnimationFrame)을 타이머로 바꿔 끼워 검사했고, 자동 주행은 길 정보를 읽는 봇이 키·포인터 이벤트를 보내는 방식이다. 초당 프레임 수는 재지 않았다.
+- Windows에서의 테스트·빌드.
+
+### 남은 일
+
+- `backdrop-coast`(바다 원경): 첫 시도는 생성 도구가 거절했고, 다시 건 요청은 12:33까지 잠금 순서를 받지 못했다. 지금은 갯벌 구간 뒤에 숲 원경을 쓴다. 그림이 나오면 `node scripts/prepare-relay-art.mjs <sharp 경로>` → `RELAY_ART`에 `backdrop-coast` 추가 → 검증 → 커밋·배포.
+- `props-shore` 넷째 소품(들꽃)은 줄기 사이에 흰 얼룩이 남아 쓰지 않았다.
+- 내장 임시 원본 정리(`gpt-image.sh -c`)는 9장에 대해 걸어 두었다. 끝에 `-l`로 남은 것이 없는지 확인한다.
