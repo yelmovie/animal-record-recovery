@@ -8,6 +8,7 @@ import { ASSETS } from '../src/assets.js';
 import { STORIES } from '../src/story-player.js';
 import { CONCEPTS } from '../src/concepts.js';
 import { RUN_ART } from '../src/link-course.js';
+import { ENCOUNTER_SOUNDS } from '../src/audio.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const files=['index.html',...['korean.js','research-report.js','motion-video.js','tablet.css','campaign.js','campaign-views.js','campaign.css','inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','settings-content.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css','view3d.js','stage3d.js','scanner3d.js','dome3d.js',...['three.module.min.js','three.core.min.js','GLTFLoader.js','BufferGeometryUtils.js','LICENSE.txt'].map(f=>`vendor/three/${f}`)].map(f=>`src/${f}`),
@@ -15,7 +16,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...['raccoon-web','biomes-web','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['dome-ground-web','nature-materials-web','workshop-atlas','terrain-atlas-web','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk-web','sparrow','spider','ant','penguin','ostrich','dolphin','mole'].map(f=>`assets/adventure/${f}.webp`),
-  ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page'].map(f=>`assets/sfx/${f}.mp3`),
+  ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page',...ENCOUNTER_SOUNDS].map(f=>`assets/sfx/${f}.mp3`),
   'assets/music/village-theme.mp3','assets/adventure/swim-shoe-v2.webp','assets/adventure/swim-blade-v2.webp',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>[`assets/videos/motion/${id}-web.mp4`,`assets/videos/motion/${id}.webp`]),
   // The scanner loads models/scan/ (40k, 1024px) and the dome models/dome/; full models stay out of the deploy.

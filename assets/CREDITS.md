@@ -11,6 +11,7 @@
 | 사용자 제공 ChatGPT 그림 (2026-09-23 `ChatGPT Image …png`, 2026-10-07 `image/chatgpt_2026-10-07_latest_*.png`) | 마을 지도·건물 복구 조각·하루·모리·주민 시트·지도 표시, 모리 시트·생태 디오라마·수사실 배경 | 확인 필요 (2026-10-20) | 원본 파일과 가공 과정은 아래 "런타임 에셋 출처 보충"에 기록. 생성한 계정·요금제와 계약상 권리 주체 기록이 저장소에 없음 — 사용자 확인 |
 | 사용자 제공 생성 영상 6종 (`gemini_generated_video_*.mp4`) | 동물 움직임 영상(낙타·펭귄 제외) | 확인 필요 (2026-10-20) | 생성 모델·요금제 기록 없음(아래 2026-10-18 기록) — 사용자 확인 |
 | Pixabay 효과음 10종 (2026-10-20 `drop.mp3` 사용 중지로 11→10) | 효과음 | 가능 | Pixabay Content License(출처 표기 불필요·상업 이용 가능) |
+| 과학34 공통 효과음 라이브러리 CC0 8종 (2026-11-17) | 지도 악당 효과음 | 가능 | CC0 1.0(원본 페이지 재확인). 아래 "지도 악당 효과음" 표 |
 | 나눔스퀘어 네오 | 글꼴 | 가능 | NAVER, SIL OFL 1.1, 원문 `fonts/NanumSquareNeo-OFL.txt` 동봉 |
 | three.js | 3D 표시 | 가능 | MIT License |
 | Remotion | 쓰지 않음 | 해당 없음 | `package.json`·백업 package.json·코드에 사용 흔적 없음(영상은 ffmpeg로 편집) |
@@ -52,6 +53,21 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 | sfx/door.mp3 | 건물(활동)에 들어갈 때 | https://pixabay.com/sound-effects/household-opening-door-411632/ | soundreality | 2026-10-19 |
 | sfx/page.mp3 | 가방·설정·도구 창 열기 | https://pixabay.com/sound-effects/film-special-effects-turn-a-page-336933/ | creatorshome | 2026-10-19 |
 | ~~sfx/drop.mp3~~ (2026-10-20 사용 중지 → `_unused/sfx/`, 틀린 소리처럼 들려 합성음으로 교체) | 카드를 끌어다 놓을 때 | https://pixabay.com/sound-effects/film-special-effects-ui-drop-success-521938/ | soundshelfstudio | 2026-10-19 |
+
+## 지도 악당 효과음 (2026-11-17 추가, CC0)
+
+지도 악당 조우의 공격·타격·퇴장·등장·접촉·전체 격퇴 소리. 과학34 공통 효과음 라이브러리(`_shared/sfx-library-20261117/`)에서 골라 이름만 바꿔 복사했다(가공은 라이브러리에서 한 무음 제거·음량 정규화뿐). 모두 CC0 1.0이며 라이브러리 작성 때 원본 페이지에서 라이선스를 다시 확인했다. 출처 표기 의무는 없지만 기록으로 남긴다. 위 Pixabay 효과음 10종은 출처·라이선스(Pixabay Content License, 상업 이용 가능)가 기록돼 있고 경로도 정상이라 그대로 둔다. 파일을 불러오지 못하면 `src/audio.js`의 합성음으로 대신한다.
+
+| 파일 | 쓰는 곳 | 라이브러리 파일 | 원본 제목 · 제작자 | 원본 페이지 |
+|---|---|---|---|---|
+| sfx/encounter-swing.mp3 | 공격 버튼으로 공격 시작(휙) | `sfx/attack-swing-03.mp3` | SWOSH-01 44.1kHz.flac · qubodup | https://freesound.org/people/qubodup/sounds/59988 |
+| sfx/encounter-one.mp3 | 1타 명중(콩) | `sfx/hit-light-03.mp3` | Pop 1.ogg · javapimp | https://freesound.org/people/javapimp/sounds/439184 |
+| sfx/encounter-two.mp3 | 2타 명중(통통 튀는 팝) | `sfx/hit-light-01.mp3` | TOONY pops.wav · mikala_oidua | https://freesound.org/people/mikala_oidua/sounds/321163 |
+| sfx/encounter-heavy.mp3 | 3타 명중(푹신한 큰 타격) | `sfx/hit-heavy-02.mp3` | Loud Pillow Hit 2.wav · saturdaysoundguy | https://freesound.org/people/saturdaysoundguy/sounds/388035 |
+| sfx/encounter-exit.mp3 | 악당이 덤불로 달아남(사락) | `sfx/leaf-rustle-03.mp3` | leafpilehit.wav · j1987 | https://freesound.org/people/j1987/sounds/106130 |
+| sfx/encounter-appear.mp3 | 악당이 지도에 처음 보일 때(작은 뽁, 페이지당 악당마다 한 번) | `sfx/villain-appear-02.mp3` | Mouth Pop 1 · michorvath | https://freesound.org/people/michorvath/sounds/269501 |
+| sfx/encounter-contact.mp3 | 하루·모리가 악당에 닿아 움찔(툭, 둘 다 닿아도 한 번) | `sfx/hurt-bump-01.mp3` | LowHit_01.wav · Faulkin | https://freesound.org/people/Faulkin/sounds/336495 |
+| sfx/encounter-victory.mp3 | 다섯 악당을 모두 물리쳐 피날레 영상이 열릴 때(영상은 음소거라 겹치지 않음) | `sfx/victory-jingle-04.mp3` | game-win.mp3 · mickleness | https://freesound.org/people/mickleness/sounds/269198 |
 
 ## 동물 그림 추가 (2026-10-17)
 

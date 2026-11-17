@@ -1,10 +1,25 @@
 let context,sfxVolume=.8;
 const active=new Set(),plays=[],lastStart={};
-// Pixabay sound files (see assets/CREDITS.md). Gains even out the sources' peaks (tap ≈.33, others ≈.5); tune by ear on the classroom tablet.
-const FILES={tap:.5,correct:.55,retry:.75,star:1.4,stamp:.7,fanfare:.8,talk:.45,step:.6,door:.45,page:.7};
+// Pixabay and CC0 sound files (see assets/CREDITS.md). Gains even out the sources' peaks (tap ≈.33, others ≈.5); tune by ear on the classroom tablet.
+const FILES={tap:.5,correct:.55,retry:.75,star:1.4,stamp:.7,fanfare:.8,talk:.45,step:.6,door:.45,page:.7,
+  // Map villain sounds: CC0 files from the shared science library (normalised near -18 LUFS).
+  'encounter-swing':.5,'encounter-one':.55,'encounter-two':.6,'encounter-heavy':.7,'encounter-exit':.45,'encounter-appear':.35,'encounter-contact':.55,'encounter-victory':.6};
 const buffers={},loading={};
 // Synth fallback while a file is still loading or failed: [notes, gap, wave, top-note length].
-const SYNTH={'encounter-one':[[234],0,'triangle',.07,.10],'encounter-two':[[570,285],.04,'triangle',.11,.09],'encounter-exit':[[420,360,290,210],.052,'sine',.16,.10],'encounter-contact':[[202,162],.045,'triangle',.10,.08],talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
+const SYNTH={'encounter-swing':[[620,980],.035,'sine',.06,.06],'encounter-heavy':[[196,131],.05,'triangle',.16,.11],'encounter-appear':[[660,880],.08,'sine',.10,.04],'encounter-victory':[[523.25,659.25,783.99,1046.5],.12,'triangle',.35,.08],'encounter-one':[[234],0,'triangle',.07,.10],'encounter-two':[[570,285],.04,'triangle',.11,.09],'encounter-exit':[[420,360,290,210],.052,'sine',.16,.10],'encounter-contact':[[202,162],.045,'triangle',.10,.08],talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
+// Map villain events (map-encounters.js tone kinds) -> sound names.
+const ENCOUNTER={swing:'encounter-swing',finish:'encounter-heavy',exit:'encounter-exit',appear:'encounter-appear',contact:'encounter-contact',victory:'encounter-victory'};
+export const encounterSound=(kind,hits)=>kind==='hit'?hits===2?'encounter-two':'encounter-one':ENCOUNTER[kind]??null;
+// Fetch files ahead of time so the first strike on the map does not fall back to the synth.
+export function preloadSounds(names){
+  try{
+    const AudioContext=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContext||typeof navigator!=='undefined'&&navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;
+    context ||= new AudioContext();
+    names.forEach(load);
+  }catch{ /* Preloading is optional. */ }
+}
+export const ENCOUNTER_SOUNDS=['encounter-swing','encounter-one','encounter-two','encounter-heavy','encounter-exit','encounter-appear','encounter-contact','encounter-victory'];
 export function silence(){
   for(const source of active){try{source.stop();}catch{ /* Already ended. */ }}
   active.clear();plays.length=0;

@@ -15,7 +15,7 @@ import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presen
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {createNavigation} from './navigation.js';
-import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio.js';
+import {playSound,silence,playMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS} from './audio.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {KEYS as LINK_KEYS,rowOptions} from './link-course.js';
@@ -231,12 +231,13 @@ function mountVillage(flashed){
  const current=()=>screen==='map'&&!mapFailed&&mapRender===revision;
  const start=()=>{
   if(!current())return;
-  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{s.mapEncounters={...s.mapEncounters,...next};save();},onEncounterTone:(kind,hits)=>playSound(s.soundEnabled,kind==='finish'?'encounter-exit':kind==='contact'?'encounter-contact':hits===2?'encounter-two':'encounter-one'),isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{s.mapEncounters={...s.mapEncounters,...next};save();},onEncounterTone:(kind,hits)=>{const name=encounterSound(kind,hits);if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(!current()||selectedStage!==id)return;
     arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}save();
   }});
+  if(s.soundEnabled&&Object.values(s.mapEncounters??{}).filter(hits=>hits>=3).length<5)preloadSounds(ENCOUNTER_SOUNDS);
   if(autoEnter&&isStageOpen(s,selectedStage))map.move(selectedStage);
  };
  if(villageFactory){start();return;}
