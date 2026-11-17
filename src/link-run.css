@@ -12,7 +12,7 @@
 .link-run-pin::after{content:'';position:absolute;left:50%;bottom:-8px;translate:-50% 0;border:7px solid transparent;border-top-color:#4a3a22;border-bottom:0}
 .link-run-pin[hidden]{display:none}
 
-.link-run :is(.link-run-head,.run-pad,.link-run-help,.link-run-note){position:absolute;z-index:3}
+.link-run :is(.link-run-head,.run-pad,.link-run-help){position:absolute;z-index:3}
 .link-run-head{top:10px;left:10px;right:10px;display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:16px;background:#fffbe9eb;border:2px solid #4a3a22}
 #app #main .link-run-head .animal{width:52px;height:52px;object-fit:contain;flex:none}
 .link-run-head h2{margin:0;font-size:20px;white-space:nowrap}
@@ -37,7 +37,6 @@
 .run-dir.is-held{background:#f1c95a;transform:translateY(2px)}
 .link-run-help{right:12px;bottom:46px;max-width:min(420px,52%);margin:0;padding:8px 12px;border-radius:14px;background:#fffbe9eb;border:2px solid #4a3a2266;color:#3a3122;font-size:16px;line-height:1.45;word-break:keep-all;display:flex;gap:6px;align-items:flex-start}
 .link-run-help .icon{width:18px;height:18px;flex:none;margin-top:3px}
-.link-run-note{left:50%;bottom:8px;translate:-50% 0;margin:0;padding:3px 10px;border-radius:10px;background:#fffbe9d9;color:#5d5340;font-size:13px;white-space:nowrap}
 
 @media (max-width:1100px){.link-run-head h2,.link-run-head .overline{display:none}.link-run-slot strong{font-size:14px}}
 @media (max-height:700px){.run-pad{grid-template:repeat(3,52px)/repeat(3,52px);bottom:40px}.run-dir{width:52px;height:52px}.link-run-help{bottom:40px;font-size:15px}}

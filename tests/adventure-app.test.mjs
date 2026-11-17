@@ -8,6 +8,7 @@ import * as flashlight from '../src/flashlight.js';
 import * as storyPlayer from '../src/story-player.js';
 import * as campaign from '../src/campaign.js';
 import * as linkCourse from '../src/link-course.js';
+import {activityView} from '../src/mission-views.js';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -598,4 +599,8 @@ test('screen 07 in 3D: each gate records the same link answer as a card and the 
  const off=appHarness({storedRecord:JSON.stringify(state)});off.run('enter(3)');assert.match(off.app.innerHTML,/data-drop-action="link"/);assert.ok(!off.app.innerHTML.includes('data-3d="linkrun"'));
  // The optional relay challenge is gone everywhere.
  assert.ok(!a.app.innerHTML.includes('relay'));a.run("act('relay-open',{dataset:{}})");assert.equal(a.run('screen'),'mission');
+});
+test('the 3D life path shows no extra model notice line',()=>{
+ const html=activityView(model.freshExpedition(),{stage:3,step:2,use3d:true});
+ assert.match(html,/data-3d="linkrun"/);assert.doesNotMatch(html,/학습용 모형이야|link-run-note/);
 });
