@@ -2,8 +2,8 @@
    Loaded last so it wins over the per-screen sheets; selectors come from a 1280×720 scan of every screen. */
 
 /* Map: building labels, their stage numbers and resident name plates */
-.map-markers .map-marker>b{font-size:clamp(16px,1.25vw,20px)}
-.map-markers .map-marker>b>small{font-size:16px}
+.map-markers .map-marker>b{font-size:clamp(18px,1.25vw,20px)}
+.map-markers .map-marker>b>small{font-size:18px}
 .village-layer .village-resident>span{font-size:16px}
 
 /* Home landing */
