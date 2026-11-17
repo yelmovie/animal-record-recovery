@@ -26,7 +26,7 @@ export const TRACK={
 };
 export const ORDER=['forest','pond','sky','coast'];
 // Painted art shipped in assets/relay (generated 2026-11-17, see docs/RUN-STAGE-3D-PLAN-20261117.md). The stage is complete without any of it.
-export const RELAY_ART=['backdrop-forest','backdrop-pond','prop-arch','prop-bush','prop-oak','prop-pine','tile-grass','tile-hedge','tile-mud','tile-sand'];
+export const RELAY_ART=['backdrop-forest','backdrop-pond','prop-arch','prop-boulder','prop-bush','prop-kelp','prop-oak','prop-pine','prop-searock','tile-grass','tile-hedge','tile-mud','tile-sand'];
 export const blockersOf=id=>(TRACK[id].rows||[]).flatMap(g=>g.blocks.map(z=>({x:g.x,z,r:g.r})));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),inside=(x,[a,b])=>x>=a&&x<=b;
 // Height of the surface under a point: pads and forest ground are 0, the rock ledge is higher, a gap has none.

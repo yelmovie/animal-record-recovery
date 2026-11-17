@@ -24,8 +24,9 @@ for(const name of ['tile-grass','tile-mud','tile-sand','tile-hedge']){const f=pa
 async function split(file,names,height=512,keyWhite=[]){
   if(!await has(file))return;
   const {data,info}=await sharp(file).ensureAlpha().raw().toBuffer({resolveWithObject:true}),runs=[],at=(x,y)=>(y*info.width+x)*4+3;let start=-1;
-  if(!data.some((v,i)=>i%4===3&&v<16))throw new Error(file+' has no transparent background');
-  for(let i=3;i<data.length;i+=4)data[i]=data[i]>=236?255:0;
+  // One sheet came back with a see-through white wash instead of a clear background; the same cut removes it.
+  let clear=0;for(let i=3;i<data.length;i+=4){data[i]=data[i]>=236?255:0;if(!data[i])clear++;}
+  if(clear<data.length/4*.2)throw new Error(file+' has no see-through background');
   for(let x=0;x<=info.width;x++){let any=false;if(x<info.width)for(let y=0;y<info.height;y++)if(data[at(x,y)]){any=true;break;}
     if(any&&start<0)start=x;if(!any&&start>=0){runs.push([start,x]);start=-1;}}
   const picked=runs.filter(([a,b])=>b-a>info.width*.04).sort((p,q)=>(q[1]-q[0])-(p[1]-p[0])).slice(0,names.length).sort((p,q)=>p[0]-q[0]);
@@ -34,8 +35,10 @@ async function split(file,names,height=512,keyWhite=[]){
   for(let pass=0;pass<2;pass++){const rim=[];for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++)if(data[at(x,y)]&&(!x||!y||x===info.width-1||y===info.height-1||!data[at(x-1,y)]||!data[at(x+1,y)]||!data[at(x,y-1)]||!data[at(x,y+1)]))rim.push(at(x,y));for(const i of rim)data[i]=0;}
   const clean=()=>sharp(data,{raw:{width:info.width,height:info.height,channels:4}});
   for(const [i,[a,b]] of picked.entries()){let top=info.height,bottom=0;for(let y=0;y<info.height;y++)for(let x=a;x<b;x++)if(data[at(x,y)]){top=Math.min(top,y);bottom=Math.max(bottom,y);break;}
+    if(names[i]==='-')continue;
     await clean().extract({left:a,top,width:b-a,height:bottom-top+1}).resize({height,withoutEnlargement:true}).webp(webp).toFile(out(names[i]));console.log(names[i],b-a,bottom-top+1);}
 }
 await split(path.join(from,'props-trees.png'),['prop-pine','prop-oak','prop-bush'],512,['prop-pine','prop-oak']);
-await split(path.join(from,'props-shore.png'),['prop-boulder','prop-searock','prop-kelp','prop-flowers'],384);
+// The fourth prop on this sheet (wildflowers) kept white between its stems and is not used: '-' skips it.
+await split(path.join(from,'props-shore.png'),['prop-boulder','prop-searock','prop-kelp','-'],384);
 await split(path.join(from,'prop-arch.png'),['prop-arch'],640);

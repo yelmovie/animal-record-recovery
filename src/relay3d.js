@@ -62,7 +62,7 @@ export function create(host,options){
   const rand=rng(20261117);
   // Props start as simple shapes; a painted cut-out standing upright takes their place when it has loaded.
   // The camera never turns, so an upright picture facing the viewer is enough.
-  const props={pine:[],oak:[],bush:[],boulder:[],searock:[],kelp:[],flowers:[]};
+  const props={pine:[],oak:[],bush:[],boulder:[],searock:[],kelp:[]};
   function prop(kind,x,y,z,h,shapes){props[kind].push({x,y,z,h,shapes});return shapes;}
   for(const kind of Object.keys(props))painted('prop-'+kind,t=>{
     const ratio=t.image.width/t.image.height,material=new T.MeshBasicMaterial({map:t,alphaTest:.5,side:T.DoubleSide});
@@ -83,6 +83,8 @@ export function create(host,options){
     // The finish: a garden arch standing behind the last pad (a flat picture would vanish if it spanned the path edge-on).
     if(i===PADS.length-1){const x=a+3,z=-LANE-1,posts=[-1.5,1.5].map(dx=>mesh(new T.CylinderGeometry(.13,.15,3,8),lambert('trunk',{color:'#7b5a3c'}),x+dx,1.5,z)),top=mesh(new T.TorusGeometry(1.5,.2,8,20,Math.PI),lambert('garland',{color:'#58a55a'}),x,3,z);
       painted('prop-arch',t=>{for(const s of [...posts,top])s.visible=false;mesh(new T.PlaneGeometry(4.6,4.6).translate(0,2.3,0),new T.MeshBasicMaterial({map:t,alphaTest:.5,side:T.DoubleSide}),x,0,z);});}});
+  // Meadow before the start and after the finish, so the world never ends at the edge of the screen.
+  for(const [a,b] of [[PADS[0][0]-34,PADS[0][0]],[PADS.at(-1)[1],PADS.at(-1)[1]+34]]){slab(a,b,BACK,FRONT,0,7,'grass');for(let i=0;i<7;i++){tree(a+2+rand()*(b-a-4),-LANE-1.5-rand()*6,1+rand()*.7);bush(a+2+rand()*(b-a-4),.2,-LANE+rand()*(LANE*2+4),.5+rand()*.4);}}
   // 1 Forest and field: grass blocks with stream gaps and one rock ledge.
   {const t=TRACK.forest;for(const [a,b] of t.ground){slab(a,b,BACK,FRONT,0,7,'grass');for(const z of [-EDGE,EDGE])mesh(new T.BoxGeometry(b-a-.3,.22,.24),lambert('log',{color:'#8d6a44'}),(a+b)/2,.11,z);}
    mesh(new T.BoxGeometry(t.x1-t.x0,.2,FRONT-BACK),lambert('streambed',{color:'#7c8f86'}),(t.x0+t.x1)/2,-1.5,(BACK+FRONT)/2);water(t.x0,t.x1,BACK,FRONT,-.55,'#6fc0df',.86);
@@ -100,7 +102,7 @@ export function create(host,options){
   // 3 Above the flower field: no ground between the pads, tall flower hedges below and leafy branches above.
   const crowns=[];
   {const t=TRACK.sky;slab(t.x0,t.x1,BACK,FRONT,-2.3,4,'grass');
-   const stems=[],heads=[];for(let i=0;i<70;i++){const x=t.x0+.6+rand()*(t.x1-t.x0-1.2),z=BACK+3+rand()*(FRONT-BACK-5),h=.5+rand()*.45;stems.push([x,-2.3+h/2,z,h]);heads.push([x,-2.3+h,z]);if(i%6===0)prop('flowers',x+.4,-2.3,z+.3,1.2,[]);}
+   const stems=[],heads=[];for(let i=0;i<70;i++){const x=t.x0+.6+rand()*(t.x1-t.x0-1.2),z=BACK+3+rand()*(FRONT-BACK-5),h=.5+rand()*.45;stems.push([x,-2.3+h/2,z,h]);heads.push([x,-2.3+h,z]);}
    const stemMesh=new T.InstancedMesh(new T.CylinderGeometry(.035,.035,1,5),lambert('stem',{color:'#4f8f45'}),stems.length),headMesh=new T.InstancedMesh(new T.SphereGeometry(.2,8,6),new T.MeshLambertMaterial({color:'#ffffff'}),heads.length),d=new T.Object3D(),col=new T.Color();
    stems.forEach(([x,y,z,h],i)=>{d.position.set(x,y,z);d.scale.set(1,h,1);d.updateMatrix();stemMesh.setMatrixAt(i,d.matrix);});d.scale.set(1,1,1);
    heads.forEach(([x,y,z],i)=>{d.position.set(x,y,z);d.updateMatrix();headMesh.setMatrixAt(i,d.matrix);headMesh.setColorAt(i,col.set(['#f6c945','#ee7fa5','#ffffff','#f29b4b','#b98be0'][i%5]));});scene.add(stemMesh,headMesh);
@@ -125,7 +127,8 @@ export function create(host,options){
   for(let i=0;i<8;i++){const c=mesh(new T.SphereGeometry(1.6+rand(),10,7),new T.MeshBasicMaterial({color:'#ffffff',fog:false}),-6+i*23+rand()*8,9.5+rand()*3,-22);c.scale.set(2.2,.6,1);plain.push(c);}
   // Placed so the picture's top edge meets the top of the screen and its meadow meets the far edge of the playfield.
   const backdrops=[],BACKDROP_Y=-.6;
-  ORDER.forEach((id,i)=>{const name={forest:'backdrop-forest',pond:'backdrop-pond',sky:'backdrop-forest',coast:'backdrop-coast'}[id],center=(TRACK[id].x0+TRACK[id].x1)/2;
+  ORDER.forEach((id,i)=>{// Until a seaside picture is shipped, the coast keeps the forest hills behind its mudflat rather than an empty sky.
+    const name={forest:'backdrop-forest',pond:'backdrop-pond',sky:'backdrop-forest',coast:RELAY_ART.includes('backdrop-coast')?'backdrop-coast':'backdrop-forest'}[id],center=(TRACK[id].x0+TRACK[id].x1)/2;
     // The picture fills the middle; on a wide screen its mirrored continuation fills the sides (the sky path shows the forest picture flipped).
     painted(name,t=>{const map=Object.assign(t.clone(),{wrapS:T.MirroredRepeatWrapping,needsUpdate:true}),flip=id==='sky'?-1:1;map.repeat.x=1.6*flip;map.offset.x=flip>0?-.3:1.3;
       const m=mesh(new T.PlaneGeometry(96,21.6),new T.MeshBasicMaterial({map,transparent:true,depthWrite:false,fog:false}),center,BACKDROP_Y,-36);m.renderOrder=-5+i;backdrops.push({m,center});for(const p of plain)p.visible=false;
