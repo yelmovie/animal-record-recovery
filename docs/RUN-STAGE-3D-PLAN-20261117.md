@@ -178,12 +178,12 @@
 
 - 네 구간을 모두 구현했다: 숲과 들 길(토끼·나비), 연못 물길(개구리·오리), 꽃밭 위 하늘길(나비), 바다와 갯벌 길(게·바다 물고기). 갯벌 구간까지 붙였다.
 - 판정은 3장 자료(`DISCOVERIES`·`MOTIONS`)만 읽는다. 빠르기·높이·시간·순위는 어디에도 없다.
-- 생성 그림 13개 파일을 적용했다(`assets/relay/`, 합계 약 1.2MB): 배경 2(숲·연못), 바닥 무늬 4(풀·갯벌·모래·꽃 울타리), 소품 7(소나무·참나무·꽃덤불·이끼 바위·바닷가 바위·해초·도착 아치). 동물은 3장의 기존 그림 6장을 그대로 세워 썼다(새로 그리지 않았으므로 생김새는 기존 검수 그대로다).
+- 생성 그림 14개 파일을 적용했다(`assets/relay/`, 합계 약 1.2MB): 배경 3(숲·연못·바다), 바닥 무늬 4(풀·갯벌·모래·꽃 울타리), 소품 7(소나무·참나무·꽃덤불·이끼 바위·바닷가 바위·해초·도착 아치). 동물은 3장의 기존 그림 6장을 그대로 세워 썼다(새로 그리지 않았으므로 생김새는 기존 검수 그대로다).
 - 겹침·잘림·물리 점검으로 고친 것: 동물이 갈대·바위 앞뒤로 제대로 가려짐, 물에 빠지면 바로 쉼터로 돌아옴, 그림자가 물 위에 뜨지 않음, 헤엄치는 동물의 몸 아래쪽이 물에 잠겨 비침, 바닷속 바위를 낮은 바위로, 하늘길의 잎 덩어리는 나비가 밑을 지날 때 비쳐 보임, 연못·바다 길의 보이지 않는 벽을 연잎 줄·유목·모래톱으로 눈에 보이게, 출발 앞과 도착 뒤에 풀밭을 이어 화면 끝이 비지 않음, 넓은 화면에서 배경이 끊기지 않음, 낮은 화면(960×540)에서 고르기 창과 아래 안내가 겹치지 않음.
 
 ### 바뀐 파일
 
-- 새 파일: `src/relay.js`, `src/relay-course.js`, `src/relay3d.js`, `src/relay-views.js`, `src/relay.css`, `scripts/prepare-relay-art.mjs`, `tests/relay.test.mjs`, `tests/relay-course.test.mjs`, `assets/relay/*.webp`(13개)
+- 새 파일: `src/relay.js`, `src/relay-course.js`, `src/relay3d.js`, `src/relay-views.js`, `src/relay.css`, `scripts/prepare-relay-art.mjs`, `tests/relay.test.mjs`, `tests/relay-course.test.mjs`, `assets/relay/*.webp`(14개)
 - 고친 파일: `src/expedition.js`(`relay` 필드 추가·복원), `src/adventure-app.js`(화면 `relay`, 동작 6개, 3D 연결), `src/shell-views.js`(화면 등록, 지도 장소 패널·복구 완료 화면의 버튼), `src/view3d.js`(종류 `relay`), `scripts/build.mjs`, `index.html`, `tests/adventure-app.test.mjs`, `README.md`
 - 기존 탐험 `3-0`·`3-2`, 완료 조건, 자동 진행, 기존 저장 필드는 바꾸지 않았다.
 
@@ -207,6 +207,13 @@
 
 ### 남은 일
 
-- `backdrop-coast`(바다 원경): 첫 시도는 생성 도구가 거절했고, 다시 건 요청은 12:33까지 잠금 순서를 받지 못했다. 지금은 갯벌 구간 뒤에 숲 원경을 쓴다. 그림이 나오면 `node scripts/prepare-relay-art.mjs <sharp 경로>` → `RELAY_ART`에 `backdrop-coast` 추가 → 검증 → 커밋·배포.
+- 없음(코드·그림·배포 기준). `backdrop-coast`는 12:34에 생성돼 같은 날 추가 배포로 넣었다(아래 「추가 배포」). 바다 원경은 수평선이 그림 아래쪽에 있어 잘라내는 띠를 17% 낮췄다.
 - `props-shore` 넷째 소품(들꽃)은 줄기 사이에 흰 얼룩이 남아 쓰지 않았다.
-- 내장 임시 원본 정리(`gpt-image.sh -c`)는 9장에 대해 걸어 두었다. 끝에 `-l`로 남은 것이 없는지 확인한다.
+- 내장 임시 원본 정리(`gpt-image.sh -c`)는 잠금 순서를 받는 대로 실행되게 걸어 두었다. 결과는 아래 「추가 배포」 끝에 적는다.
+
+### 추가 배포 (2026-11-17 12:37)
+
+- 커밋 `768690a`(바다 원경 `assets/relay/backdrop-coast.webp`), `main` 푸시. 운영 버전 `60f685bf-e9dc-40a2-848d-ca7572a38faa`.
+- 운영 확인: `build-info.js` 커밋 `768690a`·`dirty:false`, `src/relay3d.js`·`src/relay-course.js`·`backdrop-coast.webp`의 SHA-256이 `dist/`와 같음. 운영 주소에서 갯벌 구간을 열어 바다·모래언덕 원경이 보이고 콘솔 오류가 없는 것을 확인했다. 시험 뒤 그 브라우저의 기록은 원래대로(활동 0개) 되돌렸다.
+- 검증: `npm run check` 통과, `npm test` 299개 통과, `npm run build` 통과.
+- 내장 임시 원본: 10장(`backdrop-forest·pond·coast`, `tile-grass·mud·sand·hedge`, `props-trees`, `props-shore`, `prop-arch`)의 정리(`gpt-image.sh -c`)를 잠금 래퍼로 걸어 두었다. 잠금 대기가 길어 이 문서를 쓰는 시점에는 끝나지 않았다. 로그는 `.tmp/relay-qa/clean.log`, 남은 것은 `gpt-image.sh -l`로 확인한다.
