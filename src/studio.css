@@ -73,7 +73,7 @@
 #app .studio-showcase .studio-intro-field[data-current] .studio-intro-arrow{position:absolute;display:block;inset-block-start:10px;inset-inline-start:9px;pointer-events:none}
 #app .studio-showcase .studio-sample-button{align-self:flex-start;min-height:46px;margin:2px 0 4px;padding:6px 14px;border:2px dashed #c9b98d;border-radius:12px;background:#fffdf4;color:#3d6a4a;font:400 clamp(18px,1.3vw,22px)/1.2 var(--font-display)}
 #app .studio-sample[popover]{width:min(640px,92vw);margin:auto;padding:18px 20px;border:2px solid #c9b98d;border-radius:18px;background:#fffaeb;box-shadow:0 20px 50px #2a1d0b66}
-#app .studio-sample[popover]::backdrop{background:#1d2a1f55}
+#app .studio-sample[popover]::backdrop{background:var(--scrim)}
 #app .studio-sample .studio-sample-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#2f4a35;font:400 clamp(22px,1.6vw,28px)/1.2 var(--font-display)}
 #app .studio-sample dl{margin:0;display:grid;gap:10px}
 #app .studio-sample dl>div{display:grid;grid-template-columns:9em minmax(0,1fr);gap:10px;padding-bottom:8px;border-bottom:1px dashed #dccb9f}

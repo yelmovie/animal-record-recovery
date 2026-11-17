@@ -15,7 +15,7 @@ dialog#dialog.npc-scene-dialog {
   box-shadow: none;
   color: #24382e;
 }
-dialog#dialog.npc-scene-dialog::backdrop { background: #10251fa6; }
+dialog#dialog.npc-scene-dialog::backdrop { background: var(--scrim); }
 .npc-scene-stage { position: absolute; inset: auto 0 max(20px, env(safe-area-inset-bottom)); width: min(92%, 900px); margin: auto; }
 .npc-scene-portrait {
   width: min(46dvh, 57vw, 420px);
