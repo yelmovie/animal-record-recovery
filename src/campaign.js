@@ -98,7 +98,7 @@ export function explorationAnswers(s,stage,index){
  if(stage===4&&index===0){
   const a={};
   const frog=s.links?.frog,crab=s.links?.crab;
-  if(s.activities?.includes('3-1')&&frog?.environment==='pond'&&frog.body==='web'&&frog.life==='swim')Object.assign(a,{a:'frog','a-place':'pond'});
+  if(s.activities?.includes('3-2')&&frog?.environment==='pond'&&frog.body==='web'&&frog.life==='swim')Object.assign(a,{a:'frog','a-place':'pond'});
   if(s.activities?.includes('3-3')&&crab?.environment==='coast'&&crab.body==='legs'&&crab.life==='walk')Object.assign(a,{b:'crab','b-life':'walk'});
   return a;
  }

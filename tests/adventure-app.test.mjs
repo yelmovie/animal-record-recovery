@@ -466,7 +466,7 @@ test('garden auto progression waits for correct answers and stops on navigation'
 });
 
 
-test('all six dome photos open automatically and advance without discovery or confirmation taps',()=>{
+test('all six dome photos come first and advance without extra taps, then the frog and crab life links',()=>{
  const a=appHarness({clock:true});a.run('s.adminUnlocked=true;enter(3)');
  for(const round of [0,1]){
   for(const d of model.DISCOVERIES.slice(round*3,round*3+3)){
@@ -475,8 +475,9 @@ test('all six dome photos open automatically and advance without discovery or co
    assert.doesNotMatch(a.app.innerHTML,/data-action="auto-run"|기록 확인 ·|세 마리 기록 완료/);
    a.run(`act('motion-capture',{dataset:{id:'${d.animal}'}})`);a.flushTimers();
   }
-  assert.equal(a.run('step'),round*2+1);
-  const id=round?'crab':'frog';
+  assert.equal(a.run('step'),round+1,'photos of the next three animals, then the first life link');
+ }
+ for(const id of ['frog','crab']){
   for(const [i,key] of ['environment','body','life'].entries())a.run(`act('link',{dataset:{id:'${id}',key:'${key}',value:'${model.LINKS[id].answer[i]}'}})`);
   a.flushTimers();
  }
@@ -581,15 +582,18 @@ test('backgrounding postpones automatic movement until the activity is visible a
 });
 
 test('screen 07 in 3D: each gate records the same link answer as a card and the activity continues as before',()=>{
- const state=model.freshExpedition();state.introSeen=true;state.activities=['1-0','1-1','1-2','1-3','1-4','1-5','1-6','1-7','2-0','2-1','2-2','2-3','3-0'];state.completed=[1,2];state.discovered=model.DISCOVERIES.slice(0,3).map(d=>d.id);for(const d of model.DISCOVERIES.slice(0,3))state.inquiry.motion[d.animal]=1;state.stage=3;state.step={3:1};
- const a=appHarness({three:true,clock:true,storedRecord:JSON.stringify(state)});a.run('enter(3)');assert.equal(a.run('step'),1);
+ const state=model.freshExpedition();state.introSeen=true;state.activities=['1-0','1-1','1-2','1-3','1-4','1-5','1-6','1-7','2-0','2-1','2-2','2-3','3-0','3-1'];state.completed=[1,2];state.discovered=model.DISCOVERIES.map(d=>d.id);for(const d of model.DISCOVERIES)state.inquiry.motion[d.animal]=1;state.stage=3;state.step={3:2};
+ const a=appHarness({three:true,clock:true,storedRecord:JSON.stringify(state)});a.run('enter(3)');assert.equal(a.run('step'),2);
  assert.match(a.app.innerHTML,/data-3d="linkrun" data-animal="frog"/);assert.ok(!a.app.innerHTML.includes('data-drop-action="link"'),'no card board in 3D');
  assert.match(a.app.innerHTML,/개구리에게 맞는 문으로 걸어가/);
  const o=()=>a.run("opts3d('linkrun')"),wrong=(linkCourse.answerLane('frog',0)+1)%3;
- assert.equal(o().onChoose(0,wrong),false);assert.match(a.app.innerHTML,/link-run-slot[^"]*retry/);assert.ok(!model.restoreExpedition(a.saved).activities.includes('3-1'));
+ assert.equal(o().onChoose(0,wrong),false);assert.match(a.app.innerHTML,/link-run-slot[^"]*retry/);assert.ok(!model.restoreExpedition(a.saved).activities.includes('3-2'));
  for(const row of [0,1,2])assert.equal(o().onChoose(row,linkCourse.answerLane('frog',row)),true);
  assert.deepEqual(JSON.parse(a.saved).links.frog,{environment:'pond',body:'web',life:'swim'});
- a.flushTimers();assert.ok(model.restoreExpedition(a.saved).activities.includes('3-1'),'the existing rule completes the activity');assert.equal(a.run('step'),2);
+ a.flushTimers();assert.ok(model.restoreExpedition(a.saved).activities.includes('3-2'),'the existing rule completes the activity');assert.equal(a.run('step'),3);
+ // The crab path follows the frog path directly; it gets its own 3D path, not the frog's.
+ assert.match(a.app.innerHTML,/data-3d="linkrun" data-animal="crab"/);assert.equal(a.run("opts3d('linkrun').animal"),'crab');
+ assert.match(readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8'),/kind==='linkrun'\?kind\+':'\+host\.dataset\.animal/,'a different animal remounts the path');
  // Without 3D the card board is still there, so no device is stuck.
  const off=appHarness({storedRecord:JSON.stringify(state)});off.run('enter(3)');assert.match(off.app.innerHTML,/data-drop-action="link"/);assert.ok(!off.app.innerHTML.includes('data-3d="linkrun"'));
  // The optional relay challenge is gone everywhere.

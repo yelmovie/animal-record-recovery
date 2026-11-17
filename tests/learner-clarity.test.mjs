@@ -74,7 +74,7 @@ test('the map corner button points to the next recommended place',()=>{
 });
 
 test('a link check names one slot in one sentence but still marks every slot to fix',()=>{
- const s=freshExpedition(),m=taskMistake(s,3,1);
+ const s=freshExpedition(),m=taskMistake(s,3,2);
  assert.equal(m.text,'‘사는 곳’ 칸에 카드를 놓아 줘.');assert.deepEqual(m.wrong,['link:environment','link:body','link:life']);
- s.links.frog={environment:'sea'};assert.equal(taskMistake(s,3,1).text,'‘사는 곳’을 다시 봐. 어느 장소에서 발견했는지 떠올려 봐.');
+ s.links.frog={environment:'sea'};assert.equal(taskMistake(s,3,2).text,'‘사는 곳’을 다시 봐. 어느 장소에서 발견했는지 떠올려 봐.');
 });

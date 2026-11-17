@@ -2,7 +2,7 @@ import {flashlightCaseView} from './flashlight.js';
 import {anatomy,sourceView,labView,motionView} from './inquiry-views.js';
 import {EXPERIMENTS} from './inquiry.js';
 import {motionVideoURL} from './motion-video.js';
-import {SCAN_3D,ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
+import {SCAN_3D,ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,linkAnimal,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
 import {art,animal,icon,sprite,btn,choice,esc,off,withParticle} from './presentation.js';
 import {assetURL,workshopSprite,swimArtwork} from './assets.js';
 import {studioView} from './studio-views.js';
@@ -13,7 +13,7 @@ import {KEYS,KEY_NAMES,rowOptions} from './link-course.js';
 export const INSTRUCTIONS={
   1:['개구리와 게의 몸 표면을 보고, 동물마다 설명 하나를 골라 봐.','두 동물의 같은 점과 다른 점을 하나씩 골라 봐.','오리와 토끼의 몸을 덮은 것을 살펴보고 설명 하나씩 골라 봐.','두 동물의 같은 점과 다른 점을 하나씩 골라 봐.','박쥐와 참새의 날개를 보고, 무엇으로 되어 있는지 골라 봐.','두 동물의 같은 점과 다른 점을 하나씩 골라 봐.','거미와 개미의 다리를 세어 보고 설명 하나씩 골라 봐.','두 동물의 같은 점과 다른 점을 하나씩 골라 봐.'],
   2:['동물 카드를 누른 뒤 놓을 O·X 칸을 눌러 봐. 끌어 놓아도 돼.','연구원 세 명의 결과가 왜 다를까? 기준을 고쳐 다시 검증해 봐.','낱말로 나만의 질문을 만들고, 동물 카드를 눌러 O·X 칸에 놓아 봐. 끌어 놓아도 돼.','내 기준을 검증하고, 날개 기준과 비교해 봐.'],
- 3:['바로 열리는 동물 영상을 재생하고 전시관에 보낼 사진 한 장을 찍어 봐.','섞인 카드 중 개구리에게 맞는 카드로 사는 곳·몸·생활을 이어 봐.','새 동물의 영상도 재생하고, 마음에 드는 순간을 전시 사진으로 남겨 봐.','섞인 카드 중 게에게 맞는 카드로 사는 곳·몸·생활을 이어 봐.'],
+ 3:['바로 열리는 동물 영상을 재생하고 전시관에 보낼 사진 한 장을 찍어 봐.','새 동물의 영상도 재생하고, 마음에 드는 순간을 전시 사진으로 남겨 봐.','섞인 카드 중 개구리에게 맞는 카드로 사는 곳·몸·생활을 이어 봐.','섞인 카드 중 게에게 맞는 카드로 사는 곳·몸·생활을 이어 봐.'],
   4:['반짝이는 단서를 눌러 보고, 어떤 동물인지 골라 봐.','발견한 풍경을 떠올리며 동물의 집을 골라 주고, 움직이는 방법을 눌러 봐.','새로운 동물이 숨어 있어. 빛을 비춰 특징을 발견하고 근거로 추리해 봐.','찾아낸 몸의 특징으로 어떻게 움직이는지 살펴보고 집으로 안내해 줘.','땅속에 숨은 동물이야. 빛을 비춰 앞발과 눈을 찾아보고 근거로 추리해 봐.','찾아낸 앞발 모양으로 어떻게 다니는지 골라 주고, 땅속 집으로 안내해 줘.'],
   5:['동물의 특징을 고르고, 부품을 수영 신발에 붙여 봐.','두 모양을 비교하며 동물의 특징이 하는 일을 알아봐.','이제 네 차례! 빈 도화지에 새로운 발명품을 자유롭게 그리고 이름을 붙여 봐.','누구를 돕는 발명인지, 어떻게 쓰는지 소개해 봐. 그림과 소개를 함께 저장할 수 있어.'],
 };
@@ -85,8 +85,8 @@ function sortView(s,v){const r=v.round,own=s.criteria[1];
   const result=check.revealed?`옮겨 간 동물: ${moved.map(id=>ANIMALS[id].name).join(', ')||'없어'}. 같은 동물도 기준에 따라 다르게 묶여.`:'예상한 뒤 분류 바꾸기를 눌러 확인해 봐.';
   return '<div class="criteria-lab">'+controls+(clear?'<div class="reclass-head"><b>'+CRITERIA[before]+' → '+CRITERIA[after]+'</b><p>'+question+'</p><div class="inline-options">'+answers.map(([value,label])=>choice(label,'sort-predict',value,check.prediction===value)).join('')+'</div>'+btn(check.revealed?'처음 분류 보기':'분류 바꾸기',check.revealed?'sort-before':'sort-reveal','primary',!check.prediction?off('먼저 어떻게 될지 예상을 골라 줘.'):'')+'</div><div class="live-groups" aria-live="polite">'+[true,false].map(yes=>'<section><h3>'+CRITERIA[current]+' · '+(yes?'예':'아니요')+'</h3><div>'+SORT_ANIMALS.filter(id=>ANIMALS[id][current]===yes).map(id=>'<article class="group-animal '+(check.revealed&&moved.includes(id)?'moved':'')+'" data-id="'+id+'">'+animal(id)+'<b>'+ANIMALS[id].name+'</b>'+(check.revealed&&moved.includes(id)?'<small>옮겨 왔어</small>':'')+'</article>').join('')+'</div></section>').join('')+'</div><p class="criteria-result">'+result+'</p>':'<div class="criteria-result">내 기준을 먼저 검증하면, 날개 기준과 비교할 수 있어.</div>')+'</div>';
 }
-function habitatView(s,v){const r=v.round;
- if(v.step%2===1)return v.use3d?linkRunView(s,r?'crab':'frog',v):linkView(s,r?'crab':'frog',v);
+function habitatView(s,v){const r=v.step;
+ if(v.step>=2)return v.use3d?linkRunView(s,linkAnimal(v.step),v):linkView(s,linkAnimal(v.step),v);
  const list=DISCOVERIES.slice(r*3,r*3+3),d=list.find(x=>x.habitat===v.activeHabitat)||list[0],h=HABITATS[d.habitat],found=s.discovered.includes(d.id);
  const extra=DOME_ZONES[v.activeHabitat]||null;
  // 2D keeps the two optional places (camel, penguin) as tabs too, so their videos are reachable without WebGL.

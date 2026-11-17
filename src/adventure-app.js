@@ -10,7 +10,7 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {LINKS,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
+import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -200,7 +200,7 @@ function render(){
   app.querySelectorAll?.('.detail-crop').forEach(el=>{el.dataset.action='photo-zoom';el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','사진 크게 보기');});
   sync3d();
   mountMotionPlayer();
-  if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step%2===0)startMotionFrame();
+  if(!motionPlayer&&motionPlaying&&screen==='mission'&&stage===3&&step<2)startMotionFrame();
   if(screen==='map')mountVillage(flashed);
   if(data)[...app.querySelectorAll('[data-action]')].find(el=>Object.entries(data).every(([k,v])=>el.dataset[k]===v))?.focus({preventScroll:true});
   placeFeedback();
@@ -257,7 +257,9 @@ function placeFeedback(){
 function sync3d(){
   const host=app.querySelector?.('[data-3d]'),kind=host?.dataset['3d'];
   if(!host){viewer?.destroy();viewer=null;return;}
-  if(viewer?.kind===kind)viewer.attach(host,opts3d(kind));else{viewer?.destroy();viewer=mount3d(kind,host,opts3d(kind));}
+  // The life path is built for one animal: the frog path is never reused for the crab right after it.
+  const key=kind==='linkrun'?kind+':'+host.dataset.animal:kind;
+  if(viewer?.kind===kind&&viewer.key===key)viewer.attach(host,opts3d(kind));else{viewer?.destroy();viewer=mount3d(kind,host,opts3d(kind));viewer.key=key;}
 }
 function fail3d(){disable3d();viewer?.destroy();viewer=null;
   render();document.querySelector('#announcer').textContent='3D 화면을 열 수 없어서 그림 화면으로 바꿨어.';}
@@ -267,14 +269,14 @@ function opts3d(kind){
     return {animal:id,parts:list.map(o=>o.label),found:idx(o=>s.observed.includes(o.id)),pinned:idx(o=>pinned.has(o.id)),focus:focusIndex,onFail:fail3d,
       onPick(i){focusIndex=i;pinned.add(list[i].id);if(list[i].id===relook)relook=null;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=`${list[i].label}에 관찰핀을 꽂았어.`;},
       onMiss(hint,pt){playSound(s.soundEnabled,'retry');toast(hint,tapAnchor(pt));}};}
-  if(kind==='dome'){const list=DISCOVERIES.slice(round()*3,round()*3+3);
+  if(kind==='dome'){const list=DISCOVERIES.slice(step*3,step*3+3);
     return {zones:[...Object.keys(HABITATS),...Object.keys(DOME_ZONES)],names:Object.fromEntries([...Object.entries(HABITATS),...Object.entries(DOME_ZONES)].map(([id,h])=>[id,h.name])),active:DOME_ZONES[activeHabitat]?activeHabitat:(list.find(d=>d.habitat===activeHabitat)||list[0]).habitat,onFail:fail3d,
       extras:Object.entries(DOME_ZONES).map(([zone,z])=>({id:zone,animal:z.animal,habitat:zone,name:z.animalName,found:looked.has(zone)})),
       onLook(zone){if(!DOME_ZONES[zone])return;stopMotion();looked.add(zone);activeHabitat=zone;feedback=null;playSound(s.soundEnabled);render();document.querySelector('#announcer').textContent=domeCaption(s,DOME_ZONES[zone]);},
       targets:list.map(d=>({id:d.id,animal:d.animal,habitat:d.habitat,name:ANIMALS[d.animal].name,found:s.discovered.includes(d.id)})),
       onFind(id){const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;stopMotion();activeHabitat=d.habitat;playSound(s.soundEnabled,s.discovered.includes(id)?undefined:'correct');act('discover',{dataset:{id}});document.querySelector('#announcer').textContent=`${withParticle(ANIMALS[d.animal].name)} 찾았어! 움직임을 살펴봐.`;}};}
   // Screen 07 in 3D: each gate is a card choice, judged and recorded by the same 'link' action as the cards.
-  if(kind==='linkrun'){const id=round()?'crab':'frog';
+  if(kind==='linkrun'){const id=linkAnimal(step);
     return {animal:id,links:{...s.links[id]},onFail:fail3d,
       onChoose(row,lane){const key=LINK_KEYS[row],option=rowOptions(id,row)[lane];if(screen!=='mission'||stage!==3||!option)return false;
         act('link',{dataset:{id,key,value:option.value,kind:key}});const ok=s.links[id][key]===option.value&&option.value===LINKS[id].answer[row];
@@ -463,8 +465,8 @@ function resumeActivityProgress(){
   if(screen!=='mission'||s.activities.includes(`${stage}-${step}`))return;
   if(stage===1){
     if(!app.querySelector?.('.forest-extra[open]')&&(taskReady(s,stage,step)||step%2===0&&s.observed.includes(OBSERVE_REQUIRED[s.activeAnimal])))scheduleActivityProgress(continueForest);
-  }else if(stage===3&&step%2===0){
-    const current=DISCOVERIES.slice(round()*3,round()*3+3).find(d=>d.habitat===activeHabitat);
+  }else if(stage===3&&step<2){
+    const current=DISCOVERIES.slice(step*3,step*3+3).find(d=>d.habitat===activeHabitat);
     if(current&&s.inquiry.motion[current.animal]!==undefined)scheduleActivityProgress(continueMotion);
   }else if(stage===5){
     if(step===1&&labSummary===2)progressWorkshopReflection();
@@ -479,8 +481,8 @@ function progressInvestigation(){
   if(s.cases[round()].candidate)progressAnswer(true);
 }
 function focusMotion(){
-  if(stage!==3||step%2!==0)return;
-  const animals=DISCOVERIES.slice(round()*3,round()*3+3);
+  if(stage!==3||step>=2)return;
+  const animals=DISCOVERIES.slice(step*3,step*3+3);
   const next=animals.find(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME)||animals[0];
   activeHabitat=next.habitat;
   if(!s.discovered.includes(next.id))s.discovered.push(next.id);
@@ -573,7 +575,7 @@ function autoNext(a){
     if(s.activeAnimal!==animal||focusIndex!==index)return ['inspect',{id:animal,value:String(index)},1200];
     if(!a.waiting){a.waiting=true;document.querySelector('#announcer').textContent='핵심 특징을 보고 맞는 설명을 골라 줘.';}
     return [null,null,600];}
-  if(stage===3&&step%2===0){const d=DISCOVERIES.slice(round()*3,round()*3+3).find(x=>s.inquiry.motion[x.animal]===undefined);
+  if(stage===3&&step<2){const d=DISCOVERIES.slice(step*3,step*3+3).find(x=>s.inquiry.motion[x.animal]===undefined);
     if(!d)return '세 마리 사진을 기록했어. 다음 활동으로 이어져.';
     if(activeHabitat!==d.habitat)return ['habitat',{id:d.habitat},1200];
     if(!s.discovered.includes(d.id))return ['discover',{id:d.id},1600];
@@ -601,7 +603,7 @@ function stopMotion(reset=true){stopMotionFrame();motionPlayer?.pause();motionPl
 // Keep the decoded frame and fullscreen session during the photo confirmation.
 function showMotionPhoto(id,photo){
  const host=app.querySelector('.motion-observer');
- const list=DISCOVERIES.slice(round()*3,round()*3+3),remaining=list.filter(d=>s.inquiry.motion[d.animal]===undefined),d=list.find(d=>d.animal===id),extra=DOME_ZONES[activeHabitat];
+ const list=DISCOVERIES.slice(step*3,step*3+3),remaining=list.filter(d=>s.inquiry.motion[d.animal]===undefined),d=list.find(d=>d.animal===id),extra=DOME_ZONES[activeHabitat];
  const next=remaining[0],note=host.querySelector('[data-motion-ready]'),capture=host.querySelector('.motion-photo-capture');
  if(next)note.dataset.next=ANIMALS[next.animal].name;else delete note.dataset.next;
  note.toggleAttribute('data-all-done',!remaining.length);
@@ -747,7 +749,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       const fresh=!s.observed.includes(id),tries=s.observeTries??={},first=fresh&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(fresh&&screen==='mission'&&stage===1&&step%2===0&&OBSERVE_PAIRS[round()].includes(owner)&&OBSERVE_REQUIRED[owner]===id)scheduleActivityProgress(continueForest);break;}
     case 'aha-pick':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o?.ahaQ||!s.observed.includes(id)||![0,1].includes(Number(value)))break;(s.ahaPicks??={})[id]=Number(value);render();break;}
     case 'zoom':zoom=!zoom;render();break;
-    case 'scan-use-image':if(screen==='mission'&&(stage===1||stage===3)&&step%2===0)fail3d();break;
+    case 'scan-use-image':if(screen==='mission'&&(stage===1&&step%2===0||stage===3&&step<2))fail3d();break;
     case 'scan-reset':viewer?.call('reset');break;
     case 'dome-tilt':toggleTilt(el);break;
     case 'compare-answer':{
@@ -767,7 +769,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       // A card that breaks the everyday guess (a bird that cannot fly, a sea animal that is not a fish) explains itself once it lands in the right place.
       const key=round()?s.criteria[1]:'wings';if(value===(ANIMALS[id][key]?'yes':'no')&&ANIMALS[id].aha)toast('알고 보니! '+ANIMALS[id].aha,document.querySelector(`.drag-card[data-id="${id}"]`)||el);break;}
     case 'criterion':if(round()===1&&s.criteria[1]!==value){s.sorts[1]={};s.inquiry.reclass[1]={prediction:'',revealed:false};s.inquiry.verify[1].checked='';}s.criteria[round()]=value;feedback=null;render();break;
-    case 'habitat':{stopMotion();if(Object.hasOwn(HABITATS,id)||Object.hasOwn(DOME_ZONES,id))activeHabitat=id;const d=DISCOVERIES.slice(round()*3,round()*3+3).find(x=>x.habitat===id);if(d&&!s.discovered.includes(d.id))s.discovered.push(d.id);if(DOME_ZONES[id])looked.add(id);feedback=null;render();break;}
+    case 'habitat':{stopMotion();if(Object.hasOwn(HABITATS,id)||Object.hasOwn(DOME_ZONES,id))activeHabitat=id;const d=DISCOVERIES.slice(step*3,step*3+3).find(x=>x.habitat===id);if(d&&!s.discovered.includes(d.id))s.discovered.push(d.id);if(DOME_ZONES[id])looked.add(id);feedback=null;render();break;}
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();progressAnswer(Object.keys(l).length===3);break;}
     case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;
@@ -826,7 +828,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       if(photo&&app.querySelector?.('.motion-observer')){
         showMotionPhoto(id,photo);document.querySelector('#announcer').textContent='찰칵! 전시관에 보낼 사진을 골랐어.';
       }else say(photo?'찰칵! 전시관에 보낼 사진 한 장을 골랐어.':'설명 그림의 관찰 기록을 남겼어. 영상이 다시 열리면 전시 사진도 찍어 봐.',true);
-      if(DISCOVERIES.slice(round()*3,round()*3+3).some(d=>d.animal===id))scheduleActivityProgress(continueMotion);
+      if(DISCOVERIES.slice(step*3,step*3+3).some(d=>d.animal===id))scheduleActivityProgress(continueMotion);
     }break;
     case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=1;feedback=null;render();break;
     case 'summary-page':if(labSummary&&['1','2'].includes(value)){labSummary=Number(value);feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}break;

@@ -34,7 +34,7 @@ test('version 3 mixed histories are split by problem without inventing a lost co
  s.records.designs[1]=structuredClone(s.designs[1]);
  const out=restoreExpedition(JSON.stringify(s));assert.equal(out.version,VERSION);assert.equal(out.designs[1].trials.length,1);
  assert.equal(out.designDrafts[1].warm.trials.length,1);assert.equal(out.designDrafts[1].warm.experiment.note,'');
- assert.equal(out.records.designs[1].experiment.note,'안전모에 관한 내 생각');assert.equal(out.records.designs[1].trials.length,1);assert.deepEqual(out.activities,s.activities);
+ assert.equal(out.records.designs[1].experiment.note,'안전모에 관한 내 생각');assert.equal(out.records.designs[1].trials.length,1);assert.deepEqual([...out.activities].sort(),[...s.activities].sort());
 });
 
 test('draft choices, misplaced parts, failure, prediction, lines and notes survive switching and reload independently',()=>{

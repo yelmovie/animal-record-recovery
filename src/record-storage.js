@@ -5,7 +5,7 @@ export function inspectRecord(raw){
  if(raw===null)return {status:'empty',state:freshExpedition(),raw};
  let value;try{value=JSON.parse(raw);}catch{return {status:'corrupt',raw};}
  if(!value||typeof value!=='object'||Array.isArray(value)||!Number.isInteger(value.version))return {status:'corrupt',raw};
- if(![1,3,VERSION].includes(value.version))return {status:'unsupported',raw,version:value.version};
+ if(![1,3,4,VERSION].includes(value.version))return {status:'unsupported',raw,version:value.version};
  if(!Array.isArray(value.observed)||!Array.isArray(value.completed)||value.version!==1&&!Array.isArray(value.activities))return {status:'corrupt',raw};
  try{return {status:'ok',raw,state:restoreExpedition(raw,{strict:true})};}catch{return {status:'corrupt',raw};}
 }

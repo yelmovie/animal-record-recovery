@@ -8,13 +8,14 @@ import {normalizeStudio,studioDrawingReady,studioReady,studioHint} from './studi
 import {restoreState as restoreLegacy, testDesign as testChoices, PROBLEMS} from './model.js';
 export {PROBLEMS};
 export const STORAGE_KEY='animal-record-recovery:v1';
-export const VERSION=4;
+// v5 (2026-11-17): stage 3 runs both photo rounds first, then the frog and crab life paths; v3/v4 saves are moved over.
+export const VERSION=5;
 // Task counts before the 2026-10 rounds (new animals) were added; older saves finished with these.
 const LEGACY_TASKS={1:4,2:2,3:4,4:4,5:4};
 export const STAGES=[
   {id:1,name:'관찰의 숲',short:'관찰',icon:'search',color:'#c5dc91',standard:'4과02-01',reward:'관찰 렌즈',rewardIcon:'search',benefit:'가방에서 꺼내면 동물 몸을 다시 크게 볼 수 있어.',story:'뒤섞인 동물 사진에 특징을 기록해 줘!',change:'숲 전망대의 동물 사진첩을 되찾았어.',x:19,y:48,art:'frog',tasks:['개구리와 게 관찰','첫 번째 비교','오리와 토끼 관찰','두 번째 비교','박쥐와 참새 관찰','세 번째 비교','거미와 개미 관찰','네 번째 비교']},
   {id:2,name:'분류의 정원',short:'분류',icon:'layers',color:'#f1d799',standard:'4과02-01',reward:'분류 나침반',rewardIcon:'compass',benefit:'환경 탐사에서 아직 못 찾은 동물이 어디 있는지 알려 줘.',story:'누구나 같은 결과를 얻는 분류 표지판을 만들어 줘!',change:'정원에 두 가지 분류 표지판이 생겼어.',x:32,y:31,art:'butterfly',tasks:['날개로 나누기','다 함께 쓸 기준 고치기']},
-  {id:3,name:'생태의 물가',short:'환경',icon:'leaf',color:'#b4d9d1',standard:'4과02-02',reward:'서식지 수첩',rewardIcon:'book',benefit:'동물 찾기에서 내가 발견한 사는 곳 기록을 다시 볼 수 있어.',story:'여섯 동물이 사는 곳과 생활 모습을 안내판에 담아 줘!',change:'물가의 생태 안내판에 여섯 동물이 돌아왔어.',x:63,y:32,art:'pond',tasks:['첫 동물 세 마리','개구리의 생활','새 동물 세 마리','게의 생활']},
+  {id:3,name:'생태의 물가',short:'환경',icon:'leaf',color:'#b4d9d1',standard:'4과02-02',reward:'서식지 수첩',rewardIcon:'book',benefit:'동물 찾기에서 내가 발견한 사는 곳 기록을 다시 볼 수 있어.',story:'여섯 동물이 사는 곳과 생활 모습을 안내판에 담아 줘!',change:'물가의 생태 안내판에 여섯 동물이 돌아왔어.',x:63,y:32,art:'pond',tasks:['첫 동물 세 마리','새 동물 세 마리','개구리의 생활','게의 생활']},
   {id:4,name:'동물 찾기 안내소',short:'찾기',icon:'scan',color:'#d1c9df',standard:'4과02-01 · 4과02-02',reward:'특징 스캐너',rewardIcon:'scan',benefit:'발명할 때 동물 특징이 물건의 어느 부분이 되는지 알려 줘.',story:'모리가 모은 사진에 특징과 사는 곳을 붙여 줘!',change:'안내소에 오리와 토끼의 동물 안내 카드가 완성됐어.',x:18,y:52,art:'duck',tasks:['단서로 동물 찾기','생활 안내 만들기','새 동물 찾기','생활 안내 만들기','땅속 친구 찾기','생활 안내 만들기']},
   {id:5,name:'발명의 공방',short:'발명',icon:'tool',color:'#edc3a4',standard:'4과02-03',reward:'발명가 배지',rewardIcon:'star',benefit:'내 발명 그림과 소개를 작품 카드로 저장할 수 있어.',story:'동물에게 아이디어를 빌려 나만의 발명품을 그려 줘!',change:'네가 그린 발명품으로 마을의 상상 전시회가 열렸어.',x:86,y:60,art:'flipper',tasks:['동물에게 아이디어 빌리기','모양 바꿔 비교하기','내 발명 그리기','작품 소개하기']},
 ];
@@ -86,6 +87,8 @@ export const COMPARES=[
 ];
 // Screen 03 statement cards: both questions' options in one pile; ref keeps the slot they were written for.
 export const compareCards=round=>{const all=COMPARES[round].flatMap(q=>q.options.map(([value,label,why])=>({ref:`${q.key}-${value}`,key:q.key,label,why})));return [0,3,1,4,2,5].map(i=>all[i]);};
+// Stage 3 order: steps 0 and 1 are the photo rounds (animals 0-2, 3-5), steps 2 and 3 the frog and crab life paths.
+export const linkAnimal=step=>step===3?'crab':'frog';
 export const HABITATS={forest:{name:'숲과 들',subtitle:'풀과 나무가 자라는 땅',sheet:[0,0]},pond:{name:'연못과 물가',subtitle:'물과 땅이 만나는 곳',sheet:[1,0]},coast:{name:'바다와 갯벌',subtitle:'바닷물과 드러나는 바닷가',sheet:[0,1]}};
 // Screen 06 dome only: two more environments to look round. Nothing here is recorded or needed to pass.
 export const DOME_ZONES={
@@ -202,7 +205,9 @@ export function restoreExpedition(raw,{strict=false}={}){
   try{
     const input=JSON.parse(raw);if(!input||typeof input!=='object')return base;
     if(input.version===1)return migrateLegacy(raw);
-    if(![3,VERSION].includes(input.version))return base;
+    if(![3,4,VERSION].includes(input.version))return base;
+    // Saves before v5 kept stage 3 as photos → frog → photos → crab; the middle two swap places in the new order.
+    const swap=input.version<5?{'3-1':'3-2','3-2':'3-1'}:{},stageThree=input.version<5&&Number.isInteger(input.step?.[3])?{3:[0,2,1,3][input.step[3]]??input.step[3]}:{};
     const out=base;out.mapVillains=normalizeMapVillains(input.mapVillains);out.mapEncounters=normalizeVillageEncounters(input.mapEncounters,input.mapVillains);out.inquiry=normalizeInquiry(input.inquiry);
     for(const key of ['soundEnabled','introSeen','showAutoRun'])if(typeof input[key]==='boolean')out[key]=input[key];
     // soundEnabled is the effects switch; saves from before the split keep music in step with it.
@@ -210,7 +215,7 @@ export function restoreExpedition(raw,{strict=false}={}){
     if(Number.isFinite(input.musicVolume)&&input.musicVolume>=0&&input.musicVolume<=1)out.musicVolume=input.musicVolume;
     if(Number.isFinite(input.soundVolume)&&input.soundVolume>=0&&input.soundVolume<=1)out.soundVolume=input.soundVolume;
     out.stage=Number.isInteger(input.stage)&&input.stage>=1&&input.stage<=5?input.stage:1;
-    out.step=Object.fromEntries(Object.entries(record(input.step)).filter(([k,v])=>/^[1-5]$/.test(k)&&Number.isInteger(v)&&v>=0&&v<STAGES[Number(k)-1].tasks.length));
+    out.step=Object.fromEntries(Object.entries({...record(input.step),...stageThree}).filter(([k,v])=>/^[1-5]$/.test(k)&&Number.isInteger(v)&&v>=0&&v<STAGES[Number(k)-1].tasks.length));
     out.observed=uniqueStrings(input.observed,Object.values(OBSERVATIONS).flat().map(o=>o.id));
     // first = right on the first choice, helped = right after a wrong choice. Saves from before this field stay unknown.
     out.observeTries=Object.fromEntries(Object.entries(record(input.observeTries)).filter(([id,v])=>Object.values(OBSERVATIONS).flat().some(o=>o.id===id)&&['first','helped'].includes(v)));
@@ -235,7 +240,7 @@ export function restoreExpedition(raw,{strict=false}={}){
       }
     }
     const allowed=STAGES.flatMap(t=>t.tasks.map((_,n)=>`${t.id}-${n}`));
-    out.activities=uniqueStrings(input.activities,allowed);
+    out.activities=uniqueStrings(Array.isArray(input.activities)?input.activities.map(id=>swap[id]||id):input.activities,allowed);
     // Preserve awarded tasks even while a learner revisits and edits an answer.
     // A place finished before more rounds were added stays finished: its original rounds are enough for that save.
     const finishedBefore=t=>Array.isArray(input.completed)&&input.completed.includes(t.id)&&Array.from({length:LEGACY_TASKS[t.id]},(_,n)=>`${t.id}-${n}`).every(id=>out.activities.includes(id));
@@ -270,7 +275,8 @@ function migrateLegacy(raw){
   out.observed=previous.observed;out.compares[0]=Object.fromEntries(Object.entries(previous.compare).map(([k,v])=>[k,`${k}-${v}`]));out.sorts[0]=previous.classification;out.criteria[0]=previous.criterion;
   out.discovered=DISCOVERIES.slice(0,3).filter(d=>previous.found.includes(d.animal)).map(d=>d.id);out.links.frog=previous.chain;
   const oldReady=[previous.observed.length===6,previous.compare.common==='eyes'&&previous.compare.difference==='cover',['frog','duck','rabbit','crab','fish','butterfly'].every(id=>previous.classification[id]===(ANIMALS[id].wings?'yes':'no')),previous.criterion==='wings',out.discovered.length===3,['pond','web','swim'].every((v,i)=>previous.chain[['environment','body','life'][i]]===v)];
-  for(let stage=1;stage<=3;stage++)for(let step=0;step<2;step++)if(oldReady[(stage-1)*2+step])out.activities.push(`${stage}-${step}`);
+  // Stage 3's second old activity is the frog link, which is task 3-2 in the current order.
+  for(let stage=1;stage<=3;stage++)for(let step=0;step<2;step++)if(oldReady[(stage-1)*2+step])out.activities.push(stage===3&&step===1?'3-2':`${stage}-${step}`);
   out.designs[0]=normalizeDesign({...previous.design,strokes:previous.sketches[previous.design.problem]||[],trials:previous.trials});
   // The old unidentified-animal activity has changed; its new tasks start fresh.
   return out;
@@ -288,7 +294,7 @@ export function taskReady(s,stage,step){
   const round=Math.floor(step/2);
   if(stage===1)return step%2===0?OBSERVE_PAIRS[round].every(id=>s.observed.includes(OBSERVE_REQUIRED[id])):COMPARES[round].every(q=>s.compares[round][q.key]===`${q.key}-${q.answer}`);
   if(stage===2){const key=round?s.criteria[1]:'wings',v=s.inquiry.verify[round];if(round&&!OWN_CRITERIA.includes(key))return false;if(step%2===0)return SORT_ANIMALS.every(id=>s.sorts[round][id]===(ANIMALS[id][key]?'yes':'no'));return round?v.checked===key&&s.inquiry.reclass[1].revealed:v.ran&&v.cause==='opinion'&&OBSERVABLE.includes(v.fix)&&splitsAnimals(v.fix)&&v.checked===v.fix;}
-  if(stage===3){if(step%2===0)return DISCOVERIES.slice(round*3,round*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=round?'crab':'frog';return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
+  if(stage===3){if(step<2)return DISCOVERIES.slice(step*3,step*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=linkAnimal(step);return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
   if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
   if(stage===5&&step>=2&&s.studio)return step===2?studioDrawingReady(s.studio):studioReady(s.studio);
   if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&testDesign(t).passed)&&d.explanation==='match';}
@@ -311,7 +317,7 @@ export function taskHint(stage,step){
   if(stage===5&&step>=2)return step===2?'동물에게 얻은 아이디어를 빈 도화지에 그려 봐. 마음껏 상상하고 네 발명품에 이름을 붙여 줘.':'누구를 돕는 발명인지, 어떻게 쓰는지, 어떤 동물에게 아이디어를 얻었는지 소개해 줘.';
   if(stage===1)return step%2===0?'동물마다 핵심 특징 하나를 살펴보고 맞는 설명을 골라 줘.':'직접 본 눈·다리·몸을 떠올려 같은 점과 다른 점을 다시 골라 봐.';
   if(stage===2)return step===2?'몸에서 누구나 확인할 수 있는 기준을 골라, 동물을 나눠 봐.':step%2===0?'지금의 기준을 한 번 더 읽고 동물의 몸을 살펴봐.':'예상을 고른 뒤 분류 바꾸기를 눌러 결과를 확인해 봐.';
-  if(stage===3)return step%2===0?'세 장소에서 동물을 찾고, ‘찾을 장면’에 적힌 순간에 멈춰 기록해 줘.':'사는 곳 → 몸의 특징 → 움직이는 방법을 이어 봐.';
+  if(stage===3)return step<2?'세 장소에서 동물을 찾고, ‘찾을 장면’에 적힌 순간에 멈춰 기록해 줘.':'사는 곳 → 몸의 특징 → 움직이는 방법을 이어 봐.';
   if(stage===4)return step%2===0?'두 단서를 열어 기록한 뒤 알맞은 동물을 골라 줘.':'어느 곳에서, 어떤 몸의 부분으로 움직이는지 사진과 수첩을 다시 봐.';
   return step%2===0?'동물의 특징을 살펴보고, 부품을 물건에 붙여 아이디어를 빌려 봐. 이다음에는 네 발명품을 자유롭게 그릴 거야.':'모양 두 가지를 비교해 보고 알게 된 점을 남겨 줘. 비교를 마치면 빈 도화지에서 상상해 보자.';
 }
@@ -333,8 +339,8 @@ export function taskMistake(s,stage,step){
     if(!OBSERVABLE.includes(v.fix))return {text:v.fix?`‘${CRITERIA[v.fix]}’도 사람마다 답이 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`:'누가 봐도 같은 답이 나오는 기준으로 고쳐 줘.',wrong:['verify:fix']};
     if(!splitsAnimals(v.fix))return {text:`‘${CRITERIA[v.fix]}’로 나누면 여섯 마리가 모두 ${SORT_ANIMALS.some(id=>ANIMALS[id][v.fix])?'O':'X'} 칸에 들어가. 동물이 두 무리로 나뉘는 기준을 골라 봐.`,wrong:['verify:fix']};
     if(v.checked!==v.fix)return {text:'고친 기준으로 ‘다시 검증’을 눌러 세 결과가 같은지 확인해 봐.',wrong:[]};return null;}
-  if(stage===3&&step%2===0){const list=DISCOVERIES.slice(round*3,round*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>`${ANIMALS[d.animal].name}: 영상을 재생하고 전시 사진 한 장을 찍어 봐.`).join(' '),wrong:[]}:null;}
-  if(stage===3){const id=round?'crab':'frog',keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);// One short sentence about the first slot to fix; every slot still to fix stays marked.
+  if(stage===3&&step<2){const list=DISCOVERIES.slice(step*3,step*3+3),unseen=list.filter(d=>!s.discovered.includes(d.id));if(unseen.length)return {text:`아직 찾지 않은 곳: ${unseen.map(d=>HABITATS[d.habitat].name).join(', ')}`,wrong:[]};const left=list.filter(d=>s.inquiry.motion[d.animal]!==MOTION_KEY_FRAME);return left.length?{text:left.map(d=>`${ANIMALS[d.animal].name}: 영상을 재생하고 전시 사진 한 장을 찍어 봐.`).join(' '),wrong:[]}:null;}
+  if(stage===3){const id=linkAnimal(step),keys=['environment','body','life'],cols=['사는 곳','몸의 특징','움직이는 방법'],tips=['어느 장소에서 발견했는지 떠올려 봐.','움직일 때 어느 몸 부분을 썼는지 떠올려 봐.','그 몸 부분으로 어떻게 움직였는지 떠올려 봐.'],bad=keys.map((k,i)=>({k,i})).filter(({k,i})=>s.links[id][k]!==LINKS[id].answer[i]);// One short sentence about the first slot to fix; every slot still to fix stays marked.
     const first=bad[0];return bad.length?{text:s.links[id][first?.k]?`‘${cols[first.i]}’을 다시 봐. ${tips[first.i]}`:`‘${cols[first.i]}’ 칸에 카드를 놓아 줘.`,wrong:bad.map(({k})=>'link:'+k)}:null;}
   if(stage===4){const c=CASES[round],a=s.cases[round],names=ids=>ids.map(id=>ANIMALS[id].name).join(', ');
     if(step%2===0||!groundsReady(c,a)){

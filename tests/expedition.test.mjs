@@ -11,7 +11,8 @@ function solve(s,stage,step){
   const r=Math.floor(step/2);
   if(stage===1){if(step%2===0)s.observed.push(...OBSERVE_PAIRS[r].flatMap(id=>OBSERVATIONS[id].map(o=>o.id)));else for(const q of COMPARES[r])s.compares[r][q.key]=`${q.key}-${q.answer}`;}
   if(stage===2){if(r)s.criteria[1]='web';else s.criteria[0]='wings';const key=r?'web':'wings';if(step%2===0)for(const id of SORT_ANIMALS)s.sorts[r][id]=ANIMALS[id][key]?'yes':'no';else if(r){s.inquiry.verify[1].checked='web';s.inquiry.reclass[1]={prediction:'yes',revealed:true};}else s.inquiry.verify[0]={ran:true,cause:'opinion',fix:'wings',checked:'wings'};}
-  if(stage===3){if(step%2===0){s.discovered.push(...DISCOVERIES.slice(r*3,r*3+3).map(d=>d.id));for(const d of DISCOVERIES.slice(r*3,r*3+3))s.inquiry.motion[d.animal]=1;}else{const id=r?'crab':'frog';for(const [i,key]of ['environment','body','life'].entries())s.links[id][key]=LINKS[id].answer[i];}}
+  // Stage 3 order: two photo rounds, then the frog and crab life links.
+  if(stage===3){if(step<2){s.discovered.push(...DISCOVERIES.slice(step*3,step*3+3).map(d=>d.id));for(const d of DISCOVERIES.slice(step*3,step*3+3))s.inquiry.motion[d.animal]=1;}else{const id=step===3?'crab':'frog';for(const [i,key]of ['environment','body','life'].entries())s.links[id][key]=LINKS[id].answer[i];}}
   if(stage===4){const c=CASES[r],g=[['place','cover'],['place','move'],['place','paws']][r];if(step%2===0)Object.assign(s.cases[r],{opened:[...g],grounds:[...g],candidate:c.animal,excluded:Object.fromEntries(c.candidates.filter(id=>id!==c.animal).map(id=>[id,c.clues.find(k=>g.includes(k.id)&&!k.fits.includes(id)).id]))});else{s.cases[r].habitat=c.habitat;s.cases[r].reason=c.reason;}}
   if(stage===5){const id=r?'protect':'swim',p=PROBLEMS[id];if(step%2===0)Object.assign(s.designs[r],{problem:id,feature:p.feature,structure:p.structure,spot:{swim:'toe',protect:'top',warm:'body'}[id],name:r?'단단모':'물갈퀴 추진기'});else{recordTrial(s,r);completeExperiment(s.designs[r]);s.designs[r].explanation='match';}s.designs[r].experiment.sourceSeen=true;}
 }
@@ -94,4 +95,17 @@ test('music switch and volume survive a reload; older saves follow the old singl
   const out=restoreExpedition(JSON.stringify(s));assert.equal(out.musicVolume,.3);assert.equal(out.musicOn,false);assert.equal(out.soundEnabled,true);
   assert.equal(restoreExpedition(JSON.stringify({...s,musicVolume:4})).musicVolume,.5);
   const {musicOn,...old}=s;assert.equal(restoreExpedition(JSON.stringify({...old,soundEnabled:false})).musicOn,false);
+});
+test('stage 3 runs both photo rounds first, then the frog and crab links; older saves move over',()=>{
+ assert.deepEqual(STAGES[2].tasks,['첫 동물 세 마리','새 동물 세 마리','개구리의 생활','게의 생활']);
+ const s=freshExpedition();s.completed=[1,2];solve(s,3,0);assert.equal(claimTask(s,3,0).ok,true);
+ assert.equal(taskReady(s,3,1),false,'the second photo round needs its own three animals');solve(s,3,1);assert.equal(claimTask(s,3,1).ok,true);
+ solve(s,3,2);assert.equal(claimTask(s,3,2).ok,true);assert.deepEqual(s.links.frog,{environment:'pond',body:'web',life:'swim'});
+ // v4: photos, frog, photos, crab. A v4 save that finished photos and the frog keeps both under the new keys.
+ const old={...freshExpedition(),version:4};solve(old,3,0);solve(old,3,2);old.activities=['3-0','3-1'];old.step={3:2};
+ const moved=restoreExpedition(JSON.stringify(old));assert.equal(moved.version,VERSION);assert.deepEqual(moved.activities,['3-0','3-2']);assert.equal(moved.step[3],1,'continues with the second photo round');
+ assert.equal(taskReady(moved,3,1),false);assert.equal(taskReady(moved,3,2),true);
+ const finished={...freshExpedition(),version:4};for(const step of [0,1,2,3])solve(finished,3,step);finished.activities=['3-0','3-1','3-2','3-3'];finished.completed=[3];
+ const out=restoreExpedition(JSON.stringify(finished));assert.deepEqual([...out.activities].sort(),['3-0','3-1','3-2','3-3']);assert.deepEqual(out.completed,[3]);
+ assert.deepEqual(restoreExpedition(JSON.stringify(s)).activities,s.activities,'a v5 save is read as it is');
 });
