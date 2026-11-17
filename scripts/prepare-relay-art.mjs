@@ -13,8 +13,9 @@ const webp={quality:82,alphaQuality:90,effort:5};
 // Backdrops: the scene shows a wide strip from the sky down to the near meadow, so keep the top 36% of the width as height
 // (the plain bottom of the picture would sit behind the playfield anyway).
 for(const name of ['backdrop-forest','backdrop-pond','backdrop-coast']){const f=path.join(from,name+'.png');if(!await has(f))continue;
-  const {width}=await sharp(f).metadata(),band=Math.round(width*.36);
-  await sharp(f).extract({left:0,top:0,width,height:band}).resize(1536,553).webp(webp).toFile(out(name));console.log(name);}
+  // The seaside horizon sits lower in its picture, so its band starts lower; otherwise the sea would hide behind the mudflat.
+  const {width,height}=await sharp(f).metadata(),band=Math.round(width*.36),top=Math.round(height*({'backdrop-coast':.17}[name]||0));
+  await sharp(f).extract({left:0,top,width,height:band}).resize(1536,553).webp(webp).toFile(out(name));console.log(name);}
 // The sand and mud came out more orange than the rest of the app; calm them so the animals stay the brightest things on screen.
 const tone={'tile-sand':{saturation:.5,brightness:1.1},'tile-mud':{saturation:.75,brightness:1.05}};
 for(const name of ['tile-grass','tile-mud','tile-sand','tile-hedge']){const f=path.join(from,name+'.png');if(!await has(f))continue;let img=sharp(f).resize(512,512);if(tone[name])img=img.modulate(tone[name]);await img.webp(webp).toFile(out(name));console.log(name);}

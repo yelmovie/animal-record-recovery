@@ -127,7 +127,7 @@ export function create(host,options){
   for(let i=0;i<8;i++){const c=mesh(new T.SphereGeometry(1.6+rand(),10,7),new T.MeshBasicMaterial({color:'#ffffff',fog:false}),-6+i*23+rand()*8,9.5+rand()*3,-22);c.scale.set(2.2,.6,1);plain.push(c);}
   // Placed so the picture's top edge meets the top of the screen and its meadow meets the far edge of the playfield.
   const backdrops=[],BACKDROP_Y=-.6;
-  ORDER.forEach((id,i)=>{// Until a seaside picture is shipped, the coast keeps the forest hills behind its mudflat rather than an empty sky.
+  ORDER.forEach((id,i)=>{// Should the seaside picture ever be left out, the coast keeps the forest hills behind its mudflat rather than an empty sky.
     const name={forest:'backdrop-forest',pond:'backdrop-pond',sky:'backdrop-forest',coast:RELAY_ART.includes('backdrop-coast')?'backdrop-coast':'backdrop-forest'}[id],center=(TRACK[id].x0+TRACK[id].x1)/2;
     // The picture fills the middle; on a wide screen its mirrored continuation fills the sides (the sky path shows the forest picture flipped).
     painted(name,t=>{const map=Object.assign(t.clone(),{wrapS:T.MirroredRepeatWrapping,needsUpdate:true}),flip=id==='sky'?-1:1;map.repeat.x=1.6*flip;map.offset.x=flip>0?-.3:1.3;
