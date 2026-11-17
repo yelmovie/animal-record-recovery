@@ -34,7 +34,7 @@ files.push(...['opening','rabbit','marine','duck','butterfly','camel','penguin',
 const dialogueResidents=['researcher','curator','ranger','detective','engineer'];
 files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after','after-expanded','before-expanded'].map(part=>`assets/audio/npc-dialogue/${id}-${part}.mp3`)));
 // Screen 07 in 3D (stage 3 life path): its 3D module is imported on demand, so the walk below does not find it.
-files.push('src/link-run.css','src/link-run3d.js','src/link-course.js','src/map-controls.js',...RUN_ART.map(name=>`assets/relay/${name}.webp`));
+files.push('src/link-run.css','src/link-run3d.js','src/link-course.js','src/relay.css','src/relay3d.js','src/relay-course.js','src/relay.js','src/relay-views.js','src/map-controls.js',...RUN_ART.map(name=>`assets/relay/${name}.webp`));
 // Ship the full runtime, but preload only the static dependencies of the landing screen.
 async function walk(file,modules){
   if(modules.has(file))return;

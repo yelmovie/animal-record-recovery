@@ -19,6 +19,8 @@ import {playSound,silence,playMusic,setMusicVolume,setSoundVolume} from './audio
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {KEYS as LINK_KEYS,rowOptions} from './link-course.js';
+import {RELAY_SECTIONS,relayAnimals,relayCheck,relayCross,relayNext} from './relay.js';
+import {RELAY_TITLE} from './relay-views.js';
 import {COMMISSIONS,ensureCampaign,campaignDraft,requestDraft,pairedOptions,campaignDone,campaignReady,campaignOpen,chooseCommission,claimCommission,claimRequest,campaignHint,runCommissionTrial,restoredPlaces,campaignReport,requestParts,requestCards,cardReady,requestGap,firstOpenCard} from './campaign.js';
 
 export function openFromLanding(action){
@@ -37,8 +39,12 @@ let screen='home',stage=s.stage,step=s.step[stage]||0,selectedStage=stage,feedba
 let mapOverview=restoredPlaces(s).length===STAGES.length,mapPan=false;
 // Parts pinned on the 3D specimen this visit (not saved: a found part stays pinned through s.observed).
 const pinned=new Set(),looked=new Set();
+// Stage 3's last activity (relay): which place, the chosen animal and the step (pick → ready → run → done). Only crossed places are saved.
+let relay=null;
+// Broadcast cards heard (or skipped) this visit: a finished script waits for its broadcast before the next card opens.
+const heardBroadcasts=new Set(),broadcastKey=card=>[stage,card.part,card.animal||card.rows.map(r=>r.key).join('+')].join(':');
 const round=()=>Math.floor(step/2);
-const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:screen==='mission'&&(stage===3||stage===1&&step%2===0)&&can3d(),pinned:[...pinned],looked:[...looked],tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
+const view=()=>({relook,screen,stage,step,commissionIndex,requestCard,caseHint,evidenceOpen,heardBroadcasts:[...heardBroadcasts],selectedStage,arrived,activeHabitat,zoom,labSummary,focusIndex,clueIndex,motionPhase,motionPlaying,motionSlow,failedMotionVideos:[...failedMotionVideos],sketching,report,feedback,restoredFlash,picked,questOpen,mapOverview,mapPan,autoRunning:!!autoRun,use3d:screen==='mission'&&(stage===3||stage===1&&step%2===0)&&can3d(),pinned:[...pinned],looked:[...looked],relay,tilt,tiltable:typeof DeviceOrientationEvent!=='undefined',canGoBack:navigation.canGoBack});
 function save(){
   s.stage=stage;s.step[stage]=step;
   if(studentSnapshot){const status=document.querySelector('.save-label');if(status)status.textContent='교사용 미리보기 · 학생 기록 보존 중';return;}
@@ -167,6 +173,7 @@ function render(){
   unmountFlashlight?.();unmountFlashlight=null;
   unmountStudio?.();unmountStudio=null;
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
+  if(screen==='mission'&&stage===3&&step===4)relay??={section:relayNext(s),phase:'pick',animal:'',note:'',wrong:'',hint:false,token:0,used:{}};else relay=null;
   // A request opens on its first unfinished card and then stays where the learner moves it.
   if(screen==='commission'&&requestCard===null)requestCard=firstOpenCard(s,stage,requestParts(stage,commissionIndex));
   const route=[screen,stage,step,activeHabitat,s.activeAnimal,screen==='commission'?requestCard:''].join(':');
@@ -187,6 +194,7 @@ function render(){
   unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
     setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
   },onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
+    const card=screen==='commission'?requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard]:null;if(card?.kind==='broadcast')heardBroadcasts.add(broadcastKey(card));
     if(screen==='commission'&&!requestParts(stage,commissionIndex).every(part=>campaignDone(s,stage,part)))progressRequest();
   }});
   unmountFlashlight=mountFlashlight(app.querySelector?.('[data-flashlight]'),{onSelect(index){act('flashlight-clue',{dataset:{value:String(index)}});}});
@@ -283,7 +291,19 @@ function opts3d(kind){
         if(!ok){const m=taskMistake(s,stage,step);say(m?.text||'다른 문을 골라 봐.',false,m?.wrong||[]);return false;}
         playSound(s.soundEnabled,'correct');if(!taskReady(s,stage,step)){feedback={good:true,text:`‘${['사는 곳','몸의 특징','움직이는 방법'][row]}’ 문을 지났어! 다음 줄로 가 보자.`};render();document.querySelector('#announcer').textContent=feedback.text;}
         return true;}};}
+  if(kind==='relay'&&relay){const run=relay;
+    return {section:run.section,animal:run.animal,phase:run.phase,token:run.token,onFail:fail3d,
+      onPiece(){playSound(s.soundEnabled,'star');},
+      onFall(count){if(relay!==run)return;playSound(s.soundEnabled,'retry');if(count>=3&&!run.hint){run.hint=true;render();}},
+      onEnd(){if(relay===run&&run.phase==='run')crossRelaySection(run);}};}
   return {onFail:fail3d};
+}
+// One place crossed with the chosen animal: saved through the relay rule, then the next place (or the finish).
+function crossRelaySection(run){
+  const section=RELAY_SECTIONS[run.section],result=relayCross(s,section.id,run.animal);if(!result.ok)return;
+  run.used[section.id]=run.animal;run.hint=false;run.note='';run.wrong='';
+  const last=run.section===RELAY_SECTIONS.length-1;if(last)run.phase='done';else{run.section++;run.phase='pick';run.animal='';}
+  playSound(s.soundEnabled,last?'fanfare':'stamp');render();document.querySelector('#announcer').textContent=last?`${RELAY_TITLE}를 끝까지 해냈어!`:`${section.title}을 지났어. 다음 길을 지나갈 동물을 골라 줘.`;
 }
 // Optional tilt (screen 06): iOS asks permission inside the tap; no permission or no sensor leaves drag only.
 function toggleTilt(el){
@@ -529,6 +549,10 @@ function progressRequest(){
     else if(card.rows.every(row=>draft.answers[row.key]))say(campaignHint(s,stage,card.part));
     return;
   }
+  // A finished broadcast script is read aloud first; the next card opens when the broadcast ends (or the learner moves on).
+  if(card.kind==='broadcast'&&!campaignDone(s,stage,card.part)&&!heardBroadcasts.has(broadcastKey(card))){
+    feedback={good:true,text:'방송 원고가 완성됐어! ‘방송 들어보기’를 눌러 들어 봐. 다 들으면 다음으로 이어져.'};render();document.querySelector('#announcer').textContent=feedback.text;return;
+  }
   scheduleActivityProgress(()=>{
     const next=cards.findIndex(item=>!cardReady(s,stage,item));
     if(next<0){submitCommission();return;}
@@ -735,6 +759,12 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'commission-predict':if(screen==='commission'&&['more','same','less'].includes(value)){campaignDraft(s,stage,commissionIndex).prediction=value;feedback=null;render();}break;
     case 'commission-trial':if(screen==='commission'){if(!runCommissionTrial(s,stage,commissionIndex))say('시험 전에 결과를 예상해 줘. 예상은 틀려도 괜찮아.');else{feedback={good:true,text:'시험 결과를 표에 적었어. 두 항목을 함께 비교해 줘.'};render();}}break;
     case 'gallery':go('gallery');break;
+    case 'relay-pick':if(screen==='mission'&&stage===3&&step===4&&relay?.phase==='pick'&&relayAnimals(s).includes(id)){const check=relayCheck(RELAY_SECTIONS[relay.section].id,id);relay.note=check.text;relay.wrong=check.ok?'':id;if(check.ok){relay.animal=id;relay.phase='ready';}playSound(s.soundEnabled,check.ok?'correct':'retry');render();document.querySelector('#announcer').textContent=check.text;}break;
+    case 'relay-repick':if(screen==='mission'&&stage===3&&step===4&&relay?.phase==='ready'){relay.phase='pick';relay.animal='';relay.note='';render();}break;
+    // Without 3D the picked animal crosses its place at once; with 3D the learner walks it there.
+    case 'relay-go':if(screen==='mission'&&stage===3&&step===4&&relay?.phase==='ready'){if(!can3d()){crossRelaySection(relay);break;}relay.phase='run';relay.hint=false;relay.token++;render();document.activeElement?.blur?.();}break;
+    case 'relay-again':if(screen==='mission'&&stage===3&&step===4&&relay?.phase==='done'){relay={section:0,phase:'pick',animal:'',note:'',wrong:'',hint:false,token:relay.token+1,used:{}};render();}break;
+    case 'broadcast-next':if(screen==='commission'){const card=requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard];if(card?.kind==='broadcast'&&cardReady(s,stage,card)){heardBroadcasts.add(broadcastKey(card));feedback=null;progressRequest();}}break;
     case 'advance':advance();break;
     case 'previous':previous();break;
     case 'nav-back':back();break;
@@ -878,7 +908,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
 // Shown as a bubble right above the tapped button, so it never hides the control the learner needs next.
 // speaker: a village resident's name turns the toast into a pixel speech bubble over them.
 // Click sound per action: undefined plays the default tap, null stays quiet (that action plays its own sound).
-const CLICK_SOUND={sound:null,'map-sound':null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
+const CLICK_SOUND={'relay-pick':null,sound:null,'map-sound':null,enter:null,place:null,notebook:'page','note-page':'page',settings:'page',tool:'page'};
 function toast(text,anchor,speaker){if(typeof document.createElement!=='function')return;let t=document.querySelector('#hint-toast');if(!t){t=document.createElement('div');t.id='hint-toast';t.className='hint-toast';t.setAttribute('role','status');document.body.append(t);}t.classList.toggle('speech',!!speaker);if(speaker){const b=document.createElement('b'),p=document.createElement('span');b.textContent=speaker;p.textContent=text;t.replaceChildren(b,p);}else t.textContent=text;const b=anchor?.getBoundingClientRect?.();if(b){const half=t.offsetWidth/2;t.style.left=Math.min(innerWidth-16-half,Math.max(16+half,b.left+b.width/2))+'px';t.style.top=Math.max(72,b.top-10)+'px';}t.classList.remove('show');void t.offsetWidth;t.classList.add('show');}
 // A hint stays readable until the learner taps again (no timer that hides it mid-sentence).
 const hideToast=()=>document.querySelector('#hint-toast')?.classList.remove('show');document.addEventListener('pointerdown',hideToast,true);if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{hideToast();fitBubble();});

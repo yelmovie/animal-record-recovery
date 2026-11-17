@@ -18,7 +18,7 @@ test('broadcast focus follows the first missing explanation without grading a dr
 
 test('broadcast next action points to the next unfinished animal and offers sending only after all subjects are filled',()=>{
  const s=legacy();fill(s,3,0);let html=commissionView(s,{stage:3,requestCard:1});
- assert.match(html,/설명이 맞으면 다음 동물로 이어져/);
+ assert.match(html,/원고 완성! ‘방송 들어보기’로 들어 봐/);assert.match(html,/data-action="broadcast-next"/);
  fill(s,3,1);html=commissionView(s,{stage:3,requestCard:3});
  assert.doesNotMatch(html,/data-action="commission-submit"/);assert.doesNotMatch(html,/broadcast-continue[^>]*disabled/);
  assert.match(html,/<details class="broadcast-script-preview"><summary>/);

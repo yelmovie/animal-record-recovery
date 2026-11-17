@@ -8,6 +8,7 @@ import * as flashlight from '../src/flashlight.js';
 import * as storyPlayer from '../src/story-player.js';
 import * as campaign from '../src/campaign.js';
 import * as linkCourse from '../src/link-course.js';
+import * as relayRules from '../src/relay.js';
 import {activityView} from '../src/mission-views.js';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
 import {test} from 'node:test';
@@ -38,7 +39,7 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
   const timers=new Map();let timerId=0;
   const clockTools=clock?{setTimeout(fn){timers.set(++timerId,fn);return timerId;},clearTimeout(id){timers.delete(id);}}:{};
-  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,...relayRules,RELAY_TITLE:'세 곳 이어달리기',KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,flushTimers(){const pending=[...timers.values()];timers.clear();for(const fn of pending)fn();},music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -212,7 +213,7 @@ test('forest completion offers optional commissions whose reply atomically saves
  a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'commission');assert.equal(a.run('campaignDone(s,1,0)'),false);
  for(const [key,value]of Object.entries({duck:'feather',rabbit:'fur',same:'legs'}))a.run(`act('commission-choice',{dataset:${JSON.stringify({key,value,commissionIndex:'1'})}})`);
  a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'commission','the reply leads straight into the last challenge');assert.equal(a.run('commissionIndex'),2);assert.deepEqual([...a.run('restoredPlaces(s)')],[1]);
- a.run("for(const r of missionRows(s,1,2,campaignDraft(s,1,2)))act('commission-choice',{dataset:{key:r.key,value:String(r.answer),commissionIndex:'2'}});act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'reward');assert.equal(a.run('s.activities.length'),24);assert.match(a.app.innerHTML,/연구원 소라의 답장/);
+ a.run("for(const r of missionRows(s,1,2,campaignDraft(s,1,2)))act('commission-choice',{dataset:{key:r.key,value:String(r.answer),commissionIndex:'2'}});act('commission-submit',{dataset:{}})");assert.equal(a.run('screen'),'reward');assert.equal(a.run('s.activities.length'),25);assert.match(a.app.innerHTML,/연구원 소라의 답장/);
  a.run("act('map',{dataset:{}})");assert.equal(a.run('selectedStage'),2);a.run("act('gallery',{dataset:{}})");assert.match(a.app.innerHTML,/주민의 부탁 1\/5/);assert.ok(!a.app.innerHTML.includes('발명과 탐험 인증서'));
 });
 
@@ -269,7 +270,7 @@ test('guided invention leads to an empty creative studio, then preserves artwork
  a.run('s.studio.audience="산책하는 친구";s.studio.purpose="발을 따뜻하게 감싸 줘";s.studio.inspiration="토끼의 털";advance()');
  assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);assert.equal(a.run('s.studioRecord.title'),'구름 신발');
  a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);
- const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,24);
+ const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,25);
 });
 test('reset keeps the teacher\'s sound settings',()=>{
   const a=appHarness();a.run("s.soundEnabled=false;s.musicOn=false;s.musicVolume=.2;s.activities=['1-0'];act('reset',{dataset:{}})");
@@ -347,26 +348,30 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
    act('motion-predict',{id:d.animal,value:'part'});assert.match(a.app.innerHTML,new RegExp(d.text.slice(0,12)));
    a.run(`motionPhase=10;motionPlayer={ready:true,viewed:true,pause(){},seek(){},destroy(){},capture(){return {dataURL:'data:image/webp;base64,AAAA',width:480,height:270,time:.5,duration:5,phase:10}}}`);act('motion-capture',{id:d.animal});}
   tapTwice('advance()');
-  const id=r?'crab':'frog';for(const [i,key] of ['environment','body','life'].entries()){const v=model.LINKS[id].answer[i];act('pick',{ref:'link-'+v,value:v,kind:key});act('place',{dropAction:'link',key,id});}
-  a.run('advance()');
  }
- assert.equal(activityCount(),14);finishRequest(3);
+ // Stage 3: both photo rounds first, then the frog and crab links, then the relay with the found animals.
+ for(const id of ['frog','crab']){for(const [i,key] of ['environment','body','life'].entries()){const v=model.LINKS[id].answer[i];act('pick',{ref:'link-'+v,value:v,kind:key});act('place',{dropAction:'link',key,id});}
+  a.run('advance()');}
+ // Without 3D each pick crosses its place at once.
+ for(const id of ['rabbit','frog','butterfly','crab']){act('relay-pick',{id});act('relay-go');}
+ assert.equal(a.run('relay.phase'),'done');a.run('advance()');
+ assert.equal(activityCount(),15);finishRequest(3);
  a.run('enter(4)');
  for(const r of [0,1,2]){const c=model.CASES[r],g=[['place','cover'],['place','move'],['place','paws']][r];
   for(const id of g){const v=String(c.clues.findIndex(k=>k.id===id));act('clue-open',{value:v});act('clue-spend',{value:v});}
   act('case-animal',{id:c.animal});tapTwice('advance()');
   act('case-habitat',{value:c.habitat});act('case-reason',{value:c.reason});a.run('advance()');
  }
- assert.equal(activityCount(),20);finishRequest(4);
+ assert.equal(activityCount(),21);finishRequest(4);
  a.run('enter(5)');act('design-problem',{value:'swim'});act('design-choice',{key:'feature',value:'web'});act('source-seen');
  act('pick',{ref:'part-wide',value:'wide'});act('place',{dropAction:'design-part',key:'toe',anchorX:'262',anchorY:'196'});a.input('물살 쌩쌩 오리발');tapTwice('advance()');
  for(const level of ['1','3']){act('experiment-level',{value:level});act('prediction',{value:'more'});act('experiment-run');}
  act('lab-summary');act('reflection',{value:'changed'});a.inputControl({id:'experiment-note',value:'폭을 넓게 바꾸니 물을 더 많이 밀었어.'});act('explain',{value:'match'});a.run('advance()');
- assert.equal(activityCount(),22);
+ assert.equal(activityCount(),23);
  a.run('s.studio={...s.studio,title:"날개 우산",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:400,y:300}]}]};advance()');
  a.run('s.studio.audience="비 오는 날 걷는 친구";s.studio.purpose="날개처럼 넓게 덮어 줘";s.studio.inspiration="오리 날개";advance()');
- assert.equal(activityCount(),24);assert.equal(a.dialog.open,false);finishRequest(5);
- const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,24);assert.equal(Object.keys(saved.campaign.records).length,14,'the repeated garden challenge is optional');
+ assert.equal(activityCount(),25);assert.equal(a.dialog.open,false);finishRequest(5);
+ const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,25);assert.equal(Object.keys(saved.campaign.records).length,14,'the repeated garden challenge is optional');
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.doesNotMatch(a.app.innerHTML,/탐험 별/);
  act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|처음 고른 설명이 맞은 곳 12곳/);
@@ -482,7 +487,11 @@ test('all six dome photos come first and advance without extra taps, then the fr
   for(const [i,key] of ['environment','body','life'].entries())a.run(`act('link',{dataset:{id:'${id}',key:'${key}',value:'${model.LINKS[id].answer[i]}'}})`);
   a.flushTimers();
  }
- assert.equal(a.run('screen'),'commission');assert.equal(a.run('s.activities.length'),4);
+ // Then the relay with all six found animals (no 3D here: a pick crosses its place at once).
+ assert.equal(a.run('step'),4);assert.equal(a.run('relayAnimals(s).length'),6);
+ for(const id of ['butterfly','duck','butterfly','marine']){a.run(`act('relay-pick',{dataset:{id:'${id}'}});act('relay-go',{dataset:{}})`);}
+ assert.equal(a.run('relay.phase'),'done');a.flushTimers();a.run("act('advance',{dataset:{}})");
+ assert.equal(a.run('screen'),'commission');assert.equal(a.run('s.activities.length'),5);
  assert.equal(a.run('Object.keys(s.inquiry.motion).length'),6);
 });
 
@@ -521,11 +530,12 @@ test('request cards grade immediately, retry immediately and progress across eve
      if(wrong){a.run(`act('commission-choice',{dataset:{key:'${r.key}',value:'${wrong}',commissionIndex:'${card.part}'}})`);assert.equal(a.run('feedback.good'),false);}
      a.run(`act('commission-choice',{dataset:{key:'${r.key}',value:'${r.answer}',commissionIndex:'${card.part}'}})`);
     }
-    a.flushTimers();
+    // A finished broadcast script waits for its broadcast (here: the learner moves on after listening).
+    a.flushTimers();if(card.kind==='broadcast'){assert.equal(a.run('commissionIndex===2||requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard]?.animal'),card.animal||true,'still on the finished script');a.run(`act('broadcast-next',{dataset:{}})`);a.flushTimers();}
    }
   }
-  if(stage!==2){assert.equal(a.run('commissionIndex'),2);a.run(`for(const row of missionRows(s,stage,2))act('commission-choice',{dataset:{key:row.key,value:row.answer,commissionIndex:'2'}})`);a.flushTimers();}
-  assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,true);
+  if(stage!==2){assert.equal(a.run('commissionIndex'),2);a.run(`for(const row of missionRows(s,stage,2))act('commission-choice',{dataset:{key:row.key,value:row.answer,commissionIndex:'2'}})`);a.flushTimers();if(stage===3){assert.equal(a.run('screen'),'commission','the special broadcast waits too');a.run(`act('broadcast-next',{dataset:{}})`);a.flushTimers();}}
+  assert.equal(a.run('screen'),'reward','stage '+stage+' ends on the reward');assert.equal(a.dialog.open,true);
   assert.equal(a.run('campaignDone(s,stage,0)&&campaignDone(s,stage,1)'),true);
  }
 });
