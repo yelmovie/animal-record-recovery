@@ -32,7 +32,7 @@
 dialog details>small.copyright{display:block;margin-top:4px}
 
 /* Classroom type scale: keep secondary labels smaller than learning copy. */
-:root{--class-copy:clamp(20px,1.5vw,26px);--class-label:clamp(16px,1.15vw,20px);--class-title:clamp(30px,2.3vw,40px);--class-heading:clamp(26px,2vw,34px)}
+:root{--class-copy:clamp(20px,1.5vw,26px);--class-label:clamp(18px,1.15vw,20px);--class-title:clamp(30px,2.3vw,40px);--class-heading:clamp(26px,2vw,34px)}
 .panel-tabs .btn[aria-pressed=true]{background:#365c43!important;color:#fffbed!important;border-color:#365c43}
 @media(min-width:1000px) and (min-height:651px){
  #main:not(.map-page) :is(button,.btn,.choice,legend,textarea,input,select),#main:not(.map-page) p{font-size:var(--class-copy)!important;line-height:1.4}
@@ -97,14 +97,14 @@ dialog details>small.copyright{display:block;margin-top:4px}
  .design-options .part-tip{margin:6px 0;line-height:1.4}
 }
 /* Settings may scroll as a document; closing it never requires scrolling back. */
-dialog:has(.settings-body){width:min(940px,96vw);max-height:94dvh;padding:16px 20px;overflow:hidden}
+dialog:has(.settings-body){width:min(720px,72vw);max-height:70dvh;padding:16px 20px;overflow:hidden}
 dialog:has(.settings-body)[open]{display:flex;flex-direction:column}
 dialog:has(.settings-body)>.dialog-heading{flex:none;margin-bottom:8px}
 .settings-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding-right:8px}
 .settings-body :is(p,li,dd,dt,label,summary,.btn,.setting-row){font-size:clamp(20px,1.5vw,24px)!important;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
 .settings-body .volume-row b{font-size:inherit}
 dialog:has(.settings-body) .dialog-heading h2{font-size:var(--class-title);margin:0}
-.settings-body :is(small,.settings-lock){font-size:16px!important;line-height:1.5}
+.settings-body :is(small,.settings-lock){font-size:18px!important;line-height:1.5}
 .settings-body .settings-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
 .settings-body .setting-row{min-height:52px;padding:8px 12px}
 .settings-body .volume-row{display:grid;grid-template-columns:1fr auto;gap:0 10px;min-width:0;margin:0;padding:4px 10px}
