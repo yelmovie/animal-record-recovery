@@ -65,3 +65,23 @@ test('every painted picture the stage asks for exists, and the whole set stays a
  assert.match(build,/RUN_ART\.map/);assert.match(readFileSync(new URL('../index.html',import.meta.url),'utf8'),/href="\.\/src\/relay\.css"/);
  const view=readFileSync(new URL('../src/view3d.js',import.meta.url),'utf8');assert.match(view,/kind==='relay'\?import\('\.\/relay3d\.js'\)/);
 });
+
+test('every relay animal has a four-frame motion strip, and the frame follows the movement', async()=>{
+ const {SPRITES,FRAMES,spriteName,spriteFrame,hopLift,RELAY_ART}=await import('../src/relay-course.js'),{RUN_ART}=await import('../src/link-course.js'),{statSync}=await import('node:fs');
+ for(const id of ['rabbit','frog','duck','marine','crab','butterfly']){
+  assert.ok(SPRITES[id],id);assert.ok(RELAY_ART.includes(spriteName(id))&&RUN_ART.includes(spriteName(id)),id);
+  assert.ok(statSync(new URL(`../assets/relay/${spriteName(id)}.webp`,import.meta.url)).size>10000,id);
+ }
+ // Resting animals show the first frame; a frog that stops swimming rests too.
+ for(const kind of ['jump','fly','walk'])assert.equal(spriteFrame('x',{kind,ground:true,moving:false},1.37),0);
+ assert.equal(spriteFrame('frog',{kind:'swim',moving:false},1.37),0);
+ // In the air the rabbit pushes off while rising, stretches at the top and reaches for the ground while falling.
+ assert.equal(spriteFrame('rabbit',{kind:'jump',ground:false,vy:6},0),1);
+ assert.equal(spriteFrame('rabbit',{kind:'jump',ground:false,vy:0},0),2);
+ assert.equal(spriteFrame('rabbit',{kind:'jump',ground:false,vy:-6},0),3);
+ // Moving cycles through all four frames.
+ for(const [id,s] of [['rabbit',{kind:'jump',ground:true,moving:true}],['crab',{kind:'walk',moving:true}],['duck',{kind:'swim',moving:true}],['butterfly',{kind:'fly',ground:false}]]){
+  const seen=new Set();for(let t=0;t<2;t+=.01)seen.add(spriteFrame(id,s,t));assert.deepEqual([...seen].sort(),[0,1,2,3].slice(0,FRAMES),id);
+ }
+ assert.equal(hopLift(0,.22),0);assert.ok(Math.abs(hopLift(.25,.22)-.22)<1e-9);
+});

@@ -6,6 +6,7 @@ import {T,texture,blobShadow} from './stage3d.js';
 import {bindDirectionPad,mapKeyDirection} from './map-controls.js';
 import {KEYS,LANES,HALF,OPEN,ROWS,FINISH,START,RUN_ART,rowOptions,passedRows,createRunner,stepRunner} from './link-course.js';
 import {assetURL} from './assets.js';
+import {SPRITES,FRAMES,FOOT,spriteName,spriteFrame,hopLift} from './relay-course.js';
 
 // h: height in the world. foot: empty share under the feet.
 const PICTURES={frog:{url:()=>assetURL('frog'),h:1.45,foot:.1},crab:{url:()=>assetURL('crab'),h:1.9,foot:.2}};
@@ -128,12 +129,17 @@ export function create(host,options){
   const map=Object.assign(load(p.url()),{wrapS:T.RepeatWrapping}),sprite=new T.Sprite(new T.SpriteMaterial({map,transparent:true,alphaTest:.35}));sprite.center.set(.5,p.foot);sprite.renderOrder=4;scene.add(sprite);
   const shadow=blobShadow(.6,.3);scene.add(shadow);
   const marker=mesh(new T.RingGeometry(.62,.74,28),new T.MeshBasicMaterial({color:'#fffbe6',transparent:true,opacity:.75,depthWrite:false}),0,.04,0);marker.rotation.x=-Math.PI/2;marker.renderOrder=7;
+  // The four-frame motion strip (shared with the relay) replaces the picture once it has downloaded; this path keeps
+  // the animals a little smaller than the relay does.
+  let sheet=null;const shrink=animal==='crab'?.83:.97;
+  painted(spriteName(animal),s=>{s.wrapS=T.RepeatWrapping;sheet=s;sprite.material.map=s;sprite.material.needsUpdate=true;sprite.center.set(.5,FOOT);map.dispose();});
   function pose(){
-    const still=reduced(),t=clock,w=p.h*(p.w||1);let y=0,turn=0;
-    // The frog hops; the crab walks to the side with small steps.
-    if(runner.moving&&!still){if(animal==='frog'){const k=Math.abs(Math.sin(t*7));y=k*.38;turn=-runner.face*Math.cos(t*7)*.12;}else{y=Math.abs(Math.sin(t*15))*.05;turn=Math.sin(t*15)*.05;}}
-    const face=animal==='crab'?1:runner.face;map.repeat.set(face,1);map.offset.set(face<0?1:0,0);
-    sprite.scale.set(w,p.h,1);sprite.material.rotation=turn;sprite.position.set(runner.x,y,runner.z);
+    const still=reduced(),t=clock,sh=sheet?SPRITES[animal]:null,h=sh?sh.h*shrink:p.h,w=sh?h*sh.aspect:p.h*(p.w||1);let y=0,turn=0;
+    // The frog hops (legs folded → push → stretched → landing); the crab walks to the side with small steps.
+    if(runner.moving&&!still){if(animal==='frog'){if(sh)y=hopLift(t,.38);else{const k=Math.abs(Math.sin(t*7));y=k*.38;turn=-runner.face*Math.cos(t*7)*.12;}}else{y=Math.abs(Math.sin(t*15))*(sh?.03:.05);turn=Math.sin(t*15)*(sh?.02:.05);}}
+    const face=animal==='crab'?1:runner.face,n=sh?FRAMES:1,frame=sh&&!still?spriteFrame(animal,{kind:animal==='frog'?'jump':'walk',moving:runner.moving},t):0,m=sprite.material.map;
+    m.repeat.set(face/n,1);m.offset.set((frame+(face<0?1:0))/n,0);
+    sprite.scale.set(w,h,1);sprite.material.rotation=turn;sprite.position.set(runner.x,y,runner.z);
     marker.position.set(runner.x,.04,runner.z);shadow.position.set(runner.x,.03,runner.z);shadow.material.opacity=.3*(1-y);
   }
   const view={x:0};

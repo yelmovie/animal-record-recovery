@@ -26,7 +26,24 @@ export const TRACK={
 };
 export const ORDER=['forest','pond','sky','coast'];
 // Painted art shipped in assets/relay (generated 2026-11-17, see docs/RUN-STAGE-3D-PLAN-20261117.md). The stage is complete without any of it.
-export const RELAY_ART=['backdrop-coast','backdrop-forest','backdrop-pond','prop-arch','prop-boulder','prop-bush','prop-kelp','prop-oak','prop-pine','prop-searock','tile-grass','tile-hedge','tile-mud','tile-sand'];
+export const RELAY_ART=['backdrop-coast','backdrop-forest','backdrop-pond','prop-arch','prop-boulder','prop-bush','prop-kelp','prop-oak','prop-pine','prop-searock','tile-grass','tile-hedge','tile-mud','tile-sand','sprite-butterfly','sprite-crab','sprite-duck','sprite-frog','sprite-marine','sprite-rabbit'];
+// Motion frames (assets/relay/sprite-<id>.webp, generated 2026-11-18): four frames side by side, frame 0 is the resting pose.
+// h: world height of one frame. aspect: frame width over height. sink: share of the height under water while swimming.
+// The frames follow the movement the learner recorded in the video room (bend the legs → push → move ahead).
+export const FRAMES=4,FOOT=.028;
+export const SPRITES={rabbit:{h:1.89,aspect:1.321},frog:{h:1.3,aspect:2.694,sink:.3},duck:{h:1.5,aspect:1.902,sink:.36},marine:{h:1.3,aspect:1.833},crab:{h:1.46,aspect:1.637},butterfly:{h:1.05,aspect:1.436}};
+export const spriteName=id=>SPRITES[id]?'sprite-'+id:'';
+// Which frame shows now. state: {kind,ground,vy,moving,acting}; t in seconds.
+// A hop on the ground runs the four frames twice a second; in the air the frame follows the climb and the fall.
+export function spriteFrame(id,state,t){
+ const {kind,ground=true,vy=0,moving=false,acting=false}=state,cycle=fps=>Math.floor(t*fps)%FRAMES;
+ if(kind==='jump')return ground?(moving?Math.floor((t*2%1)*FRAMES):0):vy>2?1:vy<-2?3:2;
+ if(kind==='fly')return ground?0:cycle(acting?16:10);
+ if(kind==='swim')return moving?cycle(7):id==='frog'?0:cycle(2);
+ return moving?cycle(9):0;
+}
+// Height of a hop on the ground at time t, highest while the legs push and stretch (frames 1 and 2).
+export const hopLift=(t,height)=>Math.sin((t*2%1)*Math.PI)**2*height;
 export const blockersOf=id=>(TRACK[id].rows||[]).flatMap(g=>g.blocks.map(z=>({x:g.x,z,r:g.r})));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),inside=(x,[a,b])=>x>=a&&x<=b;
 // Height of the surface under a point: pads and forest ground are 0, the rock ledge is higher, a gap has none.

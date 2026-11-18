@@ -4,7 +4,7 @@
 // download still leaves a complete stage. Rules and movement live in relay.js / relay-course.js.
 import {T,texture,blobShadow} from './stage3d.js';
 import {bindDirectionPad,mapKeyDirection} from './map-controls.js';
-import {TRACK,ORDER,PADS,LANE,WATER_Y,RELAY_ART,groundTop,blockersOf,createRunner,beginSection,stepRunner} from './relay-course.js';
+import {TRACK,ORDER,PADS,LANE,WATER_Y,RELAY_ART,SPRITES,FRAMES,FOOT,spriteName,spriteFrame,hopLift,groundTop,blockersOf,createRunner,beginSection,stepRunner} from './relay-course.js';
 import {relayKind} from './relay.js';
 import {assetURL} from './assets.js';
 import {artURL} from './presentation.js';
@@ -146,10 +146,13 @@ export function create(host,options){
   const ripple=mesh(new T.RingGeometry(.5,.62,24),new T.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:.6,depthWrite:false}),0,0,0);ripple.rotation.x=-Math.PI/2;ripple.renderOrder=7;ripple.visible=false;
   // A pale ring under the animal, so a small or mud-coloured one is easy to find.
   const marker=mesh(new T.RingGeometry(.62,.74,28),new T.MeshBasicMaterial({color:'#fffbe6',transparent:true,opacity:.75,depthWrite:false}),0,0,0);marker.rotation.x=-Math.PI/2;marker.renderOrder=7;marker.visible=false;
-  const pictures={};
+  // Each animal first stands as its one picture; its four-frame motion strip takes over once it has downloaded
+  // (a failed download simply leaves the picture).
+  const pictures={},sheets={};
   function dress(id){
     const p=PICTURES[id];if(!p)return;const map=pictures[id]??=Object.assign(load(p.url()),{wrapS:T.RepeatWrapping});
-    sprite.material.map=map;sprite.material.needsUpdate=true;sprite.visible=true;
+    if(SPRITES[id]&&!(id in sheets)){sheets[id]=null;painted(spriteName(id),s=>{s.wrapS=T.RepeatWrapping;sheets[id]=s;if(animal===id)dress(id);});}
+    sprite.material.map=sheets[id]||map;sprite.material.needsUpdate=true;sprite.visible=true;
   }
   // Camera: fixed angle from the near side, sliding with the animal. Low enough that the far scenery fills the top of the screen.
   const view={x:0,y:2};
@@ -162,15 +165,18 @@ export function create(host,options){
   }
   function pose(){
     const p=PICTURES[animal];if(!p||!sprite.visible)return;
-    const kind=runner.kind,still=reduced(),t=clock,w=p.h*(p.w||1),swim=kind==='swim';let y=runner.y,turn=0,wide=1;
+    const kind=runner.kind,still=reduced(),t=clock,swim=kind==='swim',sheet=sheets[animal]&&sprite.material.map===sheets[animal]?SPRITES[animal]:null;
+    const h=sheet?sheet.h:p.h,w=sheet?h*sheet.aspect:p.h*(p.w||1),sink=sheet?sheet.sink||0:p.sink||0;let y=runner.y,turn=0,wide=1;
     if(swim&&p.under){y=WATER_Y-.6+(still?0:Math.sin(t*3)*.05);turn=still||!runner.moving?0:Math.sin(t*9)*.07;}
-    else if(swim){y=WATER_Y-p.h*(p.sink||0)+(still?0:Math.sin(t*3)*.03);turn=still?0:Math.sin(t*2.3)*.035;}
-    else if(kind==='fly'){wide=runner.ground?1:.42+.58*Math.abs(Math.cos(t*(runner.acting?21:11)));turn=-runner.face*.95;y=runner.y+.25;}
-    else if(kind==='jump'){if(!runner.ground)turn=runner.face*Math.max(-.32,Math.min(.32,runner.vy*.04));else if(runner.moving&&!still)y+=Math.abs(Math.sin(t*10))*.14;}
+    else if(swim){y=WATER_Y-h*sink+(still?0:Math.sin(t*3)*.03);turn=still?0:Math.sin(t*2.3)*.035;}
+    else if(kind==='fly'){wide=runner.ground||sheet?1:.42+.58*Math.abs(Math.cos(t*(runner.acting?21:11)));turn=-runner.face*.95;y=runner.y+.25;}
+    else if(kind==='jump'){if(!runner.ground)turn=runner.face*Math.max(-.32,Math.min(.32,runner.vy*.04));else if(runner.moving&&!still)y+=sheet?hopLift(t,.22):Math.abs(Math.sin(t*10))*.14;}
     else if(kind==='walk'&&runner.moving&&!still){y+=Math.abs(Math.sin(t*15))*.05;turn=Math.sin(t*15)*.05;}
-    const face=p.top?1:runner.face*(p.flip?-1:1),map=sprite.material.map;
-    if(map){map.repeat.set(face,1);map.offset.set(face<0?1:0,0);}
-    sprite.center.set(.5,p.top||p.under?.5:(p.foot||0));sprite.scale.set(w*wide,p.h,1);sprite.material.rotation=turn;sprite.position.set(runner.x,y,runner.z);
+    // The strips all face right; a frame is a quarter of the texture, mirrored when the animal heads left.
+    const face=p.top?1:runner.face*(p.flip&&!sheet?-1:1),map=sprite.material.map,n=sheet?FRAMES:1;
+    const frame=sheet&&!still?spriteFrame(animal,{kind,ground:runner.ground,vy:runner.vy,moving:runner.moving,acting:runner.acting},t):0;
+    if(map){map.repeat.set(face/n,1);map.offset.set((frame+(face<0?1:0))/n,0);}
+    sprite.center.set(.5,p.top||p.under?.5:sheet?FOOT:(p.foot||0));sprite.scale.set(w*wide,h,1);sprite.material.rotation=turn;sprite.position.set(runner.x,y,runner.z);
     ripple.visible=swim&&!p.under;if(ripple.visible){const s=still?1:1+((t*.9)%1)*.9;ripple.position.set(runner.x,WATER_Y+.02,runner.z);ripple.scale.setScalar(s);ripple.material.opacity=still?.5:.65*(2-s);}
     marker.visible=kind==='walk'||(kind==='jump'&&runner.ground)||(swim&&!!p.under);if(marker.visible)marker.position.set(runner.x,(swim?WATER_Y:runner.y)+.04,runner.z);
     // The shadow lies on whatever is under the animal: the ground, the stream in a gap, or the flower tops under the sky path.
@@ -228,6 +234,6 @@ export function create(host,options){
     attach(h,next){if(box.parentNode!==h)h.append(box);resize();update(next);},
     destroy(){dead=true;cancelAnimationFrame(raf);ro.disconnect();abort.abort();pad.destroy();
       scene.traverse(x=>{x.geometry?.dispose();for(const m of [].concat(x.material||[])){m.map?.dispose();m.dispose();}});for(const t of Object.values(tiles))t.dispose();
-      for(const t of Object.values(pictures))t.dispose();renderer.dispose();renderer.forceContextLoss();box.remove();}
+      for(const t of [...Object.values(pictures),...Object.values(sheets)])t?.dispose();renderer.dispose();renderer.forceContextLoss();box.remove();}
   };
 }

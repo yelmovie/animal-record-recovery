@@ -49,4 +49,4 @@ export function stepRunner(r,frame,input,choose){
  return out;
 }
 // Painted art shipped in assets/relay (generated 2026-11-17). The path is complete without any of it.
-export const RUN_ART=['backdrop-coast','backdrop-forest','backdrop-pond','prop-arch','prop-boulder','prop-bush','prop-kelp','prop-oak','prop-pine','prop-searock','tile-grass','tile-hedge','tile-mud','tile-sand'];
+export const RUN_ART=['backdrop-coast','backdrop-forest','backdrop-pond','prop-arch','prop-boulder','prop-bush','prop-kelp','prop-oak','prop-pine','prop-searock','tile-grass','tile-hedge','tile-mud','tile-sand','sprite-butterfly','sprite-crab','sprite-duck','sprite-frog','sprite-marine','sprite-rabbit'];
