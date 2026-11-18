@@ -369,7 +369,7 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 /* ---------- Verify (2-2) ---------- */
 /* Result table scales with the screen so the whiteboard can read it. */
 #app #main .verify-lab .verify-table caption{font-size:clamp(20px,2.6vh,30px)!important}
-#app #main .verify-lab .verify-table :is(th,td){height:clamp(34px,5vh,58px);font-size:clamp(17px,2.2vh,26px)!important}
+#app #main .verify-lab .verify-table :is(th,td){height:clamp(34px,5vh,58px);font-size:clamp(18px,2.2vh,26px)!important}
 #app .verify-lab .verify-table th .animal{width:auto;height:clamp(26px,3.8vh,44px)}
 #app #main .verify-lab .verify-summary{font-size:clamp(20px,2.6vh,30px)!important}
 #app .verify-step .btn.primary[data-action=verify-run]{font-size:clamp(22px,2.6vh,30px)}
@@ -1439,3 +1439,5 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 /* The lens notes no longer repeat the specimen picture: one column, in reading order. */
 #app #main#main .activity-workspace>.lens-notes{grid-template-columns:minmax(0,1fr)}
 #app #main#main .lens-notes>*{grid-column:1/-1;grid-row:auto}
+/* Student-visible labels stay at 18px or larger (map place names, at every width). */
+#app #main.map-page .map-markers .map-marker>b{font-size:clamp(18px,1.6vw,20px)}
