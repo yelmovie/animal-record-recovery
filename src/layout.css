@@ -1455,3 +1455,8 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 }
 #app#app .landing .landing-kicker{font-size:clamp(18px,2vh,24px)}
 dialog#dialog .setting-row>strong{font-size:18px!important}
+/* Commission notebook button: one line. The label never wraps; on tablet widths the "+" already says it opens, so the verb steps aside and the button stays short enough to clear the instruction line. */
+#app #main#main.commission-page .commission-evidence:not([open]){max-width:none}
+#app #main#main.commission-page .commission-evidence:not([open])>summary :is(.evidence-title,.evidence-verb){white-space:nowrap}
+@media (max-width:1100px){#app #main#main.commission-page .commission-evidence:not([open])>summary .evidence-verb{display:none}}
+#app #main#main.broadcast-request-page .commission-evidence:not([open]){justify-self:start}
