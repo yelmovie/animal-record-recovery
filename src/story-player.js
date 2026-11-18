@@ -17,9 +17,11 @@ export const STORIES={
   ]}
 };
 export function storyCue(kind,time){return STORIES[kind]?.cues.find(([start,end])=>time>=start&&time<end)||null;}
-export function storyView(s,v){const kind=v.screen==='outro'?'outro':'intro',story=STORIES[kind];return `<main id="main" tabindex="-1" class="story-screen" data-story="${kind}" aria-label="${story.title}"><video class="story-video" muted playsinline preload="auto" poster="./assets/story/${story.poster}.webp" aria-label="${story.title}"><source src="./assets/videos/story/${story.video}.mp4" type="video/mp4"></video>${btn(icon('play'),'story-toggle','story-start-button video-play-overlay','aria-label="이야기 영상 재생" hidden')}<div class="story-top"><span>${story.title}</span>${btn('건너뛰기 '+icon('arrow'),'story-skip','story-skip')}</div><div class="story-caption" aria-live="off"><b></b><span></span></div><p class="story-status" role="status"></p><footer class="story-controls">${btn('재생','story-toggle','story-control','aria-label="영상 재생"')}<progress class="story-progress" max="${story.duration}" value="0" aria-label="영상 재생 진행"></progress><span class="story-time">0:00 / 0:24</span>${btn('전체화면','story-fullscreen','story-control')}</footer></main>`;}
+export function storyView(s,v){const kind=v.screen==='outro'?'outro':'intro',story=STORIES[kind];return `<main id="main" tabindex="-1" class="story-screen" data-story="${kind}" aria-label="${story.title}"><video class="story-video" muted playsinline preload="auto" poster="./assets/story/${story.poster}.webp" aria-label="${story.title}"><source src="./assets/videos/story/${story.video}.mp4" type="video/mp4"></video>${btn(icon('play'),'story-toggle','story-start-button video-play-overlay','aria-label="이야기 영상 재생" hidden')}<div class="story-top"><span class="story-title">${story.title}</span><div class="story-controls">${btn('재생','story-toggle','story-control','aria-label="영상 재생"')}<span class="story-time">0:00 / 0:24</span>${btn('전체화면','story-fullscreen','story-control')}${btn('건너뛰기 '+icon('arrow'),'story-skip','story-skip')}</div><progress class="story-progress" max="${story.duration}" value="0" aria-label="영상 재생 진행"></progress></div><div class="story-caption" aria-live="off"><b></b><span></span></div><p class="story-status" role="status"></p></main>`;}
 
 // One native media clock drives captions and completion. Disposing cancels all old callbacks.
+// The films carry burned-in captions: once frames play, data-video-live hides the DOM caption visually
+// (it stays for screen readers); a failed video falls back to the poster with the DOM caption shown.
 // volume: the outro carries the finale music in its own audio track (0 keeps it muted).
 export function createStoryPlayer(host,{onEnd,volume=0}={}){
   const video=host.querySelector('video'),kind=host.dataset.story,story=STORIES[kind];
@@ -49,8 +51,8 @@ export function createStoryPlayer(host,{onEnd,volume=0}={}){
   function pause(){attempt++;starting=false;video.pause();sync();}
   for(const name of ['timeupdate','loadedmetadata','play','pause','seeked'])listen(name,sync);
   listen('waiting',()=>{if(!disposed)status.textContent='마을 영상을 불러오는 중이야. 건너뛰기로 바로 이어 갈 수도 있어.';});
-  listen('playing',()=>{status.textContent='';});
-  listen('error',()=>{failed=true;status.textContent='영상을 불러오지 못했어. 건너뛰기를 누르면 바로 이어 갈 수 있어.';sync();});
+  listen('playing',()=>{status.textContent='';host.dataset.videoLive='true';});
+  listen('error',()=>{failed=true;delete host.dataset.videoLive;status.textContent='영상을 불러오지 못했어. 건너뛰기를 누르면 바로 이어 갈 수 있어.';sync();});
   listen('ended',()=>{if(!disposed)onEnd?.();});
   play();
   return {toggle(){if(video.paused&&!starting)play();else pause();},pause,destroy(){disposed=true;for(const [name,fn]of listeners)video.removeEventListener(name,fn);video.pause();video.removeAttribute('src');video.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));video.load();}};

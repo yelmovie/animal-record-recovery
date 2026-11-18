@@ -31,3 +31,12 @@ test('outro starts on mount at the set volume and retries muted when the browser
  const denied=make(()=>true);createStoryPlayer(denied.host,{volume:.4});
  await new Promise(r=>setImmediate(r));assert.equal(denied.overlay.hidden,false);assert.match(denied.status.textContent,/재생 버튼/);
 });
+
+test('burned-in captions: the DOM caption hides only while frames play and returns on a video error',()=>{
+ const node=()=>({textContent:'',hidden:false,setAttribute(){}}),caption={...node(),querySelector:()=>node()},listeners=new Map();
+ const video={currentTime:0,duration:24,paused:true,addEventListener(n,f){listeners.set(n,f);},removeEventListener(n){listeners.delete(n);},play(){this.paused=false;return Promise.resolve();},pause(){this.paused=true;},removeAttribute(){},querySelectorAll(){return[];},load(){}};
+ const host={dataset:{story:'intro'},querySelector:s=>s==='video'?video:s==='.story-caption'?caption:node()};
+ const player=createStoryPlayer(host);assert.equal(host.dataset.videoLive,undefined);
+ listeners.get('playing')();assert.equal(host.dataset.videoLive,'true');
+ listeners.get('error')();assert.equal(host.dataset.videoLive,undefined);player.destroy();
+});
