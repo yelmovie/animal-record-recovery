@@ -35,7 +35,7 @@ export const COMMISSIONS=[
   {title:'숲과 바다 방송',intro:'토끼와 바다 물고기를 소개하는 방송이야. 사는 곳 → 몸 → 움직이는 방법을 차례로 골라 줘.',kind:'broadcast',rows:[
    row('rabbit-place','토끼 · 사는 곳',[['forest','숲과 들'],['sea','바닷물 속'],['ice','얼음 바다']],'forest','토끼를 처음 발견한 곳의 풀과 나무를 떠올려 봐.','rabbit'),
    row('rabbit-body','토끼 · 움직일 때 쓰는 부분',[['fin','지느러미'],['leg','긴 뒷다리'],['wing','날개']],'leg','토끼의 움직임을 멈춰 기록한 장면을 떠올려 봐.','rabbit'),
-   row('rabbit-life','토끼 · 움직임',[['swim','물속에서 헤엄쳐'],['fly','날아다녀'],['jump','땅을 박차고 뛰어']],'jump','긴 뒷다리로 땅을 밀면 어떻게 움직일까?','rabbit'),
+   row('rabbit-life','토끼 · 움직임',[['swim','물속에서 헤엄쳐'],['jump','땅을 박차고 뛰어'],['fly','날아다녀']],'jump','긴 뒷다리로 땅을 밀면 어떻게 움직일까?','rabbit'),
    row('marine-place','바다 물고기 · 사는 곳',[['sea','바닷물 속'],['forest','풀밭'],['pond','민물 연못']],'sea','이 친구는 바다에서 만난 물고기야.','marine'),
    row('marine-body','바다 물고기 · 쓰는 부분',[['web','물갈퀴 달린 발'],['fin','지느러미와 꼬리'],['leg','긴 뒷다리']],'fin','다리 대신 몸 옆과 뒤에 있는 부분을 봐.','marine'),
    row('marine-life','바다 물고기 · 움직임',[['walk','갯벌 위를 걸어'],['swim','물속에서 헤엄쳐'],['jump','땅을 박차고 뛰어']],'swim','지느러미와 꼬리를 움직여 어디를 지나갈까?','marine')]},
