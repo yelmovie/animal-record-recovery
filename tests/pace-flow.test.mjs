@@ -19,6 +19,7 @@ test('new broadcasts reuse a witnessed location, grade one connected answer and 
   // Every pair line is a real body-part-and-movement match; only the animal decides which one is right.
   if(c.animal==='rabbit')assert.deepEqual(options.map(([b,l])=>b[1]+' → '+l[1]),['지느러미 → 물속에서 헤엄쳐','긴 뒷다리 → 땅을 박차고 뛰어','날개 → 날아다녀']);
   if(c.animal==='duck')assert.deepEqual(options.map(([b,l])=>b[1]+' → '+l[1]),['긴 뒷다리 → 땅을 박차고 뛰어','물갈퀴 달린 발 → 발로 물을 밀며 헤엄쳐','집게다리 → 옆으로 걸어']);
+  if(c.animal==='butterfly')assert.deepEqual(options.map(([b,l])=>b[1]+' → '+l[1]),['날개 → 날개를 움직여 날아','지느러미 → 물속에서 헤엄쳐','긴 뒷다리 → 땅을 박차고 뛰어']);
   for(const r of [body,life])chooseCommission(s,3,c.part,r.key,r.answer);
  }
  assert.equal(campaignDraft(s,3,0).answers['rabbit-place'],undefined);
