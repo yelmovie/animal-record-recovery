@@ -29,5 +29,13 @@ export const VOICE_LINES={
  "넓은 면으로 물을 많이 밀수록 몸은 앞으로 잘 나아가.":"concept/webbed-foot-2",
  "오리발도 같은 원리야. 넓고 납작한 면이 물을 밀어.":"concept/webbed-foot-3",
  "거북은 단단한 등딱지가 몸을 감싸고 있어.":"concept/shell-helmet-1",
- "무언가에 부딪혀도 단단한 덮개가 충격을 막아 줘.":"concept/shell-helmet-2"
+ "무언가에 부딪혀도 단단한 덮개가 충격을 막아 줘.":"concept/shell-helmet-2",
+ "안전모도 단단한 덮개로 머리를 감싸서 지켜 줘.":"concept/shell-helmet-3",
+ "‘빠르게 움직이나요?’로 나누면 세 연구원의 결과가 서로 달라.":"concept/sort-criteria-1",
+ "‘날개가 있나요?’는 몸을 보면 누구나 똑같이 확인할 수 있어.":"concept/sort-criteria-2",
+ "누구나 같은 결과가 나오고, 동물이 두 무리로 나뉘는 기준이 좋은 분류 기준이야.":"concept/sort-criteria-3",
+ "몸에서는 따뜻한 열이 계속 나와.":"concept/warm-fur-1",
+ "털이 없으면 열이 금방 밖으로 빠져나가.":"concept/warm-fur-2",
+ "촘촘한 털 사이에는 공기가 머물러서 열이 천천히 빠져나가.":"concept/warm-fur-3",
+ "털이 열을 만드는 게 아니야. 빠져나가는 열을 줄여 주는 거야.":"concept/warm-fur-4"
 };
