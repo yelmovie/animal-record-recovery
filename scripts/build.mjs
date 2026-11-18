@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { ASSETS } from '../src/assets.js';
 import { STORIES } from '../src/story-player.js';
 import { CONCEPTS } from '../src/concepts.js';
+import { VOICE_LINES } from '../src/voice-lines.js';
 import { RUN_ART } from '../src/link-course.js';
 import { ENCOUNTER_SOUNDS, REWARD_SOUNDS } from '../src/audio.js';
 import { REWARD_CARDS } from '../src/village-rewards.js';
@@ -34,7 +35,9 @@ files.push('src/concept-focus.js','src/concept-focus.css','src/concepts.js','src
 files.push('src/stage-map.css','src/layout.css','src/compact.css','src/gallery.css','src/motion-player.css','assets/scenes/museum-gallery-v2.webp','src/studio-brush.js','src/studio.js','src/studio-views.js','src/studio-runtime.js','src/studio.css','src/readability.css');
 files.push(...['opening','rabbit','marine','duck','butterfly','camel','penguin','closing'].map(id=>`assets/audio/broadcast/${id}.mp3`));
 const dialogueResidents=['researcher','curator','ranger','detective','engineer'];
-files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after','after-expanded','before-expanded'].map(part=>`assets/audio/npc-dialogue/${id}-${part}.mp3`)));
+files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after','after-expanded-v2','before-expanded-v2'].map(part=>`assets/audio/npc-dialogue/${id}-${part}.mp3`)),'assets/audio/npc-dialogue/curator-after-v2.mp3');
+// Popup and concept-caption voices (2026-11-18), matched by exact on-screen text.
+files.push(...Object.values(VOICE_LINES).map(clip=>`assets/audio/${clip}.mp3`));
 // Screen 07 in 3D (stage 3 life path): its 3D module is imported on demand, so the walk below does not find it.
 files.push('src/link-run.css','src/link-run3d.js','src/link-course.js','src/relay.css','src/relay3d.js','src/relay-course.js','src/relay.js','src/relay-views.js','src/map-controls.js',...RUN_ART.map(name=>`assets/relay/${name}.webp`));
 // Achievement cards for defeated map villains: styles, sounds, and the art and slot thumbnail of each card (the modules are found by the walk below).

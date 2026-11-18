@@ -14,6 +14,7 @@ import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRI
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
+import {installPopupVoice} from './popup-voice.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS} from './audio.js';
 import {bindRewardSound,rewardSlotsHtml,awardRewardCard,newRewardCards} from './village-rewards.js';
@@ -230,6 +231,7 @@ function showMapFailure(moduleFailed=false){
 // The achievement card waits for the villain's exit (760ms; 520ms with reduced motion). While it is open #app is inert, which holds the map,
 // the villains and the all-villains finale; the finale's own jingle then cuts the card-collection jingle short (onEncounterTone) so the two never overlap.
 bindRewardSound(name=>playSound(s.soundEnabled,name));
+installPopupVoice({enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);}});
 function awardCards(won){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  for(const index of won)awardRewardCard(index,()=>s.mapEncounters,()=>screen==='map',reduced?520:760);

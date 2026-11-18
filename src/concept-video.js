@@ -2,6 +2,7 @@ import {bindConceptFocus} from './concept-focus.js';
 // Concept / motion replay player (dokdo-design dom-video-modal rules). Content lives in concepts.js.
 import {replayItem,captionAt} from './concepts.js';
 import {btn,icon,esc} from './presentation.js';
+import {speakLine,stopLine,voiceLinePlaying} from './popup-voice.js';
 
 // Entry button for an activity screen. Callers show it only after the learner made the discovery.
 export const conceptButton=(id,label='왜 그럴까? 영상으로 보기')=>replayItem(id)?btn(icon('arrow')+' '+label,'concept-open','secondary concept-entry',`data-id="${id}"`):'';
@@ -17,8 +18,12 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  const video=host?.querySelector('.concept-video'),item=replayItem(host?.dataset.concept);if(!video||!item)return null;
  const caption=host.querySelector('.concept-caption'),cues=host.querySelector('.concept-cues'),status=host.querySelector('.concept-status'),end=host.querySelector('.concept-end'),playButton=host.querySelector('[data-action="concept-play"]'),replay=host.querySelector('[data-action="concept-replay"]'),sources=[...video.querySelectorAll('source')];
  let closed=false,failed=false,last=null;const events=[];let releaseFocus=()=>{};
+ // Captions with a recorded line are read aloud (the video stays muted). While a line is still being read,
+ // the video holds on its caption instead of moving to the next one.
+ let voiced=null,holding=false;
+ const voice=text=>{if(text===voiced||closed||failed)return;voiced=text;speakLine(text,{onEnd:()=>{if(holding&&!closed){holding=false;play();}}});};
  const listen=(el,name,fn)=>{el.addEventListener(name,fn);events.push([el,name,fn]);};
- const show=t=>{const text=captionAt(item.id,t);if(text!==last){caption.textContent=text;last=text;}};
+ const show=t=>{if(holding)return;const text=captionAt(item.id,t);if(text!==last&&voiced===last&&voiceLinePlaying()){if(!video.paused){holding=true;video.pause();}return;}if(text!==last){caption.textContent=text;last=text;}if(!video.paused)voice(text);};
  const focus=el=>el?.focus?.({preventScroll:true});
  function play(){
   if(closed||failed)return;if(end)end.hidden=true;replay.hidden=true;
@@ -35,8 +40,8 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  video.muted=true;show(0);
  listen(video,'loadedmetadata',()=>clearTimeout(timer));
  for(const name of ['timeupdate','seeked'])listen(video,name,()=>show(video.currentTime));
- listen(video,'play',()=>{playButton.hidden=true;onPlayingChange(true);});
- listen(video,'pause',()=>{if(!failed&&!video.ended)playButton.hidden=false;onPlayingChange(false);});
+ listen(video,'play',()=>{playButton.hidden=true;onPlayingChange(true);voice(last);});
+ listen(video,'pause',()=>{if(holding)return;if(!failed&&!video.ended)playButton.hidden=false;onPlayingChange(false);});
  listen(video,'ended',()=>{playButton.hidden=true;if(end)end.hidden=false;show(item.seconds);replay.hidden=false;onPlayingChange(false);focus(replay);});
  // A failed <source> fires on the source element; the video gives up after the last one.
  listen(video,'error',fallback);if(sources.length)listen(sources.at(-1),'error',fallback);
@@ -48,6 +53,6 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  const labels={ 'webbed-foot':['물갈퀴','물 밀기','오리발'], 'shell-helmet':['등딱지','충격 줄이기','안전모'], 'warm-fur':['몸의 열','빠져나가는 열','털 사이 공기','열 손실 줄이기'], 'sort-criteria':['결과 비교','관찰할 기준','같은 결과'], 'habitat-life':['낙타의 발','펭귄의 날개','오리의 물갈퀴'] };
  Object.assign(labels,{frog:['뒷다리 접기','물을 뒤로 밀기','앞으로 이동'],crab:['다리 들기','땅 밀기','옆으로 이동'],duck:['발 움직이기','물갈퀴로 밀기','앞으로 이동'],rabbit:['뒷다리 굽히기','땅 뒤로 밀기','앞으로 뛰기'],butterfly:['날개 들기','날개 내리기','날개 다시 올리기'],marine:['몸과 꼬리','반대로 굽히기','앞으로 이동'],camel:['발 옮기기','넓은 발바닥','앞으로 이동'],penguin:['짧은 날개','물 밀기','앞으로 이동']});
  releaseFocus=bindConceptFocus(host,video,{steps:item.captions.map(([at],i)=>({at,term:labels[item.id]?.[i]||['움직임 준비','몸의 움직임','이동 결과'][i]})),terms:words,caption,anchor:host.querySelector('.concept-stage')});
- return {play,replay(){if(failed)return;video.currentTime=0;play();},get failed(){return failed;},
-  destroy(){if(closed)return;closed=true;releaseFocus();clearTimeout(timer);for(const [el,name,fn] of events)el.removeEventListener(name,fn);video.pause();sources.forEach(x=>x.removeAttribute('src'));video.removeAttribute('src');video.load();onPlayingChange(false);}};
+ return {play,replay(){if(failed)return;voiced=null;holding=false;video.currentTime=0;play();},get failed(){return failed;},
+  destroy(){if(closed)return;closed=true;stopLine();releaseFocus();clearTimeout(timer);for(const [el,name,fn] of events)el.removeEventListener(name,fn);video.pause();sources.forEach(x=>x.removeAttribute('src'));video.removeAttribute('src');video.load();onPlayingChange(false);}};
 }

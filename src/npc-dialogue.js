@@ -31,7 +31,9 @@ export function mountNpcVoice(dialog,npc,completed,{enabled,volume,duck,compact=
   const events=new AbortController(),{signal}=events;
   const player=document.createElement('audio');
   const replay=dialog.querySelector('[data-npc-replay]');
-  const clip=npc.id==='mori'?'audio/npc-dialogue/mori-welcome.mp3':'audio/npc-dialogue/'+npc.id+(completed?'-after':'-before')+(compact?'.mp3':'-expanded.mp3');
+  // -v2: the whole resident talk in one ElevenLabs take (2026-11-18); curator-after-v2 matches the current thanks line.
+  const line=npc.id+(completed?'-after':'-before');
+  const clip=npc.id==='mori'?'audio/npc-dialogue/mori-welcome.mp3':'audio/npc-dialogue/'+(compact?(line==='curator-after'?'curator-after-v2':line)+'.mp3':line+'-expanded-v2.mp3');
   player.preload='none';player.src=new URL(clip,assets).href;player.hidden=true;dialog.append(player);
   let release,epoch=0;
   const idle=()=>{release?.();release=undefined;dialog.dataset.speaking='false';replay.textContent='다시 듣기';};

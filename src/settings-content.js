@@ -60,6 +60,7 @@ export const SETTINGS_TEXT={
     ['음성',[
       '하루·모리 대사 · Higgsfield의 ElevenLabs v4 · 프로젝트 자체 생성',
       '생태 탐방 방송 · ElevenLabs v4 · 프로젝트 자체 생성',
+      '주민 대화·편지·부탁 안내·복구 안내·개념 설명 · ElevenLabs v4 · 프로젝트 자체 생성',
     ]],
     ['효과음 (Pixabay)',[
       '버튼 · Universfield · Pixabay Content License',
