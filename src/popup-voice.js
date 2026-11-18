@@ -1,9 +1,10 @@
 import {VOICE_LINES} from './voice-lines.js';
-// Reads popup text aloud when it appears: request-card intros, the reward change line and an opened resident letter.
+// Reads popup text aloud when it appears: request-card intros, the reward change line, an opened resident letter
+// and the map villain's speech bubble.
 // Matching is by exact text (VOICE_LINES). Text behind an open dialog waits until the dialog closes; a line stops when
 // its text leaves the screen or another voice starts. Concept captions use speakLine directly (concept-video.js).
 const assets=new URL('../assets/',import.meta.url);
-const SELECTORS='.request-part-intro,.reward-content>p,details.letter-body[open]';
+const SELECTORS='.request-part-intro,.reward-content>p,details.letter-body[open],.map-encounter-say,.map-encounter-clear';
 let opts=null,player=null,release,done=null,popupText=null;
 const spoken=new Set();
 export const voiceLinePlaying=()=>!!player&&!player.paused&&!player.ended;
@@ -24,16 +25,20 @@ export function speakLine(text,{onEnd}={}){
   player.play()?.catch(finish);
   return true;
 }
-const textOf=el=>el.matches('details')?[...el.querySelectorAll(':scope>p')].map(p=>p.textContent.trim()).join(' '):el.textContent.trim();
+const textOf=el=>el.matches('details')?[...el.querySelectorAll(':scope>p')].map(p=>p.textContent.trim()).join(' ')
+  :el.matches('.map-encounter-clear')?(el.textContent.match(/“(.+)”/)?.[1]??''):el.textContent.trim();
 function scan(){
   const dialogs=[...document.querySelectorAll('dialog[open]')],top=dialogs.at(-1);
-  const present=new Set(),visible=[];
+  // present: still in the page (a hidden bubble keeps its line playing); shown: not hidden, so a line shown again is read again.
+  const present=new Set(),shown=new Set(),visible=[];
   for(const el of document.querySelectorAll(SELECTORS)){
     const text=textOf(el);if(!VOICE_LINES[text])continue;
     present.add(text);
-    if((!top||top.contains(el))&&!el.closest('[hidden]'))visible.push(text);
+    if(el.closest('[hidden]'))continue;
+    shown.add(text);
+    if(!top||top.contains(el))visible.push(text);
   }
-  for(const text of [...spoken])if(!present.has(text))spoken.delete(text);
+  for(const text of [...spoken])if(!shown.has(text))spoken.delete(text);
   if(popupText&&!present.has(popupText))stopLine();
   const otherVoice=document.querySelector('[data-speaking="true"]');
   const next=visible.find(text=>!spoken.has(text));
