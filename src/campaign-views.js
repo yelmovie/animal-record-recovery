@@ -37,7 +37,7 @@ function studioLetter(s){const c=COMMISSIONS[4];return `<article class="resident
  <h3>네 상상을 전시해 줄래?</h3>
  <p class="letter-now"><b>지금 할 일</b> 내 그림과 소개를 살펴보고 ‘내 작품 전시하기’를 눌러 줘.</p>
  <details class="letter-body letter-more"><summary>편지 전체 읽기</summary><p class="letter-greeting">하루, 모리, 그리고 탐험대에게.</p>
- <p>네가 직접 그린 ‘${esc(s.studioRecord.title)}’을 봤어. 공방에 찾아오는 친구들도 네 아이디어를 만나면 좋겠어!</p>
+ <p>네가 직접 그린 ${withParticle('‘'+esc(s.studioRecord.title)+'’')} 봤어. 공방에 찾아오는 친구들도 네 아이디어를 만나면 좋겠어!</p>
  <p>네 그림과 소개를 전시관에 걸고 싶어. 어떤 생각을 담았는지 다시 살펴보고, 준비가 되면 나에게 답장을 보내 줄래?</p>
  <p>아직 만들어 보지 못한 상상도 괜찮아. 네 생각이 담긴 그림이면 충분해.</p></details><p class="letter-signature">새로운 발명가의 작품을 기다리며,<br><b>${c.npc} 보냄</b></p>
  <div class="dialog-actions">${btn('잠깐 뒤에','close-dialog','quiet')}${btn('내 작품 살펴보기 '+workshopArrow(),'commission-accept','primary','data-id="5"')}</div></article>`;}
