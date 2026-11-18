@@ -240,6 +240,6 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 
 ### 2026-11-13 진행 음성과 펭귄 표면 보정
 
-`audio/broadcast/*.mp3` 8개는 ElevenLabs eleven_v4의 Aria 음성으로 생성한 생태 탐방 원고를 오프닝·동물별 설명·클로징으로 나눈 파일이다. 완성한 원고의 동물 순서에 맞춰 재생한다. `audio/npc-dialogue/mori-welcome.mp3`, `videos/story/intro-light.mp4`, `videos/story/outro.mp4`의 하루·모리 대사는 사용자 선택에 따라 Higgsfield의 ElevenLabs `elevenlabs_v4`로 생성했다. 하루는 Dylan, 모리는 Maeve 프리셋으로 고정했다. 인사 1개와 영상 대사 10개를 같은 캐릭터별 음성으로 편집했으며 원래 영상의 장면 시간에 맞춰 배치했다. 배경 음악은 기존 소스를 사용했다. 생성 ID와 음성 인식 검수 문구는 `docs/npc-dialogue-voice.json`에 있다.
+`audio/broadcast/*.mp3` 8개는 ElevenLabs eleven_v4의 Aria 음성으로 생성한 생태 탐방 원고를 오프닝·동물별 설명·클로징으로 나눈 파일이다. 생성 당시 ElevenLabs Starter 유료 요금제를 구독 중이었다(상업 이용 가능, 2026-11-18 사용자 확인). 완성한 원고의 동물 순서에 맞춰 재생한다. `audio/npc-dialogue/mori-welcome.mp3`, `videos/story/intro-light.mp4`, `videos/story/outro.mp4`의 하루·모리 대사는 사용자 선택에 따라 Higgsfield의 ElevenLabs `elevenlabs_v4`로 생성했다. 하루는 Dylan, 모리는 Maeve 프리셋으로 고정했다. 인사 1개와 영상 대사 10개를 같은 캐릭터별 음성으로 편집했으며 원래 영상의 장면 시간에 맞춰 배치했다. 배경 음악은 기존 소스를 사용했다. 생성 ID와 음성 인식 검수 문구는 `docs/npc-dialogue-voice.json`에 있다.
 
 `models/dome/penguin.glb`는 기존 `models/penguin.glb`를 UV 경계를 보존하며 약 2만 삼각형으로 최적화했다. 2048px 색 텍스처와 이어지는 표면 법선을 사용하고, 색 경계가 번지던 밉맵을 끄고 거친 요철 맵을 제외해 깃털 표면을 정리했다. 원본 모델은 보존했다.
