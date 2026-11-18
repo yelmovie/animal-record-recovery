@@ -17,7 +17,7 @@ import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {installPopupVoice} from './popup-voice.js';
 import {createNavigation} from './navigation.js';
 import {playSound,silence,playMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS} from './audio.js';
-import {bindRewardSound,rewardSlotsHtml,awardRewardCard,newRewardCards} from './village-rewards.js';
+import {bindRewardSound,rewardSlotsHtml,awardRewardCard,newRewardCards,rewardCardDue} from './village-rewards.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {KEYS as LINK_KEYS,rowOptions} from './link-course.js';
@@ -230,18 +230,19 @@ function showMapFailure(moduleFailed=false){
 }
 // The achievement card waits for the villain's exit (760ms; 520ms with reduced motion). While it is open #app is inert, which holds the map,
 // the villains and the all-villains finale; the finale's own jingle then cuts the card-collection jingle short (onEncounterTone) so the two never overlap.
+// A card whose turn comes while a dialog (settings) is open waits for it to close; rewardCardDue() in the map's isBlocked keeps the finale behind it.
 bindRewardSound(name=>playSound(s.soundEnabled,name));
 installPopupVoice({enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);}});
 function awardCards(won){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
- for(const index of won)awardRewardCard(index,()=>s.mapEncounters,()=>screen==='map',reduced?520:760);
+ for(const index of won)awardRewardCard(index,()=>s.mapEncounters,()=>screen==='map',reduced?520:760,()=>!!document.querySelector('dialog[open]'));
 }
 function mountVillage(flashed){
  const revision=mapRender;
  const current=()=>screen==='map'&&!mapFailed&&mapRender===revision;
  const start=()=>{
   if(!current())return;
-  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{const won=newRewardCards(s.mapEncounters,next);s.mapEncounters={...s.mapEncounters,...next};save();awardCards(won);},onEncounterTone:(kind,hits)=>{const name=encounterSound(kind,hits);if(kind==='victory')silence();if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen||app.inert===true,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{const won=newRewardCards(s.mapEncounters,next);s.mapEncounters={...s.mapEncounters,...next};save();awardCards(won);},onEncounterTone:(kind,hits)=>{const name=encounterSound(kind,hits);if(kind==='victory')silence();if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen||app.inert===true||rewardCardDue(),onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(!current()||selectedStage!==id)return;
     arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;

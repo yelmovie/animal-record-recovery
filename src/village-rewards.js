@@ -36,13 +36,25 @@ function rewards(){
 // A card on its way to a slot stays empty in the header until it lands, even if the header is redrawn in between.
 const flying=new Set();
 export const rewardSlotsHtml=hits=>rewards().slotsHtml(ownedRewardCards(hits).map((owned,index)=>owned&&!flying.has(index)));
+// Cards whose turn has come (the villain's exit has played) and that are not in their slot yet.
+let due=0;
+// True from a card's turn until it is put away. adventure-app.js adds it to the map's isBlocked, so the all-villains finale
+// cannot slip in ahead of a card that is still waiting for a dialog to close.
+export const rewardCardDue=()=>due>0;
 // Shows the card once the villain's exit has played (delay), flying in from the villain while it is still on screen.
-// hits() returns the saved hit record at that moment; open() says whether the map is still the screen in view.
-export function awardRewardCard(index,hits,open,delay){
+// hits() returns the saved hit record at that moment; open() says whether the map is still the screen in view;
+// covered() says a dialog is over the map: the card waits for it to close.
+export function awardRewardCard(index,hits,open,delay,covered=()=>false){
   flying.add(index);
   setTimeout(()=>{
-    if(!open()){flying.delete(index);return;}
-    const foe=document.querySelector(`.map-encounter-foe[data-encounter="${REWARD_CARDS[index].id}"]`),box=foe?.getClientRects().length?foe.getBoundingClientRect():null;
-    rewards().reveal(index,box?{x:box.left,y:box.top-28}:undefined,ownedRewardCards(hits())).finally(()=>flying.delete(index));
+    due++;
+    const done=()=>{due--;flying.delete(index);};
+    const show=()=>{
+      if(!open()){done();return;}
+      if(covered()){setTimeout(show,300);return;}
+      const foe=document.querySelector(`.map-encounter-foe[data-encounter="${REWARD_CARDS[index].id}"]`),box=foe?.getClientRects().length?foe.getBoundingClientRect():null;
+      new Promise(resolve=>resolve(rewards().reveal(index,box?{x:box.left,y:box.top-28}:undefined,ownedRewardCards(hits())))).finally(done);
+    };
+    show();
   },delay);
 }

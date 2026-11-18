@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync,readFileSync} from 'node:fs';
-import {REWARD_CARDS,ownedRewardCards,newRewardCards} from '../src/village-rewards.js';
+import {REWARD_CARDS,ownedRewardCards,newRewardCards,awardRewardCard,rewardCardDue} from '../src/village-rewards.js';
 import {normalizeVillageEncounters} from '../src/village-encounters.js';
 import {STAGES} from '../src/expedition.js';
 import {REWARD_SOUNDS,soundName} from '../src/audio.js';
@@ -27,6 +27,20 @@ test('a card appears only on the hit that takes a villain from under three to th
   assert.deepEqual(newRewardCards({stamp:3},{stamp:3}),[],'an already defeated villain never shows its card again');
   assert.deepEqual(newRewardCards({stamp:3,photo:2},{stamp:3,photo:3}),[3],'the save patch repeats earlier hits of the same visit');
   assert.deepEqual(newRewardCards(undefined,{plans:3}),[4]);
+});
+
+test('a won card holds the map from its turn until it is put away, and waits while a dialog covers the map',async()=>{
+  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  let onMap=true;
+  awardRewardCard(0,()=>({stamp:3}),()=>onMap,30,()=>true);
+  assert.equal(rewardCardDue(),false,'the villain is still leaving');
+  await sleep(80);
+  assert.equal(rewardCardDue(),true,'the card is waiting for the dialog, so the finale has to wait too');
+  onMap=false;
+  await sleep(400);
+  assert.equal(rewardCardDue(),false,'leaving the map gives the turn back');
+  const app=read('src/adventure-app.js');
+  assert.match(app,/isBlocked:\(\)=>[^,]*rewardCardDue\(\)/);
 });
 
 test('card art, thumbnails and sounds ship with the build and the page loads the card styles',()=>{
