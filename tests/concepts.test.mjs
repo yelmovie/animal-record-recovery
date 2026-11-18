@@ -107,3 +107,18 @@ test('no metadata within 6 seconds (or a failed last source) shows the poster an
   const b=fakePlayer();b.sources[1].fire('error');assert.equal(b.parts['.concept-cues'].hidden,false);assert.equal(b.player.failed,true);b.player.destroy();
  }finally{mock.timers.reset();}
 });
+
+test('concept clips carry burned-in captions: the DOM caption hides only while their frames show',()=>{
+ assert.match(conceptView('warm-fur'),/class="concept-player concept-film"/);assert.match(conceptView('warm-fur'),/자막 포함/);
+ assert.doesNotMatch(conceptView('frog'),/concept-film/);
+ // fakePlayer keeps its host private, so a second host reuses its parts to read the dataset.
+ const {player,video,parts}=fakePlayer();player.destroy();
+ const h={dataset:{concept:'warm-fur'},querySelector:q=>parts[q]},live=()=>h.dataset.videoLive;
+ const p=createConceptPlayer(h);assert.equal(live(),undefined);
+ p.play();assert.equal(live(),undefined,'the poster shows until the first frame plays');
+ video.fire('playing');assert.equal(live(),'true');
+ video.fire('ended');assert.equal(live(),undefined,'the end picture brings the DOM caption back');
+ p.replay();video.fire('playing');assert.equal(live(),'true');
+ video.fire('error');assert.equal(live(),undefined,'a failed video shows every caption');p.destroy();
+ const m={dataset:{concept:'frog'},querySelector:q=>parts[q]};const q=createConceptPlayer(m);video.fire('playing');assert.equal(m.dataset.videoLive,undefined,'motion replays keep their DOM caption');q.destroy();
+});

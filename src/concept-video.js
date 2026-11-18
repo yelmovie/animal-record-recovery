@@ -10,7 +10,7 @@ export const conceptButton=(id,label='왜 그럴까? 영상으로 보기')=>repl
 export function conceptView(id){
  const item=replayItem(id);if(!item)return '';
  const sources=item.sources.map(([src,type])=>`<source src="${src}" type="${type}">`).join('');
- return `<div class="concept-player" data-concept="${item.id}"><div class="concept-stage"><video class="concept-video" muted playsinline preload="metadata" poster="${item.poster}" aria-label="${esc(item.title)} 설명 영상, 소리 없음">${sources}</video>${item.endFrame?`<img class="concept-end" src="${item.poster}" alt="" hidden>`:''}${btn(icon('play'),'concept-play','concept-play video-play-overlay','aria-label="개념 영상 재생"')}</div><p class="concept-caption" role="status" aria-live="polite">${esc(captionAt(item.id,0))}</p><p class="concept-status" hidden>영상을 불러오지 못해서 그림과 설명으로 보여 줄게.</p><ol class="concept-cues" hidden>${item.captions.map(([, ,text])=>`<li>${esc(text)}</li>`).join('')}</ol><div class="dialog-actions">${btn('처음부터 다시 보기','concept-replay','secondary','hidden')}${btn('닫기','close-dialog','primary')}</div></div>`;
+ return `<div class="concept-player${item.kind==='concept'?' concept-film':''}" data-concept="${item.id}"><div class="concept-stage"><video class="concept-video" muted playsinline preload="metadata" poster="${item.poster}" aria-label="${esc(item.title)} 설명 영상${item.kind==='concept'?', 자막 포함':', 소리 없음'}">${sources}</video>${item.endFrame?`<img class="concept-end" src="${item.poster}" alt="" hidden>`:''}${btn(icon('play'),'concept-play','concept-play video-play-overlay','aria-label="개념 영상 재생"')}</div><p class="concept-caption" role="status" aria-live="polite">${esc(captionAt(item.id,0))}</p><p class="concept-status" hidden>영상을 불러오지 못해서 그림과 설명으로 보여 줄게.</p><ol class="concept-cues" hidden>${item.captions.map(([, ,text])=>`<li>${esc(text)}</li>`).join('')}</ol><div class="dialog-actions">${btn('처음부터 다시 보기','concept-replay','secondary','hidden')}${btn('닫기','close-dialog','primary')}</div></div>`;
 }
 
 // One media clock drives the caption. No metadata in 6s falls back to the poster and captions.
@@ -23,7 +23,14 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  let voiced=null,holding=false;
  const voice=text=>{if(text===voiced||closed||failed)return;voiced=text;speakLine(text,{onEnd:()=>{if(holding&&!closed){holding=false;play();}}});};
  const listen=(el,name,fn)=>{el.addEventListener(name,fn);events.push([el,name,fn]);};
- const show=t=>{if(holding)return;const text=captionAt(item.id,t);if(text!==last&&voiced===last&&voiceLinePlaying()){if(!video.paused){holding=true;video.pause();}return;}if(text!==last){caption.textContent=text;last=text;}if(!video.paused)voice(text);};
+ // Concept clips carry the caption in the picture, so the hold starts just before the next caption fades in
+ // (cues end 0.1s before the next one, fading out over 0.2s): the frame keeps showing the line being read.
+ const film=item.kind==='concept',lead=film?0.6:0;
+ const show=t=>{if(holding)return;const text=captionAt(item.id,t);if((text!==last||captionAt(item.id,t+lead)!==last)&&voiced===last&&voiceLinePlaying()){if(!video.paused){holding=true;video.pause();}return;}if(text!==last){caption.textContent=text;last=text;}if(!video.paused)voice(text);};
+ // While the clip's own frames are on screen the DOM caption is hidden visually (screen readers keep it);
+ // before the first frame, on the end picture and on a failed video it shows as before.
+ let started=false;
+ const live=()=>{if(!film)return;if(started&&!failed&&!video.hidden&&(!end||end.hidden))host.dataset.videoLive='true';else delete host.dataset.videoLive;};
  const focus=el=>el?.focus?.({preventScroll:true});
  function play(){
   if(closed||failed)return;if(end)end.hidden=true;replay.hidden=true;
@@ -34,15 +41,16 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
   if(closed||failed)return;failed=true;clearTimeout(timer);
   video.pause();sources.forEach(x=>x.removeAttribute('src'));video.removeAttribute('src');video.load();video.hidden=true;
   if(end){end.hidden=false;end.alt=item.title+' 마지막 장면';}
-  caption.hidden=true;cues.hidden=false;status.hidden=false;playButton.hidden=true;replay.hidden=true;onPlayingChange(false);
+  caption.hidden=true;cues.hidden=false;status.hidden=false;playButton.hidden=true;replay.hidden=true;live();onPlayingChange(false);
  }
  const timer=setTimeout(()=>{if(video.readyState<1)fallback();},6000);
  video.muted=true;show(0);
  listen(video,'loadedmetadata',()=>clearTimeout(timer));
  for(const name of ['timeupdate','seeked'])listen(video,name,()=>show(video.currentTime));
+ for(const name of ['playing','seeked'])listen(video,name,()=>{started=true;live();});
  listen(video,'play',()=>{playButton.hidden=true;onPlayingChange(true);voice(last);});
  listen(video,'pause',()=>{if(holding)return;if(!failed&&!video.ended)playButton.hidden=false;onPlayingChange(false);});
- listen(video,'ended',()=>{playButton.hidden=true;if(end)end.hidden=false;show(item.seconds);replay.hidden=false;onPlayingChange(false);focus(replay);});
+ listen(video,'ended',()=>{playButton.hidden=true;if(end)end.hidden=false;live();show(item.seconds);replay.hidden=false;onPlayingChange(false);focus(replay);});
  // A failed <source> fires on the source element; the video gives up after the last one.
  listen(video,'error',fallback);if(sources.length)listen(sources.at(-1),'error',fallback);
  if(end)listen(end,'error',()=>{end.remove();});
@@ -52,7 +60,7 @@ export function createConceptPlayer(host,{onPlayingChange=()=>{}}={}){
  const words=vocabulary[item.id]||[];
  const labels={ 'webbed-foot':['물갈퀴','물 밀기','오리발'], 'shell-helmet':['등딱지','충격 줄이기','안전모'], 'warm-fur':['몸의 열','빠져나가는 열','털 사이 공기','열 손실 줄이기'], 'sort-criteria':['결과 비교','관찰할 기준','같은 결과'], 'habitat-life':['낙타의 발','펭귄의 날개','오리의 물갈퀴'] };
  Object.assign(labels,{frog:['뒷다리 접기','물을 뒤로 밀기','앞으로 이동'],crab:['다리 들기','땅 밀기','옆으로 이동'],duck:['발 움직이기','물갈퀴로 밀기','앞으로 이동'],rabbit:['뒷다리 굽히기','땅 뒤로 밀기','앞으로 뛰기'],butterfly:['날개 들기','날개 내리기','날개 다시 올리기'],marine:['몸과 꼬리','반대로 굽히기','앞으로 이동'],camel:['발 옮기기','넓은 발바닥','앞으로 이동'],penguin:['짧은 날개','물 밀기','앞으로 이동']});
- releaseFocus=bindConceptFocus(host,video,{steps:item.captions.map(([at],i)=>({at,term:labels[item.id]?.[i]||['움직임 준비','몸의 움직임','이동 결과'][i]})),terms:words,caption,anchor:host.querySelector('.concept-stage')});
+ releaseFocus=bindConceptFocus(host,video,{steps:item.captions.map(([at],i)=>({at,term:labels[item.id]?.[i]||['움직임 준비','몸의 움직임','이동 결과'][i]})),terms:words,caption,anchor:host.querySelector('.concept-stage'),seekLead:film?0.35:0});
  return {play,replay(){if(failed)return;voiced=null;holding=false;video.currentTime=0;play();},get failed(){return failed;},
   destroy(){if(closed)return;closed=true;stopLine();releaseFocus();clearTimeout(timer);for(const [el,name,fn] of events)el.removeEventListener(name,fn);video.pause();sources.forEach(x=>x.removeAttribute('src'));video.removeAttribute('src');video.load();onPlayingChange(false);}};
 }

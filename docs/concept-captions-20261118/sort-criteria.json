@@ -1,0 +1,29 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/02/src/sort-criteria.mp4",
+ "out": "../../../_scratch/caption-motion-20261118/concepts/02/out/sort-criteria.mp4",
+ "out_webm": "../../../_scratch/caption-motion-20261118/concepts/02/out/sort-criteria.webm",
+ "theme": {
+  "box": "#10271e",
+  "accent": "#ffe08a",
+  "hot": "#ffe08a"
+ },
+ "bottom": 20,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 3.9,
+   "text": "‘빠르게 움직이나요?’로 나누면 세 연구원의 결과가 서로 달라."
+  },
+  {
+   "s": 4,
+   "e": 7.9,
+   "text": "‘[날개]가 있나요?’는 몸을 보면 누구나 똑같이 확인할 수 있어."
+  },
+  {
+   "s": 8,
+   "e": 12,
+   "text": "누구나 [같은 결과]가 나오고, 동물이 두 무리로 나뉘는 [기준]이 좋은 분류 [기준]이야."
+  }
+ ]
+}

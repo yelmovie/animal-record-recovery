@@ -1,0 +1,29 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/02/src/habitat-life.mp4",
+ "out": "../../../_scratch/caption-motion-20261118/concepts/02/out/habitat-life.mp4",
+ "out_webm": "../../../_scratch/caption-motion-20261118/concepts/02/out/habitat-life.webm",
+ "theme": {
+  "box": "#10271e",
+  "accent": "#ffe08a",
+  "hot": "#ffe08a"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.2,
+   "text": "낙타는 모래가 많은 건조한 곳에 살아. 넓적한 [발바닥]으로 모래를 디뎌."
+  },
+  {
+   "s": 4.3,
+   "e": 8.5,
+   "text": "펭귄은 추운 바다에 살아. 짧은 [날개]로 물을 밀며 헤엄쳐."
+  },
+  {
+   "s": 8.6,
+   "e": 12.9,
+   "text": "오리는 연못에 살아. [물갈퀴]로 물을 밀어. [사는 곳]에 알맞은 생김새를 가졌어."
+  }
+ ]
+}

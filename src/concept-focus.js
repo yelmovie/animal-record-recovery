@@ -13,7 +13,8 @@ export function emphasizeConcept(text, terms) {
   }
   return result+escapeText(String(text).slice(last));
 }
-export function bindConceptFocus(host, video, {steps, terms, caption, anchor, controls=true, reduced=false}) {
+// seekLead: a step button lands this far into its scene (clips whose caption is burned in fade it in first).
+export function bindConceptFocus(host, video, {steps, terms, caption, anchor, controls=true, reduced=false, seekLead=0}) {
   if (!host || !video || !caption || !anchor || !host.ownerDocument) return () => {};
   const doc=host.ownerDocument;
   if (!doc.querySelector('link[data-concept-focus-style]')) {
@@ -38,7 +39,7 @@ export function bindConceptFocus(host, video, {steps, terms, caption, anchor, co
   };
   rail.addEventListener('click',event=>{
     const button=event.target.closest('button');if(!button)return;
-    if(button.hasAttribute('data-science-step')){video.pause();video.hidden=false;host.querySelectorAll('.concept-end-frame,.concept-end').forEach(el=>{el.hidden=true;});/* Seek just inside the cue: media clocks round fractional seconds. */const at=steps[Number(button.dataset.scienceStep)].at;video.currentTime=at>0?at+0.001:0;video.dispatchEvent(new Event('timeupdate'));update();}
+    if(button.hasAttribute('data-science-step')){video.pause();video.hidden=false;host.querySelectorAll('.concept-end-frame,.concept-end').forEach(el=>{el.hidden=true;});/* Seek just inside the cue: media clocks round fractional seconds. */const at=steps[Number(button.dataset.scienceStep)].at;video.currentTime=seekLead?at+seekLead:at>0?at+0.001:0;video.dispatchEvent(new Event('timeupdate'));update();}
     else if(video.paused)video.play().catch(()=>update());else video.pause();
   },options);
   for(const event of ['timeupdate','seeked','play','pause','ended','loadedmetadata'])video.addEventListener(event,update,options);

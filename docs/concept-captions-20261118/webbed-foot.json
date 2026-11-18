@@ -1,0 +1,29 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/02/src/webbed-foot.mp4",
+ "out": "../../../_scratch/caption-motion-20261118/concepts/02/out/webbed-foot.mp4",
+ "out_webm": "../../../_scratch/caption-motion-20261118/concepts/02/out/webbed-foot.webm",
+ "theme": {
+  "box": "#10271e",
+  "accent": "#ffe08a",
+  "hot": "#ffe08a"
+ },
+ "bottom": 30,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 3.4,
+   "text": "오리는 발가락 사이 [물갈퀴]를 쫙 펴서 물을 뒤로 밀어."
+  },
+  {
+   "s": 3.5,
+   "e": 6.9,
+   "text": "[넓은 면]으로 물을 많이 밀수록 몸은 앞으로 잘 나아가."
+  },
+  {
+   "s": 7,
+   "e": 10,
+   "text": "[오리발]도 같은 원리야. 넓고 납작한 면이 물을 밀어."
+  }
+ ]
+}

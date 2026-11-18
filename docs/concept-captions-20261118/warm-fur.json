@@ -1,0 +1,35 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/02/src/warm-fur.mp4",
+ "out": "../../../_scratch/caption-motion-20261118/concepts/02/out/warm-fur.mp4",
+ "out_webm": "../../../_scratch/caption-motion-20261118/concepts/02/out/warm-fur.webm",
+ "theme": {
+  "box": "#10271e",
+  "accent": "#ffe08a",
+  "hot": "#ffe08a"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 2.9,
+   "text": "몸에서는 따뜻한 [열]이 계속 나와."
+  },
+  {
+   "s": 3,
+   "e": 6.4,
+   "text": "[털]이 없으면 [열]이 금방 밖으로 빠져나가."
+  },
+  {
+   "s": 6.5,
+   "e": 9.9,
+   "text": "촘촘한 [털] 사이에는 [공기]가 머물러서 [열]이 천천히 빠져나가."
+  },
+  {
+   "s": 10,
+   "e": 12,
+   "text": "[털]이 [열]을 만드는 게 아니야. 빠져나가는 [열]을 줄여 주는 거야.",
+   "bottom": 160
+  }
+ ]
+}

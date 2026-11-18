@@ -1,0 +1,29 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/02/src/shell-helmet.mp4",
+ "out": "../../../_scratch/caption-motion-20261118/concepts/02/out/shell-helmet.mp4",
+ "out_webm": "../../../_scratch/caption-motion-20261118/concepts/02/out/shell-helmet.webm",
+ "theme": {
+  "box": "#10271e",
+  "accent": "#ffe08a",
+  "hot": "#ffe08a"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 3.4,
+   "text": "거북은 단단한 [등딱지]가 몸을 감싸고 있어."
+  },
+  {
+   "s": 3.5,
+   "e": 6.9,
+   "text": "무언가에 부딪혀도 [단단한 덮개]가 충격을 막아 줘."
+  },
+  {
+   "s": 7,
+   "e": 10,
+   "text": "[안전모]도 [단단한 덮개]로 머리를 감싸서 지켜 줘."
+  }
+ ]
+}
