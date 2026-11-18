@@ -20,7 +20,7 @@ test('broadcast next action points to the next unfinished animal and offers send
  const s=legacy();fill(s,3,0);let html=commissionView(s,{stage:3,requestCard:1});
  assert.match(html,/원고 완성! ‘방송 들어보기’로 들어 봐/);assert.match(html,/data-action="broadcast-next"/);
  fill(s,3,1);html=commissionView(s,{stage:3,requestCard:3});
- assert.doesNotMatch(html,/data-action="commission-submit"/);assert.doesNotMatch(html,/broadcast-continue[^>]*disabled/);
+ assert.match(html,/class="btn primary commission-finish is-ready[^"]*" data-action="commission-submit"/,'the finished broadcast waits for the learner to finish it');assert.doesNotMatch(html,/broadcast-continue[^>]*disabled/);
  assert.match(html,/<details class="broadcast-script-preview"><summary>/);
 });
 

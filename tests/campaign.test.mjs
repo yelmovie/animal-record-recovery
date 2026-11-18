@@ -63,7 +63,7 @@ test('both request parts are reachable as cards with distinct action scopes and 
  const s=campaignFixture(),first=commissionView({...s,sorts:[{},{}]},{stage:2,commissionIndex:0,requestCard:0}),html=commissionView(s,{stage:2,commissionIndex:0,requestCard:1});
  assert.match(first,/data-request-part="0"/);assert.match(html,/data-request-part="1"/);assert.match(first,/data-action="request-card" data-value="1"/);
  assert.match(html,/data-commission-index="1" data-action="pick"/);
- assert.equal((html.match(/data-action="commission-submit"/g)||[]).length,0);
+ assert.equal((html.match(/data-action="commission-submit"/g)||[]).length,1,'one finish button for the whole request');assert.match(html,/commission-finish is-waiting/);
  assert.doesNotMatch(html,/본 미션|응용 미션/);
 });
 test('invention requests continue the latest finished product first and label both archived projects explicitly',()=>{

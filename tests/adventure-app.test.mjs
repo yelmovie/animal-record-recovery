@@ -268,7 +268,8 @@ test('guided invention leads to an empty creative studio, then preserves artwork
  assert.equal(a.run('step'),3);assert.match(a.app.innerHTML,/data-studio="showcase"/);assert.doesNotMatch(a.app.innerHTML,/data-action="lab-summary"/);
  a.run('advance()');assert.equal(a.dialog.open,false);
  a.run('s.studio.audience="산책하는 친구";s.studio.purpose="발을 따뜻하게 감싸 줘";s.studio.inspiration="토끼의 털";advance()');
- assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);assert.equal(a.run('s.studioRecord.title'),'구름 신발');
+ assert.equal(a.dialog.open,true,'the finished request gets its own moment');assert.match(a.dialog.innerHTML,/부탁 완료!/);a.run("act('close-dialog',{dataset:{}})");assert.equal(a.dialog.open,false);
+ assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);assert.equal(a.run('s.studioRecord.title'),'구름 신발');
  a.run('act("commission-accept",{dataset:{id:"5"}});submitCommission()');assert.equal(a.run('screen'),'commission');assert.equal(a.run('commissionIndex'),2);
  const restored=model.restoreExpedition(a.saved);assert.equal(restored.studioRecord.title,'구름 신발');assert.ok(campaign.campaignDone(restored,5,0));assert.ok(campaign.campaignDone(restored,5,1));assert.equal(restored.activities.length,25);
 });
@@ -370,7 +371,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  assert.equal(activityCount(),23);
  a.run('s.studio={...s.studio,title:"날개 우산",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:400,y:300}]}]};advance()');
  a.run('s.studio.audience="비 오는 날 걷는 친구";s.studio.purpose="날개처럼 넓게 덮어 줘";s.studio.inspiration="오리 날개";advance()');
- assert.equal(activityCount(),25);assert.equal(a.dialog.open,false);finishRequest(5);
+ assert.equal(activityCount(),25);assert.match(a.dialog.innerHTML,/부탁 완료!/);act('close-dialog');assert.equal(a.dialog.open,false);finishRequest(5);
  const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,25);assert.equal(Object.keys(saved.campaign.records).length,14,'the repeated garden challenge is optional');
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.doesNotMatch(a.app.innerHTML,/탐험 별/);
@@ -459,7 +460,8 @@ test('garden answers move through sorting, verification and requests without nex
  assert.equal(a.run('requestCard'),0);assert.match(a.app.innerHTML,/data-request-part="1"/);
  a.run("act('commission-choice',{dataset:{key:'criterion',value:'six',commissionIndex:'1'}})");
  for(const id of ['hen','bat','bee','snail'])a.run(`act('commission-sort',{dataset:{id:'${id}',value:'${id==='bee'?'yes':'no'}',commissionIndex:'1'}})`);
- a.flushTimers();assert.equal(a.run('campaignDone(s,2,2)'),false);
+ a.flushTimers();assert.equal(a.run('screen'),'commission','the reply waits for the finish button');assert.match(a.app.innerHTML,/commission-finish is-ready/);
+ a.run("act('commission-submit',{dataset:{}})");assert.equal(a.run('campaignDone(s,2,2)'),false);
  assert.equal(a.run('screen'),'reward');assert.equal(a.run('s.activities.length'),2);
 });
 
@@ -516,7 +518,7 @@ test('request cards grade immediately, retry immediately and progress across eve
   const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+`;openCommission(${stage},0)`);
   if(stage===5){
    // Older saves retain their two retest tasks.
-   a.run(`for(const part of [0,1]){const d=campaignDraft(s,5,part),p=designProblem(s,part),r=RETEST[p];d.trials=[{problem:p,level:1},{problem:p,level:2},{problem:p,level:3}];d.answers={choice:String(r.target),reason:'fit'};}progressRequest()`);a.flushTimers();
+   a.run(`for(const part of [0,1]){const d=campaignDraft(s,5,part),p=designProblem(s,part),r=RETEST[p];d.trials=[{problem:p,level:1},{problem:p,level:2},{problem:p,level:3}];d.answers={choice:String(r.target),reason:'fit'};}progressRequest()`);a.flushTimers();a.run("act('commission-submit',{dataset:{}})");
   }else{
    let attempts=0;
    while(a.run('screen')==='commission'&&a.run('commissionIndex')<2){
@@ -532,20 +534,24 @@ test('request cards grade immediately, retry immediately and progress across eve
     }
     // A finished broadcast script waits for its broadcast (here: the learner moves on after listening).
     a.flushTimers();if(card.kind==='broadcast'){assert.equal(a.run('commissionIndex===2||requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard]?.animal'),card.animal||true,'still on the finished script');a.run(`act('broadcast-next',{dataset:{}})`);a.flushTimers();}
+    if(a.run('screen')==='commission'&&a.run('commissionIndex')<2&&a.run('requestCards(s,stage,requestParts(stage,commissionIndex)).every(c=>cardReady(s,stage,c))'))a.run("act('commission-submit',{dataset:{}})");
    }
   }
-  if(stage!==2){assert.equal(a.run('commissionIndex'),2);a.run(`for(const row of missionRows(s,stage,2))act('commission-choice',{dataset:{key:row.key,value:row.answer,commissionIndex:'2'}})`);a.flushTimers();if(stage===3){assert.equal(a.run('screen'),'commission','the special broadcast waits too');a.run(`act('broadcast-next',{dataset:{}})`);a.flushTimers();}}
+  if(stage!==2){assert.equal(a.run('commissionIndex'),2);a.run(`for(const row of missionRows(s,stage,2))act('commission-choice',{dataset:{key:row.key,value:row.answer,commissionIndex:'2'}})`);a.flushTimers();if(stage===3){assert.equal(a.run('screen'),'commission','the special broadcast waits too');a.run(`act('broadcast-next',{dataset:{}})`);a.flushTimers();}
+   assert.equal(a.run('screen'),'commission','the challenge waits for its finish button');a.run("act('commission-submit',{dataset:{}})");}
   assert.equal(a.run('screen'),'reward','stage '+stage+' ends on the reward');assert.equal(a.dialog.open,true);
   assert.equal(a.run('campaignDone(s,stage,0)&&campaignDone(s,stage,1)'),true);
  }
 });
 
-test('completion opens the compact NPC dialogue then returns to the map for the restoration once',()=>{
+test('completion opens the compact NPC dialogue, stays on the reward screen, then its button shows the restoration once',()=>{
  for(const stage of [1,2,3,4,5]){
   const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+`;s.campaign=freshCampaign(${JSON.stringify(Array.from({length:stage},(_,i)=>i+1))});stage=${stage};completeStage(true)`);
-  assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/잠시 뒤 지도로 돌아가/);
+  assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/복구 완료/);
   assert.doesNotMatch(a.dialog.innerHTML,/npc-scene-detail|편지 읽기/);
-  a.flushTimers();assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'map');
+  a.flushTimers();assert.equal(a.dialog.open,false);assert.equal(a.run('screen'),'reward','the stage ends on its own reward screen');
+  assert.equal(a.run('pendingRestoration'),stage);
+  a.run("act('map',{dataset:{}})");assert.equal(a.run('screen'),'map');
   assert.equal(a.run('selectedStage'),Math.min(stage+1,5));assert.equal(a.run('autoEnter'),false);
   assert.equal(a.run('pendingRestoration'),null);
   const after=a.run('screen');a.flushTimers();assert.equal(a.run('screen'),after);
@@ -589,7 +595,7 @@ test('backgrounding postpones automatic movement until the activity is visible a
  a.flushTimers();assert.equal(a.run('activeHabitat'),'forest');
  a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('activeHabitat'),'pond');
  a.run('s.completed=[1];stage=1;completeStage();document.hidden=true');a.flushTimers();assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,true);
- a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('screen'),'map');assert.equal(a.run('selectedStage'),2);
+ a.run('document.hidden=false;resumeActivityProgress()');a.flushTimers();assert.equal(a.run('screen'),'reward');assert.equal(a.dialog.open,false);a.run("act('map',{dataset:{}})");assert.equal(a.run('screen'),'map');assert.equal(a.run('selectedStage'),2);
 });
 
 test('screen 07 in 3D: each gate records the same link answer as a card and the activity continues as before',()=>{

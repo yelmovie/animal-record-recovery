@@ -516,18 +516,18 @@ function cancelCompletion(){
   if(completionTimer!==null)globalThis.clearTimeout?.(completionTimer);
   completionTimer=null;completionRoute=null;
 }
+// The thank-you line ends on the reward screen ("복구 완료!"); its own button takes the learner to the restored map.
 function finishCompletion(){
   if(!completionRoute||document.hidden||screen!=='reward'||stage!==completionRoute.stage)return;
-  const next=STAGES.find(t=>!restoredPlaces(s).includes(t.id)&&isStageOpen(s,t.id));
   cancelCompletion();dialog.close();resetNpcDialogue();
-  restoredFlash=pendingRestoration;pendingRestoration=null;selectedStage=next?.id??stage;
-  go('map');
+  const next=app.querySelector?.('.reward-actions>.primary');next?.classList?.add('action-cue');next?.focus?.({preventScroll:true});
 }
 function completeStage(fresh=false){
   if(fresh)pendingRestoration=stage;
   go('reward');
   const c=COMMISSIONS[stage-1],npc={id:c.portrait,name:c.npc,near:String(stage),after:c.thanks};
   completionRoute={stage};
+  if(dialog.open)dialog.close();
   talk(npc,c.thanks,null,{automatic:true,onEnd:finishCompletion});
   completionTimer=globalThis.setTimeout?.(finishCompletion,Math.max(4500,c.thanks.length*125))??null;
 }
@@ -556,7 +556,7 @@ function progressRequest(){
   }
   scheduleActivityProgress(()=>{
     const next=cards.findIndex(item=>!cardReady(s,stage,item));
-    if(next<0){submitCommission();return;}
+    if(next<0){awaitFinish();return;}
     requestCard=next;commissionIndex=cards[next].part;feedback=null;render();
   });
 }
@@ -675,6 +675,13 @@ function requestCommission(id,index=0){
   playSound(s.soundEnabled,'star');
   document.querySelector('#announcer').textContent=`${COMMISSIONS[id-1].npc}에게서 편지가 도착했어.`;
 }
+// Every card is right: the reply waits for the learner's own tap on the glowing finish button.
+function awaitFinish(){
+  const label=commissionIndex===2?'도전 완료하기':'부탁 완료하기';
+  feedback={good:true,text:`카드를 모두 채웠어! ‘${label}’를 눌러 마무리해.`};render();
+  document.querySelector('#announcer').textContent=feedback.text;
+  app.querySelector?.('.commission-footer .commission-finish')?.focus?.({preventScroll:true});
+}
 // Jump to the card that holds the first blank (or else wrong) answer and mark that row.
 function showGap(){const parts=requestParts(stage,commissionIndex),gap=requestGap(s,stage,parts);picked=null;if(!gap)return say(campaignHint(s,stage,commissionIndex));
   const cards=requestCards(s,stage,parts),k=cards.findIndex(c=>c.part===gap.index&&(c.kind==='own-sort'||c.kind==='retest'||c.rows.some(r=>r.key===gap.key)));
@@ -682,19 +689,23 @@ function showGap(){const parts=requestParts(stage,commissionIndex),gap=requestGa
 // The last challenge is part of every place: the two requests lead straight into it, and the reward waits until it is done.
 const challengeLeft=()=>stage!==2&&campaignOpen(s,stage,2)&&!campaignDone(s,stage,2);
 function toChallenge(){openCommission(stage,2);say('부탁을 해결했어! 이제 마지막 도전으로 이 장소를 완성하자.',true);}
+function requestFinished(){
+  const c=COMMISSIONS[stage-1];toChallenge();
+  modal('부탁 완료!',`<section class="request-finished"><span class="request-finished-stamp">${icon('check')} 답장 완료</span><p><b>${esc(c.npc)}</b>에게 답장을 보냈어. ${esc(c.exhibit)} 기록이 전시관에 올라갔어.</p><p class="request-finished-next">이제 마지막 도전 <b>${esc(c.challenge.title)}</b>만 남았어.</p></section><div class="dialog-actions">${btn('마지막 도전 시작 '+icon('arrow'),'close-dialog','primary','autofocus')}</div>`);
+}
 function submitCommission(){
   if(screen!=='commission')return;
   if(commissionIndex<2){
     const result=claimRequest(s,stage);
     if(!result.ok)return showGap();
     if(result.fresh&&result.restored)pendingRestoration=stage;save();
-    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return toChallenge();completeStage();return;
+    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return requestFinished();completeStage();return;
   }
   const result=claimCommission(s,stage,commissionIndex);
   if(!result.ok)return showGap();
   save();
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
-  if(commissionIndex===1&&challengeLeft())return toChallenge();
+  if(commissionIndex===1&&challengeLeft())return requestFinished();
   if(commissionIndex>=1){completeStage();return;}
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
 }
