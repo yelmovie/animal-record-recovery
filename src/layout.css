@@ -1475,3 +1475,19 @@ dialog .request-finished-stamp .icon{width:28px;height:28px}
 dialog .request-finished-next{color:#2c5236;font-weight:700}
 @keyframes request-stamp{from{opacity:0;transform:scale(1.6) rotate(-4deg)}to{opacity:1;transform:scale(1) rotate(-4deg)}}
 @media (prefers-reduced-motion:reduce){dialog .request-finished-stamp{animation:none}}
+/* Balance on wide, short windows (desktop browsers, wide boards): the work is the centre of the page.
+   --stage-gutter is the spare width beside a 7:4 stage; work blocks move in by it so the bench and its
+   panel sit together in the middle and the scenery stays open on both sides. Tablets (16:10, 4:3) get 0. */
+@media (min-aspect-ratio:7/4) and (min-width:1200px){
+ #app .mission-page{--stage-gutter:max(0px,calc((100vw - var(--app-height,100dvh)*1.75)/2))}
+ #app #main.mission-page .activity-workspace>.design-bench{padding-left:calc(18px + var(--stage-gutter));padding-right:calc(var(--design-card) + 30px + var(--stage-gutter))}
+ #app #main.mission-page .activity-workspace>.design-options.paged-panel{right:calc(14px + var(--stage-gutter))}
+ #app #main.mission-page .activity-workspace>.creative-studio{padding-left:calc(14px + var(--stage-gutter))!important;padding-right:calc(14px + var(--stage-gutter))!important}
+}
+/* 1장 compare: the two animals and the question are the page, so they take more of it. */
+@media (min-width:901px) and (min-height:651px){
+ #app #main.mission-page .forest-compare{width:min(1500px,88%)}
+ #app #main.mission-page .forest-compare-animals .animal{height:clamp(190px,36dvh,440px)}
+ #app #main.mission-page .forest-compare-question{max-width:720px}
+}
+#app #main#main .studio-empty>span{font-size:18px!important}
