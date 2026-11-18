@@ -12,6 +12,7 @@
 | 사용자 제공 생성 영상 6종 (`gemini_generated_video_*.mp4`) | 동물 움직임 영상(낙타·펭귄 제외) | 확인 필요 (2026-10-20) | 생성 모델·요금제 기록 없음(아래 2026-10-18 기록) — 사용자 확인 |
 | Pixabay 효과음 10종 (2026-10-20 `drop.mp3` 사용 중지로 11→10) | 효과음 | 가능 | Pixabay Content License(출처 표기 불필요·상업 이용 가능) |
 | 과학34 공통 효과음 라이브러리 CC0 8종 (2026-11-17) | 지도 악당 효과음 | 가능 | CC0 1.0(원본 페이지 재확인). 아래 "지도 악당 효과음" 표 |
+| 과학34 공통 효과음 라이브러리 CC0 5종 (2026-11-18) | 성취 카드 효과음 | 가능 | CC0 1.0(원본 페이지 재확인). 아래 "성취 카드" 표 |
 | 나눔스퀘어 네오 | 글꼴 | 가능 | NAVER, SIL OFL 1.1, 원문 `fonts/NanumSquareNeo-OFL.txt` 동봉 |
 | three.js | 3D 표시 | 가능 | MIT License |
 | Remotion | 쓰지 않음 | 해당 없음 | `package.json`·백업 package.json·코드에 사용 흔적 없음(영상은 ffmpeg로 편집) |
@@ -68,6 +69,21 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 | sfx/encounter-appear.mp3 | 악당이 지도에 처음 보일 때(작은 뽁, 페이지당 악당마다 한 번) | `sfx/villain-appear-02.mp3` | Mouth Pop 1 · michorvath | https://freesound.org/people/michorvath/sounds/269501 |
 | sfx/encounter-contact.mp3 | 하루·모리가 악당에 닿아 움찔(툭, 둘 다 닿아도 한 번) | `sfx/hurt-bump-01.mp3` | LowHit_01.wav · Faulkin | https://freesound.org/people/Faulkin/sounds/336495 |
 | sfx/encounter-victory.mp3 | 다섯 악당을 모두 물리쳐 피날레 영상이 열릴 때(영상은 음소거라 겹치지 않음) | `sfx/victory-jingle-04.mp3` | game-win.mp3 · mickleness | https://freesound.org/people/mickleness/sounds/269198 |
+
+## 성취 카드 (2026-11-18 추가)
+
+지도 악당을 세 번 맞혀 물리치면 받는 성취 카드 5장의 그림과 소리.
+
+- 그림 `reward-cards/card-{1..5}-*.webp`(640×960), `reward-cards/thumb-{1..5}-*.webp`(96×144): 2026-11-18 ChatGPT 앱의 Codex 내장 이미지 도구(GPT 이미지)로 이 프로젝트를 위해 생성했다. 하루 전신 그림(`adventure/explorer.webp`)·모리 시트(`raccoon.webp`)와 각 장소의 활동 배경을 화풍 참고로 붙였다. 글자 없이 생성했고 테두리·별·이름은 코드(`src/reward-cards.js`, `src/reward-cards.css`)로 올린다. 원본 PNG는 `_scratch/reward-cards-20261118/gen/02/`에 있다.
+- 소리: 과학34 공통 효과음 라이브러리(`_shared/sfx-library-20261117/`)에서 이름만 바꿔 복사했다(가공은 라이브러리에서 한 무음 제거·음량 정규화뿐). 모두 CC0 1.0이며 라이브러리 작성 때(2026-11-17) 원본 페이지에서 라이선스를 다시 확인했다. 파일을 불러오지 못하면 `src/audio.js`의 합성음으로 대신한다.
+
+| 파일 | 쓰는 곳 | 라이브러리 파일 | 원본 제목 · 제작자 | 원본 페이지 |
+|---|---|---|---|---|
+| sfx/card-whoosh.mp3 | 카드가 날아올 때·보관함 칸으로 날아갈 때(휙) | `sfx/wind-whoosh-03.mp3` | Slow Swosh 40 · qubodup | https://freesound.org/people/qubodup/sounds/60027 |
+| sfx/card-reveal.mp3 | 카드 공개(브론즈·실버·골드, 반짝) | `sfx/reward-01.mp3` | Fantasy_ui_Button_3.wav · ZenithInfinitiveStudios | https://freesound.org/people/ZenithInfinitiveStudios/sounds/376745 |
+| sfx/card-epic.mp3 | 카드 공개(홀로·레전드, 긴 징글) | `sfx/reward-03.mp3` | Achievement Happy Beeps Jingle · CogFireStudios | https://freesound.org/people/CogFireStudios/sounds/619838 |
+| sfx/card-slot.mp3 | 카드가 보관함 칸에 들어갈 때(톡) | `sfx/pickup-01.mp3` | item-pickup-v1.wav · DeltaCode | https://freesound.org/people/DeltaCode/sounds/678384 |
+| sfx/card-complete.mp3 | 다섯 장을 모두 모았을 때(피날레 영상이 열리면 멈춤) | `sfx/victory-jingle-01.mp3` | Game Success Fanfare Short · el_boss | https://freesound.org/people/el_boss/sounds/677858 |
 
 ## 동물 그림 추가 (2026-10-17)
 

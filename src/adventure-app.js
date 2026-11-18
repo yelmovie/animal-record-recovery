@@ -15,7 +15,8 @@ import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presen
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {createNavigation} from './navigation.js';
-import {playSound,silence,playMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS} from './audio.js';
+import {playSound,silence,playMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS} from './audio.js';
+import {bindRewardSound,rewardSlotsHtml,awardRewardCard,newRewardCards} from './village-rewards.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
 import {KEYS as LINK_KEYS,rowOptions} from './link-course.js';
@@ -189,7 +190,7 @@ function render(){
   const active=document.activeElement,data=active?.dataset?.action?{...active.dataset}:null;
   mapRender++;map?.destroy();map=null;mapFailed=false;mapModuleFailed=false;
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
-  const flashed=restoredFlash;app.innerHTML=header(s,view())+page(s,view());restoredFlash=null;
+  const flashed=restoredFlash;app.innerHTML=header(s,{...view(),rewardSlots:screen==='map'?rewardSlotsHtml(s.mapEncounters):''})+page(s,view());restoredFlash=null;
   setupPanels();syncWorkshopCue();
   unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
     setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
@@ -226,18 +227,25 @@ function showMapFailure(moduleFailed=false){
  document.querySelector('#map-recovery')?.remove();
  tip.insertAdjacentHTML('afterend',`<section id="map-recovery" class="map-status is-error" aria-label="지도 다시 열기"><span role="status">지도를 불러오지 못했어. 기록은 그대로야.</span>${btn('다시 불러오기','map-retry','secondary')}${id?btn(id===1?'관찰의 숲 시작하기':'다음 탐험 시작하기','map-direct','primary',`data-id="${id}"`):''}</section>`);
 }
+// The achievement card waits for the villain's exit (760ms; 520ms with reduced motion). While it is open #app is inert, which holds the map,
+// the villains and the all-villains finale; the finale's own jingle then cuts the card-collection jingle short (onEncounterTone) so the two never overlap.
+bindRewardSound(name=>playSound(s.soundEnabled,name));
+function awardCards(won){
+ const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ for(const index of won)awardRewardCard(index,()=>s.mapEncounters,()=>screen==='map',reduced?520:760);
+}
 function mountVillage(flashed){
  const revision=mapRender;
  const current=()=>screen==='map'&&!mapFailed&&mapRender===revision;
  const start=()=>{
   if(!current())return;
-  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{s.mapEncounters={...s.mapEncounters,...next};save();},onEncounterTone:(kind,hits)=>{const name=encounterSound(kind,hits);if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{const won=newRewardCards(s.mapEncounters,next);s.mapEncounters={...s.mapEncounters,...next};save();awardCards(won);},onEncounterTone:(kind,hits)=>{const name=encounterSound(kind,hits);if(kind==='victory')silence();if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen||app.inert===true,onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(!current()||selectedStage!==id)return;
     arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}save();
   }});
-  if(s.soundEnabled&&Object.values(s.mapEncounters??{}).filter(hits=>hits>=3).length<5)preloadSounds(ENCOUNTER_SOUNDS);
+  if(s.soundEnabled&&Object.values(s.mapEncounters??{}).filter(hits=>hits>=3).length<5)preloadSounds([...ENCOUNTER_SOUNDS,...REWARD_SOUNDS]);
   if(autoEnter&&isStageOpen(s,selectedStage))map.move(selectedStage);
  };
  if(villageFactory){start();return;}

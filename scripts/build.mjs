@@ -8,7 +8,8 @@ import { ASSETS } from '../src/assets.js';
 import { STORIES } from '../src/story-player.js';
 import { CONCEPTS } from '../src/concepts.js';
 import { RUN_ART } from '../src/link-course.js';
-import { ENCOUNTER_SOUNDS } from '../src/audio.js';
+import { ENCOUNTER_SOUNDS, REWARD_SOUNDS } from '../src/audio.js';
+import { REWARD_CARDS } from '../src/village-rewards.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const files=['index.html',...['korean.js','research-report.js','motion-video.js','tablet.css','campaign.js','campaign-views.js','campaign.css','inquiry.js','inquiry-views.js','inquiry.css','adventure-app.js','expedition.js','model.js','navigation.js','audio.js','drag.js','assets.js','presentation.js','settings-content.js','mission-views.js','shell-views.js','trail-map.js','village.js','adventure.css','view3d.js','stage3d.js','scanner3d.js','dome3d.js',...['three.module.min.js','three.core.min.js','GLTFLoader.js','BufferGeometryUtils.js','LICENSE.txt'].map(f=>`vendor/three/${f}`)].map(f=>`src/${f}`),
@@ -36,6 +37,8 @@ const dialogueResidents=['researcher','curator','ranger','detective','engineer']
 files.push('src/npc-dialogue.css','assets/audio/npc-dialogue/mori-welcome.mp3',...['mori',...dialogueResidents].map(id=>`assets/residents/dialogue/${id}.webp`),...dialogueResidents.flatMap(id=>['before','after','after-expanded','before-expanded'].map(part=>`assets/audio/npc-dialogue/${id}-${part}.mp3`)));
 // Screen 07 in 3D (stage 3 life path): its 3D module is imported on demand, so the walk below does not find it.
 files.push('src/link-run.css','src/link-run3d.js','src/link-course.js','src/relay.css','src/relay3d.js','src/relay-course.js','src/relay.js','src/relay-views.js','src/map-controls.js',...RUN_ART.map(name=>`assets/relay/${name}.webp`));
+// Achievement cards for defeated map villains: styles, sounds, and the art and slot thumbnail of each card (the modules are found by the walk below).
+files.push('src/reward-cards.css',...REWARD_SOUNDS.map(f=>`assets/sfx/${f}.mp3`),...REWARD_CARDS.flatMap(({id},i)=>['card','thumb'].map(kind=>`assets/reward-cards/${kind}-${i+1}-${id}.webp`)));
 // Ship the full runtime, but preload only the static dependencies of the landing screen.
 async function walk(file,modules){
   if(modules.has(file))return;
