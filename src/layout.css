@@ -1441,3 +1441,17 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 #app #main#main .lens-notes>*{grid-column:1/-1;grid-row:auto}
 /* Student-visible labels stay at 18px or larger (map place names, at every width). */
 #app #main.map-page .map-markers .map-marker>b{font-size:clamp(18px,1.6vw,20px)}
+/* 3-second rule: student-visible text never below 18px. Three ids outrank the older !important pins. */
+#app #main#main :is(.pin3d>b,.pin3d>span,.verify-step h3>span,.panel-tabs>.btn:not(.tab-done) .tab-num,.panel-tabs>.btn.tab-done,.habitat-caption b,.motion-checklist>b,.motion-channel span,.motion-player-badge,.motion-time,.motion-time>span,.motion-photo-toolbar>p,.motion-legacy-record,.flashlight-note small,.journey-movement>p,.design-checklist>li,.name-input-badge,.name-input-help,.lab-controls .condition small,.trial-pair article>b,.studio-width>span,.studio-width output,.studio-drawing-footer>span,.studio-notebook summary,.studio-idea-animals article>b,.client-card small,.client-card>p,.deck-chip>i,.part-tag,.evidence-photos .note-page>b,.record-row legend>span,.museum-curator>span,.museum-plinth span,.museum-curator-note>summary,.village-resident>span){font-size:18px!important}
+#app #main#main .habitat-notes .motion-observer>.motion-caption{font-size:clamp(18px,2vh,22px)!important}
+#app #main#main.museum-page .museum-entry :is(.museum-habitat,.museum-notes li){font-size:clamp(18px,1.95vh,22px)!important}
+#app #main#main.museum-page :is(.museum-entry .museum-restored,.museum-facts>.museum-fact:not(.museum-entry)>p){font-size:clamp(18px,2.25vh,25px)!important}
+#app #main#main.museum-page :is(.museum-entry p b,.museum-facts>.museum-fact>span){font-size:clamp(18px,1.7vh,19px)!important}
+#app #main#main.museum-page .museum-case .museum-specimens figcaption{font-size:clamp(18px,1.9vh,22px)!important}
+@media (min-height:950px){
+ #app #main#main.museum-page .museum-entry :is(.museum-habitat,.museum-notes li){font-size:clamp(18px,2.3vh,26px)!important}
+ #app #main#main.museum-page :is(.museum-entry .museum-restored,.museum-facts>.museum-fact:not(.museum-entry)>p){font-size:clamp(20px,2.7vh,30px)!important}
+ #app #main#main.museum-page :is(.museum-entry p b,.museum-facts>.museum-fact>span){font-size:clamp(18px,2vh,22px)!important}
+}
+#app#app .landing .landing-kicker{font-size:clamp(18px,2vh,24px)}
+dialog#dialog .setting-row>strong{font-size:18px!important}
