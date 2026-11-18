@@ -1,7 +1,7 @@
 import {addExperimentTrial} from '../src/inquiry.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {VERSION,STAGES,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,ANIMALS,DISCOVERIES,LINKS,CASES,PROBLEMS,freshExpedition,restoreExpedition,taskReady,claimTask,isStageOpen,recordTrial,availableTools,collectedAnimals,reportDesigns} from '../src/expedition.js';
+import {VERSION,STAGES,OBSERVATIONS,OBSERVE_PAIRS,COMPARES,SORT_ANIMALS,ANIMALS,DISCOVERIES,LINKS,CASES,PROBLEMS,freshExpedition,restoreExpedition,taskReady,taskMistake,claimTask,isStageOpen,recordTrial,availableTools,collectedAnimals,reportDesigns} from '../src/expedition.js';
 import {freshState} from '../src/model.js';
 import {MAP_NODES,STAGE_NODE,routeBetween} from '../src/trail-map.js';
 import {page,notebookContent,toolContent} from '../src/shell-views.js';
@@ -43,8 +43,10 @@ test('six habitat discoveries and two different animal relationships are require
 test('stage four needs the right animal plus two opened clues that rule out every other candidate',()=>{
   const s=freshExpedition(),a=s.cases[0];a.candidate='duck';assert.equal(taskReady(s,4,0),false);a.grounds=['place','cover'];assert.equal(taskReady(s,4,0),false,'grounds must be opened clues');a.opened=['cover','move','life'];a.grounds=['cover','move'];assert.equal(taskReady(s,4,0),false,'a hen fits feathers and walking too');a.opened=['place','cover','move'];a.grounds=['place','cover'];a.excluded={frog:'cover',fish:'cover',hen:'place'};assert.equal(taskReady(s,4,0),true);a.candidate='hen';assert.equal(taskReady(s,4,0),false);a.candidate='duck';a.habitat='pond';assert.equal(taskReady(s,4,1),false);a.reason='paddle';assert.equal(taskReady(s,4,1),true);solve(s,4,2);solve(s,4,3);assert.equal(taskReady(s,4,2),true);assert.equal(taskReady(s,4,3),true);
 });
-test('two inventions must solve different problems and both need current trial and explanation',()=>{
-  const s=freshExpedition();solve(s,5,0);recordTrial(s,0);assert.equal(taskReady(s,5,1),false);s.designs[0].explanation='match';completeExperiment(s.designs[0]);assert.equal(taskReady(s,5,1),true);s.designs[1]=structuredClone(s.designs[0]);assert.equal(taskReady(s,5,2),false);solve(s,5,2);assert.equal(taskReady(s,5,3),false);solve(s,5,3);assert.equal(taskReady(s,5,3),true);s.designs[1].structure='layer';assert.equal(taskReady(s,5,3),false);
+test('two inventions must solve different problems; a design opens its film step once feature, part and place fit',()=>{
+  const s=freshExpedition();solve(s,5,0);assert.equal(taskReady(s,5,1),true,'no shape lab stands between the design and its film');
+  s.designs[0].structure='layer';assert.equal(taskReady(s,5,0),true);assert.equal(taskReady(s,5,1),false,'a part that does not fit is not kept');assert.equal(taskMistake(s,5,1).wrong[0],'design:part');solve(s,5,0);
+  s.designs[1]=structuredClone(s.designs[0]);assert.equal(taskReady(s,5,2),false);solve(s,5,2);assert.equal(taskReady(s,5,3),true);s.designs[1].structure='layer';assert.equal(taskReady(s,5,3),false);
 });
 test('migration keeps old evidence without granting new activity or new stage four credit',()=>{
   const old=freshState();old.completed=[1,2,3,4,5];old.observed=Object.values(OBSERVATIONS).slice(0,2).flat().map(o=>o.id);old.compare={common:'eyes',difference:'cover'};

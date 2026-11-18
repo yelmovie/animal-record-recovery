@@ -26,15 +26,6 @@ export function workshopDesignNext(d,picked=false){
  if(!d.structure||!d.spot)return picked?'place':'part';
  return 'continue';
 }
-export function workshopLabNext(d,summary){
- const e=d.experiment;
- if(summary===1)return 'summary';
- if(summary===2)return !e.reflection?'reflection':!e.note.trim()?'note':d.explanation!=='match'?'explain':'continue';
- const trials=e.trials.filter(t=>t.problem===d.problem);
- if(comparisonReady(d))return 'compare';
- if(trials.some(t=>t.level===e.level))return 'level';
- return e.prediction?'test':'prediction';
-}
 export function experimentReady(d){return comparisonReady(d)&&Boolean(d.experiment.reflection)&&Boolean(d.experiment.note.trim());}
 // Completion marker retained for existing saves. New observations accept any
 // chosen moment; motionEvidence stores its real frame and motionPhotos its pixels.

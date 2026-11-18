@@ -68,7 +68,6 @@ export function mountStudio(root,{getStudio,onChange,onDownload}={}){
   if(a==='palette'){const popup=host.querySelector('#studio-color-picker'),r=b.getBoundingClientRect();if(popup){popup.style.left=Math.max(8,Math.min(r.left,window.innerWidth-288))+'px';popup.style.top=Math.max(8,Math.min(r.bottom+8,window.innerHeight-440))+'px';}}
   else if(a==='tool'){settings.tool=b.dataset.studioTool;saveTools();}
   else if(a==='swatch'&&/^#[0-9a-f]{6}$/i.test(b.dataset.color)){settings.color=b.dataset.color;hsv=hexToHsv(settings.color);if(settings.tool==='eraser')settings.tool='pen';saveTools();}
-  else if(a==='shape-add'){const s=state();if(s.strokes.length>=160){status('선을 되돌린 뒤 도형을 더해 줘.');return;}const place=Number(host.querySelector('[data-studio-position]').value),x=200+(place%3)*300,y=150+Math.floor(place/3)*175,size=Number(host.querySelector('[data-studio-size]').value);s.strokes.push(studioShape(host.querySelector('[data-studio-shape]').value,{x,y,size,color:settings.color,width:settings.width}));redo=[];save(s);status('도형을 놓았어. 되돌리기와 다시 그리기도 쓸 수 있어.');}
   else if(a==='undo')undo();else if(a==='redo')again();
   else if(a==='download'){b.disabled=true;status('그림과 소개를 한 장에 담고 있어…');try{await(onDownload||downloadStudioArtwork)(state());if(!disposed)status('작품 이미지 다운로드를 시작했어!');}catch(error){if(!disposed)status('이미지를 저장하지 못했어. 잠시 뒤 다시 눌러 줘.');console.error('Studio artwork download failed',error);}finally{if(!disposed)b.disabled=false;}}controls();
  };

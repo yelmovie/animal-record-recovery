@@ -134,8 +134,20 @@ test('the diary escapes learner writing, keeps both draft inventions and offers 
   const a=appHarness();a.run("s.adminUnlocked=true;stage=5;step=0;s.designs[0].problem='swim';s.designs[1].problem='warm';s.designs[1].name='포근 외투';screen='mission';render()");a.input('<script>alert(1)</script>');a.run('render()');assert.ok(!a.app.innerHTML.includes('<script>alert'));a.run('download()');assert.ok(!a.dialog.innerHTML.includes('<script>alert'));assert.equal(a.exported,null);assert.match(a.dialog.innerHTML,/포근 외투/);assert.match(a.dialog.innerHTML,/만들고 있는/);assert.match(a.dialog.innerHTML,/&lt;script&gt;/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|report-download|textarea/);
 });
 
-test('controller records prediction and comparison, preserves input and prevents one-trial completion',()=>{
- const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('source-seen',{dataset:{}});act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'wide'}});s.designs[0].name='내 수영 오리발';act('advance',{dataset:{}})");assert.equal(a.run('step'),1);a.run("act('experiment-run',{dataset:{}})");assert.equal(a.run('s.designs[0].experiment.trials.length'),0);a.run("act('prediction',{dataset:{value:'less'}});act('experiment-run',{dataset:{}})");assert.equal(a.run('s.designs[0].experiment.trials.length'),1);a.run("act('advance',{dataset:{}})");assert.equal(a.run('step'),1);a.run("act('experiment-level',{dataset:{value:'3'}});act('experiment-run',{dataset:{}});act('lab-summary',{dataset:{}});act('reflection',{dataset:{value:'surprised'}});s.designs[0].experiment.note='넓이를 바꾸니 미는 물이 달라졌어.';act('explain',{dataset:{value:'match'}});act('advance',{dataset:{}})");assert.equal(a.run('step'),2);assert.equal(a.run('s.records.designs[0].experiment.trials.length'),2);assert.equal(a.run('labSummary'),false);
+test('finishing the workshop design shows its concept film once and lands on the drawing studio',()=>{
+ const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'wide'}});s.designs[0].name='내 수영 오리발';act('advance',{dataset:{}})");
+ assert.equal(a.run('step'),2);assert.deepEqual([...a.run("s.activities.filter(id=>id.startsWith('5-'))")],['5-0','5-1']);
+ assert.equal(a.dialog.open,true);assert.match(a.dialog.innerHTML,/물갈퀴와 오리발이 물을 미는 방법/);assert.match(a.dialog.innerHTML,/data-concept="webbed-foot"/);
+ assert.equal(a.run('s.records.designs[0].structure'),'wide');assert.equal(model.restoreExpedition(a.saved).records.designs[0].structure,'wide','the kept invention survives a reload without lab trials');
+ a.run("act('close-dialog',{dataset:{}})");assert.equal(a.dialog.open,false);assert.match(a.app.innerHTML,/data-studio="drawing"/);
+ assert.doesNotMatch(a.app.innerHTML,/experiment-lab|data-action="(?:experiment-run|lab-summary|prediction)"|studio-shape-tools|도형으로 만들기/);
+ a.run("act('previous',{dataset:{}})");assert.equal(a.run('step'),0,'the studio steps back to the design');
+ a.run("act('advance',{dataset:{}})");assert.equal(a.run('step'),2);assert.equal(a.dialog.open,false,'the film opens on its own only the first time');assert.equal(a.run("s.activities.filter(id=>id.startsWith('5-')).length"),2);
+});
+test('a workshop design that does not fit stays on the design page and points at what to change',()=>{
+ const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'layer'}});s.designs[0].name='내 수영 오리발';act('advance',{dataset:{}})");
+ assert.equal(a.run('step'),0);assert.equal(a.dialog.open,false);assert.equal(a.run('feedback.good'),false);assert.match(a.run('feedback.text'),/부품/);assert.ok(!a.run("s.activities.includes('5-1')"));
+ a.run("act('design-part',{dataset:{key:'toe',value:'wide'}});act('advance',{dataset:{}})");assert.equal(a.run('step'),2);
 });
 test('investigation uses collected clues directly and a wrong animal can be changed immediately',()=>{
  const a=appHarness({clock:true});a.run("s.adminUnlocked=true;enter(4)");
@@ -172,7 +184,11 @@ test('finishing a video seek keeps the decoded player and its playback permissio
  a.slider.value=10;a.inputControl(a.slider);a.changeControl(a.slider);
  assert.equal(a.run('motionPlayer.viewed'),true);assert.equal(a.run('motionPlayer.ready'),true);assert.equal(a.run('motionPhase'),10);
 });
-test('summary entry and footer reject an untested current setting and explain the next action',()=>{const a=appHarness();a.run("s.adminUnlocked=true;enter(5);s.designs[0].experiment.sourceSeen=true;s.designs[0].experiment.prediction='same';addExperimentTrial(s.designs[0]);s.designs[0].experiment.level=2;addExperimentTrial(s.designs[0]);step=1;s.designs[0].experiment.level=3;render();act('lab-summary',{dataset:{}})");assert.equal(a.run('labSummary'),false);assert.match(a.app.innerHTML,/지금 고른 모양도 시험/);assert.match(a.app.innerHTML,/data-action="lab-summary"[^>]*disabled/);a.run("addExperimentTrial(s.designs[0]);act('lab-summary',{dataset:{}})");assert.equal(a.run('labSummary'),1,'the summary opens on its comparison page');});
+test('a save resting on the removed shape lab moves on to the studio, or back to a design that still needs fixing',()=>{
+ const state=campaignFixture();state.activities=state.activities.filter(id=>!['5-1','5-2','5-3'].includes(id));state.completed=[1,2,3,4];state.step[5]=1;state.records.designs=[null,null];state.studio=null;state.studioRecord=null;state.adminUnlocked=true;
+ const a=appHarness({storedRecord:JSON.stringify(state)});a.run('s.adminUnlocked=true;enter(5)');assert.equal(a.run('step'),2);assert.ok(a.run("s.activities.includes('5-1')"));assert.match(a.app.innerHTML,/data-studio="drawing"/);
+ state.designs[0].structure='layer';const b=appHarness({storedRecord:JSON.stringify(state)});b.run('s.adminUnlocked=true;enter(5)');assert.equal(b.run('step'),0);assert.ok(!b.run("s.activities.includes('5-1')"));
+});
 test('finishing an activity shows the next instruction and replay keeps a single completion',()=>{
   const a=appHarness();a.run("s.observed=['frog-eye','frog-leg','frog-skin','crab-eye','crab-leg','crab-shell'];enter(1);advance()");
   assert.equal(a.run('step'),1);assert.equal(a.run('feedback'),null);assert.match(a.app.innerHTML,/같은 점과 다른 점을 하나씩/);assert.equal(JSON.parse(a.saved).activities.length,1);
@@ -573,20 +589,13 @@ test('teacher demo button is hidden by default and its setting survives reload',
  assert.equal(model.restoreExpedition(a.saved).showAutoRun,false);
 });
 
-test('experiment comparison and final explanation advance without a second confirmation',()=>{
- const a=appHarness({clock:true});
- a.run("s.adminUnlocked=true;enter(5);act('source-seen',{dataset:{}});act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'wide'}});s.designs[0].name='물살 신발';act('advance',{dataset:{}})");
- assert.equal(a.run('step'),1);
- a.run("act('prediction',{dataset:{value:'less'}});act('experiment-run',{dataset:{}});act('experiment-level',{dataset:{value:'3'}});act('experiment-run',{dataset:{}})");
- a.flushTimers();assert.equal(a.run('labSummary'),1);
- a.run("act('summary-page',{dataset:{value:'2'}})");
- assert.doesNotMatch(a.app.innerHTML,/<footer[^>]*class="mission-footer"[^>]*>[\s\S]*data-action="advance"/);
- a.run("act('reflection',{dataset:{value:'surprised'}});s.designs[0].experiment.note='넓은 발이 물을 더 많이 밀어.';act('explain',{dataset:{value:'looks'}})");
- a.flushTimers();assert.equal(a.run('step'),1);
- a.run("act('explain',{dataset:{value:'match'}})");a.flushTimers();
- assert.equal(a.run('step'),2);assert.equal(a.run('s.records.designs[0].experiment.trials.length'),2);
+test('the activity list replays the workshop film instead of opening a lab page',()=>{
+ const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('review-activities',{dataset:{id:'5'}})");
+ assert.match(a.dialog.innerHTML,/2\. 원리 영상 보기/);assert.match(a.dialog.innerHTML,/data-action="concept-open" data-id="webbed-foot" disabled/);
+ a.run("act('close-dialog',{dataset:{}});act('design-choice',{dataset:{key:'feature',value:'web'}});act('design-part',{dataset:{key:'toe',value:'wide'}});s.designs[0].name='물살 신발';act('advance',{dataset:{}});act('close-dialog',{dataset:{}});act('review-activities',{dataset:{id:'5'}})");
+ assert.match(a.dialog.innerHTML,/✓ 2\. 원리 영상 보기/);assert.doesNotMatch(a.dialog.innerHTML,/data-action="concept-open" data-id="webbed-foot" disabled/);
+ a.run("act('concept-open',{dataset:{id:'webbed-foot'}})");assert.match(a.dialog.innerHTML,/data-concept="webbed-foot"/);assert.equal(a.run('step'),2);
 });
-
 test('choosing an invention feature records it without a second button, including restored drafts',()=>{
  const a=appHarness();a.run("s.adminUnlocked=true;enter(5);act('design-choice',{dataset:{key:'feature',value:'web'}})");
  assert.equal(a.run('s.designs[0].experiment.sourceSeen'),true);

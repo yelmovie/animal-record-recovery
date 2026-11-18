@@ -7,19 +7,19 @@ import {campaignDone} from './campaign.js';
 import {MOTION_CLIPS,motionVideoURL,videoFrameAt} from './motion-video.js';
 
 const BASE=new URL('../assets/concepts/',import.meta.url).href;
-// A lab clip opens after the learner compared two shapes for that problem (current draft, saved record or archive).
+// A workshop clip opens when the learner finishes the design (activity 5-1). Older saves that compared two shapes keep it open.
 const compared=(s,problem)=>[...(s.designs||[]),...(s.records?.designs||[]),...(s.designArchive||[]).flatMap(a=>Object.values(a||{}))].some(d=>d?.problem===problem&&d.experiment&&comparisonReady(d));
 const motionSeen=(s,id)=>s.inquiry?.motion?.[id]!==undefined;
 
-// The lab now only runs the swim problem, so the shell and fur clips open with any finished comparison
+// The workshop only runs the swim problem, so the shell and fur clips open with it
 // (same idea — an animal feature's job copied into a product) instead of staying locked forever.
-const labCompared=s=>['swim','protect','warm'].some(p=>compared(s,p));
+const labCompared=s=>s.activities?.includes('5-1')||['swim','protect','warm'].some(p=>compared(s,p));
 export const CONCEPTS=[
- {id:'webbed-foot',title:'물갈퀴와 오리발이 물을 미는 방법',seconds:10,problem:'swim',hint:'5장 ‘모양 바꿔 비교하기’에서 오리발 모양 두 가지를 비교하면 열려',
-  unlock:s=>compared(s,'swim'),captions:[[0,3.5,'오리는 발가락 사이 물갈퀴를 쫙 펴서 물을 뒤로 밀어.'],[3.5,7,'넓은 면으로 물을 많이 밀수록 몸은 앞으로 잘 나아가.'],[7,10,'오리발도 같은 원리야. 넓고 납작한 면이 물을 밀어.']]},
- {id:'shell-helmet',title:'등딱지와 안전모가 몸을 지키는 방법',seconds:10,problem:'protect',hint:'5장 ‘모양 바꿔 비교하기’에서 모양 두 가지를 비교하면 열려',
+ {id:'webbed-foot',title:'물갈퀴와 오리발이 물을 미는 방법',seconds:10,problem:'swim',hint:'5장 ‘동물에게 아이디어 빌리기’를 마치면 열려',
+  unlock:s=>labCompared(s),captions:[[0,3.5,'오리는 발가락 사이 물갈퀴를 쫙 펴서 물을 뒤로 밀어.'],[3.5,7,'넓은 면으로 물을 많이 밀수록 몸은 앞으로 잘 나아가.'],[7,10,'오리발도 같은 원리야. 넓고 납작한 면이 물을 밀어.']]},
+ {id:'shell-helmet',title:'등딱지와 안전모가 몸을 지키는 방법',seconds:10,problem:'protect',hint:'5장 ‘동물에게 아이디어 빌리기’를 마치면 열려',
   unlock:s=>labCompared(s),captions:[[0,3.5,'거북은 단단한 등딱지가 몸을 감싸고 있어.'],[3.5,7,'무언가에 부딪혀도 단단한 덮개가 충격을 막아 줘.'],[7,10,'안전모도 단단한 덮개로 머리를 감싸서 지켜 줘.']]},
- {id:'warm-fur',title:'털이 몸의 열을 지키는 방법',seconds:12,problem:'warm',hint:'5장 ‘모양 바꿔 비교하기’에서 모양 두 가지를 비교하면 열려',
+ {id:'warm-fur',title:'털이 몸의 열을 지키는 방법',seconds:12,problem:'warm',hint:'5장 ‘동물에게 아이디어 빌리기’를 마치면 열려',
   unlock:s=>labCompared(s),captions:[[0,3,'몸에서는 따뜻한 열이 계속 나와.'],[3,6.5,'털이 없으면 열이 금방 밖으로 빠져나가.'],[6.5,10,'촘촘한 털 사이에는 공기가 머물러서 열이 천천히 빠져나가.'],[10,12,'털이 열을 만드는 게 아니야. 빠져나가는 열을 줄여 주는 거야.']]},
  {id:'sort-criteria',title:'좋은 분류 기준은 무엇일까?',seconds:12,hint:'2장 ‘다 함께 쓸 기준 고치기’에서 기준을 고쳐 다시 검증하면 열려',
   unlock:s=>s.activities?.includes('2-1')||taskReady(s,2,1),captions:[[0,4,'‘빠르게 움직이나요?’로 나누면 세 연구원의 결과가 서로 달라.'],[4,8,'‘날개가 있나요?’는 몸을 보면 누구나 똑같이 확인할 수 있어.'],[8,12,'누구나 같은 결과가 나오고, 동물이 두 무리로 나뉘는 기준이 좋은 분류 기준이야.']]},
@@ -34,7 +34,7 @@ export const MOTION_REPLAYS=['frog','crab','duck','rabbit','butterfly','marine',
  captions:m.frames.map((text,i)=>[i*MOTION_CLIPS[id].duration/3,(i+1)*MOTION_CLIPS[id].duration/3,text]),
  sources:[[motionVideoURL(id),'video/mp4']],poster:motionVideoURL(id,'webp'),endFrame:false};});
 
-// Lab problem → its clip (stage 5, step 1).
+// Workshop problem → its clip (stage 5, step 1: shown right after the design is finished).
 export const LAB_CONCEPT={swim:'webbed-foot',protect:'shell-helmet',warm:'warm-fur'};
 export const replayItem=id=>CONCEPTS.find(c=>c.id===id)||MOTION_REPLAYS.find(m=>m.id===id)||null;
 // Teacher preview opens every clip for class demos (records are not touched).

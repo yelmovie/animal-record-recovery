@@ -1,7 +1,7 @@
 import {normalizeMapVillains} from './map-villains.js';
 import {normalizeVillageEncounters} from './village-encounters.js';
 import {withParticle} from './korean.js';
-import {normalizeExperiment,normalizeInquiry,experimentReady,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
+import {normalizeExperiment,normalizeInquiry,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {normalizeCampaign,restoredPlaces,missionRows} from './campaign.js';
 import {normalizeStudio,studioDrawingReady,studioReady,studioHint} from './studio.js';
 import {freshRelay,normalizeRelay} from './relay.js';
@@ -18,7 +18,7 @@ export const STAGES=[
   {id:2,name:'분류의 정원',short:'분류',icon:'layers',color:'#f1d799',standard:'4과02-01',reward:'분류 나침반',rewardIcon:'compass',benefit:'환경 탐사에서 아직 못 찾은 동물이 어디 있는지 알려 줘.',story:'누구나 같은 결과를 얻는 분류 표지판을 만들어 줘!',change:'정원에 두 가지 분류 표지판이 생겼어.',x:32,y:31,art:'butterfly',tasks:['날개로 나누기','다 함께 쓸 기준 고치기']},
   {id:3,name:'생태의 물가',short:'환경',icon:'leaf',color:'#b4d9d1',standard:'4과02-02',reward:'서식지 수첩',rewardIcon:'book',benefit:'동물 찾기에서 내가 발견한 사는 곳 기록을 다시 볼 수 있어.',story:'여섯 동물이 사는 곳과 생활 모습을 안내판에 담아 줘!',change:'물가의 생태 안내판에 여섯 동물이 돌아왔어.',x:63,y:32,art:'pond',tasks:['첫 동물 세 마리','새 동물 세 마리','개구리의 생활','게의 생활','세 곳 이어달리기']},
   {id:4,name:'동물 찾기 안내소',short:'찾기',icon:'scan',color:'#d1c9df',standard:'4과02-01 · 4과02-02',reward:'특징 스캐너',rewardIcon:'scan',benefit:'발명할 때 동물 특징이 물건의 어느 부분이 되는지 알려 줘.',story:'모리가 모은 사진에 특징과 사는 곳을 붙여 줘!',change:'안내소에 오리와 토끼의 동물 안내 카드가 완성됐어.',x:18,y:52,art:'duck',tasks:['단서로 동물 찾기','생활 안내 만들기','새 동물 찾기','생활 안내 만들기','땅속 친구 찾기','생활 안내 만들기']},
-  {id:5,name:'발명의 공방',short:'발명',icon:'tool',color:'#edc3a4',standard:'4과02-03',reward:'발명가 배지',rewardIcon:'star',benefit:'내 발명 그림과 소개를 작품 카드로 저장할 수 있어.',story:'동물에게 아이디어를 빌려 나만의 발명품을 그려 줘!',change:'네가 그린 발명품으로 마을의 상상 전시회가 열렸어.',x:86,y:60,art:'flipper',tasks:['동물에게 아이디어 빌리기','모양 바꿔 비교하기','내 발명 그리기','작품 소개하기']},
+  {id:5,name:'발명의 공방',short:'발명',icon:'tool',color:'#edc3a4',standard:'4과02-03',reward:'발명가 배지',rewardIcon:'star',benefit:'내 발명 그림과 소개를 작품 카드로 저장할 수 있어.',story:'동물에게 아이디어를 빌려 나만의 발명품을 그려 줘!',change:'네가 그린 발명품으로 마을의 상상 전시회가 열렸어.',x:86,y:60,art:'flipper',tasks:['동물에게 아이디어 빌리기','원리 영상 보기','내 발명 그리기','작품 소개하기']},
 ];
 
 export const ANIMALS={
@@ -201,7 +201,8 @@ export function selectDesignProblem(s,round,problem){
   s.designs[round]=normalizeDesign(s.designDrafts[round][problem]||{problem});
   return true;
 }
-const validDesignRecord=d=>Boolean(testDesign(d).passed&&d.explanation==='match'&&designTrials(d).some(t=>t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&t.passed));
+// A kept invention is one whose feature, part and place fit its problem (older records also carry lab trials).
+const validDesignRecord=d=>Boolean(testDesign(d).passed);
 export function restoreExpedition(raw,{strict=false}={}){
   const base=freshExpedition();if(!raw)return base;
   try{
@@ -302,7 +303,8 @@ export function taskReady(s,stage,step){
   if(stage===3){if(step<2)return DISCOVERIES.slice(step*3,step*3+3).every(d=>s.discovered.includes(d.id)&&s.inquiry.motion[d.animal]===MOTION_KEY_FRAME);const id=linkAnimal(step);return LINKS[id].answer.every((v,i)=>s.links[id][['environment','body','life'][i]]===v);}
   if(stage===4){const c=CASES[round],a=s.cases[round];return groundsReady(c,a)&&(step%2===0||a.habitat===c.habitat&&a.reason===c.reason);}
   if(stage===5&&step>=2&&s.studio)return step===2?studioDrawingReady(s.studio):studioReady(s.studio);
-  if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot);return experimentReady(d)&&testDesign(d).passed&&d.trials.some(t=>t.problem===d.problem&&t.feature===d.feature&&t.structure===d.structure&&t.spot===d.spot&&testDesign(t).passed)&&d.explanation==='match';}
+  if(stage===5){const d=s.designs[round],other=s.records.designs[1-round];if(!Object.hasOwn(PROBLEMS,d.problem)||other?.problem===d.problem||round===1&&!other&&d.problem===s.designs[0].problem)return false;if(step%2===0)return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot);// Step 1 (the concept film) opens as soon as the finished design fits its problem; the shape lab was removed.
+   return Boolean(d.name.trim()&&d.feature&&d.structure&&d.spot)&&testDesign(d).passed;}
   return false;
 }
 export function claimTask(s,stage,step){
@@ -360,7 +362,7 @@ export function taskMistake(s,stage,step){
       if(step%2===0)return null;}
     const out=[];if(a.habitat!==c.habitat)out.push({key:'case:habitat',text:a.habitat?'‘만난 곳’을 다시 봐. 사진 속 풍경에 무엇이 있는지 살펴봐.':'‘만난 곳’을 아직 고르지 않았어.'});if(a.reason!==c.reason)out.push({key:'case:reason',text:a.reason?`‘어떻게 움직일까’를 다시 봐. ${c.reasonTip}`:'‘어떻게 움직일까’를 아직 고르지 않았어.'});return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
   // Results summary: name the one piece still missing (tests, what was learned, the note, or why the feature was borrowed).
-  if(stage===5&&step%2===1){const d=s.designs[round],e=d.experiment,levels=new Set(e.trials.filter(t=>t.problem===d.problem).map(t=>t.level)),gap=[[levels.size<2,'lab:trials','서로 다른 모양 두 가지를 시험해 줘. 지금 고른 모양도 시험해 봐.'],[!e.reflection,'lab:reflection','‘어떤 점을 알게 됐어?’에서 하나를 골라 줘.'],[!e.note.trim(),'lab:note','바꾼 부분과 알게 된 점을 한 줄 적어 줘.'],[d.explanation!=='match','lab:explain',d.explanation?'색깔만 같다고 기능이 같지는 않아. 특징이 하는 일을 까닭으로 골라 봐.':'‘내 발명에 이 특징을 쓴 이유는?’에서 까닭을 골라 줘.']].find(g=>g[0]);if(gap)return {text:gap[2],wrong:[gap[1]]};}
+  if(stage===5&&step%2===1){const d=s.designs[round],r=testDesign(d),p=PROBLEMS[d.problem],gap=[[!r.feature,'design:feature',`② ‘${p?.name||'이 문제'}’를 돕는 동물의 특징인지 관찰 기록과 다시 비교해 봐.`],[!r.structure,'design:part','③ 이 부품이 필요한 일을 하는지 다시 살펴봐. 다른 부품으로 바꿔 봐.'],[!r.spot,'design:part','③ 부품을 붙인 자리를 다시 봐. 움직일 때 그 부품이 어디에 닿는지 살펴봐.']].find(g=>g[0]);if(gap)return {text:gap[2],wrong:[gap[1]]};}
   if(stage===5&&step%2===0){const d=s.designs[round],base=PRODUCTS[d.problem]?.base||'물건',gap=[[!Object.hasOwn(PROBLEMS,d.problem),'design:problem','① 해결할 문제를 먼저 골라 줘.'],[!d.feature,'design:feature','② 빌릴 동물의 특징을 하나 골라 줘.'],[!d.structure||!d.spot,'design:part',`③ 부품 하나를 ${base}의 자리에 붙여 줘. 부품을 누르고 자리 이름을 눌러도 돼.`],[!d.name.trim(),'design:name','발명품 이름을 적어 줘.']].find(g=>g[0]);return gap?{text:gap[2],wrong:[gap[1]]}:null;}
   return null;
 }

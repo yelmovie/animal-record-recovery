@@ -7,10 +7,10 @@ import {mountStudio,downloadStudioArtwork} from './studio-runtime.js';
 import {createMotionPlayer,videoFrameAt,toggleMotionFullscreen} from './motion-video.js';
 import {createStoryPlayer} from './story-player.js';
 import {conceptView,createConceptPlayer} from './concept-video.js';
-import {replayItem,replayUnlocked} from './concepts.js';
-import {normalizeExperiment,normalizeMotionPhoto,addExperimentTrial,comparisonReady,workshopDesignNext,workshopLabNext,EXPERIMENTS,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
-import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,experimentDiagram,anatomy} from './inquiry-views.js';
-import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,recordTrial,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
+import {replayItem,replayUnlocked,LAB_CONCEPT} from './concepts.js';
+import {normalizeExperiment,normalizeMotionPhoto,workshopDesignNext,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
+import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,anatomy} from './inquiry-views.js';
+import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -112,27 +112,17 @@ const workshopTargets={
   part:['.part-tray','붙일 부품을 골라 줘.'],
   place:['.design-bench > .assembly','그림에서 붙일 자리를 눌러 줘.'],
   move:['.design-bench > .assembly','붙인 부품을 눌러 다른 자리로 옮겨 봐.'],
-  level:['.level-buttons','다른 모양으로 바꿔 봐.'],
-  prediction:['.prediction-options','시험 결과를 예상해 봐.'],
-  test:['[data-action="experiment-run"]'],
-  compare:['[data-action="lab-summary"]'],
-  summary:['[data-action="summary-page"][data-value="2"]'],
-  reflection:['.reflection-options','알게 된 점을 골라 줘.'],
-  note:['label[for="experiment-note"]'],
-  explain:['.invention-explanation .inline-options','이 특징을 쓴 이유를 골라 줘.'],
-  repair:['.check-list [data-action="previous"]'],
   continue:['.mission-footer [data-action="advance"]']
 };
 function syncWorkshopCue(){
-  if(screen!=='mission'||stage!==5||step>1)return;
+  if(screen!=='mission'||stage!==5||step!==0)return;
   const main=app.querySelector?.('.mission-page.stage-5');
   if(!main)return;
   const d=s.designs[0];
-  const next=step===0?nextWorkshopDesign():
-    report?.passed===false?'repair':workshopLabNext(d,labSummary);
+  const next=nextWorkshopDesign();
   const [selector,hint]=workshopTargets[next];
   let target=main.querySelector(selector);
-  let tab=step===0?main.querySelectorAll('.design-options > .panel-tabs > .btn')[workshopTab[next]]:null;
+  let tab=main.querySelectorAll('.design-options > .panel-tabs > .btn')[workshopTab[next]];
   const hidden=target?.closest('[hidden]');
   if(!tab&&hidden){
     const host=hidden.parentElement,panels=[...host.querySelectorAll(':scope > section')];
@@ -152,11 +142,6 @@ function syncWorkshopCue(){
   else if(hint)target.insertAdjacentHTML(target.matches('.assembly')?'afterbegin':'beforebegin','<p class="workshop-guide" role="status">'+workshopArrow('down')+esc(hint)+'</p>');
   else target.insertAdjacentHTML('afterbegin',workshopArrow(target.tagName==='LABEL'?'down':undefined));
 }
-function progressWorkshopReflection(){
-  if(screen==='mission'&&stage===5&&step===1&&labSummary===2&&taskReady(s,5,1))scheduleActivityProgress(()=>{
-    if(!['experiment-note','peer-note'].includes(document.activeElement?.id)&&taskReady(s,5,1))advance();
-  });
-}
 function progressWorkshopDesign(){
   if(screen!=='mission'||stage!==5||step!==0||sketching)return;
   const tab=workshopTab[nextWorkshopDesign()];
@@ -174,6 +159,7 @@ function render(){
   unmountBroadcast?.();unmountBroadcast=null;
   unmountFlashlight?.();unmountFlashlight=null;
   unmountStudio?.();unmountStudio=null;
+  if(screen==='mission'&&stage===5&&step===1){step=claimTask(s,5,1).ok?2:0;s.step[5]=step;repairingWorkshop=step===0;}
   if(screen==='mission'&&stage===5&&step>=2&&!s.studio)s.studio=normalizeStudio(null);
   if(screen==='mission'&&stage===3&&step===4)relay??={section:relayNext(s),phase:'pick',animal:'',note:'',wrong:'',hint:false,token:0,used:{}};else relay=null;
   // A request opens on its first unfinished card and then stays where the learner moves it.
@@ -421,6 +407,7 @@ function reviewActivities(id){
   if(!isStageOpen(s,id))return;const t=STAGES[id-1];
   modal(t.name+' · 활동 선택',`<p>해 보고 싶은 활동을 골라. 보관한 관찰과 비교 기록은 그대로야.</p><div class="review-activities">${t.tasks.map((title,index)=>{
     const earned=s.activities.includes(`${id}-${index}`),open=index===0||s.activities.includes(`${id}-${index-1}`);
+    if(id===5&&index===1)return btn(`${earned?'✓ ':''}2. ${title}`,'concept-open','secondary',`data-id="${LAB_CONCEPT[s.designs[0].problem]||LAB_CONCEPT.swim}" ${earned?'':'disabled'}`);
     return btn(`${earned?'✓ ':''}${index+1}. ${title}`,'review-open','secondary',`data-id="${id}" data-value="${index}" ${open?'':'disabled'}`);
   }).join('')}</div>${s.completed.includes(id)?`<div class="dialog-actions">${btn('주민 의뢰 보기','commission-open','primary',`data-id="${id}" data-value="0"`)}</div>`:''}`);
 }
@@ -432,6 +419,12 @@ function advance(){
   if(screen!=='mission')return;
   stopMotion();
   const result=claimTask(s,stage,step);if(!result.ok){const m=isStageOpen(s,stage)?taskMistake(s,stage,step):null;if(stage===4&&step%2===0&&m?.wrong?.some(k=>k.startsWith('case:')))panelPages.set(panelKey('.case-activity'),m.wrong.includes('case:candidate')?0:1);return say(m?.text||taskHint(stage,step),false,m?.wrong);}
+  let film=null;
+  if(stage===5&&step===0){
+    const seen=claimTask(s,5,1);
+    if(!seen.ok){repairingWorkshop=true;save();const m=taskMistake(s,5,1);say(m?.text||'설계를 다시 살펴봐.',false,m?.wrong);progressWorkshopDesign();return;}
+    step=1;if(seen.fresh)film=LAB_CONCEPT[s.designs[0].problem];
+  }
   playSound(s.soundEnabled,true);
   if(step===STAGES[stage-1].tasks.length-1){
     save();
@@ -444,6 +437,8 @@ function advance(){
   labSummary=false;step++;s.step[stage]=step;focusIndex=0;focusForestObservation();clueIndex=0;feedback=null;
   report=null;repairingWorkshop=false;zoom=false;sketching=false;activeHabitat='forest';focusMotion();render();window.scrollTo({top:0,behavior:'instant'});document.querySelector('#main')?.focus({preventScroll:true});document.querySelector('#announcer').textContent='다음 탐구로 이어 가자!';
   if(pairDone>=0)pairReward(pairDone);
+  // The film starts by itself: the tap that finished the design is the gesture that lets it play.
+  if(film){save();openConcept(film);conceptPlayer?.play();}
 }
 // Pair discoveries use a brief notice, keeping the next animals immediately available.
 function pairReward(r){
@@ -501,7 +496,7 @@ function resumeActivityProgress(){
     const current=DISCOVERIES.slice(step*3,step*3+3).find(d=>d.habitat===activeHabitat);
     if(current&&s.inquiry.motion[current.animal]!==undefined)scheduleActivityProgress(continueMotion);
   }else if(stage===5){
-    if(step===1&&labSummary===2)progressWorkshopReflection();
+    // The workshop moves only on the learner's own button.
   }else if(taskReady(s,stage,step))scheduleActivityProgress(stage===2&&step===0?continueGarden:advance);
 }
 function progressAnswer(showError=false){
@@ -571,7 +566,7 @@ function progressRequest(){
     requestCard=next;commissionIndex=cards[next].part;feedback=null;render();
   });
 }
-function previous(){repairingWorkshop=stage===5&&step===1&&report?.passed===false;labSummary=false;stopMotion();if(step===0){go('map');return;}step--;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
+function previous(){repairingWorkshop=false;labSummary=false;stopMotion();if(step===0){go('map');return;}step-=stage===5&&step===2?2:1;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
 function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
   if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
@@ -624,12 +619,6 @@ function autoNext(a){
     if(a.clue!==index){a.clue=index;document.querySelector(`.flashlight-hotspot[data-value="${index}"]`)?.focus({preventScroll:true});return [null,null,1000];}
     if(!dialog.open)return ['flashlight-clue',{value:String(index)},1500];
     return ['flashlight-collect',{value:String(index)},900];}
-  if(stage===5&&step===1&&!labSummary&&!(report&&!report.passed)){const d=s.designs[round()],e=d.experiment,tried=new Set(e.trials.filter(t=>t.problem===d.problem).map(t=>t.level));
-    if(!e.sourceSeen)return ['source-seen',{},1200];
-    if(!e.prediction)return '결과 예상은 네가 골라 줘. 고른 뒤 자동 진행을 다시 눌러.';
-    if(!tried.has(e.level)){if(a.ran===e.level)return '시험이 되지 않았어. 설계를 먼저 고쳐 줘.';a.ran=e.level;return ['experiment-run',{},2000];}
-    const level=[1,2,3].find(l=>!tried.has(l));if(level)return ['experiment-level',{value:String(level)},1200];
-    return '세 가지 모양을 모두 시험했어. 결과를 비교해 봐.';}
   return '';
 }
 function autoTick(){const a=autoRun;if(!a)return;if(screen!=='mission'||stage!==a.stage||step!==a.step){autoRun=null;cancelLater(a.timer);return;}
@@ -825,7 +814,10 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'habitat':{stopMotion();if(Object.hasOwn(HABITATS,id)||Object.hasOwn(DOME_ZONES,id))activeHabitat=id;const d=DISCOVERIES.slice(step*3,step*3+3).find(x=>x.habitat===id);if(d&&!s.discovered.includes(d.id))s.discovered.push(d.id);if(DOME_ZONES[id])looked.add(id);feedback=null;render();break;}
     case 'discover':{const d=DISCOVERIES.find(x=>x.id===id);if(!d)return;if(!s.discovered.includes(id))s.discovered.push(id);feedback=null;render();break;}
     case 'link':{if(!['frog','crab'].includes(id))break;const l=s.links[id],kind=el.dataset.kind;if(key==='pool'){for(const k of Object.keys(l))if(l[k]===value)delete l[k];}else if(['environment','body','life'].includes(key)){if(kind&&kind!==key)return say(`이 칸에는 ‘${{environment:'사는 곳',body:'몸의 특징',life:'움직이는 방법'}[key]}’ 카드가 들어가.`);l[key]=value;}feedback=null;render();progressAnswer(Object.keys(l).length===3);break;}
-    case 'pick':picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;
+    // Holding a part and tapping the one already on the product swaps them (the tap used to pick up the old part instead).
+    case 'pick':{const spot=picked?.ref?.startsWith('part-')&&picked.ref!==el.dataset.ref?el.closest?.('.part-spot[data-drop-action="design-part"]'):null;
+      if(spot){const {action,dataset}=dropData(picked,spot.dataset);dropCard(action,dataset);return;}
+      picked=picked?.ref===el.dataset.ref?null:{...el.dataset};render();break;}
     case 'place':{if(!picked){playSound(s.soundEnabled);toast('먼저 옮길 카드를 눌러 줘.',el);break;}const {action,dataset}=dropData(picked,el.dataset);dropCard(action,dataset);return;}
     case 'flashlight-clue':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],k=c.clues[Number(value)];if(k){if(s.cases[round()].opened.includes(k.id))modal('발견한 단서',clueFoundView(c,Number(value),true));else act('flashlight-collect',{dataset:{value}});}}break;
     case 'flashlight-collect':if(screen==='mission'&&stage===4&&step%2===0){const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k)break;const fresh=!a.opened.includes(k.id);if(fresh)a.opened.push(k.id);dialog.close();feedback=null;save();render();if(fresh)playSound(s.soundEnabled,'star');document.querySelector('.flashlight-hotspot[data-value="'+value+'"]')?.focus({preventScroll:true});document.querySelector('#announcer').textContent=k.kind+' 단서를 발견 수첩에 붙였어. '+(a.opened.length<2?'다른 특징도 찾아보자.':'모은 단서에 맞는 동물을 골라 봐.');progressInvestigation();}break;
@@ -848,12 +840,10 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'source-seen':s.designs[round()].experiment.sourceSeen=true;feedback={good:true,text:'이 특징을 물건의 어느 부분에 쓸까?'};render();break;
     case 'design-choice':if(['feature','structure'].includes(key))s.designs[round()][key]=value;if(key==='feature')s.designs[round()].experiment.sourceSeen=true;s.designs[round()].explanation='';report=null;feedback=null;render();progressWorkshopDesign();break;
     // A part dropped on a spot of the product (screen 09); dropped back on the tray it comes off.
-    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback={good:true,text:key==='pool'?'부품을 상자로 돌려놓았어. 그린 선은 그대로야.':PRODUCTS[d.problem].spots.find(x=>x[0]===key)[1]+'에 부품을 붙였어. 시험해서 기능을 확인해 봐.'};render();if(key!=='pool')progressWorkshopDesign();break;}
+    case 'design-part':{const d=s.designs[round()];if(key==='pool'){if(d.structure===value){d.structure='';d.spot='';}}else if(PRODUCTS[d.problem]?.spots.some(x=>x[0]===key)&&STRUCTURES.some(x=>x[0]===value)){d.structure=value;d.spot=key;}else break;d.explanation='';report=null;feedback={good:true,text:key==='pool'?'부품을 상자로 돌려놓았어. 그린 선은 그대로야.':PRODUCTS[d.problem].spots.find(x=>x[0]===key)[1]+'에 부품을 붙였어.'};render();if(key!=='pool')progressWorkshopDesign();break;}
     case 'studio-download':if(s.studioRecord)downloadStudioArtwork(s.studioRecord).catch(()=>say('그림을 저장하지 못했어. 다시 눌러 줘.'));break;
     case 'sketch-toggle':sketching=!sketching;render();if(!sketching)progressWorkshopDesign();break;
     case 'sketch-undo':s.designs[round()].strokes.pop();render();break;
-    case 'test':report=recordTrial(s,round());feedback={good:report.passed,text:report.passed?'특징과 구조가 연결됐어! 이제 아래 설명 카드도 골라 봐.':'바꿀 부분을 찾은 거야! 설계를 고쳐 다시 시험해 봐.'};render();break;
-    case 'explain':s.designs[round()].explanation=value;feedback=null;render();if(value==='match')progressWorkshopReflection();else progressAnswer(true);break;
     case 'verify-run':s.inquiry.verify[0].ran=true;panelPages.set(panelKey('.verify-steps'),1);feedback=null;render();break;
     case 'verify-cause':s.inquiry.verify[0].cause=value;if(value==='opinion')panelPages.set(panelKey('.verify-steps'),2);feedback=null;render();if(value!=='opinion')progressAnswer(true);break;
     case 'verify-fix':s.inquiry.verify[0].fix=value;act('verify-recheck',{dataset:{}});break;
@@ -883,13 +873,6 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       }else say(photo?'찰칵! 전시관에 보낼 사진 한 장을 골랐어.':'설명 그림의 관찰 기록을 남겼어. 영상이 다시 열리면 전시 사진도 찍어 봐.',true);
       if(DISCOVERIES.slice(step*3,step*3+3).some(d=>d.animal===id))scheduleActivityProgress(continueMotion);
     }break;
-    case 'lab-summary':if(!comparisonReady(s.designs[round()]))return say('지금 모양도 시험해 줘. 서로 다른 두 모양의 결과가 필요해.');labSummary=1;feedback=null;render();break;
-    case 'summary-page':if(labSummary&&['1','2'].includes(value)){labSummary=Number(value);feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}break;
-    case 'lab-back':labSummary=false;render();break;
-    case 'experiment-level':s.designs[round()].experiment.level=Math.max(1,Math.min(3,Number(value)||1));s.designs[round()].experiment.reflection='';render();break;
-    case 'prediction':s.designs[round()].experiment.prediction=value;render();break;
-    case 'reflection':s.designs[round()].experiment.reflection=value;render();progressWorkshopReflection();break;
-    case 'experiment-run':{const d=s.designs[round()];if(!d.experiment.sourceSeen||!d.experiment.prediction){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}report=recordTrial(s,round());if(!report.passed){say('시험해 보니 맞지 않는 조건이 있어. 점검표를 보고 설계를 고쳐 봐.');break;}if(!addExperimentTrial(d)){say('동물 특징을 먼저 기록하고, 결과를 예상해 줘.');break;}feedback=null;render();if(comparisonReady(d))scheduleActivityProgress(()=>{labSummary=1;render();});break;}
     case 'feature-zoom':{if(!['web','shell','fur'].includes(el.dataset.kind))break;modal('동물 특징 크게 보기',`<div class="feature-enlargement">${anatomy(el.dataset.kind)}</div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
     case 'photo-zoom':{const img=el.querySelector('img');if(!img)break;if(relook){relook=null;render();}const x=el.style.getPropertyValue('--focus-x')||50,y=el.style.getPropertyValue('--focus-y')||50;modal('사진 크게 보기',`<div class="photo-zoom"><div class="detail-crop zoom-crop" style="--focus-x:${Number(x)};--focus-y:${Number(y)}"><img src="${esc(img.src)}" alt="${esc(img.alt)} 확대"></div><figure class="zoom-whole"><img src="${esc(img.src)}" alt="${esc(img.alt)} 전체"><span class="zoom-ring" style="left:${Number(x)}%;top:${Number(y)}%"></span><figcaption>전체 모습에서 동그라미가 확대한 곳이야.</figcaption></figure></div><div class="dialog-actions">${btn('닫기','close-dialog','primary')}</div>`);break;}
     case 'lens-animal':modal('확대 관찰',lensTool(id,0));break;
@@ -944,23 +927,17 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-action]')
 document.addEventListener('input',e=>{
   if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);save();return;}
   if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setMusicVolume(s.musicVolume);syncMusic();save();return;}
-  if(e.target.id==='experiment-note'||e.target.id==='peer-note'){clearActivityProgress();s.designs[round()].experiment[e.target.id==='peer-note'?'peer':'note']=e.target.value.slice(0,180);save();syncWorkshopCue();return;}
-  if(e.target.id==='experiment-level'){s.designs[round()].experiment.level=Number(e.target.value);s.designs[round()].experiment.reflection='';const label=document.querySelector('#level-label');if(label)label.textContent=EXPERIMENTS[s.designs[round()].problem].levels[Number(e.target.value)-1];const model=document.querySelector('.current-model');if(model)model.innerHTML=experimentDiagram(s.designs[round()].problem,Number(e.target.value),false);save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();return;}
   if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();syncWorkshopCue();}});
 document.addEventListener('change',e=>{
- if(e.target.id==='experiment-level')render();
- if(e.target.id==='experiment-note'||e.target.id==='peer-note')progressWorkshopReflection();
  if(e.target.id==='invention-name')queueMicrotask(progressWorkshopDesign);
 
 });
 document.addEventListener('keydown',e=>{
  if(e.isComposing||e.key!=='Enter')return;
  if(e.target.id==='invention-name'){e.preventDefault();e.target.blur();}
- if(e.target.id==='experiment-note'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.target.blur();}
 });
 document.addEventListener('focusout',e=>{
- if(e.target.id==='experiment-note'||e.target.id==='peer-note')progressWorkshopReflection();
  if(e.target.id==='invention-name'&&screen==='mission'&&stage===5&&step===0&&taskReady(s,5,0))progressWorkshopDesign();
 });
 document.addEventListener('fullscreenchange',paintMotion);
