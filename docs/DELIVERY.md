@@ -24,6 +24,8 @@ npm run preview
 
 2026-10-21 수정(커밋 `93a6cfb`까지)을 `npm run deploy`로 `https://animal-record-recovery.yelsam.workers.dev`에 배포했다(버전 ID `8e3e343d-0550-48bc-94ce-623b6474bdf2`). 배포된 `src/*.js`·`compact.css`에 이번 수정이 들어간 것과 첫 화면 콘솔 오류 0을 확인했다.
 
+2026-11-18 성취 카드(지도 악당 격퇴 보상, 커밋 `486c0b1`)를 `_scratch/deploy-20261118/deploy.sh`(커밋된 `origin/main`만 빌드, `wrangler deploy`)로 같은 주소에 배포했다(버전 ID `ecbb5d32-6ac2-47d4-9a70-9995e82480a7`). 운영 `build-manifest.json`의 `sha`가 `486c0b1…`이고, 카드 그림(`assets/reward-cards/card-1-stamp.webp`)·효과음(`assets/sfx/card-reveal.mp3`)·`src/adventure-app.js`·`src/app.css`·첫 화면 HTML의 SHA-256이 배포 빌드와 같다. 운영 주소에서 새 헤드리스 브라우저(시험용 기록)로 악당 격퇴 → 카드 → 보관함 칸 채움 → 새로고침 뒤 유지, 콘솔 오류 0을 확인했다. 실제 태블릿 터치와 스피커 청음은 미검증이다.
+
 ## 공용 태블릿 기록 보관·초기화
 
 기록은 그 기기의 그 브라우저 LocalStorage에만 저장된다. 학생 이름·학번을 받지 않고 서버로 보내지 않는다. 주소·브라우저·기기가 바뀌면 이어지지 않는다.
