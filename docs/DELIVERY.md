@@ -26,6 +26,8 @@ npm run preview
 
 2026-11-18 성취 카드(지도 악당 격퇴 보상, 커밋 `486c0b1`)를 `_scratch/deploy-20261118/deploy.sh`(커밋된 `origin/main`만 빌드, `wrangler deploy`)로 같은 주소에 배포했다(버전 ID `ecbb5d32-6ac2-47d4-9a70-9995e82480a7`). 운영 `build-manifest.json`의 `sha`가 `486c0b1…`이고, 카드 그림(`assets/reward-cards/card-1-stamp.webp`)·효과음(`assets/sfx/card-reveal.mp3`)·`src/adventure-app.js`·`src/app.css`·첫 화면 HTML의 SHA-256이 배포 빌드와 같다. 운영 주소에서 새 헤드리스 브라우저(시험용 기록)로 악당 격퇴 → 카드 → 보관함 칸 채움 → 새로고침 뒤 유지, 콘솔 오류 0을 확인했다. 실제 태블릿 터치와 스피커 청음은 미검증이다.
 
+2026-11-18 성취 카드 공통 모듈 보강본(커밋 `8f7d2d3`: 연출 중 오류가 나도 화면이 멈추지 않음, `inert` 속성 병행)을 같은 방식으로 같은 주소에 배포했다(버전 ID `ce7fd14f-861a-4559-91b4-39ca3f807511`). 운영 `build-manifest.json`의 `sha`가 `8f7d2d3…`이고 `src/reward-cards.js`·`src/reward-cards.css`·`src/adventure-app.js`·첫 화면 HTML의 SHA-256이 배포 빌드와 같다. 운영 주소에서 새 헤드리스 브라우저(시험용 기록)로 격퇴 → 카드 → 칸 채움 → 새로고침 뒤 유지, 콘솔 오류 0을 다시 확인했다.
+
 ## 공용 태블릿 기록 보관·초기화
 
 기록은 그 기기의 그 브라우저 LocalStorage에만 저장된다. 학생 이름·학번을 받지 않고 서버로 보내지 않는다. 주소·브라우저·기기가 바뀌면 이어지지 않는다.
