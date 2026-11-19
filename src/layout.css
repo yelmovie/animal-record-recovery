@@ -1311,9 +1311,13 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 .action-guide>.icon{flex:none;width:1.5em;height:1.5em;min-width:24px;min-height:24px;padding:.16em;border-radius:50%;background:#f6d97c;color:#604314;transform:rotate(90deg);animation:action-guide-point 1.05s ease-in-out 4}
 @keyframes action-guide-point{50%{transform:translateY(3px) rotate(90deg);opacity:.62}}
 @media(prefers-reduced-motion:reduce){.action-guide>.icon{animation:none}}
-@keyframes next-cue-ring{0%,100%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 0 #e6bd5600}50%{box-shadow:0 4px 0 var(--ui-line,#c9b98d),0 0 0 7px #e6bd5699}}
-#app #main.mission-page .btn.next-cue{border-color:#d9a634!important;animation:next-cue-ring 1.6s ease-in-out infinite}
-#app #main.mission-page .mission-footer>.btn.action-cue{animation:next-cue-ring 1.6s ease-in-out infinite}
+/* Glow on the next button (2026-11-19, D13): the ring is a layer over the button that only fades and scales,
+   so the browser no longer repaints the button's box-shadow every frame. The button keeps the bottom line
+   the old keyframes drew. */
+@keyframes next-cue-ring{0%,100%{opacity:0;transform:scale(.97)}50%{opacity:1;transform:scale(1)}}
+#app #main.mission-page :is(.btn.next-cue,.mission-footer>.btn.action-cue,.aha-options .btn),#app #main#main.commission-page .commission-footer>.commission-finish.is-ready,#app .reward-screen .reward-actions>.btn.primary.action-cue{position:relative;box-shadow:0 4px 0 var(--ui-line,#c9b98d)}
+#app #main.mission-page :is(.btn.next-cue,.mission-footer>.btn.action-cue,.aha-options .btn)::after,#app #main#main.commission-page .commission-footer>.commission-finish.is-ready::after,#app .reward-screen .reward-actions>.btn.primary.action-cue::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 7px #e6bd5699;pointer-events:none;opacity:0;animation:next-cue-ring 1.6s ease-in-out infinite}
+#app #main.mission-page .btn.next-cue{border-color:#d9a634!important}
 @media (prefers-reduced-motion:reduce){#app #main.mission-page .btn.next-cue,#app #main.mission-page .mission-footer>.btn.action-cue{animation:none;box-shadow:0 0 0 4px #e6bd5699}}
 /* 9 sort cards make 3 rows: shrink the pool so all rows fit above the footer (each 4:5 card row is 5/12 of the pool width). */
 #app .sorting-workspace>.card-tray>.card-pool:has(>:nth-child(7)){width:min(40vw,calc((100dvh - var(--hud-top) - 280px) / 1.3))}
@@ -1348,7 +1352,7 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 #app .mission-page .lens-notes>.aha-predict p{margin:0;font-size:clamp(18px,2.3vh,24px)!important;color:#3a3a2a;word-break:keep-all}
 #app .mission-page .lens-notes>.aha-predict p b{margin-right:6px;color:#8a5a14}
 #app .mission-page .aha-options{display:flex;flex-wrap:wrap;gap:8px}
-#app #main.mission-page .aha-options .btn{min-height:50px;padding:6px 16px;border:3px solid var(--ui-line,#c9b98d);border-radius:14px;background:#fffdf4;font-size:clamp(18px,2.2vh,24px)!important;animation:next-cue-ring 1.6s ease-in-out infinite}
+#app #main.mission-page .aha-options .btn{min-height:50px;padding:6px 16px;border:3px solid var(--ui-line,#c9b98d);border-radius:14px;background:#fffdf4;font-size:clamp(18px,2.2vh,24px)!important}
 #app .mission-page .lens-notes>.relook-note{grid-column:1/-1;display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border-radius:10px;background:#fff1c9;color:#6b4a12;font-size:clamp(17px,2.1vh,22px)!important;word-break:keep-all}
 #app .mission-page .observe-options .choice[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
 @media (prefers-reduced-motion:reduce){#app #main.mission-page .aha-options .btn{animation:none}}
@@ -1464,8 +1468,6 @@ dialog#dialog .setting-row>strong{font-size:18px!important}
 #app #main#main.commission-page .commission-footer>.commission-finish{display:inline-flex;align-items:center;gap:8px}
 #app #main#main.commission-page .commission-footer>.commission-finish .icon{width:24px;height:24px}
 #app #main#main.commission-page .commission-footer>.commission-finish.is-waiting{background:#efe8d2;color:#5f5842;border-color:#d6caa6;box-shadow:0 3px 0 #c9b98d}
-#app #main#main.commission-page .commission-footer>.commission-finish.is-ready{animation:next-cue-ring 1.6s ease-in-out infinite}
-#app .reward-screen .reward-actions>.btn.primary.action-cue{animation:next-cue-ring 1.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){#app #main#main.commission-page .commission-footer>.commission-finish.is-ready,#app .reward-screen .reward-actions>.btn.primary.action-cue{animation:none;box-shadow:0 0 0 4px #e6bd5699}}
 /* "부탁 완료!" moment between the request and its last challenge. */
 dialog .request-finished{display:grid;justify-items:center;gap:10px;margin:0 0 14px;text-align:center;font-size:clamp(19px,1.6vw,24px);line-height:1.5;word-break:keep-all}
