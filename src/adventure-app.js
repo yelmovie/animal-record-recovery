@@ -571,7 +571,7 @@ function back(){labSummary=false;stopMotion();
   let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
   if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
 }
-function settings(){modal('설정',settingsContent(s));}
+function settings(){modal('설정',settingsContent(s),{showClose:false});}
 // Silent clip with DOM captions; the village music stops while it is open and returns when the dialog closes.
 function openConcept(id,{broadcastEvidence=false}={}){if(!broadcastEvidence&&!replayUnlocked(s,id))return;const item=replayItem(id);modal(item.title,conceptView(id));conceptPlayer=createConceptPlayer(dialog.querySelector?.('.concept-player'));syncMusic();}
 function togglePreview(){

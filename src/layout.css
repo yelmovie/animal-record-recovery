@@ -1509,3 +1509,33 @@ dialog .request-finished-next{color:#2c5236;font-weight:700}
 }
 /* Showcase eyebrow: student-visible label at the 18px floor (was 16px). */
 #app #main.mission-page .studio-showcase .studio-heading>.studio-eyebrow{font-size:18px}
+/* 1장 비교 (2026-11-19): photos on top, the question as a wide band below, so the animals fill the mat.
+   Phones in landscape (height ≤ 650) keep the side-by-side layout above. */
+@media (min-width:901px) and (min-height:651px){
+ #app #main.mission-page .forest-compare{width:min(1500px,90%);grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;align-items:stretch;gap:clamp(8px,1.4vh,18px);padding:calc(var(--hud-top) + 4px) 0 84px}
+ #app #main.mission-page .forest-compare-animals{width:min(1180px,100%);justify-self:center;min-height:0;height:100%;grid-template-rows:minmax(0,1fr);align-items:stretch;gap:clamp(12px,3vw,56px)}
+ #app #main.mission-page .forest-compare-animals figure{display:grid;grid-template-rows:minmax(0,1fr) auto;min-height:0}
+ #app #main.mission-page .forest-compare-animals .animal{height:100%;min-height:0;object-position:center bottom}
+ #app #main.mission-page .forest-compare-question{justify-self:center;width:min(1180px,100%);max-width:none;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:16px;padding:clamp(12px,1.8vh,20px) clamp(16px,2vw,28px)}
+ #app #main.mission-page .forest-compare-question>*{grid-column:1/-1}
+ #app #main.mission-page .forest-compare-question>h2{grid-column:1;margin:0 0 10px}
+ #app #main.mission-page .forest-compare-question>.pair-status{grid-column:2;grid-row:1;margin:0 0 10px;white-space:nowrap}
+ #app #main.mission-page .forest-compare-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #app #main.mission-page .forest-compare-options .choice{height:100%}
+ #app #main.mission-page .forest-comparison-record{grid-template-columns:repeat(2,minmax(0,1fr));margin:0;gap:10px 28px}
+ #app #main.mission-page .forest-compare-question>.observe-done{margin:10px 0 0}
+}
+@media (min-width:1600px) and (min-height:651px){
+ #app #main.mission-page :is(.forest-compare-animals,.forest-compare-question){width:min(1440px,100%)}
+}
+/* 4장 손전등, phones in landscape (2026-11-19): the dark field keeps its clues inside instead of running under the footer. */
+@media (max-height:650px) and (min-width:851px){
+ #app #main.stage-4 .flashlight-field{overflow:hidden}
+ #app #main.stage-4 .flashlight-heading{padding-bottom:4px}
+ #app #main.stage-4 .flashlight-heading h2{margin:0;font-size:24px!important}
+ #app #main#main.stage-4 .flashlight-heading>:is(span,p),#app #main#main.stage-4 .flashlight-tip{display:none}
+ #app #main.stage-4 .flashlight-field .flashlight-surface{min-height:0}
+ #app #main.stage-4 .flashlight-next{margin-top:4px;font-size:18px!important;line-height:1.3!important}
+ #app #main.stage-4 .flashlight-mystery>span{width:64px;height:64px;font-size:40px}
+ #app #main.stage-4 .flashlight-mystery>p{display:none}
+}
