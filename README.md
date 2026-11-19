@@ -1,5 +1,12 @@
 # 동물기록 복구작전 · 하루와 모리의 자연 탐험 (0.5.0)
 
+## 2026-11-19 오프라인 재방문(서비스워커)
+
+- `sw.js`: 화면(HTML)과 코드(`src/`)는 네트워크를 먼저 쓰고 실패하면 보관본, 그림·모델·글꼴(`assets/`)은 한 번 받은 뒤 보관본을 쓴다. Range 요청·영상(`assets/videos/`·`assets/concepts/`)·`<audio>`는 손대지 않아 iPad Safari의 206 응답은 그대로다.
+- 빌드가 `sw.js`에 커밋 번호를 넣어서 새 배포마다 옛 보관본을 지운다. 배포본만 등록하고 `npm start`(소스)는 등록하지 않는다. `server.mjs`는 `dist` 미리보기에서 `sw.js`를 내준다.
+- 첫 방문 때 이미 받은 파일도 보관해 두므로, 한 번 열고 지도까지 갔다면 인터넷이 끊겨도 첫 화면·지도가 열린다. 가 보지 않은 화면의 코드·그림은 보관되지 않는다.
+- 학생 기록(LocalStorage)은 서비스워커와 상관없다. 테스트 `tests/service-worker.test.mjs`(5개). 커밋 `dba2a06`, Workers c7fbc812. 실기기 오프라인은 미검증.
+
 ## 2026-11-19 큰 그림 3장 줄이기
 
 - 공유 그림: `assets/og/animal-record-recovery-pond-v2.jpg`(1200×600 JPEG, 2.6MB → 390KB). og·twitter 메타를 새 파일로 바꿨다. 원본 PNG(v1)는 `assets/og/`에 남기고 빌드에서만 뺐다.

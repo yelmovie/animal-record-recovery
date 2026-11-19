@@ -59,7 +59,7 @@
 
 | 목적 | 명령 | 비고 |
 |---|---|---|
-| 개발 서버 | `npm start` | `node server.mjs`, `http://127.0.0.1:4173/` (`index.html`, `src/`, `assets/`만 제공) |
+| 개발 서버 | `npm start` | `node server.mjs`, `http://127.0.0.1:4173/` (`index.html`, `sw.js`, `src/`, `assets/`만 제공. `sw.js`는 배포본에서만 등록) |
 | 문법 검사 | `npm run check` | `src/`, `scripts/`의 `.js/.mjs`를 `node --check`로 검사. 타입 검사·린트 대용은 아님 |
 | 테스트 | `npm test` | `node --test tests/*.test.mjs` |
 | 빌드 | `npm run build` | `scripts/build.mjs`: 필요한 파일만 `dist/`로 복사, CSS 묶기, `dist/build-manifest.json` 작성. **git 명령을 호출한다**(아래 D-2 참고) |
@@ -78,7 +78,7 @@
 
 ### D-1. 유지할 것과 재생성할 것
 
-- **항상 유지(공유 대상)**: 소스(`src/`, `scripts/`, `tools/`, `tests/`, `index.html`, `server.mjs`, `worker.js`), 설정(`package.json`, `wrangler.jsonc`, `vercel.json`, `.gitignore`, `.claude/launch.json`), lockfile(`package-lock.json`), 원본 에셋과 문서.
+- **항상 유지(공유 대상)**: 소스(`src/`, `scripts/`, `tools/`, `tests/`, `index.html`, `sw.js`, `server.mjs`, `worker.js`), 설정(`package.json`, `wrangler.jsonc`, `vercel.json`, `.gitignore`, `.claude/launch.json`), lockfile(`package-lock.json`), 원본 에셋과 문서.
 - **다른 OS 것을 재사용하지 않고 필요할 때 다시 만드는 폴더**:
   - `node_modules/` — wrangler가 쓰는 `@cloudflare/workerd-*`, `@esbuild/*`는 OS·CPU별 바이너리다. Windows에서 설치한 것을 Mac에서 쓰거나 그 반대로 쓰면 배포 명령이 실패할 수 있다. 앱 실행·테스트·빌드에는 필요 없으므로, 배포가 필요할 때만 그 OS에서 사용자 확인 후 `npm ci`로 다시 만든다.
   - `node_modules/model-tools/` — 위와 같은 이유로 OS별 재설치.
