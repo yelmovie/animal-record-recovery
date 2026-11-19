@@ -4,7 +4,8 @@
 
 - 공유 그림: `assets/og/animal-record-recovery-pond-v2.jpg`(1200×600 JPEG, 2.6MB → 390KB). og·twitter 메타를 새 파일로 바꿨다. 원본 PNG(v1)는 `assets/og/`에 남기고 빌드에서만 뺐다.
 - 지도 `assets/village/map-base.webp`·`map-restored.webp`: 같은 1600×900을 WebP q90으로 다시 인코딩(2.0MB → 443KB, 2.4MB → 585KB, PSNR 39.8·36.1dB, 실제 크기에서 차이 안 보임). 원본은 Git 기록에 있다.
-- 빌드 `dist/`에 1MB 넘는 그림 0장. 참고: 앱 첫 지도는 `map-base-light.webp`를 쓰고, 위 두 지도는 빌드에 복사되지만 코드에서 불러오지 않는다.
+- 빌드 `dist/`에 1MB 넘는 그림 0장.
+- 이어서 쓰지 않는 지도 두 장(`map-base.webp`·`map-restored.webp`)을 빌드 목록(`scripts/build.mjs`)에서 뺐다. 앱 지도는 `map-base-light.webp` 하나만 쓰고, `village.json`의 `map.base`·`map.restored` 이름은 코드가 읽지 않는다. 원본은 `assets/village/`에 그대로 있다. 커밋 `aa765d4`, Workers 7357fd19, 운영에서 두 파일 404·지도 화면 정상.
 
 ## 2026-11-19 1장 비교 화면 구조 · 폰 가로 손전등 · 설정 창 닫기
 
