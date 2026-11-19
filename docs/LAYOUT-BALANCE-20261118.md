@@ -79,3 +79,10 @@
 - `src/layout.css` — 끝에 「Layout balance (2026-11-18 night)」 블록(기준 검증 작업대, 1장 비교 사진 크기)과 전시 소개 머리글 18px 한 줄
 
 학습 문구·정답 판정·저장·진행 로직은 바꾸지 않았다. 다른 세션의 미커밋 변경(`src/concept-focus.js`, `src/concept-video.js`, `src/story.css`, `tests/concepts.test.mjs`, `assets/concepts/*`, `docs/concept-captions-20261118/`)은 건드리지 않았다.
+
+## 6. 커밋·운영 배포
+
+- 코드 커밋 `3262148`(main 푸시). `_scratch/deploy-20261118/deploy.sh 02`로 `origin/main` 빌드·배포, Workers 버전 c5625f6f.
+- `cmp.sh`·직접 해시 비교: `index.html`, `build-manifest.json`, `src/layout.css`, `src/mission-views.js`, `src/relay-views.js`, `src/campaign-views.js` 모두 MATCH.
+- 운영 smoke(새 프로필 1280×800): 첫 화면 1.06초, load 1.21초, 전송 1.14MB, 요청 origin 1개, 새 CSS 규칙 3개 적용, 시작 → 인트로 → 지도, 새로고침 뒤 「이어서 탐험하기」, 오류 0.
+- 같은 배포에 개념 영상 자막 세션의 커밋 `91cf80a`(먼저 푸시됨)도 함께 올라갔다.
