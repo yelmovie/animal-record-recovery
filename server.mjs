@@ -10,7 +10,7 @@ const server = http.createServer(async (req,res) => {
     const target = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
     const file = path.resolve(root, '.' + target);
     const relative = path.relative(root, file);
-    if (relative.startsWith('..') || path.isAbsolute(relative) || !['index.html','src','assets'].includes(relative.split(path.sep)[0])) { res.writeHead(404); return res.end('Not found'); }
+    if (relative.startsWith('..') || path.isAbsolute(relative) || !['index.html','sw.js','src','assets'].includes(relative.split(path.sep)[0])) { res.writeHead(404); return res.end('Not found'); }
     const data = await readFile(file);
     const headers={'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Accept-Ranges':'bytes'};
     const range=req.headers.range?.match(/^bytes=(\d*)-(\d*)$/);

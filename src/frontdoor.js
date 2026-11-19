@@ -3,6 +3,7 @@ import {createRecordStorage,storageMessage} from './record-storage.js';
 import {freshExpedition,expeditionResume} from './expedition.js';
 import {btn,esc} from './presentation.js';
 import {playSound,playMusic,setMusicVolume,setSoundVolume,silence} from './audio.js';
+import {BUILD_INFO} from './build-info.js';
 
 const app=document.querySelector('#app');
 const store=createRecordStorage({getItem:key=>localStorage.getItem(key)});
@@ -85,3 +86,8 @@ app.addEventListener('click',onClick);
 landing();
 if(restart==='story-intro')openIntro();
 else if(['map','resume','settings','intro-finished'].includes(restart))openRuntime(restart);
+// Offline revisit: only the deployed build registers sw.js (the source dev server never does).
+// After it takes over, it also keeps what this first load already fetched.
+if(BUILD_INFO.sha!=='development'&&'serviceWorker' in navigator)addEventListener('load',()=>{
+ navigator.serviceWorker.register('./sw.js').then(()=>navigator.serviceWorker.ready).then(reg=>reg.active?.postMessage({cache:[location.href,...performance.getEntriesByType('resource').map(e=>e.name)]})).catch(()=>{});
+});
