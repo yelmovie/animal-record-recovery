@@ -1491,3 +1491,21 @@ dialog .request-finished-next{color:#2c5236;font-weight:700}
  #app #main.mission-page .forest-compare-question{max-width:720px}
 }
 #app #main#main .studio-empty>span{font-size:18px!important}
+/* Layout balance (2026-11-18 night): the work is the page, the scenery frames it.
+   Garden 기준 검증: the step panel stands beside the table as one bench (no card floating mid-air), and the table rows grow with the screen.
+   1장 비교: the two animals take more of the mat on tall screens. Tablet widths keep their own rules below 901px. */
+#app #main.mission-page .verify-lab{align-items:stretch}
+#app #main.mission-page .verify-lab>.verify-steps{align-self:stretch}
+#app #main .verify-lab .verify-table :is(th,td){height:clamp(34px,5.6vh,64px)}
+#app #main#main .activity-workspace>.verify-lab{padding-inline:max(14px,calc((100vw - 1640px)/2))}
+@media (min-width:901px) and (min-height:651px){
+ #app #main.mission-page .forest-compare-animals .animal{height:clamp(190px,46dvh,520px);object-position:center bottom}
+ #app #main.mission-page .forest-compare-question{max-width:760px}
+}
+/* Wide screens: the animals' column gets the larger share, so the photos themselves grow (they were held by their column width). */
+@media (min-width:1200px) and (min-height:651px){
+ #app #main.mission-page .forest-compare{width:min(1800px,92%);grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+ #app #main.mission-page .forest-compare-animals{gap:4px}
+}
+/* Showcase eyebrow: student-visible label at the 18px floor (was 16px). */
+#app #main.mission-page .studio-showcase .studio-heading>.studio-eyebrow{font-size:18px}

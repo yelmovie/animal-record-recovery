@@ -49,7 +49,7 @@ function observeView(s,v){
  const id=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0],list=OBSERVATIONS[id];
  const o=list[v.focusIndex??list.findIndex(x=>x.id===OBSERVE_REQUIRED[id])];
  const required=o.id===OBSERVE_REQUIRED[id],found=s.observed.includes(o.id),next=nextObservation(s,v.round);
- const nextAction=next?btn(next===id?'핵심 특징 보기':`${ANIMALS[next].name} 관찰하기`,'inspect','secondary observe-next',`data-id="${next}" data-value="${OBSERVATIONS[next].findIndex(x=>x.id===OBSERVE_REQUIRED[next])}"`):btn('두 동물 비교하기 '+icon('arrow'),'advance','secondary observe-next');
+ const nextAction=next?btn(next===id?'핵심 특징 보기':`${ANIMALS[next].name} 관찰하기`,'inspect','secondary observe-next',`data-id="${next}" data-value="${OBSERVATIONS[next].findIndex(x=>x.id===OBSERVE_REQUIRED[next])}"`):s.activities.includes(`1-${v.step}`)?'':btn('두 동물 비교하기 '+icon('arrow'),'advance','secondary observe-next');
  const tabs=`<div class="scene-tabs">${pair.map(a=>btn((s.observed.includes(OBSERVE_REQUIRED[a])?icon('check'):'')+ANIMALS[a].name,'animal-tab',id===a?'active':'',`data-id="${a}" aria-pressed="${id===a}"`)).join('')}</div>`;
  const status=`<p class="pair-status">핵심 특징 ${pair.filter(a=>s.observed.includes(OBSERVE_REQUIRED[a])).length}/2 · 동물마다 하나씩</p>`;
  const partButtons=list.map((x,i)=>btn((s.observed.includes(x.id)?icon('check'):icon('search'))+x.label+(x.id===OBSERVE_REQUIRED[id]?' · 핵심':''),'inspect',o.id===x.id?'selected':'quiet',`data-value="${i}" aria-pressed="${o.id===x.id}" aria-controls="observation-notes"`)).join('');
