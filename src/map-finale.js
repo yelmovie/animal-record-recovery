@@ -1,5 +1,6 @@
 // The map award plays once on the last hit. It never changes learning or certificate progress.
 // Full screen, muted: the film carries burned-in captions, so the bottom of the picture stays free of controls.
+// The 'map-finale' event tells adventure-app.js to play the finale song while this dialog is open (the village theme returns on close).
 export function openMapFinale(host, source) {
  const doc=host.ownerDocument;
  if(!host.isConnected||doc.querySelector('.map-finale-dialog'))return;
@@ -18,12 +19,13 @@ export function openMapFinale(host, source) {
  const status=doc.createElement('p');status.hidden=true;status.role='status';
  Object.assign(status.style,{position:'absolute',top:'84px',left:'50%',transform:'translateX(-50%)',maxWidth:'85vw',margin:'0',padding:'8px 16px',borderRadius:'12px',background:'#10271edb',fontSize:'17px'});
  dialog.append(video,bar,status);doc.body.append(dialog);dialog.showModal();
+ const announce=open=>doc.dispatchEvent(new CustomEvent('map-finale',{detail:{open}}));announce(true);
  const sync=()=>{toggle.textContent=video.ended?'다시 보기':video.paused?'재생':'일시정지';};
  for(const name of ['play','pause','ended'])video.addEventListener(name,sync);
  toggle.addEventListener('click',()=>{if(video.paused||video.ended)video.play().catch(()=>{});else video.pause();});
  close.addEventListener('click',()=>dialog.close());
  video.addEventListener('error',()=>{status.hidden=false;status.textContent='지금은 영상을 열 수 없어. 지도 퇴치 기록은 저장됐어.';});
- dialog.addEventListener('close',()=>{video.pause();dialog.remove();},{once:true});
+ dialog.addEventListener('close',()=>{video.pause();dialog.remove();announce(false);},{once:true});
  video.play().catch(()=>sync());
  sync();
 }

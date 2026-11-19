@@ -18,6 +18,8 @@ export function speakLine(text,{onEnd}={}){
   if(!player){
     player=new Audio();
     player.addEventListener('playing',()=>{release??=opts.duck();});
+    // A line the browser pauses on its own (audio focus, a pulled headset) gives the music back too.
+    player.addEventListener('pause',()=>{release?.();release=undefined;});
     for(const name of ['ended','error'])player.addEventListener(name,finish);
   }
   player.src=new URL('audio/'+clip+'.mp3',assets).href;player.volume=Math.min(1,Math.max(0,opts.volume()));

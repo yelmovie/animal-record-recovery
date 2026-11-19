@@ -17,3 +17,7 @@
 ## 되돌리는 법
 
 옮긴 CSS는 `_unused/src/`에서 `src/`로 다시 옮기면 된다. 어느 화면도 이 두 파일을 불러오지 않으므로 옮긴 뒤 화면 변화는 없다.
+
+## 2026-11-19 다시 쓰게 된 파일
+
+`_unused/music/workshop-theme.mp3`는 삭제 후보에서 뺐다. 파이널 곡(지도 파이널 창, 탐험 인증서 화면)으로 다시 쓰게 되어 `assets/music/finale-theme.mp3`로 옮겼다(`git mv`, 내용 그대로). 출처는 `assets/CREDITS.md`의 「배경음」 표.

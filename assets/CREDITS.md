@@ -146,8 +146,11 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 |---|---|---|
 | music/village-theme.mp3 | Curious Little Step (Suno, seoulmovie) | 게임 전체 배경음(아웃트로 제외) |
 | videos/story/outro.mp4 음성 트랙 | Laid-Back Groove (Suno, seoulmovie) 2:26~2:50 | 아웃트로(파이널) 음악. 조용한 구간이 끝나고 커지는 순간이 16초 "드디어 문이 열렸어!"에 오도록 잘라 영상에 합침. 무음 원본은 `files/videos/outro-silent-20261018.mp4` |
+| music/finale-theme.mp3 | Laid-Back Groove (Suno, seoulmovie) 전체 3:47 | 2026-11-19부터 파이널 곡으로 따로 재생: 지도 파이널 창(영상은 무음)이 열려 있는 동안과 탐험 인증서(엔딩) 화면. 처음부터 반복 재생. 2026-10-19에 만든 웹용 전체본(`_unused/music/workshop-theme.mp3`, -20.1 LUFS, 112kbps)을 다시 인코딩하지 않고 이름만 바꿔 옮김 |
 
 설정 창의 배경음·효과음 슬라이더로 따로 조절하고, '소리' 스위치를 끄면 둘 다 멈춘다. 상업적 사용 가능 여부는 Suno 계정 요금제를 따른다(유료 요금제에서 만든 곡만 상업 이용 가능).
+
+2026-11-19 갱신(위 표의 「쓰는 곳」 보충): `music/village-theme.mp3`는 아웃트로 영상·지도 파이널 창·탐험 인증서 화면을 뺀 나머지 전체에서 난다. 인트로 영상(`videos/story/intro-light-web.mp4`) 소리에는 마을 곡이, 아웃트로 영상(`videos/story/outro-web.mp4`) 소리에는 파이널 곡이 섞여 있어서 두 영상이 재생되는 동안에는 따로 트는 곡을 멈춘다(파형 대조로 확인). 대사가 나오는 동안 배경음은 멈추지 않고 0.25배로 줄어든다.
 
 ## 활동 장면 배경 · 2026-10-19
 

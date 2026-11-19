@@ -14,9 +14,9 @@ import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRI
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
-import {installPopupVoice} from './popup-voice.js';
+import {installPopupVoice,stopLine} from './popup-voice.js';
 import {createNavigation} from './navigation.js';
-import {playSound,silence,playMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS} from './audio.js';
+import {playSound,silence,playMusic,stopMusic,duckMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS} from './audio.js';
 import {bindRewardSound,rewardSlotsHtml,awardRewardCard,newRewardCards,rewardCardDue} from './village-rewards.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
@@ -152,8 +152,13 @@ function progressWorkshopDesign(){
 }
 let villageFactory=null,villageImport,mapRender=0,mapFailed=false,mapModuleFailed=false;
 let renderedRoute='',unmountStudio=null,unmountFlashlight=null,unmountBroadcast=null;
-// One village theme everywhere; it keeps quiet while a story or concept video is open (the outro carries its own finale music).
-function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:'village');}
+// The village theme plays everywhere except the map finale dialog and the ending (certificate) screen, which play the finale song.
+// Music keeps quiet while a story or concept video is open (the intro film carries the village theme and the outro film the finale song).
+// Voices duck it by label (duckMusic), so this redraw-time sync never brings the volume back in the middle of a line.
+let mapFinale=false;
+function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:mapFinale||screen==='ending'?'finale':'village');}
+// Turning sound off also stops a line that is being read (popup, resident, broadcast); each one releases its own music duck.
+function stopVoices(){stopLine();unmountBroadcast?.stop?.();for(const el of document.querySelectorAll('audio'))el.pause?.();}
 function render(){
   clearActivityProgress();
   unmountBroadcast?.();unmountBroadcast=null;
@@ -179,9 +184,7 @@ function render(){
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,{...view(),rewardSlots:screen==='map'?rewardSlotsHtml(s.mapEncounters):''})+page(s,view());restoredFlash=null;
   setupPanels();syncWorkshopCue();
-  unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
-    setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
-  },onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
+  unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('broadcast'),onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
     const card=screen==='commission'?requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard]:null;if(card?.kind==='broadcast')heardBroadcasts.add(broadcastKey(card));
     if(screen==='commission'&&!requestParts(stage,commissionIndex).every(part=>campaignDone(s,stage,part)))progressRequest();
   }});
@@ -218,7 +221,7 @@ function showMapFailure(moduleFailed=false){
 // the villains and the all-villains finale; the finale's own jingle then cuts the card-collection jingle short (onEncounterTone) so the two never overlap.
 // A card whose turn comes while a dialog (settings) is open waits for it to close; rewardCardDue() in the map's isBlocked keeps the finale behind it.
 bindRewardSound(name=>playSound(s.soundEnabled,name));
-installPopupVoice({enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);}});
+installPopupVoice({enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('popup')});
 function awardCards(won){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  for(const index of won)awardRewardCard(index,()=>s.mapEncounters,()=>screen==='map',reduced?520:760,()=>!!document.querySelector('dialog[open]'));
@@ -365,9 +368,7 @@ function talk(npc,text,marker,{automatic=false,onEnd}={}){
       globalThis.clearTimeout?.(completionTimer);
       completionTimer=globalThis.setTimeout?.(finishCompletion,duration*1000+750)??null;
     }
-  },enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>{
-    setMusicVolume((s.musicVolume??.5)*.32);return ()=>setMusicVolume(s.musicVolume??.5);
-  }});
+  },enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('npc')});
   clearNpcVoice=()=>{stopVoice();marker?.classList.remove('is-speaking-npc');};
 }
 // 3D screens start downloading while Haru walks to the door, so the scanner and dome open sooner.
@@ -887,11 +888,11 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'map-sound':{
       if(screen!=='map')return;
       const on=!hasSound(s),label=on?'소리 끄기':'소리 켜기';
-      s.soundEnabled=on;s.musicOn=on;save();if(!on)silence();syncMusic();
+      s.soundEnabled=on;s.musicOn=on;save();if(!on){silence();stopVoices();stopMusic(true);}syncMusic();
       el.innerHTML=icon(on?'sound':'muted');el.setAttribute('aria-label',label);el.setAttribute('aria-pressed',String(on));el.title=label;break;
     }
-    case 'music-toggle':s.musicOn=s.musicOn===false;save();syncMusic();settings();break;
-    case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
+    case 'music-toggle':s.musicOn=s.musicOn===false;save();if(s.musicOn===false)stopMusic(true);syncMusic();settings();break;
+    case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled){silence();stopVoices();}else playSound(true);render();if(dialog.open)settings();break;
     case 'admin':togglePreview();settings();break;
     case 'preview-end':if(studentSnapshot)togglePreview();break;
     case 'close-dialog':if(completionRoute){finishCompletion();break;}dialog.close();resumeActivityProgress();break;
@@ -925,7 +926,7 @@ document.addEventListener('pointerdown',e=>{if(autoRun&&!autoRun.waiting&&e.isTr
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback','auto');}else if(!buddy.contains(e.target))buddy.classList.remove('open','auto');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{
-  if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);save();return;}
+  if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);if(!s.soundVolume)stopVoices();save();return;}
   if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setMusicVolume(s.musicVolume);syncMusic();save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();return;}
   if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();syncWorkshopCue();}});
@@ -949,6 +950,13 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dataset.image)return;e.target.classList.add('image-failed');if(screen==='map'&&e.target.dataset.image==='village-map'&&app.contains(e.target)){showMapFailure();return;}if(!document.querySelector('#asset-warning'))app.insertAdjacentHTML('afterbegin','<p id="asset-warning" role="status">그림을 불러오지 못했어. 연결을 확인하고 <button data-action="retry-images">그림 다시 보기</button>를 눌러 줘.</p>');},true);
 document.addEventListener('toggle',e=>{if(e.target.open&&e.target.classList?.contains('forest-extra'))clearActivityProgress();},true);
 dialog.addEventListener('close',()=>{resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();resumeActivityProgress();});
+// map-finale.js announces its dialog: the film there stays muted, so the finale song plays while it is open and the village theme
+// returns when it closes. The victory jingle (2.4s) rings first; the song stays low under it.
+document.addEventListener('map-finale',event=>{
+  mapFinale=!!event.detail?.open;
+  if(mapFinale&&s.soundEnabled){const release=duckMusic('finale-jingle');if(!globalThis.setTimeout?.(release,2400))release();}
+  syncMusic();
+});
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();
   // The on-screen keyboard shrinks the visual viewport: bring the field being typed in back to the middle once it has opened.
   const keepField=()=>{const el=document.activeElement;if(el?.matches?.('textarea,input[type=text],input:not([type])'))setTimeout(()=>el.scrollIntoView?.({block:'center',behavior:'smooth'}),250);};

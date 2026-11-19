@@ -35,3 +35,19 @@ test('map villain events map to their own sounds and every file ships', () => {
     assert.ok(existsSync(new URL(`../assets/sfx/${name}.mp3`, import.meta.url)), `${name}.mp3 is missing`);
   }
 });
+
+test('music ducks by label: it comes back only when every voice has let go, and a volume sync does not undo it', async () => {
+  const {duckMusic,setMusicVolume,musicLevel,MUSIC_DUCK,MUSIC_FILES}=await import('../src/audio.js');
+  setMusicVolume(.5);assert.equal(musicLevel(), .5);
+  const popup=duckMusic('popup'),npc=duckMusic('npc');
+  assert.equal(MUSIC_DUCK, .25);assert.equal(musicLevel(), .125);
+  setMusicVolume(.5);assert.equal(musicLevel(), .125, 'a redraw-time volume sync keeps the duck');
+  setMusicVolume(.8);assert.equal(musicLevel(), .2, 'the slider moves the ducked level too');
+  popup();assert.equal(musicLevel(), .2, 'one voice ending does not release another voice');
+  popup();npc();assert.equal(musicLevel(), .8);
+  const again=duckMusic('npc');duckMusic('npc');again();assert.equal(musicLevel(), .8, 'one label is one hold, however often it is taken');
+  setMusicVolume(.5);
+  // Both songs ship: the village theme and the finale song (map finale dialog, certificate screen).
+  assert.deepEqual(MUSIC_FILES, ['assets/music/village-theme.mp3','assets/music/finale-theme.mp3']);
+  for(const file of MUSIC_FILES)assert.ok(existsSync(new URL('../'+file, import.meta.url)), `${file} is missing`);
+});

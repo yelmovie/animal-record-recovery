@@ -30,7 +30,7 @@ const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'ut
   .split('export function openFromLanding(action){')[1].replace(/}\s*$/,'')
   .replace('let villageFactory=null','let villageFactory=createVillage');
 function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock=false}={}){
-  let stored=storedRecord,warning=null,writeFailure=fail,exported=null;const music=[];
+  let stored=storedRecord,warning=null,writeFailure=fail,exported=null;const music=[],ducks=[],stops=[];
   const listeners=new Map(),heading={textContent:''},status={textContent:''},announcer={textContent:''},link={href:''},quest={innerHTML:'',inert:true},travel={textContent:''};
   const app={_html:'',get innerHTML(){return this._html;},set innerHTML(v){this._html=v;warning=null;},querySelectorAll(){return [];},insertAdjacentHTML(_,text){warning={text,remove(){warning=null;}};}};
   const dialog={open:false,innerHTML:'',classList:{add(){},remove(){}},querySelector(){return null;},showModal(){this.open=true;},close(){this.open=false;},addEventListener(){}};
@@ -39,9 +39,9 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
   const timers=new Map();let timerId=0;
   const clockTools=clock?{setTimeout(fn){timers.set(++timerId,fn);return timerId;},clearTimeout(id){timers.delete(id);}}:{};
-  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,...relayRules,RELAY_TITLE:'세 곳 이어달리기',KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},installPopupVoice(){},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},preloadSounds(){},ENCOUNTER_SOUNDS:[],encounterSound(){return null;},REWARD_SOUNDS:[],bindRewardSound(){},rewardSlotsHtml(hits){return `<button data-reward-album data-owned="${Object.keys(hits??{}).filter(id=>hits[id]===3).join(' ')}"></button>`;},awardRewardCard(){},newRewardCards(){return [];},silence(){},playMusic(key){music.push(key);},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,...relayRules,RELAY_TITLE:'세 곳 이어달리기',KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},installPopupVoice(){},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},preloadSounds(){},ENCOUNTER_SOUNDS:[],encounterSound(){return null;},REWARD_SOUNDS:[],bindRewardSound(){},rewardSlotsHtml(hits){return `<button data-reward-album data-owned="${Object.keys(hits??{}).filter(id=>hits[id]===3).join(' ')}"></button>`;},awardRewardCard(){},newRewardCards(){return [];},silence(){},playMusic(key){music.push(key);},stopMusic(now){stops.push('music:'+!!now);},duckMusic(label){ducks.push(label);return ()=>ducks.push('-'+label);},stopLine(){stops.push('line');},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
-  return {run,app,dialog,flushTimers(){const pending=[...timers.values()];timers.clear();for(const fn of pending)fn();},music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
+  return {run,app,dialog,ducks,stops,emit(name,event){listeners.get(name)(event);},flushTimers(){const pending=[...timers.values()];timers.clear();for(const fn of pending)fn();},music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
 
 test('current controller reports storage failure immediately and recovers without losing progress',()=>{
@@ -633,4 +633,32 @@ test('screen 07 in 3D: each gate records the same link answer as a card and the 
 test('the 3D life path shows no extra model notice line',()=>{
  const html=activityView(model.freshExpedition(),{stage:3,step:2,use3d:true});
  assert.match(html,/data-3d="linkrun"/);assert.doesNotMatch(html,/학습용 모형이야|link-run-note/);
+});
+
+test('the finale song plays on the certificate screen and while the map finale dialog is open; the village theme returns after',()=>{
+ const a=appHarness();a.run("s.adminUnlocked=true;s.introSeen=true;go('map')");assert.equal(a.music.at(-1),'village');
+ a.emit('map-finale',{detail:{open:true}});assert.equal(a.music.at(-1),'finale');
+ // The victory jingle rings first: the song is held low under it (no timer in this harness, so the hold is released at once).
+ assert.deepEqual(a.ducks,['finale-jingle','-finale-jingle']);
+ a.run('render()');assert.equal(a.music.at(-1),'finale','a redraw behind the dialog keeps the finale song');
+ a.emit('map-finale',{detail:{open:false}});assert.equal(a.music.at(-1),'village');
+ a.run("go('ending')");assert.equal(a.music.at(-1),'finale');
+ a.run("act('story-outro',{dataset:{}})");assert.equal(a.music.at(-1),null,'the outro film carries the song in its own sound');
+ a.run('finishStory()');assert.equal(a.run('screen'),'gallery');assert.equal(a.music.at(-1),'village');
+ a.run("s.musicOn=false;go('ending')");assert.equal(a.music.at(-1),null);
+});
+
+test('switching sound off stops the line being read and the music at once; voices duck by label, never by volume',()=>{
+ const a=appHarness();a.run("s.introSeen=true;go('map')");
+ const el="{dataset:{},innerHTML:'',setAttribute(){},title:''}";
+ a.run(`act('map-sound',${el})`);assert.equal(a.run('s.soundEnabled'),false);assert.equal(a.run('s.musicOn'),false);
+ assert.deepEqual(a.stops,['line','music:true']);assert.equal(a.music.at(-1),null);
+ a.run(`act('map-sound',${el})`);assert.equal(a.run('s.soundEnabled'),true);assert.deepEqual(a.stops,['line','music:true'],'switching back on stops nothing');
+ a.stops.length=0;a.run("act('sound',{dataset:{}})");assert.deepEqual(a.stops,['line'],'the effects switch stops voices and leaves the music');
+ a.run("act('sound',{dataset:{}})");a.stops.length=0;
+ a.run("act('music-toggle',{dataset:{}})");assert.deepEqual(a.stops,['music:true']);
+ a.stops.length=0;a.inputControl({id:'sound-volume',value:'0',nextElementSibling:{}});assert.deepEqual(a.stops,['line'],'effects volume 0 stops the voice too');
+ const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8');
+ assert.doesNotMatch(source,/setMusicVolume\([^)]*\*/,'no caller scales the music volume itself any more');
+ assert.equal(source.match(/duck:\(\)=>duckMusic\('(popup|npc|broadcast)'\)/g).length,3);
 });

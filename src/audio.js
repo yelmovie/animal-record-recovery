@@ -68,24 +68,45 @@ export function playSound(enabled,kind='tap'){
 }
 
 // Background music (Suno tracks, see assets/CREDITS.md): one looping <audio>, faded in and out.
-// Browsers block audio before the first tap, so a blocked start is retried on the next pointerdown.
-const MUSIC={village:'village-theme'};
+// village: the whole game. finale: the map finale dialog and the ending (certificate) screen. The finale song is at full
+// level from its first second (its quiet bridge sits at 2:30~2:42), so it always starts from the top.
+// Browsers block audio before the first tap, so a blocked start is retried on the next pointerdown or keydown.
+const MUSIC={village:'village-theme',finale:'finale-theme'};
+export const MUSIC_FILES=Object.values(MUSIC).map(name=>`assets/music/${name}.mp3`);
+// Voices turn the music down instead of stopping it. Each speaker holds its own label and the music comes back only
+// when every label is gone, so a screen redraw (setMusicVolume) or one voice ending cannot undo another voice's duck.
+export const MUSIC_DUCK=.25;
+const ducks=new Set(),ramps=new WeakMap(),leaving=new Map();
 let music=null,musicKey=null,musicVolume=.5;
-function fade(el,to,done){
+export const musicLevel=()=>musicVolume*(ducks.size?MUSIC_DUCK:1);
+// A newer fade on the same element replaces the one still running.
+function fade(el,to,ms,done){
+  const token={};ramps.set(el,token);
   const from=el.volume,start=performance.now();
-  const tick=t=>{const k=Math.min(1,(t-start)/700);el.volume=Math.min(1,Math.max(0,from+(to-from)*k));if(k<1)requestAnimationFrame(tick);else done?.();};
+  const tick=t=>{if(ramps.get(el)!==token)return;const k=Math.min(1,Math.max(0,(t-start)/ms));el.volume=Math.min(1,Math.max(0,from+(to-from)*k));if(k<1)requestAnimationFrame(tick);else done?.();};
   requestAnimationFrame(tick);
 }
-const start=el=>el.play().then(()=>{if(el===music)fade(el,musicVolume);}).catch(()=>{ /* Waiting for a tap. */ });
+const settle=()=>{if(music&&!music.paused)fade(music,musicLevel(),200);};
+const start=el=>el.play().then(()=>{if(el===music)fade(el,musicLevel(),700);}).catch(()=>{ /* Waiting for a tap. */ });
+/** Turns the music down while a voice speaks. Returns the release for this label (safe to call twice). */
+export function duckMusic(label){
+  ducks.add(label);settle();
+  return ()=>{if(ducks.delete(label))settle();};
+}
 // Music and effects have independent controls in settings.
 export function setMusicVolume(m){
-  if(Number.isFinite(m)){musicVolume=Math.min(1,Math.max(0,m));if(music&&!music.paused)music.volume=musicVolume;}
+  if(!Number.isFinite(m))return;
+  const next=Math.min(1,Math.max(0,m));
+  if(next!==musicVolume){musicVolume=next;settle();}
 }
-export function stopMusic(){
+// now: no fade (the learner switched sound off).
+export function stopMusic(now=false){
   const el=music;music=null;musicKey=null;
-  if(el)fade(el,0,()=>{el.pause();el.removeAttribute('src');el.load();});
+  if(!el)return;
+  const end=()=>{ramps.delete(el);leaving.delete(el);el.pause();el.removeAttribute('src');el.load();};
+  if(now)end();else{leaving.set(el,end);fade(el,0,700,end);}
 }
-// key: 'village' | null (silence).
+// key: 'village' | 'finale' | null (silence).
 // Browsers block sound until the first tap, so the 2.3MB track waits for it instead of loading with the first screen.
 let pendingMusic=null;
 export function playMusic(key){
@@ -99,6 +120,8 @@ export function playMusic(key){
 if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
   const resume=()=>{if(pendingMusic){const key=pendingMusic;pendingMusic=null;playMusic(key);}else if(music?.paused&&!document.hidden)start(music);};
   document.addEventListener('pointerdown',resume);document.addEventListener('keydown',resume);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){silence();music?.pause();}else if(music)start(music);});
-  globalThis.addEventListener?.('pagehide',()=>{silence();music?.pause();});
+  // A fade cannot finish in a hidden tab, so a track that was fading out ends at once.
+  const hush=()=>{silence();music?.pause();for(const end of [...leaving.values()])end();};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)hush();else if(music)start(music);});
+  globalThis.addEventListener?.('pagehide',hush);
 }
