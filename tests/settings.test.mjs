@@ -51,3 +51,12 @@ test('effect volume restores zero, defaults older saves, rejects invalid values,
  // Backup and storage guidance were removed from settings at the teacher's request (2026-10-26).
  assert.doesNotMatch(html(),/기록 저장 · 공용 기기 안내|기록 백업/);
 });
+
+test('settings list five sound rows: music and effects switches, their volumes, then the voice switch',()=>{
+ const s=freshExpedition(),h=html(s);
+ const order=['music-toggle','"sound"','id="music-volume"','id="sound-volume"','voice-toggle'].map(k=>h.indexOf(k));
+ assert.ok(order.every((v,i)=>v>=0&&(i===0||v>order[i-1])),String(order));
+ assert.match(h,/data-action="voice-toggle"[^>]*role="switch" aria-label="목소리" aria-checked="true"/);
+ s.voiceOn=false;assert.match(html(s),/data-action="voice-toggle"[^>]*aria-checked="false"/);
+ s.soundEnabled=false;assert.match(html(s),/id="sound-volume"[^>]*disabled/);assert.doesNotMatch(html(s),/목소리도 함께/);
+});

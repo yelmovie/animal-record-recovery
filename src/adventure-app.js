@@ -160,6 +160,9 @@ let mapFinale=false,finaleSongAt=0;
 const clock=()=>globalThis.performance?.now?.()??Date.now();
 function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:mapFinale&&clock()>=finaleSongAt||screen==='ending'?'finale':'village');}
 // Turning sound off also stops a line that is being read (popup, resident, broadcast); each one releases its own music duck.
+// Voices (popup lines, residents, broadcast, concept captions) have their own switch and play at the level they always had
+// with the default effects volume, so the effects slider no longer moves them.
+const VOICE_VOLUME=.8,voiceOn=()=>s.voiceOn!==false,voiceVolume=()=>VOICE_VOLUME;
 function stopVoices(){stopLine();unmountBroadcast?.stop?.();for(const el of document.querySelectorAll('audio'))el.pause?.();}
 function render(){
   clearActivityProgress();
@@ -186,7 +189,7 @@ function render(){
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,{...view(),rewardSlots:screen==='map'?rewardSlotsHtml(s.mapEncounters):''})+page(s,view());restoredFlash=null;
   setupPanels();syncWorkshopCue();
-  unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('broadcast'),onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
+  unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:voiceOn,volume:voiceVolume,duck:()=>duckMusic('broadcast'),onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
     const card=screen==='commission'?requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard]:null;if(card?.kind==='broadcast')heardBroadcasts.add(broadcastKey(card));
     if(screen==='commission'&&!requestParts(stage,commissionIndex).every(part=>campaignDone(s,stage,part)))progressRequest();
   }});
@@ -241,7 +244,7 @@ function announceOpenedStages(){
  };
  openChime=setTimeout(ring,600);
 }
-installPopupVoice({enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('popup')});
+installPopupVoice({enabled:voiceOn,volume:voiceVolume,duck:()=>duckMusic('popup')});
 function awardCards(won){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  for(const index of won)awardRewardCard(index,()=>s.mapEncounters,()=>screen==='map',reduced?520:760,()=>!!document.querySelector('dialog[open]'));
@@ -390,7 +393,7 @@ function talk(npc,text,marker,{automatic=false,onEnd}={}){
       globalThis.clearTimeout?.(completionTimer);
       completionTimer=globalThis.setTimeout?.(finishCompletion,duration*1000+750)??null;
     }
-  },enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('npc')});
+  },enabled:voiceOn,volume:voiceVolume,duck:()=>duckMusic('npc')});
   clearNpcVoice=()=>{stopVoice();marker?.classList.remove('is-speaking-npc');};
 }
 // 3D screens start downloading while Haru walks to the door, so the scanner and dome open sooner.
@@ -910,16 +913,17 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'map-sound':{
       if(screen!=='map')return;
       const on=!hasSound(s),label=on?'소리 끄기':'소리 켜기';
-      s.soundEnabled=on;s.musicOn=on;save();if(!on){silence();stopVoices();stopMusic(true);}syncMusic();
+      s.soundEnabled=on;s.musicOn=on;s.voiceOn=on;save();if(!on){silence();stopVoices();stopMusic(true);}syncMusic();
       el.innerHTML=icon(on?'sound':'muted');el.setAttribute('aria-label',label);el.setAttribute('aria-pressed',String(on));el.title=label;break;
     }
     case 'music-toggle':s.musicOn=s.musicOn===false;save();if(s.musicOn===false)stopMusic(true);syncMusic();settings();break;
-    case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled){silence();stopVoices();}else playSound(true);render();if(dialog.open)settings();break;
+    case 'sound':s.soundEnabled=!s.soundEnabled;save();if(!s.soundEnabled)silence();else playSound(true);render();if(dialog.open)settings();break;
+    case 'voice-toggle':s.voiceOn=s.voiceOn===false;save();if(s.voiceOn===false)stopVoices();render();if(dialog.open)settings();break;
     case 'admin':togglePreview();settings();break;
     case 'preview-end':if(studentSnapshot)togglePreview();break;
     case 'close-dialog':if(completionRoute){finishCompletion();break;}dialog.close();resumeActivityProgress();break;
     case 'reset-confirm':modal('탐험 기록을 초기화할까요?',`<p>관찰 기록·탐사 도구·주민 답장·발명 작품과 그림·이전 버전 기록이 이 기기에서 모두 지워져요. 소리 설정은 그대로 남아요.</p><div class="dialog-actions">${btn('취소','close-dialog','secondary','autofocus')}${btn('기록 지우기','reset','danger')}</div>`);break;
-    case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
+    case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,voiceOn:s.voiceOn,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
     case 'dome-look':if(DOME_ZONES[el.dataset.id]){stopMotion();looked.add(el.dataset.id);activeHabitat=el.dataset.id;feedback=null;render();}break;
@@ -948,7 +952,7 @@ document.addEventListener('pointerdown',e=>{if(autoRun&&!autoRun.waiting&&e.isTr
 document.addEventListener('click',e=>{const buddy=document.querySelector('.mission-page .guide-buddy,.commission-page .commission-feedback');if(!buddy)return;if(e.target.closest?.('.buddy-toggle')){buddy.classList.toggle('open');buddy.classList.remove('has-feedback','auto');}else if(!buddy.contains(e.target))buddy.classList.remove('open','auto');});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el||el.disabled)return;if(el.getAttribute('aria-disabled')==='true'){toast(el.dataset.why||'아직 누를 수 없어.',el);return;}if(CLICK_SOUND[el.dataset.action]!==null)playSound(s.soundEnabled,CLICK_SOUND[el.dataset.action]);act(el.dataset.action,el);});
 document.addEventListener('input',e=>{
-  if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);if(!s.soundVolume)stopVoices();save();return;}
+  if(e.target.id==='sound-volume'){s.soundVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setSoundVolume(s.soundVolume);save();return;}
   if(e.target.id==='music-volume'){s.musicVolume=Number(e.target.value)/100;e.target.nextElementSibling.textContent=e.target.value+'%';setMusicVolume(s.musicVolume);syncMusic();save();return;}
   if(e.target.id==='motion-phase'){const next=Number(e.target.value);stopMotion(false);motionPhase=next;motionPlayer?.seek(next);paintMotion();return;}
   if(e.target.id==='invention-name'){clearActivityProgress();const d=s.designs[round()];d.name=e.target.value.slice(0,24);document.querySelector('#design-title').textContent=d.name||PROBLEMS[d.problem]?.product||'어떤 물건을 만들까?';save();syncWorkshopCue();}});

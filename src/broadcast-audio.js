@@ -96,7 +96,7 @@ export function mountBroadcastAudio(host,{dialog,enabled,volume,duck,onStart,onF
     if(target.disabled)return;
     if(button===target){message(target,'방송을 멈췄어.');stop(true);return;}
     stop();
-    if(!enabled()||!(volume()>0)){message(target,'설정에서 효과음·목소리를 켜면 들을 수 있어.');return;}
+    if(!enabled()||!(volume()>0)){message(target,'설정에서 목소리를 켜면 들을 수 있어.');return;}
     const clips=target.dataset.broadcastClips.split(',');
     if(clips.some(id=>!CLIPS.includes(id)))return;
     let script;

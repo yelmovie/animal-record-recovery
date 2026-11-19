@@ -47,6 +47,8 @@ function track(source,gain,group){active.add(source);group.push(source);source.o
 export const soundName=kind=>kind===true?'correct':kind===false||!(Object.hasOwn(FILES,kind)||Object.hasOwn(SYNTH,kind))?'tap':kind;
 export function playSound(enabled,kind='tap'){
   if(!enabled||!sfxVolume||globalThis.document?.hidden)return;
+  // Before the first tap or key the browser keeps audio locked: skip the effect instead of starting a blocked context.
+  if(typeof navigator!=='undefined'&&navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;
   try{
     const AudioContext=window.AudioContext||window.webkitAudioContext;
     if(!AudioContext)return;

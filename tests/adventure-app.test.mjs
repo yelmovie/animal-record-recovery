@@ -651,13 +651,18 @@ test('the finale song plays on the certificate screen and while the map finale d
 test('switching sound off stops the line being read and the music at once; voices duck by label, never by volume',()=>{
  const a=appHarness();a.run("s.introSeen=true;go('map')");
  const el="{dataset:{},innerHTML:'',setAttribute(){},title:''}";
- a.run(`act('map-sound',${el})`);assert.equal(a.run('s.soundEnabled'),false);assert.equal(a.run('s.musicOn'),false);
+ a.run(`act('map-sound',${el})`);assert.equal(a.run('s.soundEnabled'),false);assert.equal(a.run('s.musicOn'),false);assert.equal(a.run('s.voiceOn'),false);
  assert.deepEqual(a.stops,['line','music:true']);assert.equal(a.music.at(-1),null);
- a.run(`act('map-sound',${el})`);assert.equal(a.run('s.soundEnabled'),true);assert.deepEqual(a.stops,['line','music:true'],'switching back on stops nothing');
- a.stops.length=0;a.run("act('sound',{dataset:{}})");assert.deepEqual(a.stops,['line'],'the effects switch stops voices and leaves the music');
+ a.run(`act('map-sound',${el})`);assert.equal(a.run('s.soundEnabled'),true);assert.equal(a.run('s.voiceOn'),true);assert.deepEqual(a.stops,['line','music:true'],'switching back on stops nothing');
+ // 2026-11-20: voices have their own switch; the effects switch and volume leave them alone.
+ a.stops.length=0;a.run("act('sound',{dataset:{}})");assert.deepEqual(a.stops,[],'the effects switch leaves voices and music');assert.equal(a.run('s.voiceOn'),true);
  a.run("act('sound',{dataset:{}})");a.stops.length=0;
+ a.run("act('voice-toggle',{dataset:{}})");assert.deepEqual(a.stops,['line'],'the voice switch stops the line only');assert.equal(a.run('s.voiceOn'),false);assert.equal(a.run('s.soundEnabled'),true);
+ a.run("act('voice-toggle',{dataset:{}})");assert.equal(a.run('s.voiceOn'),true);a.stops.length=0;
+ a.run("s.soundEnabled=false;s.musicOn=false;s.voiceOn=true");a.run(`act('map-sound',${el})`);assert.equal(a.run('s.voiceOn'),false,'the header button turns everything off while any one is on');assert.equal(a.run('s.soundEnabled'),false);
+ a.run(`act('map-sound',${el})`);a.stops.length=0;
  a.run("act('music-toggle',{dataset:{}})");assert.deepEqual(a.stops,['music:true']);
- a.stops.length=0;a.inputControl({id:'sound-volume',value:'0',nextElementSibling:{}});assert.deepEqual(a.stops,['line'],'effects volume 0 stops the voice too');
+ a.stops.length=0;a.inputControl({id:'sound-volume',value:'0',nextElementSibling:{}});assert.deepEqual(a.stops,[],'effects volume 0 leaves the voice');
  const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8');
  assert.doesNotMatch(source,/setMusicVolume\([^)]*\*/,'no caller scales the music volume itself any more');
  assert.equal(source.match(/duck:\(\)=>duckMusic\('(popup|npc|broadcast)'\)/g).length,3);

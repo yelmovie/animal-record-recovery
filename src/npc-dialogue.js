@@ -56,6 +56,10 @@ export function mountNpcVoice(dialog,npc,completed,{enabled,volume,duck,compact=
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();},{signal});
   window.addEventListener('pagehide',stop,{signal});
   // A villain's line already playing on the map finishes first (at most 2s); the resident's voice then starts.
-  afterVillainLine(()=>{if(!signal.aborted)play();});
+  // Before the first input the browser refuses to play: the line starts on that input if the dialogue is still open.
+  if(typeof navigator!=='undefined'&&navigator.userActivation&&!navigator.userActivation.hasBeenActive){
+    const first=()=>{if(!signal.aborted)afterVillainLine(()=>{if(!signal.aborted)play();});};
+    for(const name of ['pointerup','keyup'])document.addEventListener(name,first,{signal,once:true,capture:true});
+  }else afterVillainLine(()=>{if(!signal.aborted)play();});
   return ()=>{stop();events.abort();player.removeAttribute('src');player.load();player.remove();};
 }

@@ -107,6 +107,7 @@ dialog:has(.settings-body) .dialog-heading h2{font-size:var(--class-title);margi
 .settings-body :is(small,.settings-lock){font-size:18px!important;line-height:1.5}
 .settings-body .settings-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
 .settings-body .setting-row{min-height:52px;padding:8px 12px}
+.settings-body .settings-rows>[data-action="voice-toggle"]{grid-column:1/-1}
 .settings-body .volume-row{display:grid;grid-template-columns:1fr auto;gap:0 10px;min-width:0;margin:0;padding:4px 10px}
 .settings-body .volume-row input{grid-row:2;grid-column:1;width:100%;min-width:0;min-height:48px;margin:0}
 .settings-body .volume-row output{grid-row:2;grid-column:2;min-width:4ch;align-self:center;text-align:right}

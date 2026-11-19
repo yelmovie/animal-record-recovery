@@ -169,7 +169,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',excluded:{},habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,musicOn:true,musicVolume:.4,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
+export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,voiceOn:true,musicOn:true,musicVolume:.4,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -215,6 +215,8 @@ export function restoreExpedition(raw,{strict=false}={}){
     for(const key of ['soundEnabled','introSeen','showAutoRun'])if(typeof input[key]==='boolean')out[key]=input[key];
     // soundEnabled is the effects switch; saves from before the split keep music in step with it.
     out.musicOn=typeof input.musicOn==='boolean'?input.musicOn:out.soundEnabled;
+    // Voices followed the effects switch until the 2026-11-20 split, so an older save keeps them in step with it.
+    out.voiceOn=typeof input.voiceOn==='boolean'?input.voiceOn:out.soundEnabled;
     // New records start at 0.4, which puts the theme near the shared music-to-voice level (2026-11-19 sound pass); a saved record
     // keeps its own value, and one without a valid value keeps the 0.5 it has always had.
     out.musicVolume=Number.isFinite(input.musicVolume)&&input.musicVolume>=0&&input.musicVolume<=1?input.musicVolume:.5;
@@ -278,7 +280,7 @@ export function restoreExpedition(raw,{strict=false}={}){
   }catch(error){if(strict)throw error;return base;}
 }
 function migrateLegacy(raw){
-  const previous=restoreLegacy(raw),out=freshExpedition();out.legacy=previous;out.soundEnabled=previous.soundEnabled;out.musicOn=previous.soundEnabled;out.introSeen=true;
+  const previous=restoreLegacy(raw),out=freshExpedition();out.legacy=previous;out.soundEnabled=previous.soundEnabled;out.musicOn=previous.soundEnabled;out.voiceOn=previous.soundEnabled;out.introSeen=true;
   out.observed=previous.observed;out.compares[0]=Object.fromEntries(Object.entries(previous.compare).map(([k,v])=>[k,`${k}-${v}`]));out.sorts[0]=previous.classification;out.criteria[0]=previous.criterion;
   out.discovered=DISCOVERIES.slice(0,3).filter(d=>previous.found.includes(d.animal)).map(d=>d.id);out.links.frog=previous.chain;
   const oldReady=[previous.observed.length===6,previous.compare.common==='eyes'&&previous.compare.difference==='cover',['frog','duck','rabbit','crab','fish','butterfly'].every(id=>previous.classification[id]===(ANIMALS[id].wings?'yes':'no')),previous.criterion==='wings',out.discovered.length===3,['pond','web','swim'].every((v,i)=>previous.chain[['environment','body','life'][i]]===v)];

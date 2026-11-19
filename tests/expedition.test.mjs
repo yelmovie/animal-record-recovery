@@ -99,6 +99,16 @@ test('music switch and volume survive a reload; older saves follow the old singl
   assert.equal(restoreExpedition(JSON.stringify({...s,musicVolume:4})).musicVolume,.5);
   const {musicOn,...old}=s;assert.equal(restoreExpedition(JSON.stringify({...old,soundEnabled:false})).musicOn,false);
 });
+test('voice switch: new records start on, saves from before the split follow the effects switch, a saved value survives',()=>{
+  const s=freshExpedition();assert.equal(s.voiceOn,true);
+  const {voiceOn,...old}=s;
+  assert.equal(restoreExpedition(JSON.stringify({...old,soundEnabled:false})).voiceOn,false);
+  assert.equal(restoreExpedition(JSON.stringify({...old,soundEnabled:true})).voiceOn,true);
+  const {soundEnabled,...none}=old;assert.equal(restoreExpedition(JSON.stringify(none)).voiceOn,true);
+  assert.equal(restoreExpedition(JSON.stringify(none)).soundVolume,.8);
+  const off=restoreExpedition(JSON.stringify({...s,voiceOn:false}));assert.equal(off.voiceOn,false);assert.equal(off.soundEnabled,true);
+  assert.equal(restoreExpedition(JSON.stringify({...s,voiceOn:'no'})).voiceOn,true);
+});
 test('stage 3 runs both photo rounds first, then the frog and crab links; older saves move over',()=>{
  assert.deepEqual(STAGES[2].tasks,['첫 동물 세 마리','새 동물 세 마리','개구리의 생활','게의 생활','세 곳 이어달리기']);
  const s=freshExpedition();s.completed=[1,2];solve(s,3,0);assert.equal(claimTask(s,3,0).ok,true);

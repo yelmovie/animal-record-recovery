@@ -7,6 +7,9 @@ const assets=new URL('../assets/',import.meta.url);
 const SELECTORS='.request-part-intro,.reward-content>p,details.letter-body[open],.map-encounter-say,.map-encounter-clear';
 let opts=null,player=null,release,done=null,popupText=null,villainLine=false;
 const spoken=new Set();
+// Before the learner's first tap or key the browser refuses to play, so a line on screen at load waits for that input
+// (and is not marked as read); a line the input has already taken off the screen is simply skipped.
+const awaitingInput=()=>typeof navigator!=='undefined'&&navigator.userActivation&&!navigator.userActivation.hasBeenActive;
 export const voiceLinePlaying=()=>!!player&&!player.paused&&!player.ended;
 /** A guide voice that would cut a villain's line already playing waits for it to end (at most 2s), then runs start. */
 export function afterVillainLine(start){
@@ -20,7 +23,7 @@ export function stopLine(){done=null;player?.pause();release?.();release=undefin
 export function speakLine(text,{onEnd}={}){
   const clip=VOICE_LINES[text];if(!clip||!opts)return false;
   stopLine();
-  if(!opts.enabled()||!(opts.volume()>0)||document.hidden)return false;
+  if(!opts.enabled()||!(opts.volume()>0)||document.hidden||awaitingInput())return false;
   if(!player){
     player=new Audio();
     player.addEventListener('playing',()=>{release??=opts.duck();});
@@ -50,7 +53,7 @@ function scan(){
   if(popupText&&!present.has(popupText))stopLine();
   const otherVoice=document.querySelector('[data-speaking="true"]');
   const [next,villain]=visible.find(([text])=>!spoken.has(text))??[];
-  if(!next||otherVoice)return;
+  if(!next||otherVoice||awaitingInput())return;
   spoken.add(next);
   if(speakLine(next)){popupText=next;villainLine=villain;}
 }
@@ -62,5 +65,8 @@ export function installPopupVoice(options){
   // Another voice (resident dialogue, broadcast, story video) takes over.
   document.addEventListener('play',event=>{const el=event.target;if(el!==player&&(el.tagName==='AUDIO'||el.tagName==='VIDEO'&&!el.muted))stopLine();},true);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopLine();});
+  // The first input unlocks playback: read what is still on screen once the page has handled that input.
+  const first=()=>{document.removeEventListener('pointerup',first,true);document.removeEventListener('keyup',first,true);setTimeout(scan,0);};
+  if(awaitingInput()){document.addEventListener('pointerup',first,true);document.addEventListener('keyup',first,true);}
   scan();
 }

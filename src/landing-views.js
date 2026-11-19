@@ -4,7 +4,7 @@ import {expeditionResume} from './expedition.js';
 // Home and back sit on the left; the map has a quick sound switch beside settings.
 // On the map the achievement card slots (v.rewardSlots, built by village-rewards.js) sit just before the sound switch.
 // No counters, no extra menus, no top or bottom bar; the bag and other extras live inside the settings dialog.
-export const hasSound=s=>s.soundEnabled||s.musicOn!==false;
+export const hasSound=s=>s.soundEnabled||s.musicOn!==false||s.voiceOn!==false;
 export function header(s,v){if(['intro','outro'].includes(v.screen))return '';const hud=(glyph,action,label,extra='')=>btn(icon(glyph),action,'icon-btn hud-btn',`aria-label="${label}" title="${label}" ${extra}`);
  return `<header class="screen-hud">${v.screen==='home'?'':`<nav class="hud-left" aria-label="페이지 이동">${hud('home','home','홈으로 가기')}${hud('back','nav-back','이전 페이지로 가기',v.canGoBack?'':'disabled')}</nav>`}<nav class="hud-right" aria-label="소리와 설정">${s.adminUnlocked&&v.screen!=='map'?btn('미리보기 종료','preview-end','quiet preview-exit'):''}${v.screen==='map'?(v.rewardSlots??'')+hud(hasSound(s)?'sound':'muted','map-sound',hasSound(s)?'소리 끄기':'소리 켜기',`aria-pressed="${hasSound(s)}"`):''}${hud('settings','settings','설정')}</nav></header>`;}
 export function home(s){return `<main id="main" tabindex="-1" class="landing museum-landing">
