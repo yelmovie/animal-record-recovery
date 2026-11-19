@@ -329,6 +329,18 @@ test('concept clips open only when unlocked, stop the village music, and can be 
  a.run("conceptPlayer={destroy(){}};syncMusic()");assert.equal(a.music.at(-1),null);a.run("conceptPlayer=null;syncMusic()");assert.equal(a.music.at(-1),'village');
 });
 
+test('voice off mutes the story films and keeps their music playing; voice on keeps the films as they were',()=>{
+ const a=appHarness();
+ // Voice on: the films carry their own songs, so the music stops (unchanged).
+ a.run("s.voiceOn=true;screen='intro';syncMusic()");assert.equal(a.music.at(-1),null);
+ a.run("screen='outro';syncMusic()");assert.equal(a.music.at(-1),null);
+ // Voice off: the films play muted, so the song each film carries keeps playing.
+ a.run("s.voiceOn=false;screen='intro';syncMusic()");assert.equal(a.music.at(-1),'village');
+ a.run("screen='outro';syncMusic()");assert.equal(a.music.at(-1),'finale');
+ a.run("screen='ending';syncMusic()");assert.equal(a.music.at(-1),'finale');
+ a.run("s.musicOn=false;screen='intro';syncMusic()");assert.equal(a.music.at(-1),null);
+});
+
 test('a wrong observation names what to look at again and is kept as a helped answer across reload',()=>{
  const a=appHarness({three:true});a.run("s.adminUnlocked=true;stage=1;step=2;s.step[1]=2;s.activeAnimal='rabbit';enter(1)");
  a.run("act('observe',{dataset:{id:'rabbit-ear',value:'wrong-0'}})");

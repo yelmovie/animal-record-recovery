@@ -52,14 +52,15 @@ async function openRuntime(action){
 }
 async function openIntro(){
  const ticket=++request;
- introOpen=true;silence();playMusic(null);pending();
+ introOpen=true;silence();playMusic(s.voiceOn===false&&s.musicOn!==false?'village':null);pending();
  if(!document.fullscreenElement)app.requestFullscreen?.()?.catch(()=>{});
  try{
   const {storyView,createStoryPlayer}=await load(()=>import('./story-player.js'));
   if(ticket!==request)return;
   app.innerHTML=storyView(s,{screen:'intro'});
   const host=app.querySelector('[data-story]');
-  player=createStoryPlayer(host,{onEnd:()=>openRuntime('intro-finished'),volume:s.soundEnabled?(s.soundVolume??.8):s.musicOn!==false?(s.musicVolume??.5):0});
+  // Voice off: the film's lines are mixed into its sound, so it plays muted and the village theme keeps going under it.
+  player=createStoryPlayer(host,{onEnd:()=>openRuntime('intro-finished'),volume:s.voiceOn===false?0:s.soundEnabled?(s.soundVolume??.8):s.musicOn!==false?(s.musicVolume??.5):0});
   host.focus({preventScroll:true});
  }catch{if(ticket===request){leaveStory();failed('story-intro');}}
 }

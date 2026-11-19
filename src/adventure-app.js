@@ -158,7 +158,9 @@ let renderedRoute='',unmountStudio=null,unmountFlashlight=null,unmountBroadcast=
 // finaleSongAt holds the finale song back until the card-collection jingle has rung out (the dialog itself opens at once).
 let mapFinale=false,finaleSongAt=0;
 const clock=()=>globalThis.performance?.now?.()??Date.now();
-function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:mapFinale&&clock()>=finaleSongAt||screen==='ending'?'finale':'village');}
+// With the voice switch off the story films play muted (their lines are mixed into the film sound), so the music
+// keeps playing through them: the village theme under the intro, the finale song under the outro (the songs each film carries).
+function syncMusic(){const film=(screen==='intro'||screen==='outro')&&s.voiceOn!==false;setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||film||conceptPlayer?null:mapFinale&&clock()>=finaleSongAt||screen==='ending'||screen==='outro'?'finale':'village');}
 // Turning sound off also stops a line that is being read (popup, resident, broadcast); each one releases its own music duck.
 // Voices (popup lines, residents, broadcast, concept captions) have their own switch and play at the level they always had
 // with the default effects volume, so the effects slider no longer moves them.
@@ -199,7 +201,7 @@ function render(){
   app.querySelectorAll('.commission-evidence').forEach((el,i)=>{if(expanded[i]!==undefined)el.open=expanded[i];});
   app.querySelectorAll('.note-book').forEach((el,i)=>{if(notePages[i]>0)turnNotePage(el,notePages[i],false);});
   const storyHost=app.querySelector?.('[data-story]');
-  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.soundEnabled?(s.soundVolume??.8):s.musicOn!==false?(s.musicVolume??.5):0});
+  if(storyHost)storyPlayer=createStoryPlayer(storyHost,{onEnd:finishStory,volume:s.voiceOn===false?0:s.soundEnabled?(s.soundVolume??.8):s.musicOn!==false?(s.musicVolume??.5):0});
   // Every close-up photo opens large on tap (all animals, every screen that shows one).
   app.querySelectorAll?.('.detail-crop').forEach(el=>{el.dataset.action='photo-zoom';el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','사진 크게 보기');});
   sync3d();
