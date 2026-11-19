@@ -49,3 +49,7 @@
 - 코드 커밋 `07c18cb`(main 푸시). 다른 세션의 미커밋 변경(소리·이어달리기 등)은 넣지 않았다. `scripts/build.mjs`는 다른 세션 변경이 함께 있어 이번 한 줄만 커밋했다.
 - `deploy.sh 02 "2 animal" worker-own animal-record-recovery`(차로 `lbk-deploy-2`) → Workers 버전 `c0a4f7f5-ca99-440c-8e43-9f5abd2189a2`.
 - 운영 `build-manifest.json` sha `07c18cb…`, dirty false. `cmp.sh`: `src/korean-linebreak.css` MATCH, `index.html` MATCH. 운영 `src/app.css` 해시도 빌드와 같음.
+
+## 7. 추가 수정 (2026-11-20, 공통 기준 8절)
+
+- 성취 카드 보관함의 잠긴 카드 문구 「악당을 물리치면 / 열려요」(끝줄 세 글자): `src/reward-cards.css` `.rc-locked small` 아래에 공통 네 줄(`.rc-locked` 컨테이너, 높이 600px 이상·카드 안쪽 152px 이하면 `max-width: 4.6em`) 추가. 문구 그대로. 확인(`.tmp/linebreak-20261119/album.mjs`, 잠긴 카드 5장): 1280×800·1920×1080 한 줄, 1024×768 세 줄 「악당을 / 물리치면 / 열려요」, 카드 넘침 없음. `npm run check`·`npm test` 334/334 통과. 커밋 `4ad0d84` → Workers 버전 `707dd996-b17d-4fcd-a061-8d023438f6b2`, 운영 manifest sha `4ad0d84`, `cmp.sh` `src/reward-cards.css`·`index.html` MATCH.
