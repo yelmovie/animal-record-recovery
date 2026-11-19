@@ -72,7 +72,7 @@ function planar(r,t,dt,input){
 }
 function jumping(r,dt,input){
  const grip=(r.ground?40:14)*dt;r.vx=approach(r.vx,input.x*SPEED.jump,grip);r.vz=approach(r.vz,input.z*SPEED.jump,grip);
- if(input.act&&r.ground){r.vy=JUMP;r.ground=false;}
+ let jumped=false;if(input.act&&r.ground){r.vy=JUMP;r.ground=false;jumped=true;}
  if(!r.ground)r.vy-=GRAVITY*dt;
  let x=clamp(r.x+r.vx*dt,PADS[0][0]+RADIUS,PADS[1][1]-RADIUS);const z=clamp(r.z+r.vz*dt,-LANE+RADIUS,LANE-RADIUS);
  // A side taller than a small step is a wall.
@@ -81,6 +81,7 @@ function jumping(r,dt,input){
  if(r.vy<=0&&y<=top&&r.y>=top-.02){r.y=top;r.vy=0;r.ground=true;}else{r.y=y;r.ground=false;}
  r.x=x;r.z=z;
  if(r.ground){const passed=TRACK.forest.checkpoints.filter(c=>c<=r.x).at(-1);if(passed!==undefined&&passed>r.spawn.x){r.spawn={x:passed,y:0,z:0};r.falls=0;}}
+ return jumped;
 }
 const blockedAt=(t,x,y)=>(t.barriers||[]).some(b=>Math.abs(x-b.x)<.9&&(y<=b.min||y>=b.max));
 function flying(r,t,dt,input){
@@ -94,12 +95,12 @@ function flying(r,t,dt,input){
  r.x=x;r.y=y;r.z=z;
 }
 // One frame. input: {x,z} in -1..1 (x to the right, z toward the viewer) and act (button held).
-// Returns what happened: fell (returned to the checkpoint), pieces picked up, end (section crossed).
+// Returns what happened: fell (returned to the checkpoint), pieces picked up, end (section crossed), jumped (left the ground on 'act').
 export function stepRunner(r,frame,input){
- const out={fell:false,pieces:[],end:false};if(r.ended)return out;
+ const out={fell:false,pieces:[],end:false,jumped:false};if(r.ended)return out;
  const t=TRACK[r.section],dt=Math.min(.05,Math.max(0,frame))/5,len=Math.hypot(input.x,input.z),move=len>1?{x:input.x/len,z:input.z/len,act:input.act}:input;
  for(let i=0;i<5;i++){
-  if(r.kind==='jump')jumping(r,dt,move);else if(r.kind==='fly')flying(r,t,dt,move);else planar(r,t,dt,move);
+  if(r.kind==='jump'){if(jumping(r,dt,move))out.jumped=true;}else if(r.kind==='fly')flying(r,t,dt,move);else planar(r,t,dt,move);
   if(r.y<FALL_LINE){Object.assign(r,r.spawn,{vx:0,vy:0,vz:0,ground:true});r.falls++;out.fell=true;}
  }
  if(move.x)r.face=move.x>0?1:-1;r.moving=Math.hypot(r.vx,r.vz)>.4;r.acting=!!input.act;

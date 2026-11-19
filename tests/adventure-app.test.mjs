@@ -39,7 +39,7 @@ function appHarness({fail=false,motion=false,three=false,storedRecord=null,clock
   const document={activeElement:null,addEventListener(n,fn){listeners.set(n,fn);},querySelectorAll(){return [];},querySelector(selector){if(selector==='.motion-observer')return motion?motionHost:null;return {'#app':app,'#dialog':dialog,'.save-label':status,'#main':{focus(){}},'#announcer':announcer,'#design-title':heading,'#report-download':link,'#trail-world':{},'#quest-panel':quest,'#travel-text':travel}[selector]||(selector==='#storage-warning'?warning:null);}};
   const timers=new Map();let timerId=0;
   const clockTools=clock?{setTimeout(fn){timers.set(++timerId,fn);return timerId;},clearTimeout(id){timers.delete(id);}}:{};
-  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,...relayRules,RELAY_TITLE:'세 곳 이어달리기',KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},installPopupVoice(){},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},preloadSounds(){},ENCOUNTER_SOUNDS:[],encounterSound(){return null;},REWARD_SOUNDS:[],bindRewardSound(){},rewardSlotsHtml(hits){return `<button data-reward-album data-owned="${Object.keys(hits??{}).filter(id=>hits[id]===3).join(' ')}"></button>`;},awardRewardCard(){},newRewardCards(){return [];},silence(){},playMusic(key){music.push(key);},stopMusic(now){stops.push('music:'+!!now);},duckMusic(label){ducks.push(label);return ()=>ducks.push('-'+label);},stopLine(){stops.push('line');},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
+  const context=vm.createContext({action:undefined,...clockTools,mountBroadcastAudio,...recordStorage,...flashlight,...studioModel,...studioRuntime,...researchReport,...storyPlayer,...motionVideo,...campaign,...linkCourse,...relayRules,RELAY_TITLE:'세 곳 이어달리기',KEYS:undefined,LINK_KEYS:linkCourse.KEYS,...inquiry,...inquiryViews,...model,...presentation,...shell,...drag,...conceptVideo,...concepts,npcDialogue,mountNpcVoice(){return ()=>{};},installPopupVoice(){},createNavigation,document,Blob,createTrailMap(){return {destroy(){},move(){}};},createVillage(){return {destroy(){},move(){}};},can3d(){return three;},disable3d(){},warm3d(){},mount3d(){return {attach(){},call(){},destroy(){}};},playSound(){},preloadSounds(){},ENCOUNTER_SOUNDS:[],encounterSound(){return null;},REWARD_SOUNDS:[],STAGE_OPEN_SOUNDS:[],musicDucked(){return false;},bindRewardSound(){},rewardSlotsHtml(hits){return `<button data-reward-album data-owned="${Object.keys(hits??{}).filter(id=>hits[id]===3).join(' ')}"></button>`;},awardRewardCard(){},newRewardCards(){return [];},silence(){},playMusic(key){music.push(key);},stopMusic(now){stops.push('music:'+!!now);},duckMusic(label){ducks.push(label);return ()=>ducks.push('-'+label);},stopLine(){stops.push('line');},setMusicVolume(){},setSoundVolume(){},window:{scrollTo(){}},URL:{createObjectURL(b){exported=b;return 'blob:test';},revokeObjectURL(){}},localStorage:{getItem(){return stored;},setItem(_,v){if(writeFailure)throw new Error('quota');stored=v;}}});
   const run=code=>vm.runInContext(code,context);run(source);
   return {run,app,dialog,ducks,stops,emit(name,event){listeners.get(name)(event);},flushTimers(){const pending=[...timers.values()];timers.clear();for(const fn of pending)fn();},music,status,announcer,slider,inputControl(target){listeners.get('input')({target});},changeControl(target){listeners.get('change')({target});},get warning(){return warning;},get saved(){return stored;},get exported(){return exported;},setFail(v){writeFailure=v;},input(value){listeners.get('input')({target:{id:'invention-name',value}});}};
 }
@@ -315,7 +315,7 @@ test('effect volume input persists independently and survives record reset',()=>
  a.inputControl(control);
  assert.equal(control.nextElementSibling.textContent,'35%');
  assert.equal(JSON.parse(a.saved).soundVolume,.35);
- assert.equal(JSON.parse(a.saved).musicVolume,.5);
+ assert.equal(JSON.parse(a.saved).musicVolume,.4);
  a.run("act('reset',{dataset:{}})");
  assert.equal(a.run('s.soundVolume'),.35);
 });
@@ -661,4 +661,26 @@ test('switching sound off stops the line being read and the music at once; voice
  const source=readFileSync(new URL('../src/adventure-app.js',import.meta.url),'utf8');
  assert.doesNotMatch(source,/setMusicVolume\([^)]*\*/,'no caller scales the music volume itself any more');
  assert.equal(source.match(/duck:\(\)=>duckMusic\('(popup|npc|broadcast)'\)/g).length,3);
+});
+
+test('a newly opened place rings once on the map: not again on a redraw or revisit, and not for the teacher unlock',()=>{
+ const a=appHarness({clock:true});a.run("var played=[];playSound=(on,name)=>played.push(name);s.introSeen=true;go('map')");
+ a.flushTimers();assert.equal(a.run('played.filter(n=>n.startsWith("unlock")).join()'),'','the places open at load are already known');
+ a.run("s.completed=[1];go('map')");a.flushTimers();a.flushTimers();
+ assert.equal(a.run('played.filter(n=>n.startsWith("unlock")).join()'),'unlock,unlock-sparkle');
+ a.run("render();go('map')");a.flushTimers();a.flushTimers();
+ assert.equal(a.run('played.filter(n=>n.startsWith("unlock")).length'),2,'a redraw or revisit stays quiet');
+ a.run("s.adminUnlocked=true;go('map')");a.flushTimers();a.flushTimers();
+ assert.equal(a.run('played.filter(n=>n.startsWith("unlock")).length'),2,'the full unlock stays quiet');
+});
+
+test('after the card-collection jingle the finale skips its victory jingle and holds the song until the jingle has rung out',()=>{
+ const a=appHarness({clock:true});a.run("var played=[];playSound=(on,name)=>played.push(name);s.introSeen=true;go('map')");
+ a.run("collectionJingleAt=clock()");
+ a.emit('map-finale',{detail:{open:true}});
+ assert.equal(a.music.at(-1),'village','the song waits while the collection jingle rings');assert.deepEqual(a.ducks,[]);
+ a.run("finaleSongAt=0;syncMusic()");assert.equal(a.music.at(-1),'finale');
+ a.emit('map-finale',{detail:{open:false}});assert.equal(a.music.at(-1),'village');
+ a.run("collectionJingleAt=clock()-COLLECTION_JINGLE_MS-1");a.emit('map-finale',{detail:{open:true}});
+ assert.equal(a.music.at(-1),'finale','once the jingle is over the song starts at once');assert.deepEqual(a.ducks,[]);
 });

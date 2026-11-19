@@ -112,3 +112,9 @@ test('stage 3 runs both photo rounds first, then the frog and crab links; older 
  const out=restoreExpedition(JSON.stringify(finished));assert.deepEqual([...out.activities].sort(),['3-0','3-1','3-2','3-3']);assert.deepEqual(out.completed,[3]);
  assert.deepEqual(restoreExpedition(JSON.stringify(s)).activities,s.activities,'a v5 save is read as it is');
 });
+
+test('a new record starts the music at 0.4; a saved record keeps its own level, and one without a valid level keeps 0.5',()=>{
+ assert.equal(freshExpedition().musicVolume,.4);
+ const s=freshExpedition();s.musicVolume=.5;assert.equal(restoreExpedition(JSON.stringify(s)).musicVolume,.5);
+ delete s.musicVolume;assert.equal(restoreExpedition(JSON.stringify(s)).musicVolume,.5);
+});

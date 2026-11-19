@@ -210,6 +210,7 @@ export function create(host,options){
     if(running()){
       const out=stepRunner(runner,dt,input());
       for(const i of out.pieces){gems[runner.section][i].visible=false;o.onPiece?.(runner.pieces.length);}
+      if(out.jumped)o.onJump?.();
       if(out.fell)o.onFall?.(runner.falls);
       if(out.end){release();pad.clear();o.onEnd?.();}
     }

@@ -16,7 +16,7 @@ import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolConten
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
 import {installPopupVoice,stopLine} from './popup-voice.js';
 import {createNavigation} from './navigation.js';
-import {playSound,silence,playMusic,stopMusic,duckMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS} from './audio.js';
+import {playSound,silence,playMusic,stopMusic,duckMusic,setMusicVolume,setSoundVolume,encounterSound,preloadSounds,ENCOUNTER_SOUNDS,REWARD_SOUNDS,STAGE_OPEN_SOUNDS,musicDucked} from './audio.js';
 import {bindRewardSound,rewardSlotsHtml,awardRewardCard,newRewardCards,rewardCardDue} from './village-rewards.js';
 import {enableDrag,dropData} from './drag.js';
 import {can3d,mount3d,disable3d,warm3d} from './view3d.js';
@@ -155,8 +155,10 @@ let renderedRoute='',unmountStudio=null,unmountFlashlight=null,unmountBroadcast=
 // The village theme plays everywhere except the map finale dialog and the ending (certificate) screen, which play the finale song.
 // Music keeps quiet while a story or concept video is open (the intro film carries the village theme and the outro film the finale song).
 // Voices duck it by label (duckMusic), so this redraw-time sync never brings the volume back in the middle of a line.
-let mapFinale=false;
-function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:mapFinale||screen==='ending'?'finale':'village');}
+// finaleSongAt holds the finale song back until the card-collection jingle has rung out (the dialog itself opens at once).
+let mapFinale=false,finaleSongAt=0;
+const clock=()=>globalThis.performance?.now?.()??Date.now();
+function syncMusic(){setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);playMusic(s.musicOn===false||screen==='intro'||screen==='outro'||conceptPlayer?null:mapFinale&&clock()>=finaleSongAt||screen==='ending'?'finale':'village');}
 // Turning sound off also stops a line that is being read (popup, resident, broadcast); each one releases its own music duck.
 function stopVoices(){stopLine();unmountBroadcast?.stop?.();for(const el of document.querySelectorAll('audio'))el.pause?.();}
 function render(){
@@ -218,9 +220,27 @@ function showMapFailure(moduleFailed=false){
  tip.insertAdjacentHTML('afterend',`<section id="map-recovery" class="map-status is-error" aria-label="지도 다시 열기"><span role="status">지도를 불러오지 못했어. 기록은 그대로야.</span>${btn('다시 불러오기','map-retry','secondary')}${id?btn(id===1?'관찰의 숲 시작하기':'다음 탐험 시작하기','map-direct','primary',`data-id="${id}"`):''}</section>`);
 }
 // The achievement card waits for the villain's exit (760ms; 520ms with reduced motion). While it is open #app is inert, which holds the map,
-// the villains and the all-villains finale; the finale's own jingle then cuts the card-collection jingle short (onEncounterTone) so the two never overlap.
+// the villains and the all-villains finale. The card-collection jingle is the all-villains celebration: the finale then skips its own
+// victory jingle (onEncounterTone) and holds its song until the collection jingle has rung out ('map-finale' below).
 // A card whose turn comes while a dialog (settings) is open waits for it to close; rewardCardDue() in the map's isBlocked keeps the finale behind it.
-bindRewardSound(name=>playSound(s.soundEnabled,name));
+const COLLECTION_JINGLE_MS=2430;let collectionJingleAt=-Infinity;
+bindRewardSound(name=>{if(name==='card-complete')collectionJingleAt=clock();playSound(s.soundEnabled,name);});
+// Stage-open chime: the open places are compared with the last ones this page has seen, so a redraw, a reload or a revisit
+// never repeats it and several places opening together ring once. It waits for a line or a dialog to finish (up to 6s), and the
+// teacher's full unlock or preview opens everything without it.
+const openStages=()=>STAGES.filter(t=>isStageOpen(s,t.id)).map(t=>t.id);
+let knownOpen=openStages(),openChime=null;
+function announceOpenedStages(){
+ const now=openStages(),fresh=now.some(id=>!knownOpen.includes(id));knownOpen=now;
+ if(!fresh||s.adminUnlocked||studentSnapshot||!globalThis.setTimeout)return;
+ globalThis.clearTimeout?.(openChime);let waited=0;
+ const ring=()=>{
+  openChime=null;if(screen!=='map'||document.hidden)return;
+  if((musicDucked()||dialog.open||app.inert===true)&&waited<6000){waited+=250;openChime=setTimeout(ring,250);return;}
+  playSound(s.soundEnabled,'unlock');setTimeout(()=>{if(screen==='map')playSound(s.soundEnabled,'unlock-sparkle');},120);
+ };
+ openChime=setTimeout(ring,600);
+}
 installPopupVoice({enabled:()=>s.soundEnabled,volume:()=>s.soundVolume??.8,duck:()=>duckMusic('popup')});
 function awardCards(won){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -231,13 +251,14 @@ function mountVillage(flashed){
  const current=()=>screen==='map'&&!mapFailed&&mapRender===revision;
  const start=()=>{
   if(!current())return;
-  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{const won=newRewardCards(s.mapEncounters,next);s.mapEncounters={...s.mapEncounters,...next};save();awardCards(won);},onEncounterTone:(kind,hits)=>{const name=encounterSound(kind,hits);if(kind==='victory')silence();if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen||app.inert===true||rewardCardDue(),onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
+  map=villageFactory(document.querySelector('#trail-world'),{position:s.mapPosition,completed:restoredPlaces(s),flash:flashed,overview:mapOverview,pan:mapPan,encounterProgress:s.mapEncounters,encounterPreview:!!studentSnapshot,onEncounterSave:next=>{const won=newRewardCards(s.mapEncounters,next);s.mapEncounters={...s.mapEncounters,...next};save();awardCards(won);},onEncounterTone:(kind,hits)=>{if(kind==='victory'&&collectionJingleAt>-Infinity)return;const name=encounterSound(kind,hits);if(kind==='victory')silence();if(name)playSound(s.soundEnabled,name);},isBlocked:()=>dialog.open||questOpen||app.inert===true||rewardCardDue(),onWalk:cancelMapWalk,onInteract(id){if(id==='gallery')go('gallery');else selectMap(Number(id));},onError(){if(current())showMapFailure();},onTalk:talk,onStep:()=>playSound(s.soundEnabled,'step'),onArrive(id){
     if(!current()||selectedStage!==id)return;
     arrived=true;s.mapPosition=String(id);
     document.querySelector('#quest-panel').innerHTML=questPanel(s,view());document.querySelector('#travel-text').textContent=`모리: ${STAGES[id-1].name}에 도착했어. 함께 탐험하자!`;
     if(autoEnter&&isStageOpen(s,id)){autoEnter=false;save();enter(id);return;}save();
   }});
-  if(s.soundEnabled&&Object.values(s.mapEncounters??{}).filter(hits=>hits>=3).length<5)preloadSounds([...ENCOUNTER_SOUNDS,...REWARD_SOUNDS]);
+  if(s.soundEnabled)preloadSounds([...STAGE_OPEN_SOUNDS,'step',...(Object.values(s.mapEncounters??{}).filter(hits=>hits>=3).length<5?[...ENCOUNTER_SOUNDS,...REWARD_SOUNDS]:[])]);
+  announceOpenedStages();
   if(autoEnter&&isStageOpen(s,selectedStage))map.move(selectedStage);
  };
  if(villageFactory){start();return;}
@@ -292,9 +313,10 @@ function opts3d(kind){
         if(!ok){const m=taskMistake(s,stage,step);say(m?.text||'다른 문을 골라 봐.',false,m?.wrong||[]);return false;}
         playSound(s.soundEnabled,'correct');if(!taskReady(s,stage,step)){feedback={good:true,text:`‘${['사는 곳','몸의 특징','움직이는 방법'][row]}’ 문을 지났어! 다음 줄로 가 보자.`};render();document.querySelector('#announcer').textContent=feedback.text;}
         return true;}};}
-  if(kind==='relay'&&relay){const run=relay;
+  if(kind==='relay'&&relay){const run=relay;if(s.soundEnabled)preloadSounds(['jump']);
     return {section:run.section,animal:run.animal,phase:run.phase,token:run.token,onFail:fail3d,
       onPiece(){playSound(s.soundEnabled,'star');},
+      onJump(){playSound(s.soundEnabled,'jump');},
       onFall(count){if(relay!==run)return;playSound(s.soundEnabled,'retry');if(count>=3&&!run.hint){run.hint=true;render();}},
       onEnd(){if(relay===run&&run.phase==='run')crossRelaySection(run);}};}
   return {onFail:fail3d};
@@ -951,10 +973,15 @@ document.addEventListener('error',e=>{if(e.target.tagName!=='IMG'||!e.target.dat
 document.addEventListener('toggle',e=>{if(e.target.open&&e.target.classList?.contains('forest-extra'))clearActivityProgress();},true);
 dialog.addEventListener('close',()=>{resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;syncMusic();if(!questOpen)map?.resume?.();resumeActivityProgress();});
 // map-finale.js announces its dialog: the film there stays muted, so the finale song plays while it is open and the village theme
-// returns when it closes. The victory jingle (2.4s) rings first; the song stays low under it.
+// returns when it closes. After the cards, the song starts once the collection jingle has rung out; without cards the victory
+// jingle (2.4s) rings first and the song stays low under it.
 document.addEventListener('map-finale',event=>{
-  mapFinale=!!event.detail?.open;
-  if(mapFinale&&s.soundEnabled){const release=duckMusic('finale-jingle');if(!globalThis.setTimeout?.(release,2400))release();}
+  mapFinale=!!event.detail?.open;finaleSongAt=0;
+  if(mapFinale){
+   const left=collectionJingleAt+COLLECTION_JINGLE_MS-clock();
+   if(left>0&&globalThis.setTimeout){finaleSongAt=clock()+left;setTimeout(syncMusic,left+20);}
+   else if(collectionJingleAt===-Infinity&&s.soundEnabled){const release=duckMusic('finale-jingle');if(!globalThis.setTimeout?.(release,2400))release();}
+  }
   syncMusic();
 });
 if(typeof window.addEventListener==='function'){const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);resize();

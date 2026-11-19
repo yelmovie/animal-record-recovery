@@ -83,7 +83,15 @@ AI로만 만든 결과물은 저작권 보호가 제한될 수 있다. 상업 �
 | sfx/card-reveal.mp3 | 카드 공개(브론즈·실버·골드, 반짝) | `sfx/reward-01.mp3` | Fantasy_ui_Button_3.wav · ZenithInfinitiveStudios | https://freesound.org/people/ZenithInfinitiveStudios/sounds/376745 |
 | sfx/card-epic.mp3 | 카드 공개(홀로·레전드, 긴 징글) | `sfx/reward-03.mp3` | Achievement Happy Beeps Jingle · CogFireStudios | https://freesound.org/people/CogFireStudios/sounds/619838 |
 | sfx/card-slot.mp3 | 카드가 보관함 칸에 들어갈 때(톡) | `sfx/pickup-01.mp3` | item-pickup-v1.wav · DeltaCode | https://freesound.org/people/DeltaCode/sounds/678384 |
-| sfx/card-complete.mp3 | 다섯 장을 모두 모았을 때(피날레 영상이 열리면 멈춤) | `sfx/victory-jingle-01.mp3` | Game Success Fanfare Short · el_boss | https://freesound.org/people/el_boss/sounds/677858 |
+| sfx/card-complete.mp3 | 다섯 장을 모두 모았을 때(마지막 악당이면 「전부 퇴치」 축하음. 피날레 곡은 이 소리가 끝난 뒤) | `sfx/victory-jingle-01.mp3` | Game Success Fanfare Short · el_boss | https://freesound.org/people/el_boss/sounds/677858 |
+
+2026-11-19 소리 2차 수정에서 같은 라이브러리(CC0 1.0, 라이브러리 `manifest.json`·`CREDITS.md` 기록 그대로)에서 이름만 바꿔 더 복사했다.
+
+| 파일 | 쓰는 곳 | 라이브러리 파일 | 원본 제목 · 제작자 | 원본 페이지 |
+|---|---|---|---|---|
+| sfx/unlock.mp3 | 지도에 새 장소가 처음 열릴 때(찰칵, 한 번) | `sfx/open-03.mp3` | maximize_003 · Kenney | https://kenney.nl/assets/interface-sounds |
+| sfx/unlock-sparkle.mp3 | 위 소리 0.12초 뒤 반짝 | `sfx/twinkle-03.mp3` | Fantasy_ui_Button_2.wav · ZenithInfinitiveStudios | https://freesound.org/people/ZenithInfinitiveStudios/sounds/376746 |
+| sfx/jump.mp3 | 이어달리기 숲과 들 길에서 뛰어오를 때(휙) | `sfx/wind-whoosh-02.mp3` | swosh windy 36.flac · qubodup | https://freesound.org/people/qubodup/sounds/60023 |
 
 ## 동물 그림 추가 (2026-10-17)
 

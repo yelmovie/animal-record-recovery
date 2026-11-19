@@ -1,14 +1,19 @@
 let context,sfxVolume=.8;
 const active=new Set(),plays=[],lastStart={};
+// Footsteps keep a lane of their own: a new step replaces only the previous step and never counts toward the three effects,
+// so walking cannot cut a strike, a card or a jingle short (and they cannot cut the steps).
+let stepNode=null;
 // Pixabay and CC0 sound files (see assets/CREDITS.md). Gains even out the sources' peaks (tap ≈.33, others ≈.5); tune by ear on the classroom tablet.
 const FILES={tap:.5,correct:.55,retry:.75,star:1.4,stamp:.7,fanfare:.8,talk:.45,step:.6,door:.45,page:.7,
   // Map villain sounds: CC0 files from the shared science library (normalised near -18 LUFS).
   'encounter-swing':.5,'encounter-one':.55,'encounter-two':.6,'encounter-heavy':.7,'encounter-exit':.45,'encounter-appear':.35,'encounter-contact':.55,'encounter-victory':.6,
   // Achievement cards (village-rewards.js): fly in, reveal (the two rarest use the longer jingle), land in the slot, full set. Same CC0 library.
-  'card-whoosh':.5,'card-reveal':.6,'card-epic':.6,'card-slot':.6,'card-complete':.6};
+  'card-whoosh':.5,'card-reveal':.6,'card-epic':.6,'card-slot':.6,'card-complete':.6,
+  // A new place opens on the map (a latch, then a sparkle 120ms later) and the relay hop. Same CC0 library.
+  unlock:.5,'unlock-sparkle':.45,jump:.4};
 const buffers={},loading={};
 // Synth fallback while a file is still loading or failed: [notes, gap, wave, top-note length].
-const SYNTH={'encounter-swing':[[620,980],.035,'sine',.06,.06],'encounter-heavy':[[196,131],.05,'triangle',.16,.11],'encounter-appear':[[660,880],.08,'sine',.10,.04],'encounter-victory':[[523.25,659.25,783.99,1046.5],.12,'triangle',.35,.08],'encounter-one':[[234],0,'triangle',.07,.10],'encounter-two':[[570,285],.04,'triangle',.11,.09],'encounter-exit':[[420,360,290,210],.052,'sine',.16,.10],'encounter-contact':[[202,162],.045,'triangle',.10,.08],'card-whoosh':[[520,940],.04,'sine',.08,.05],'card-reveal':[[783.99,1046.5,1318.5],.07,'sine',.3,.07],'card-epic':[[659.25,783.99,1046.5,1318.5],.09,'triangle',.4,.07],'card-slot':[[987.77,1318.5],.05,'sine',.12,.08],'card-complete':[[523.25,659.25,783.99,1046.5],.13,'triangle',.5,.08],talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
+const SYNTH={'encounter-swing':[[620,980],.035,'sine',.06,.06],'encounter-heavy':[[196,131],.05,'triangle',.16,.11],'encounter-appear':[[660,880],.08,'sine',.10,.04],'encounter-victory':[[523.25,659.25,783.99,1046.5],.12,'triangle',.35,.08],'encounter-one':[[234],0,'triangle',.07,.10],'encounter-two':[[570,285],.04,'triangle',.11,.09],'encounter-exit':[[420,360,290,210],.052,'sine',.16,.10],'encounter-contact':[[202,162],.045,'triangle',.10,.08],'card-whoosh':[[520,940],.04,'sine',.08,.05],'card-reveal':[[783.99,1046.5,1318.5],.07,'sine',.3,.07],'card-epic':[[659.25,783.99,1046.5,1318.5],.09,'triangle',.4,.07],'card-slot':[[987.77,1318.5],.05,'sine',.12,.08],'card-complete':[[523.25,659.25,783.99,1046.5],.13,'triangle',.5,.08],talk:[[880]],step:[[180],0,'triangle'],door:[[220,330],.08,'triangle'],page:[[700]],drop:[[659.25,987.77],.06,'sine',.14,.16],unlock:[[392,523.25],.06,'triangle',.12,.06],'unlock-sparkle':[[1318.5,1567.98,2093],.06,'sine',.22,.04],jump:[[300,620],.05,'sine',.1,.05],tap:[[640]],correct:[[523.25,659.25,783.99]],retry:[[440,392]],star:[[1046.5,1318.5],.07],stamp:[[160],0,'triangle'],fanfare:[[523.25,659.25,783.99,1046.5],.14,'triangle',.5]};
 // Map villain events (map-encounters.js tone kinds) -> sound names.
 const ENCOUNTER={swing:'encounter-swing',finish:'encounter-heavy',exit:'encounter-exit',appear:'encounter-appear',contact:'encounter-contact',victory:'encounter-victory'};
 export const encounterSound=(kind,hits)=>kind==='hit'?hits===2?'encounter-two':'encounter-one':ENCOUNTER[kind]??null;
@@ -23,9 +28,10 @@ export function preloadSounds(names){
 }
 export const ENCOUNTER_SOUNDS=['encounter-swing','encounter-one','encounter-two','encounter-heavy','encounter-exit','encounter-appear','encounter-contact','encounter-victory'];
 export const REWARD_SOUNDS=['card-whoosh','card-reveal','card-epic','card-slot','card-complete'];
+export const STAGE_OPEN_SOUNDS=['unlock','unlock-sparkle'];
 export function silence(){
   for(const source of active){try{source.stop();}catch{ /* Already ended. */ }}
-  active.clear();plays.length=0;
+  active.clear();plays.length=0;stepNode=null;
 }
 export function setSoundVolume(value){
   if(!Number.isFinite(value))return;
@@ -50,6 +56,13 @@ export function playSound(enabled,kind='tap'){
     const name=soundName(kind),now=performance.now();
     // Same sound within 80ms is a double trigger; more than 3 effects at once turns to mush, so the oldest stops.
     if(now-(lastStart[name]??-1e9)<80)return;lastStart[name]=now;
+    if(name==='step'){
+      if(stepNode){const {source,gain}=stepNode,at=context.currentTime;try{gain.gain.setTargetAtTime(0,at,.012);source.stop(at+.06);}catch{ /* Already ended. */ }}
+      stepNode=null;if(!buffers.step)return;
+      const source=context.createBufferSource(),gain=context.createGain(),lane=[];
+      source.buffer=buffers.step;gain.gain.value=FILES.step*sfxVolume;source.connect(gain);gain.connect(context.destination);track(source,gain,lane);
+      stepNode={source,gain};source.addEventListener?.('ended',()=>{if(stepNode?.source===source)stepNode=null;});source.start();return;
+    }
     while(plays.length>=3)for(const node of plays.shift()){try{node.stop();}catch{ /* Already ended. */ }}
     const group=[];plays.push(group);
     if(buffers[name]){
@@ -79,6 +92,8 @@ export const MUSIC_DUCK=.25;
 const ducks=new Set(),ramps=new WeakMap(),leaving=new Map();
 let music=null,musicKey=null,musicVolume=.5;
 export const musicLevel=()=>musicVolume*(ducks.size?MUSIC_DUCK:1);
+// True while a voice (or a held jingle) keeps the music down: a chime that must not land on a line waits for it.
+export const musicDucked=()=>ducks.size>0;
 // A newer fade on the same element replaces the one still running.
 function fade(el,to,ms,done){
   const token={};ramps.set(el,token);

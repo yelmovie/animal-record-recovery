@@ -51,3 +51,12 @@ test('music ducks by label: it comes back only when every voice has let go, and 
   assert.deepEqual(MUSIC_FILES, ['assets/music/village-theme.mp3','assets/music/finale-theme.mp3']);
   for(const file of MUSIC_FILES)assert.ok(existsSync(new URL('../'+file, import.meta.url)), `${file} is missing`);
 });
+
+test('the stage-open chime and the relay hop have their own files, shipped with the build', async () => {
+  const {readFileSync}=await import('node:fs');const build=readFileSync(new URL('../scripts/build.mjs',import.meta.url),'utf8');
+  for (const name of ['unlock','unlock-sparkle','jump']) {
+    assert.equal(soundName(name), name);
+    assert.ok(existsSync(new URL(`../assets/sfx/${name}.mp3`, import.meta.url)), name);
+    assert.match(build, new RegExp(`'${name}'`));
+  }
+});

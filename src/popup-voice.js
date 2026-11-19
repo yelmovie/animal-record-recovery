@@ -5,11 +5,17 @@ import {VOICE_LINES} from './voice-lines.js';
 // its text leaves the screen or another voice starts. Concept captions use speakLine directly (concept-video.js).
 const assets=new URL('../assets/',import.meta.url);
 const SELECTORS='.request-part-intro,.reward-content>p,details.letter-body[open],.map-encounter-say,.map-encounter-clear';
-let opts=null,player=null,release,done=null,popupText=null;
+let opts=null,player=null,release,done=null,popupText=null,villainLine=false;
 const spoken=new Set();
 export const voiceLinePlaying=()=>!!player&&!player.paused&&!player.ended;
-function finish(){release?.();release=undefined;popupText=null;const d=done;done=null;d?.();}
-export function stopLine(){done=null;player?.pause();release?.();release=undefined;popupText=null;}
+/** A guide voice that would cut a villain's line already playing waits for it to end (at most 2s), then runs start. */
+export function afterVillainLine(start){
+  if(!villainLine||!voiceLinePlaying()){start();return;}
+  let fired=false;const go=()=>{if(fired)return;fired=true;clearTimeout(timer);player?.removeEventListener('ended',go);player?.removeEventListener('pause',go);start();};
+  const timer=setTimeout(go,2000);player.addEventListener('ended',go);player.addEventListener('pause',go);
+}
+function finish(){release?.();release=undefined;popupText=null;villainLine=false;const d=done;done=null;d?.();}
+export function stopLine(){done=null;player?.pause();release?.();release=undefined;popupText=null;villainLine=false;}
 /** Plays the recorded line for this exact text. onEnd runs when it ends or fails, not when it is stopped. */
 export function speakLine(text,{onEnd}={}){
   const clip=VOICE_LINES[text];if(!clip||!opts)return false;
@@ -38,15 +44,15 @@ function scan(){
     present.add(text);
     if(el.closest('[hidden]'))continue;
     shown.add(text);
-    if(!top||top.contains(el))visible.push(text);
+    if(!top||top.contains(el))visible.push([text,el.matches('.map-encounter-say,.map-encounter-clear')]);
   }
   for(const text of [...spoken])if(!shown.has(text))spoken.delete(text);
   if(popupText&&!present.has(popupText))stopLine();
   const otherVoice=document.querySelector('[data-speaking="true"]');
-  const next=visible.find(text=>!spoken.has(text));
+  const [next,villain]=visible.find(([text])=>!spoken.has(text))??[];
   if(!next||otherVoice)return;
   spoken.add(next);
-  if(speakLine(next))popupText=next;
+  if(speakLine(next)){popupText=next;villainLine=villain;}
 }
 export function installPopupVoice(options){
   if(opts||typeof MutationObserver!=='function'||!document.body?.querySelectorAll)return;opts=options;

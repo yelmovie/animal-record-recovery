@@ -1,5 +1,6 @@
 import {esc} from './presentation.js';
 import {residentTalk} from './resident-dialogue-lines.js';
+import {afterVillainLine} from './popup-voice.js';
 
 export const moriWelcome='안녕! 나는 모리야. 동물의 몸과 움직임을 자세히 살펴보고, 찾은 특징으로 기록을 복구해 보자. 네가 그렇게 생각한 까닭도 함께 들려줘!';
 const assets=new URL('../assets/',import.meta.url);
@@ -54,6 +55,7 @@ export function mountNpcVoice(dialog,npc,completed,{enabled,volume,duck,compact=
   dialog.addEventListener('close',stop,{signal});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();},{signal});
   window.addEventListener('pagehide',stop,{signal});
-  play();
+  // A villain's line already playing on the map finishes first (at most 2s); the resident's voice then starts.
+  afterVillainLine(()=>{if(!signal.aborted)play();});
   return ()=>{stop();events.abort();player.removeAttribute('src');player.load();player.remove();};
 }

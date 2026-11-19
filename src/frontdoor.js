@@ -83,6 +83,8 @@ function onClick(event){
 }
 setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);
 app.addEventListener('click',onClick);
+// The intro film carries its own sound: a hidden tab pauses it (the play button resumes it), like the runtime's story player.
+document.addEventListener('visibilitychange',()=>{if(document.hidden)player?.pause();});
 landing();
 if(restart==='story-intro')openIntro();
 else if(['map','resume','settings','intro-finished'].includes(restart))openRuntime(restart);

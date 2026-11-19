@@ -85,3 +85,10 @@ test('every relay animal has a four-frame motion strip, and the frame follows th
  }
  assert.equal(hopLift(0,.22),0);assert.ok(Math.abs(hopLift(.25,.22)-.22)<1e-9);
 });
+
+test('a hop from the ground reports one jump for its sound; holding the button in the air does not',()=>{
+ const r=beginSection(createRunner(),'forest','jump');
+ assert.equal(stepRunner(r,1/60,{x:0,z:0,act:true}).jumped,true);
+ assert.equal(stepRunner(r,1/60,{x:0,z:0,act:true}).jumped,false);
+ assert.equal(stepRunner(beginSection(createRunner(),'pond','swim'),1/60,{x:0,z:0,act:true}).jumped,false);
+});

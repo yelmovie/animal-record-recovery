@@ -18,7 +18,7 @@ const files=['index.html',...['korean.js','research-report.js','motion-video.js'
   ...['raccoon-web','biomes-web','investigation'].map(f=>`assets/${f}.webp`),
   ...Object.entries(ASSETS).filter(([id])=>id!=='case').map(([,a])=>`assets/generated/${a.src}.webp`),
   ...['dome-ground-web','nature-materials-web','workshop-atlas','terrain-atlas-web','museum-opening','trail-map','explorer','duck','butterfly','goldfish','bee','snail','bat','hen','field-kit','field-desk-web','sparrow','spider','ant','penguin','ostrich','dolphin','mole'].map(f=>`assets/adventure/${f}.webp`),
-  ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page',...ENCOUNTER_SOUNDS].map(f=>`assets/sfx/${f}.mp3`),
+  ...['tap','correct','retry','star','stamp','fanfare','talk','step','door','page','unlock','unlock-sparkle','jump',...ENCOUNTER_SOUNDS].map(f=>`assets/sfx/${f}.mp3`),
   ...MUSIC_FILES,'assets/adventure/swim-shoe-v2.webp','assets/adventure/swim-blade-v2.webp',...['compare','sorting','verify','link','experiment','showcase','letter-paper','museum-wall','request-hall','exhibit-plaque'].map(f=>`assets/scenes/${f}.webp`),
   ...['frog','crab','duck','rabbit','butterfly','marine','camel','penguin'].flatMap(id=>[`assets/videos/motion/${id}-web.mp4`,`assets/videos/motion/${id}.webp`]),
   // The scanner loads models/scan/ (40k, 1024px) and the dome models/dome/; full models stay out of the deploy.
