@@ -104,6 +104,26 @@
 .museum-landing .landing-replay:hover { background: #f8f6d914; border-color: #e2e7cd55; }
 .museum-landing .landing-replay .icon { width: 18px; height: 18px; }
 .museum-landing .landing-actions .btn:focus-visible { outline: 3px solid #fff9cc; outline-offset: 5px; }
+/* Credit line: small and quiet, bottom-right of the landing only. Never takes a tap. */
+.museum-landing .landing-credit {
+  position: absolute;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  margin: 0;
+  font-size: clamp(10px, .9vw, 13px);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #fff9e4;
+  text-shadow: 0 1px 2px #08251ee6, 0 0 6px #08251ebf;
+  pointer-events: none;
+  user-select: none;
+}
+/* Shorter than the landing's 520px minimum (phone landscape): keep the line at the corner of the screen. */
+@media (min-width: 761px) and (max-height: 519px) {
+  .museum-landing .landing-credit { position: fixed; }
+}
 .museum-landing .landing-bottom {
   left: var(--landing-inset);
   right: var(--landing-inset);

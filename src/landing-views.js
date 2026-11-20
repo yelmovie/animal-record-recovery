@@ -1,5 +1,6 @@
-import {artURL,icon,btn} from './presentation.js';
+import {artURL,icon,btn,esc} from './presentation.js';
 import {expeditionResume} from './expedition.js';
+import {SETTINGS_TEXT} from './settings-content.js';
 
 // Home and back sit on the left; the map has a quick sound switch beside settings.
 // On the map the achievement card slots (v.rewardSlots, built by village-rewards.js) sit just before the sound switch.
@@ -19,4 +20,5 @@ export function home(s){return `<main id="main" tabindex="-1" class="landing mus
       ${btn(`${icon('book')}<span>마을 이야기 보기</span>`,'story-intro','quiet landing-replay')}
     </div>
   </section>
+  <div class="landing-credit">${esc(SETTINGS_TEXT.credit)}</div>
 </main>`;}
