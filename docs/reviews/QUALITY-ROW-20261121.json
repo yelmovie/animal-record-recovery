@@ -1,0 +1,13 @@
+{
+  "no": "02", "name": "동물기록 복구작전", "appCommit": "948ffa4", "measuredAt": "2026-11-21T07:53+09:00",
+  "score": {"total": 92, "noDevice": 96,
+    "items": {"learning": 9, "fun": 8, "function": 8, "code": 9, "design": 10, "a11y": 9, "perf": 9, "firstScreen": 10, "data": 10, "deploy": 10}},
+  "structure": {"zones": 5, "activities": 25, "stepsPerActivityMedian": null, "autoRunSeconds": 292},
+  "interaction": {"kinds": ["누르기", "끌기", "지도 걷기", "3D 돌려 보기", "3D 달리기", "그리기"], "kindsCount": 6, "zonesWithOwnInteraction": 5},
+  "feedback": {"wrongAnswerLevels": 3, "hintBeforeAnswer": true, "retryGoal": false, "rewardEffects": 6, "transitionEffects": 4},
+  "screen": {"playAreaHeightPctMedian": 78.8, "playAreaAreaPctMedian": 76.9, "bodyTextMinPx": 18, "bodyTextMedianPx": 20, "imagesOnScreenMedian": 4},
+  "sound": {"bgm": true, "sfx": true, "voice": true, "voiceLines": 116},
+  "weight": {"firstScreenKB": 607, "distMB": 120},
+  "robust": {"reloadRestores": true, "corruptSaveHandled": true, "offlineRevisit": true, "backButtonStaysInApp": false, "certificatePrintsOnePage": true},
+  "notes": "stepsPerActivityMedian=null: 활동마다 단계 정의가 코드 한 곳에 모여 있지 않아 이번에 세지 못함. autoRunSeconds는 11-20 밤 자동 완주(스크린숏 71장 포함) 첫·끝 화면 시각 차. 놀이 영역은 1장 관찰·2장 분류·4장 손전등 1280×800 값(11-19 같은 방법 측정, 이후 배치 변경 없음), 글자·그림 수는 11-21 같은 세 화면 재측정. kinds의 끌기=2장 분류 카드·4장 손전등 렌즈, 3D 돌려 보기=1장 스캐너·3장 돔, 3D 달리기=3장 이어달리기, 그리기=5장 발명 설계. rewardEffects=성취 카드 등장·도장 찍기·부탁 도장·지도 표식 복구·사진 복구·보상 카드 도착, transitionEffects=화면 들어오기·지도 페이드·주민 장면 등장·전시실 도착(CSS 애니메이션 이름으로 셈). voiceLines=운영 빌드 assets/audio 목소리 mp3 116개(방송 8·개념 37·인트로 24·주민 대화 22·악당 25). corruptSaveHandled는 테스트와 README 「저장과 이전 기록」 근거, offlineRevisit는 운영에서 한 번 연 뒤 네트워크를 끊고 새로고침해 시작 화면 확인. backButtonStaysInApp=false(앱 밖으로 나가지만 다시 열면 이어짐, 3-2에서 고침)."
+}
