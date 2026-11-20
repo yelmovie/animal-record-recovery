@@ -161,3 +161,16 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
 #app #main.stage-4 .flashlight-notebook .flashlight-candidate { min-height: 110px; padding: 7px; gap: 3px; }
 #app #main.stage-4 .flashlight-notebook .flashlight-candidate .animal { height: 68px; }
 #app #main.stage-4 .flashlight-notebook .flashlight-candidate b { font-size: 21px; }
+
+/* 4장 생활 이어 보기, phones in landscape (2026-11-20 recheck): the three place buttons were squeezed to ~20px while
+   their island art kept a 60px minimum, so the art covered the place names. Here the buttons show the name only
+   (the chosen place still paints the scene beside them), the header line that repeats the footer guide is hidden,
+   and the choice column gets a little more width. */
+@media (max-height:650px) and (min-width:851px) {
+  #app #main#main.stage-4 .animal-journey > header > p { display: none; }
+  #app #main#main.stage-4 .journey-stage { grid-template-columns: 172px minmax(0, 1fr); }
+  #app #main#main.stage-4 .journey-stage > .journey-destinations { gap: 5px; }
+  #app #main#main.stage-4 .journey-choice-title { font-size: 16px; white-space: nowrap; }
+  #app #main#main.stage-4 .journey-stage .journey-place-art { display: none; }
+  #app #main#main.stage-4 .journey-stage .journey-portal { min-height: 0; padding: 2px 8px; font-size: 17px; }
+}
