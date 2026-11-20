@@ -53,3 +53,19 @@
 ## 7. 추가 수정 (2026-11-20, 공통 기준 8절)
 
 - 성취 카드 보관함의 잠긴 카드 문구 「악당을 물리치면 / 열려요」(끝줄 세 글자): `src/reward-cards.css` `.rc-locked small` 아래에 공통 네 줄(`.rc-locked` 컨테이너, 높이 600px 이상·카드 안쪽 152px 이하면 `max-width: 4.6em`) 추가. 문구 그대로. 확인(`.tmp/linebreak-20261119/album.mjs`, 잠긴 카드 5장): 1280×800·1920×1080 한 줄, 1024×768 세 줄 「악당을 / 물리치면 / 열려요」, 카드 넘침 없음. `npm run check`·`npm test` 334/334 통과. 커밋 `4ad0d84` → Workers 버전 `707dd996-b17d-4fcd-a061-8d023438f6b2`, 운영 manifest sha `4ad0d84`, `cmp.sh` `src/reward-cards.css`·`index.html` MATCH.
+
+## 8. 남은 것 정리 (2026-11-20, 공통 기준 9절)
+
+스크립트·캡처: `.tmp/linebreak-20261119/leftover.mjs`(`leftover-before/`, `leftover-after/`), `canvas.mjs`. 1280×800·1024×768.
+
+| 대상 | 잰 방법 | 전 | 후 |
+|---|---|---|---|
+| 지도 악당 말풍선 `.map-encounter-say`(대사 25줄 전부: 첫 대사·다시·명중 2·물러남, 5곳) | 기록 심은 지도에서 실제 주입 스타일(최대 184px, 13px)로 같은 클래스 요소를 띄워 한 줄씩 `measure.js` | 크기마다 1건 「내 기준은 간단해. 내 편, 내 편 / 아닌 편!」 | 0 |
+| 처치 안내 `.map-encounter-clear`(5줄), 공격 안내 `.map-attack-hint` | 같은 방식 | 0 | 0 |
+| 성취 카드 획득 장면(첫 카드·마지막 카드) | 앱과 같은 모듈 `village-rewards.js`의 `awardRewardCard`로 띄움 | 0 | 0 |
+| 발명 포스터 저장 그림(캔버스, 26px·1224px) | 코드 점검 + 실제 글꼴로 줄 비교 | 글자 단위로 잘라 「…비 / 가 많이 오는」「물갈퀴처럼 펴 / 지는」처럼 낱말 안에서 끊김 | 낱말 단위 + 줄 수를 유지하는 가장 좁은 폭으로 고르게(예: 933 / 883px) |
+
+- 고친 곳: `src/korean-linebreak.css` 「프로젝트 보정」에 `.map-encounter-say { text-wrap: balance; }`. `src/studio-runtime.js`의 포스터 글 `wrap()`을 낱말 단위(한 줄보다 긴 낱말만 글자 단위) + 줄 길이 고르게로 바꿈, 문구·글꼴·폭 그대로. 테스트 `tests/canvas-wrap.test.mjs` 추가.
+- 확인함, 문제없음: 3D 무대(`stage3d.js`)의 캔버스 텍스처는 털·깃털 무늬뿐이고 글이 없다. 스캐너 부위 표시·연결 달리기 문·지도 건물 이름은 DOM 이름표라 1차 스윕에서 이미 쟀다.
+- 그대로 둔 것: 두 낱말 버튼·칸 15건(공통 기준 9절 결정).
+- 검증: `npm run check` 통과, `npm test` 337/337 통과, 빌드 성공. 커밋 `8951ef9` → Workers 버전 `92cd732a-c495-4848-89d5-3cf5c0af5fcd`, 운영 manifest sha `8951ef9`, `cmp.sh` `src/studio-runtime.js`·`src/korean-linebreak.css`·`index.html` MATCH.
