@@ -30,5 +30,5 @@
 .ending-banner h1 { text-wrap: pretty; }
 /* 표 머리 선택지 「위·옆·뒤 덮개」가 가운뎃점 뒤에서 끊기지 않게 낱말 단위 보통 줄바꿈 */
 .retest-table th .choice > span { text-wrap: wrap; }
-/* 지도 악당 말풍선(최대 184px): 「…내 편, 내 편 / 아닌 편!」처럼 끝줄만 짧게 남지 않게 (2026-11-20) */
+/* 지도 악당 말풍선(최대 300px): 「…내 편, 내 편 / 아닌 편!」처럼 끝줄만 짧게 남지 않게 (2026-11-20) */
 .map-encounter-say { text-wrap: balance; }

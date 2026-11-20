@@ -12,12 +12,12 @@ html body button.map-attack-dock[data-map-attack-dock]:not([hidden]){
  box-shadow:0 3px 0 #251635,0 1px 10px #17262464!important;
  transform:none!important;pointer-events:auto!important;touch-action:manipulation;
  cursor:pointer;vertical-align:middle;align-content:center;gap:1px;
- font-size:12px;font-weight:800;line-height:1;
+ font-size:18px;font-weight:800;line-height:1;
 }
 html body button.map-attack-dock[data-map-attack-dock][hidden]{display:none!important}
 html body button.map-attack-dock[data-map-attack-dock][data-in-range]{border-color:#ffdc81!important}
-html body button.map-attack-dock[data-map-attack-dock]>svg{display:block;width:22px;height:22px;pointer-events:none}
-.map-attack-hint{position:absolute;right:0;bottom:calc(100% + 8px);width:max-content;max-width:65vw;padding:8px 10px;border-radius:8px;background:#352347;color:#fff4da;font-size:14px;line-height:1.35;white-space:normal;pointer-events:none}
+html body button.map-attack-dock[data-map-attack-dock]>svg{display:block;width:20px;height:20px;pointer-events:none}
+.map-attack-hint{position:absolute;right:0;bottom:calc(100% + 8px);width:max-content;max-width:65vw;padding:8px 12px;border-radius:10px;background:#352347;color:#fff4da;font-size:18px;line-height:1.35;white-space:normal;word-break:keep-all;pointer-events:none}
 .map-next:has(>[data-action=map-overview]) .map-attack-hint{bottom:calc(100% + var(--map-cta-height) + 26px)}
 .map-attack-hint[hidden]{display:none}
 html body button.map-attack-dock[data-map-attack-dock]:hover{background:#583c78!important}
