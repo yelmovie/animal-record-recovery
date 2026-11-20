@@ -158,6 +158,21 @@
   .museum-landing .landing-start { min-height: 60px; }
   .museum-landing .landing-bottom { flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 12px; text-align: center; }
 }
+/* Phone landscape (shorter than the 520px minimum): the landing takes the screen height and keeps the
+   side-by-side layout at any width, so the title, the two lines and both buttons stay on screen without scrolling. */
+@media (max-height: 519px) and (orientation: landscape) {
+  .museum-landing { height: 100dvh; min-height: 0; }
+  .museum-landing .landing-world { object-position: center; }
+  .museum-landing .landing-shade {
+    background: linear-gradient(90deg, #0b271ee0 0%, #0c291ec2 26%, #102e2266 45%, transparent 68%),
+      linear-gradient(0deg, #10271eb3, transparent 18%);
+  }
+  .museum-landing .landing-copy { width: max(51%, 440px); height: 100%; padding: 16px 0 16px var(--landing-inset); align-items: flex-start; gap: 8px; text-align: left; }
+  .museum-landing .landing-title { width: min(100%, 56dvh); margin: 0 0 0 -8px; }
+  .landing-actions { justify-content: flex-start; flex-wrap: nowrap; gap: 8px; }
+  .museum-landing .landing-start { min-height: 56px; gap: 12px; padding: 8px 12px 8px 20px; }
+  .museum-landing .landing-replay { padding-inline: 4px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .museum-landing .landing-start { transition: none; }
 }
