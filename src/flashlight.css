@@ -26,7 +26,7 @@
 .flashlight-tip { position: absolute; z-index: 2; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; max-width: calc(100% - 20px); white-space: nowrap; padding: 7px 12px; border-radius: 999px; background: #051b16d9; color: #f1e5b8; font: 400 17px/1.2 var(--font-display); pointer-events: none; }
 #app #main.stage-4 .flashlight-next { display: flex; gap: 8px; align-items: center; flex: none; margin: 12px 0 0; color: #e6ebca; font: 400 19px/1.4 var(--font-display) !important; }
 #app #main.stage-4 :is(.flashlight-notebook,.journey-journal) { min-width: 0; min-height: 0; max-height: 100%; overflow: auto; overscroll-behavior: contain; margin: 0; padding: clamp(14px,1.5vw,24px); border: 2px solid #8d7c51; border-left: 8px solid #927957; border-radius: 20px; background: linear-gradient(90deg, #d1bb8738, transparent 22px), #fff8e8f7; box-shadow: 0 5px 0 #4c462e66, 0 12px 24px #26391d33; scrollbar-width: thin; }
-#app #main.stage-4 :is(.flashlight-notebook,.journey-journal)>header>span { color: #88734b; font: 400 18px/1.2 var(--font-display); }
+#app #main.stage-4 :is(.flashlight-notebook,.journey-journal)>header>span { color: #766441; font: 400 18px/1.2 var(--font-display); }
 #app #main.stage-4 :is(.flashlight-notebook,.journey-journal) h2 { margin: 4px 0 7px; font: 400 clamp(26px, 1.9vw, 34px)/1.2 var(--font-display) !important; color: #34583e; }
 #app #main.stage-4 .flashlight-notebook>header p { margin: 0 0 12px; font-size: 17px !important; line-height: 1.4; color: #786b4e; }
 .flashlight-find-progress { display: flex; align-items: center; gap: 7px; padding: 10px 0; border-block: 1px dashed #c9b888; }
@@ -51,7 +51,7 @@
 .flashlight-note .clue-pin { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: #e8edcf; color: #5f7549; }
 .flashlight-note .clue-pin .icon { width: 20px; height: 20px; }
 .flashlight-note > span:last-child { min-width: 0; }
-#app #main.stage-4 .flashlight-note small { display: block; margin-bottom: 2px; color: #8c805e; font: 400 16px/1.2 var(--font-display) !important; }
+#app #main.stage-4 .flashlight-note small { display: block; margin-bottom: 2px; color: #6f654b; font: 400 16px/1.2 var(--font-display) !important; }
 #app #main.stage-4 .flashlight-note b { display: block; font: 400 clamp(18px,1.3vw,22px)/1.3 var(--font-display) !important; }
 #app #main.stage-4 .flashlight-note.selected { border: 2px solid #648349; padding: 8px 9px; background: #e5edcf; }
 #app #main.stage-4 .flashlight-note.selected .clue-pin { background: #5e7e4d; color: #fff7dc; }
@@ -95,7 +95,7 @@ dialog:has(.flashlight-discovery),dialog:has(.flashlight-guess-dialog) { width: 
 .journey-evidence-photo figcaption { margin-top: 6px; color: #8a7c58; font: 400 17px/1.3 var(--font-display); }
 #app #main.stage-4 .journey-evidence-text { margin: 14px 0; padding: 10px 12px; border-left: 3px solid #8b9c68; background: #ebeed9; color: #526a46; font: 400 19px/1.5 var(--font-display) !important; }
 #app #main.stage-4 .journey-movement h3 { margin: 18px 0 5px; color: #3c6040; font: 400 24px/1.3 var(--font-display) !important; }
-#app #main.stage-4 .journey-movement p,.journey-check-note { font-size: 17px !important; line-height: 1.4; color: #7a7555; }
+#app #main.stage-4 .journey-movement p,.journey-check-note { font-size: 17px !important; line-height: 1.4; color: #6b674b; }
 #app #main.stage-4 .journey-movement .choice { width: 100%; min-height: 54px; margin-top: 9px; padding: 8px 12px; font: 400 21px/1.3 var(--font-display); text-align: left; }
 @media (prefers-reduced-motion:no-preference) {
   .journey-scene.jump .journey-animal { animation: animal-hop 1.5s ease-in-out 2; }

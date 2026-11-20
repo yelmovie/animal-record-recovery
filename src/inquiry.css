@@ -124,7 +124,7 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .reward-tool{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;animation:tool-pop .55s var(--ease-pop) 1.2s both}
 .reward-tool .reward-badge{width:120px;height:120px;background:#f6dc85;border:4px solid #fff3c4;color:#5c4314;box-shadow:0 10px 22px #8e641d33}
 .reward-tool .reward-badge .icon{width:64px;height:64px}
-.reward-tool small{font-size:16px;color:#7b8762}.reward-tool h2{font-size:34px;margin:0}
+.reward-tool small{font-size:16px;color:#60694d}.reward-tool h2{font-size:34px;margin:0}
 @keyframes tool-pop{from{opacity:0;transform:scale(.3) rotate(-15deg)}}
 .reward-team>.art{width:150px;height:250px}.reward-team>.mori{width:100px}
 .reward-team>.art,.reward-team>.mori{animation:team-jump .5s ease-out 3s 2 alternate,float-y 1.8s ease-in-out 4s infinite alternate}
@@ -156,7 +156,7 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .case-activity .candidate-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .case-activity .candidate{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:14px;border:2px solid #dfe3c9;background:#fffdf3;min-height:120px;font-size:18px}
 .case-activity .candidate .art{width:100%;height:78px;object-fit:contain}.case-activity .candidate.selected{border-color:#5f7f3a;background:#eef5dc;box-shadow:0 0 0 3px #b9d38c}
-.grounds-pick p{font-size:17px;color:#6f7b5c;margin-bottom:8px}.grounds-pick h2 small{font-size:16px;margin-left:8px;color:#8a7a3c}
+.grounds-pick p{font-size:17px;color:#5f694f;margin-bottom:8px}.grounds-pick h2 small{font-size:16px;margin-left:8px;color:#8a7a3c}
 .ground-chips{display:flex;flex-direction:column;gap:8px}.ground-chips .choice{min-height:52px;font-size:17px;text-align:left}
 .case-activity section.retry{border-radius:14px;box-shadow:0 0 0 3px #e9a46a;padding:6px}
 @media(max-height:760px){.clue-card{min-height:74px;padding:6px 3px}.clue-detail{min-height:180px}.clue-detail .detail-crop,.clue-detail .biome-photo{height:110px}.case-activity .candidate{min-height:100px}.case-activity .candidate .art{height:60px}}
@@ -168,7 +168,7 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .verify-empty .icon{width:56px;height:56px;color:#7c884d}
 .verify-table{width:100%;border-collapse:separate;border-spacing:0 3px;font-size:17px}
 .verify-table caption{font-family:var(--font-display);font-size:22px;text-align:left;padding:2px 4px 6px}
-.verify-table thead th{font-size:15px;color:#6f7b5c;font-weight:700;padding:2px 4px}
+.verify-table thead th{font-size:15px;color:#4f5841;font-weight:700;padding:2px 4px}
 .verify-table tbody th{display:flex;align-items:center;gap:8px;text-align:left;font-weight:700;padding:2px 6px;white-space:nowrap}
 .verify-table tbody th .animal{width:34px;height:30px}
 .verify-table td{text-align:center;padding:4px 2px;border-radius:8px;font-weight:700}
@@ -190,7 +190,7 @@ dialog[open]{animation:modal-pop 260ms var(--ease-pop)}dialog[open]::backdrop{an
 .drop-zone{border:2px dashed #c9cfb0;border-radius:16px;padding:10px;background:#fbfaf3;transition:background .15s,border-color .15s}
 .drop-zone.drop-hover{border-color:#5f7f3a;background:#eef5dc;border-style:solid}
 .drop-zone h3{display:flex;align-items:center;gap:6px;font-size:19px;margin-bottom:8px;flex-wrap:wrap}.drop-zone h3 .icon{width:20px;height:20px}
-.drop-zone h3 small{font-size:16px;font-weight:600;color:#6f7b5c;margin-left:4px}
+.drop-zone h3 small{font-size:16px;font-weight:600;color:#5f694f;margin-left:4px}
 .card-pool{display:flex;flex-wrap:wrap;gap:8px;min-height:60px}
 .slot-empty{font-size:17px;color:#8d927b;padding:12px 4px;text-align:center}
 .statement-card{display:flex;align-items:center;gap:8px;min-height:52px;padding:8px 14px;border-radius:12px;border:2px solid #d8d2b6;background:#fffdf3;font-size:18px;line-height:1.35;text-align:left;word-break:keep-all}

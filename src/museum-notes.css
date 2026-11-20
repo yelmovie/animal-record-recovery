@@ -55,9 +55,9 @@
 #app #main.museum-page .museum-fact{border-top:0;padding-top:0}
 #app #main.museum-page .museum-entry h4{margin:0 0 4px;color:#2d4a33;font:400 clamp(22px,1.55vw,28px)/1.15 var(--font-display)}
 #app #main.museum-page .museum-entry p{margin:0 0 6px;font-size:16px;line-height:1.4;word-break:keep-all}
-#app #main.museum-page .museum-entry p b{display:block;font-size:16px;font-weight:700;letter-spacing:.04em;color:#8a7347}
+#app #main.museum-page .museum-entry p b{display:block;font-size:16px;font-weight:700;letter-spacing:.04em;color:#5f4f30}
 #app #main.museum-page .museum-entry .museum-restored{padding:5px 8px;border-left:3px solid #7d9a5a;background:#e9e3c6aa;font-size:clamp(17px,1.15vw,20px);color:#2b2414}
-#app #main.museum-page .museum-entry .museum-restored b{color:#4f6b3a}
+#app #main.museum-page .museum-entry .museum-restored b{color:#42592f}
 #app #main.museum-page .museum-notes{margin:0;padding:0 0 0 1.1em;font-size:16px;line-height:1.45;color:#4a3d27;word-break:keep-all}
 #app #main.museum-page .museum-notes li{margin:0 0 2px}
 #app #main.museum-page .museum-fact:not(.museum-entry){padding-top:8px;border-top:1px solid #c8b990}
@@ -86,7 +86,7 @@
 #app #main.museum-page .museum-entry{padding:5px 0}
 /* A shared-point line ("둘의 같은 점") reads as one caption line under the rows. */
 #app #main.museum-page .museum-facts:has(.museum-entry)>.museum-fact:not(.museum-entry){padding-top:5px;border-top:1px dashed #b9a271}
-#app #main.museum-page .museum-facts:has(.museum-entry)>.museum-fact:not(.museum-entry)>span{display:inline;margin:0 8px 0 0;font-size:16px;font-weight:700;color:#8a7347}
+#app #main.museum-page .museum-facts:has(.museum-entry)>.museum-fact:not(.museum-entry)>span{display:inline;margin:0 8px 0 0;font-size:16px;font-weight:700;color:#5f4f30}
 #app #main.museum-page .museum-facts:has(.museum-entry)>.museum-fact:not(.museum-entry)>p{display:inline;font-size:clamp(17px,1.15vw,20px);line-height:1.35}
 #app #main.museum-page .museum-entry{padding:3px 0}
 #app #main.museum-page .museum-entry .museum-restored{padding:2px 8px;margin-bottom:2px;font-size:clamp(17px,1.1vw,20px)}

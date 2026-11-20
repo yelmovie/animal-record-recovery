@@ -42,6 +42,7 @@ files.push(...Object.values(VOICE_LINES).map(clip=>`assets/audio/${clip}.mp3`));
 // Screen 07 in 3D (stage 3 life path): its 3D module is imported on demand, so the walk below does not find it.
 files.push('src/link-run.css','src/link-run3d.js','src/link-course.js','src/relay.css','src/relay3d.js','src/relay-course.js','src/relay.js','src/relay-views.js','src/map-controls.js',...RUN_ART.map(name=>`assets/relay/${name}.webp`));
 // Achievement cards for defeated map villains: styles, sounds, and the art and slot thumbnail of each card (the modules are found by the walk below).
+files.push('src/print.css');
 files.push('src/reward-cards.css',...REWARD_SOUNDS.map(f=>`assets/sfx/${f}.mp3`),...REWARD_CARDS.flatMap(({id},i)=>['card','thumb'].map(kind=>`assets/reward-cards/${kind}-${i+1}-${id}.webp`)));
 // Ship the full runtime, but preload only the static dependencies of the landing screen.
 async function walk(file,modules){

@@ -2,7 +2,7 @@
    iscream screen frame: no top bar, no bottom bar. Corner icons float (stage-map.css .screen-hud),
    the page's own back/next buttons float in the bottom corners, and the activity takes the whole page. */
 /* Design tokens for the iscream frame (prefixed --ui- because --ink/--paper/--green already mean other colours in adventure.css). */
-#app,dialog{--ui-frame:#4a3a22;--ui-paper:#fff9e9;--ui-paper-strong:#fffdf5;--ui-ink:#2f3a2a;--ui-accent:#f6d36e;--ui-wood:#3b2a1a;--ui-bubble:#fff7df;--ui-line:#c9b98a;--ui-brass:#b59342;--ui-green:#365c43;--ui-ok:#4f7a45;--ui-edge:#22372a;--ui-brown:#5b4a2a;--ui-muted:#7a6a48}
+#app,dialog{--ui-frame:#4a3a22;--ui-paper:#fff9e9;--ui-paper-strong:#fffdf5;--ui-ink:#2f3a2a;--ui-accent:#f6d36e;--ui-wood:#3b2a1a;--ui-bubble:#fff7df;--ui-line:#c9b98a;--ui-brass:#b59342;--ui-green:#365c43;--ui-ok:#4f7a45;--ui-edge:#22372a;--ui-brown:#5b4a2a;--ui-muted:#66583a}
 #app{--hud-left:132px;--hud-right:132px;--hud-top:76px}
 @media(max-height:620px),(max-width:820px){#app{--hud-left:116px;--hud-right:116px;--hud-top:64px}}
 @media(min-width:1500px) and (min-height:850px){#app{--hud-left:152px;--hud-right:152px;--hud-top:88px}}
@@ -124,7 +124,7 @@
 #app .panel-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px}
 #app .panel-tabs>.btn{position:relative;display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 16px 6px 8px;border:3px solid var(--ui-line);border-radius:999px;background:var(--ui-paper-strong);color:var(--ui-brown);box-shadow:0 3px 0 var(--ui-line)}
 #app .panel-tabs>.btn+.btn{margin-left:22px}
-#app .panel-tabs>.btn+.btn::before{content:'→';position:absolute;left:-24px;top:50%;transform:translateY(-50%);font:400 20px/1 var(--font-display);color:#8a7a52}
+#app .panel-tabs>.btn+.btn::before{content:'→';position:absolute;left:-24px;top:50%;transform:translateY(-50%);font:400 20px/1 var(--font-display);color:#726544}
 #app .panel-tabs .tab-num{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e8dfc3;color:var(--ui-brown);font:400 17px/1 var(--font-display)}
 #app .panel-tabs>.btn[aria-pressed=true]{background:var(--ui-green)!important;border-color:var(--ui-edge);color:#fffbed!important;box-shadow:0 3px 0 var(--ui-edge)}
 #app .panel-tabs>.btn[aria-pressed=true] .tab-num{background:#fffbed;color:var(--ui-green)}

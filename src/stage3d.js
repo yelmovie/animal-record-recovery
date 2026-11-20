@@ -2,6 +2,12 @@ import * as T from './vendor/three/three.module.min.js';
 export {T};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+// While a stage draws, three.js hangs that renderer's 'dispose' hooks on cached models and on its own module-level
+// placeholder textures. Those hooks hold the renderer and its canvas, so every visit used to leave one behind (D8).
+// Recording them while drawing lets destroy() unhook exactly this renderer's hooks.
+let recording=null;
+const addHook=T.EventDispatcher.prototype.addEventListener;
+T.EventDispatcher.prototype.addEventListener=function(type,fn){if(recording&&type==='dispose')recording.push([this,fn]);return addHook.call(this,type,fn);};
 
 // One renderer and an orbit camera tuned for small hands: one finger orbits, two fingers pinch,
 // a short tap picks. Korean labels live in the DOM pin layer, never inside the 3D scene.
@@ -17,6 +23,7 @@ export function createStage(host,o){
   box.append(canvas,pinLayer,loadingLabel);
   const target=new T.Vector3(...o.target),home={theta:o.theta,phi:o.phi,radius:o.radius,tx:o.target[0],ty:o.target[1],tz:o.target[2]},orbit={...home},KEYS=Object.keys(home);
   let goal=null,raf=0,last=0,dead=false,pins=[];
+  const hooks=[],draw=()=>{recording=hooks;try{renderer.render(scene,camera);}finally{recording=null;}};
   const ray=new T.Raycaster(),ndc=new T.Vector2(),tmp=new T.Vector3(),eye=new T.Vector3();
 
   function place(){
@@ -33,7 +40,7 @@ export function createStage(host,o){
     if(goal){const k=reduced()?1:.18;let left=0;for(const key of KEYS){orbit[key]+=(goal[key]-orbit[key])*k;left+=Math.abs(goal[key]-orbit[key]);}
       if(left<.003){Object.assign(orbit,goal);goal=null;}else moving=true;}
     if(o.tick?.(t))moving=true;
-    place();renderer.render(scene,camera);drawPins();
+    place();draw();drawPins();
     if(moving)request();
   }
   function request(){if(!raf&&!dead&&!document.hidden)raf=requestAnimationFrame(frame);}
@@ -109,7 +116,7 @@ export function createStage(host,o){
   return {T,scene,camera,canvas,box,orbit,target,request,setPins,
     setLoading(loading){
       if(dead)return;
-      if(!loading){place();renderer.render(scene,camera);drawPins();}
+      if(!loading){place();draw();drawPins();}
       box.classList.toggle('model-pending',loading);box.setAttribute('aria-busy',String(loading));loadingLabel.hidden=!loading;canvas.tabIndex=loading?-1:0;
     },
     // Look at a point from a world direction (from the point toward the camera).
@@ -120,6 +127,7 @@ export function createStage(host,o){
       dead=true;cancelAnimationFrame(raf);ro.disconnect();document.removeEventListener('visibilitychange',visibility);
       // Shared (cached GLB) resources stay for the next visit; the lost context frees their GPU copies.
       scene.traverse(x=>{if(x.userData.shared)return;x.geometry?.dispose();for(const m of [].concat(x.material||[])){m.map?.dispose();m.dispose();}});
+      for(const [t,fn] of hooks)t.removeEventListener('dispose',fn);hooks.length=0;
       renderer.dispose();renderer.forceContextLoss();box.remove();
     }};
 }

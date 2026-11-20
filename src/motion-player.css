@@ -21,7 +21,7 @@
 #app #main .motion-channel-icon { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: #315d49; color: #fff0b8; box-shadow: 0 3px 0 #1f3d2e; }
 #app #main .motion-channel-icon > .icon { width: 28px; height: 28px; }
 #app #main .motion-channel > div { min-width: 0; }
-#app #main .motion-channel > div > span { display: block; font-size: 16px !important; color: #6c785e; line-height: 1.2; }
+#app #main .motion-channel > div > span { display: block; font-size: 16px !important; color: #5f6a53; line-height: 1.2; }
 #app #main .motion-channel h2 { margin: 4px 0 0; font: 400 clamp(24px, 1.8vw, 32px)/1.2 var(--font-display) !important; color: #2a493b; }
 #app #main .motion-channel .motion-photo-count { margin-left: auto; flex: none; padding: 6px 10px; border: 1px solid #d4c58e; border-radius: 999px; background: #fff1bc; font: 400 16px/1.2 var(--font-display) !important; color: #705c28; }
 

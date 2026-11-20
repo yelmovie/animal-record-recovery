@@ -20,7 +20,7 @@
 #app #main#main.commission-page .record-row+.record-row{padding-top:10px!important;border-top:1px dashed #dccb9f!important}
 #app #main#main.commission-page .card-result{padding-left:clamp(12px,1.4vw,22px)!important;border-left:2px solid #e3d5ae!important}
 #app #main#main.commission-page .request-part-intro{color:#3a3a2a;font-weight:600}
-#app #main#main.commission-page .part-tag{color:#8a7a52}
+#app #main#main.commission-page .part-tag{color:#5f5438}
 #app #main#main.commission-page .retest-results{padding-left:clamp(12px,1.4vw,22px)!important;border-left:2px solid #e3d5ae!important}
 
 /* Broadcast page: the request header sits above the deck, the subject photo beside the choices. */
@@ -51,7 +51,7 @@ dialog .scan-readout{padding:14px 16px;border-radius:14px;background:#fffaeb;col
 dialog .scan-readout small,dialog .scan-links small{color:#5f8a5a;font:400 17px/1.2 var(--font-display)}
 dialog .scan-readout h3{margin:2px 0 8px;font:400 clamp(28px,2.2vw,36px)/1.1 var(--font-display);color:#2c5236}
 dialog .scan-readout dl{margin:0;display:grid;gap:6px}
-dialog .scan-readout dt{color:#8a7a52;font-size:17px}
+dialog .scan-readout dt{color:#726544;font-size:17px}
 dialog .scan-readout dd{margin:0 0 6px;font-size:clamp(20px,1.5vw,25px);line-height:1.45;word-break:keep-all}
 dialog .scanner-device .note-page:has(.scan-links){display:block}
 dialog .scan-links{padding:16px 18px;border-radius:14px;background:#fffaeb}

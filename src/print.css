@@ -1,0 +1,24 @@
+/* Printing the certificate (G19): only the certificate panel, on one landscape A4 page, without the screen
+   background, the banner, the top buttons or the action bar. Other screens are not meant to be printed.
+   Selectors carry three ids because the screen layout pins #app #main.ending with !important rules. */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  html:has(#main.ending), html:has(#main.ending) body, html:has(#main.ending) body #app#app {
+    background: #fff !important; height: auto !important; min-height: 0 !important; max-height: none !important;
+    padding: 0 !important; overflow: visible !important;
+  }
+  html:has(#main.ending) body :is(#app > :not(#main), .skip-link, #dialog, #hint-toast, #asset-warning),
+  html body #app #main#main.ending > :not(.final-record) { display: none !important; }
+  html:has(#main.ending) body :is(#app#app, #main#main.ending)::before,
+  html:has(#main.ending) body :is(#app#app, #main#main.ending)::after { display: none !important; }
+  html body #app #main#main.ending {
+    display: block !important; position: static !important; inset: auto !important; width: auto !important; height: auto !important;
+    min-height: 0 !important; max-height: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important;
+    background: none !important; transform: none !important;
+  }
+  html body #app #main#main.ending .final-record {
+    width: auto !important; height: auto !important; max-height: none !important; overflow: visible !important; margin: 0 !important;
+    box-shadow: none !important; backdrop-filter: none !important; background: #fff !important; border: 1px solid #c9cdb8 !important;
+    break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact;
+  }
+}

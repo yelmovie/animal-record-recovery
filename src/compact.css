@@ -123,7 +123,7 @@
 #app #main.commission-page .request-card .card-result li small {
   font-size: clamp(16px, 1vw, 19px) !important;
 }
-#app #main.commission-page .request-card .card-result li b.blank { color: #8b7f61; }
+#app #main.commission-page .request-card .card-result li b.blank { color: #5e5541; }
 #app #main.commission-page .request-card .card-result.complete > .card-stamp {
   grid-area: auto;
   left: 8% !important;
