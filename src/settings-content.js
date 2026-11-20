@@ -15,7 +15,7 @@ export const SETTINGS_TEXT={
     ['미션 보상','다섯 장소의 기록을 되찾고 탐사 도구를 모아 나의 전시관을 다시 열어요.'],
     ['남는 배움','직접 찍은 관찰 사진과 주민에게 보낸 답장, 내가 그린 발명과 소개가 기록으로 남아요.'],
   ],
-  credit:'기획·제작: 옐샘 & 아이스크림미디어',
+  credit:'기획·제작: 옐샘 & ⓒ 아이스크림미디어',
   student:[
     '지도에서 장소를 누르면 하루와 모리가 그곳으로 걸어가요. 장소에 들어가 탐색 활동을 하고 주민의 부탁을 해결해요.',
     '표본을 돌려 특징을 살펴보고, 카드를 눌러 옮기거나 끌어서 분류해요.',
@@ -79,7 +79,7 @@ export const SETTINGS_TEXT={
       'three.js · three.js authors · MIT License',
     ]],
   ],
-  copyright:'ⓒ 2026 옐샘 & i-Scream Media Corporation. All rights reserved.',
+  copyright:'기획·제작: 옐샘 & ⓒ 아이스크림미디어',
   ownWorks:'앱 화면 캡처·자체 제작 일러스트·자체 제작 음원은 무단 복제·재배포·전용·상업적 이용을 금지합니다.',
   externalWorks:'외부 공개 효과음·폰트·프로그램의 저작권은 각 원저작자에게 있으며, 각 자료의 공개 라이선스와 이용 조건을 따릅니다.',
   contentSource:'교육 내용 구성 참고: 교육부(moe.go.kr), 국가교육과정정보센터(ncic.re.kr).',
