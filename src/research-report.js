@@ -7,8 +7,9 @@ import {normalizeMotionPhoto} from './inquiry.js';
 import {studioArtwork} from './studio-views.js';
 
 // How each observation was recorded; saves from before this was kept are only counted in the summary line, never guessed.
-const TRY_NOTE={first:' (처음 고른 설명이 맞았어)',helped:' (다시 살펴보고 고쳐 골랐어)',unknown:''};
-const observeNote=s=>{const n=observeSummary(s);return `처음 고른 설명이 맞은 곳 ${n.first}곳, 다시 살펴보고 고친 곳 ${n.helped}곳${n.unknown?`, 이전 기록이라 알 수 없는 곳 ${n.unknown}곳`:''}이야.`;};
+const TRY_NOTE={first:' (★ 한 번에 찾았어)',helped:' (다시 보고 찾았어)',unknown:''};
+// Counts every checked question now (stage 1 observations plus the first picks kept since 2026-11-21), in 문항.
+const observeNote=s=>{const n=observeSummary(s),more=Object.values(s.firstTries||{});const first=n.first+more.filter(v=>v==='first').length,helped=n.helped+more.filter(v=>v==='helped').length;return `첫 시도에 맞힌 문항 ${first}개, 다시 살펴보고 고친 문항 ${helped}개야.${n.unknown?` (이전 기록이라 알 수 없는 문항 ${n.unknown}개)`:''}`;};
 function workLines(d,status){
  const c=EXPERIMENTS[d.problem],tests=designTrials(d),feature=FEATURES.find(x=>x[0]===d.feature)?.[1],part=STRUCTURES.find(x=>x[0]===d.structure)?.[1],spot=PRODUCTS[d.problem]?.spots.find(x=>x[0]===d.spot)?.[1];
  return [`[${status}] ${d.name||'아직 이름을 짓지 않은 발명'}`,

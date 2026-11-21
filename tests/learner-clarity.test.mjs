@@ -48,8 +48,8 @@ test('observation tries survive reload; older observations stay unknown instead 
  const legacy=JSON.parse(JSON.stringify(s));delete legacy.observeTries;
  assert.deepEqual(observeSummary(restoreExpedition(JSON.stringify(legacy))),{first:0,helped:0,unknown:3});
  const report=researchLines(back).join('\n');
- assert.match(report,/머리 위쪽에 튀어나온 눈이 있어\. \(처음 고른 설명이 맞았어\)/);
- assert.match(report,/다시 살펴보고 고쳐 골랐어/);assert.match(report,/이전 기록이라 알 수 없는 곳 1곳/);
+ assert.match(report,/머리 위쪽에 튀어나온 눈이 있어\. \(★ 한 번에 찾았어\)/);
+ assert.match(report,/다시 보고 찾았어/);assert.match(report,/이전 기록이라 알 수 없는 문항 1개/);
  assert.match(report,/자루 끝에 달린 눈이 있어\.$/m,'an unknown try adds no guessed label to its line');
 });
 

@@ -344,7 +344,7 @@ test('voice off mutes the story films and keeps their music playing; voice on ke
 test('a wrong observation names what to look at again and is kept as a helped answer across reload',()=>{
  const a=appHarness({three:true});a.run("s.adminUnlocked=true;stage=1;step=2;s.step[1]=2;s.activeAnimal='rabbit';enter(1)");
  a.run("act('observe',{dataset:{id:'rabbit-ear',value:'wrong-0'}})");
- assert.equal(a.run('feedback.text'),'‘귀가 짧고 둥글어’는 그림과 달라. 귀의 길이를 다시 봐!');assert.deepEqual([...a.run('feedback.wrong')],['observe:wrong-0']);
+ assert.equal(a.run('feedback.text'),'‘귀가 짧고 둥글어’는 그림과 달라. 그림에서 귀의 길이를 크게 확대해 봐. 무엇이 보여?');assert.deepEqual([...a.run('feedback.wrong')],['observe:wrong-0']);
  assert.equal(a.run("s.observeTries['rabbit-ear']"),'helped');assert.equal(a.run('focusIndex'),0);
  a.run("act('observe',{dataset:{id:'rabbit-ear',value:'right'}});act('observe',{dataset:{id:'rabbit-ear',value:'right'}})");
  assert.equal(a.run("s.observeTries['rabbit-ear']"),'helped','tapping again never turns a helped answer into a first try');
@@ -408,7 +408,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,25);assert.equal(Object.keys(saved.campaign.records).length,14,'the repeated garden challenge is optional');
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.doesNotMatch(a.app.innerHTML,/탐험 별/);
- act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|처음 고른 설명이 맞은 곳 12곳/);
+ act('download');assert.match(a.dialog.innerHTML,/“날개 우산”이야/);assert.match(a.dialog.innerHTML,/가까이 보니 서로 달랐어/);assert.doesNotMatch(a.dialog.innerHTML,/TXT|첫 시도에 맞힌 문항 12개/);
 });
 
 test('wrong observations allow an immediate different answer and preserve helped records',()=>{

@@ -2,7 +2,7 @@ import {shuffled} from './choice-order.js';
 import {flashlightCaseView} from './flashlight.js';
 import {anatomy,sourceView,motionView} from './inquiry-views.js';
 import {motionVideoURL} from './motion-video.js';
-import {SCAN_3D,ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,COMPARES,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,linkAnimal,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
+import {SCAN_3D,ANIMALS,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,COMPARES,observeTry,SORT_ANIMALS,HABITATS,DOME_ZONES,DISCOVERIES,LINKS,linkAnimal,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,CRITERIA,OWN_CRITERIA,OPINION_CRITERIA,OBSERVABLE,CAUSES,researcherAnswers,disagreements,testDesign,discoveryCaption,domeCaption} from './expedition.js';
 import {art,animal,icon,sprite,btn,choice,esc,off,withParticle} from './presentation.js';
 import {assetURL,workshopSprite,swimArtwork} from './assets.js';
 import {studioView} from './studio-views.js';
@@ -29,7 +29,9 @@ export function activityView(s,v){if(v.stage===5&&v.step>=2)return studioView(s.
 
 // Extra facts stay folded so they never interrupt the required observation route.
 const ahaNote=o=>o.aha?`<details class="forest-extra"><summary>더 알아보기</summary><p>${o.aha}</p></details>`:'';
-const relookNote=o=>`<p class="relook-note">${icon('search')} ‘${o.label}’ 모습을 떠올리며 다른 설명을 골라 봐.</p>`;
+const relookNote=o=>`<p class="relook-note">${icon('search')} ‘${o.label}’ 부분을 그림에서 다시 확대해 보고 골라 봐.</p>`;
+// First-try labels (A8 wording, 2026-11-21): the same two names on every screen.
+const TRY_LABEL={first:'<span class="first-try">★ 한 번에</span>',helped:'<span class="first-try helped">다시 보고 찾음</span>'};
 function observeOptions(o){return shuffled('observe:'+o.id,[['right',o.text],...o.wrong.map((w,i)=>['wrong-'+i,w])]);}
 function observeView(s,v){
  const pair=OBSERVE_PAIRS[v.round];
@@ -38,23 +40,23 @@ function observeView(s,v){
    const question=questions.find(q=>q.key===v.feedback?.answeredCompare)||questions.find(q=>answers[q.key]!==`${q.key}-${q.answer}`);
    const done=questions.filter(q=>answers[q.key]===`${q.key}-${q.answer}`).length;
    const photos=pair.map(id=>`<figure>${animal(id)}<figcaption>${ANIMALS[id].name}</figcaption></figure>`).join('');
-   let content=`<h2>같은 점과 다른 점을 찾았어!</h2><ul class="forest-comparison-record">${questions.map(q=>`<li><b>${q.key==='common'?'같은 점':'다른 점'}</b> ${q.options.find(([value])=>value===q.answer)[1]}</li>`).join('')}</ul>`;
+   let content=`<h2>같은 점과 다른 점을 찾았어!</h2><ul class="forest-comparison-record">${questions.map(q=>`<li><b>${q.key==='common'?'같은 점':'다른 점'}</b> ${q.options.find(([value])=>value===q.answer)[1]}${TRY_LABEL[s.firstTries?.[`compare:${v.round}:${q.key}`]]?' '+TRY_LABEL[s.firstTries[`compare:${v.round}:${q.key}`]]:''}</li>`).join('')}</ul>`;
    if(question){
      const correct=answers[question.key]===`${question.key}-${question.answer}`;
      const options=shuffled(`compare:${v.round}:${question.key}`,question.options);
-     content=`<h2>${question.title}</h2><div class="forest-compare-options">${options.map(([value,label])=>choice(label,'compare-answer',`${question.key}-${value}`,answers[question.key]===`${question.key}-${value}`,`data-key="${question.key}" ${correct?'disabled':''}`,answers[question.key]===`${question.key}-${value}`?miss(v,'compare:'+question.key):'')).join('')}</div>${correct?`<p class="observe-done" role="status">${icon('check')} 찾았어! 다음으로 이어 갈게.</p>`:''}`;
+     content=`<h2>${question.title}</h2><div class="forest-compare-options">${options.map(([value,label])=>choice(label,'compare-answer',`${question.key}-${value}`,answers[question.key]===`${question.key}-${value}`,`data-key="${question.key}" ${correct?'disabled':''}`,answers[question.key]===`${question.key}-${value}`?miss(v,'compare:'+question.key):'')).join('')}</div>${correct?`<p class="observe-done" role="status">${icon('check')} ${{first:'한 번에 찾았어!',helped:'다시 비교해서 찾았어!'}[s.firstTries?.[`compare:${v.round}:${question.key}`]]||'찾았어!'} 다음으로 이어 갈게.</p>`:''}`;
    }
    return `<div class="forest-compare"><div class="forest-compare-animals">${photos}</div><section class="forest-compare-question">${content}<p class="pair-status">${done}/2 비교 완료</p></section></div>`;
  }
  const id=pair.includes(s.activeAnimal)?s.activeAnimal:pair[0],list=OBSERVATIONS[id];
  const o=list[v.focusIndex??list.findIndex(x=>x.id===OBSERVE_REQUIRED[id])];
  const required=o.id===OBSERVE_REQUIRED[id],found=s.observed.includes(o.id),next=nextObservation(s,v.round);
- const nextAction=next?btn(next===id?'핵심 특징 보기':`${ANIMALS[next].name} 관찰하기`,'inspect','secondary observe-next',`data-id="${next}" data-value="${OBSERVATIONS[next].findIndex(x=>x.id===OBSERVE_REQUIRED[next])}"`):s.activities.includes(`1-${v.step}`)?'':btn('두 동물 비교하기 '+icon('arrow'),'advance','secondary observe-next');
+ const nextAction=next?btn(next===id?'핵심 특징 보기':`${ANIMALS[next].name} 관찰하기`,'inspect','secondary observe-next',`data-id="${next}" data-value="${OBSERVATIONS[next].findIndex(x=>x.id===OBSERVE_REQUIRED[next])}"`):'';// B18 (2026-11-21): a finished observation moves on with the footer's main button, like every other activity.
  const tabs=`<div class="scene-tabs">${pair.map(a=>btn((s.observed.includes(OBSERVE_REQUIRED[a])?icon('check'):'')+ANIMALS[a].name,'animal-tab',id===a?'active':'',`data-id="${a}" aria-pressed="${id===a}"`)).join('')}</div>`;
  const status=`<p class="pair-status">핵심 특징 ${pair.filter(a=>s.observed.includes(OBSERVE_REQUIRED[a])).length}/2 · 동물마다 하나씩</p>`;
  const partButtons=list.map((x,i)=>btn((s.observed.includes(x.id)?icon('check'):icon('search'))+x.label+(x.id===OBSERVE_REQUIRED[id]?' · 핵심':''),'inspect',o.id===x.id?'selected':'quiet',`data-value="${i}" aria-pressed="${o.id===x.id}" aria-controls="observation-notes"`)).join('');
  const options=`<p class="observe-ask">${o.look} 살펴보고 설명 하나를 골라 봐.</p>${v.relook===o.id?relookNote(o):''}<div class="observe-options">${observeOptions(o).map(([value,label])=>choice(label,'observe',value,false,`data-id="${o.id}"`,miss(v,'observe:'+value))).join('')}</div>`;
- const explanation=`<p class="forest-fact">${o.text}</p>${found?`<p class="observe-done">${icon('check')} 기록했어</p>`:'<p class="forest-explore-label">자유 관찰</p>'}${nextAction}${ahaNote(o)}`;
+ const explanation=`<p class="forest-fact">${o.text}</p>${found?`<p class="observe-done">${icon('check')} ${{first:'★ 한 번에 찾았어! ',helped:'다시 보고 찾았어! '}[observeTry(s,o.id)]||''}기록했어</p>`:'<p class="forest-explore-label">자유 관찰</p>'}${nextAction}${ahaNote(o)}`;
  const notes=`<aside id="observation-notes" class="field-notes lens-notes"><h2>${o.label}${required?' · 핵심':''}</h2>${required&&!found?options:explanation}${status}</aside>`;
  if(v.use3d&&SCAN_3D.includes(id)){
    return `<div class="specimen-scene scan-scene">${tabs}<div class="scan3d" data-3d="scanner" data-animal="${id}"><p class="scan-loading">3D 표본을 준비하고 있어…</p>${btn('그림으로 관찰하기','scan-use-image','secondary scan-use-image')}</div><div class="observation-controls"><p class="observation-shortcut">${icon('search')} 다른 부분도 자유롭게 살펴봐</p><div class="part-buttons" role="group" aria-label="관찰할 몸의 부분">${partButtons}${btn(icon('reset')+'처음 모습','scan-reset','quiet scan-reset','aria-label="표본을 처음 모습으로 보기"')}</div></div></div>${notes}`;

@@ -78,7 +78,7 @@ test('the run screen offers a labelled direction pad and one action button only 
  for(const html of [jump,swim,fly]){for(const d of ['up','left','right','down'])assert.match(html,new RegExp(`data-relay-dir="${d}" aria-label="[^"]+ 움직이기"`));assert.match(html,/data-3d="relay"/);assert.doesNotMatch(html,/학습용 모형이야|relay-exit/);}
  assert.match(jump,/data-relay-act aria-label="긴 뒷다리로 뛰기"/);assert.match(fly,/data-relay-act aria-label="날개로 날갯짓"/);assert.ok(!swim.includes('data-relay-act'));
  assert.match(jump,/움직이는 몸 부분 <strong>긴 뒷다리<\/strong>/);assert.match(runView(s,{phase:'run',animal:'rabbit',hint:true}),/class="relay-hint"/);
- const done=runView(s,{phase:'done',section:3,used:{forest:'rabbit',pond:'frog',sky:'butterfly',coast:'marine'}});assert.match(done,new RegExp(RELAY_TITLE+' 완주!'));assert.match(done,/바다 물고기 · 지느러미와 꼬리/);assert.match(done,/data-action="advance"/);
+ const done=runView(s,{phase:'done',section:3,used:{forest:'rabbit',pond:'frog',sky:'butterfly',coast:'marine'}});assert.match(done,new RegExp(RELAY_TITLE+' 완주!'));assert.match(done,/바다 물고기 · 지느러미와 꼬리/);assert.doesNotMatch(done,/data-action="advance"/);
  assert.doesNotMatch(jump+swim+fly+done,/\d+\s*(초|점|등|위)\b|기록 시간|순위/);
  const flat=runView(s,{phase:'ready',animal:'rabbit'},false);assert.match(flat,/이 길 지나가기/);assert.doesNotMatch(flat,/data-3d|data-relay-dir/);
 });

@@ -1,7 +1,7 @@
 import {shuffled} from './choice-order.js';
 import {broadcastAudioControl} from './broadcast-audio.js';
 import {COMMISSIONS,SORT_KEYS,RETEST,commission,campaignDraft,campaignDone,campaignOpen,missionRows,designProblem,restoredPlaces,requestCount,requestParts,requestCards,requestDraft,explorationAnswers,pairedOptions,cardReady,cardDone,cardProgress,firstOpenCard} from './campaign.js';
-import {STAGES,ANIMALS,OBSERVATIONS,CRITERIA,HABITATS,DISCOVERIES,reportDesigns,PROBLEMS,isStageOpen} from './expedition.js';
+import {STAGES,ANIMALS,OBSERVATIONS,CRITERIA,HABITATS,DISCOVERIES,reportDesigns,PROBLEMS,isStageOpen,rowFirstTries} from './expedition.js';
 import {animal,art,mori,icon,btn,workshopArrow,esc,villageURL,withParticle} from './presentation.js';
 import {experimentDiagram} from './inquiry-views.js';
 import {studioArtwork} from './studio-views.js';
@@ -103,9 +103,11 @@ export function broadcastScript(rows,d){
  return blocks;
 }
 const broadcastCopy=(rows,d)=>'<div class="broadcast-copy">'+broadcastScript(rows,d).map(b=>'<p><span class="broadcast-cue">'+esc(b.cue)+'</span> '+esc(b.text)+'</p>').join('')+'</div>';
-function broadcastResult(c,d,done,withAudio=true){return `<aside class="card-result ${done?'complete':''} kind-broadcast" aria-live="polite"><header class="broadcast-heading"><div><small>${icon('sound')} 레인저 하늘의 생태 탐방</small><h3>${c.animal?esc(ANIMALS[c.animal].name)+' 현장 방송 원고':'특별 탐방 방송 원고'}</h3></div>${c.animal?animal(c.animal,'broadcast-thumbnail'):''}</header>${withAudio?broadcastAudioControl(c.rows,d,broadcastScript(c.rows,d)):''}${broadcastCopy(c.rows,d)}<p class="card-stamp">${done?icon('check')+' 선택한 설명을 기록했어':'내가 고른 내용으로 원고를 채워 봐'}</p></aside>`;}
+function broadcastResult(c,d,done,withAudio=true,stamp=''){return `<aside class="card-result ${done?'complete':''} kind-broadcast" aria-live="polite"><header class="broadcast-heading"><div><small>${icon('sound')} 레인저 하늘의 생태 탐방</small><h3>${c.animal?esc(ANIMALS[c.animal].name)+' 현장 방송 원고':'특별 탐방 방송 원고'}</h3></div>${c.animal?animal(c.animal,'broadcast-thumbnail'):''}</header>${withAudio?broadcastAudioControl(c.rows,d,broadcastScript(c.rows,d)):''}${broadcastCopy(c.rows,d)}<p class="card-stamp">${done?icon('check')+' 선택한 설명을 기록했어'+stamp:'내가 고른 내용으로 원고를 채워 봐'}</p></aside>`;}
 // What visitors will see, filled only with the learner's own picks (blank until chosen, never the answer).
-function cardResult(c,d,challenge){const done=c.rows.every(r=>d.answers[r.key]);if(c.kind==='broadcast')return broadcastResult(c,d,done);return `<aside class="card-result ${done?'complete':''} kind-${c.kind}" aria-live="polite"><h3>${icon(c.kind==='broadcast'?'sound':'book')} ${challenge&&c.kind==='repair'?'고친 문장':RESULT_TITLES[c.kind]}</h3>${c.animal&&ANIMALS[c.animal]?`<div class="card-result-animal">${animal(c.animal)}<b>${ANIMALS[c.animal].name}</b></div>`:''}<ol>${c.rows.map(r=>{const o=r.options.find(o=>o[0]===d.answers[r.key]);return `<li class="${o?'filled':''}"><small>${esc(short(r.label))}</small>${o?(ANIMALS[o[0]]&&!r.animal?animal(o[0]):'')+'<b>'+esc(o[1])+'</b>':'<b class="blank">빈칸</b>'}</li>`;}).join('')}</ol><p class="card-stamp">${done?icon('check')+' 선택한 설명을 기록했어':'고를 때마다 여기에 채워져'}</p></aside>`;}
+// stamp: ' · ★ m/n' first picks on this card (A8 wording), empty when nothing is known yet.
+const tryStamp=(s,stage,c)=>{const t=rowFirstTries(s,stage,c);return t.known?` · ★ ${t.first}/${t.total}`:'';};
+function cardResult(c,d,challenge,stamp=''){const done=c.rows.every(r=>d.answers[r.key]);if(c.kind==='broadcast')return broadcastResult(c,d,done,true,stamp);return `<aside class="card-result ${done?'complete':''} kind-${c.kind}" aria-live="polite"><h3>${icon(c.kind==='broadcast'?'sound':'book')} ${challenge&&c.kind==='repair'?'고친 문장':RESULT_TITLES[c.kind]}</h3>${c.animal&&ANIMALS[c.animal]?`<div class="card-result-animal">${animal(c.animal)}<b>${ANIMALS[c.animal].name}</b></div>`:''}<ol>${c.rows.map(r=>{const o=r.options.find(o=>o[0]===d.answers[r.key]);return `<li class="${o?'filled':''}"><small>${esc(short(r.label))}</small>${o?(ANIMALS[o[0]]&&!r.animal?animal(o[0]):'')+'<b>'+esc(o[1])+'</b>':'<b class="blank">빈칸</b>'}</li>`;}).join('')}</ol><p class="card-stamp">${done?icon('check')+' 선택한 설명을 기록했어'+stamp:'고를 때마다 여기에 채워져'}</p></aside>`;}
 function cardName(s,stage,cards,c){const same=cards.filter(x=>x.part===c.part);if(same.length===1)return requestMission(s,stage,c.part).title;if(c.animal&&ANIMALS[c.animal])return ANIMALS[c.animal].name;if(c.kind==='return')return '기록 '+(cards.filter(x=>x.kind==='return').indexOf(c)+1);return '같은 점';}
 function broadcastCard(s,c,d,v){
  const name=ANIMALS[c.animal].name,photo=normalizeMotionPhoto(s.inquiry.motionPhotos?.[c.animal]);
@@ -139,9 +141,9 @@ function cardWork(s,stage,c,d,v,challenge){
   if(who&&proof)return `<div class="card-body"><fieldset class="record-row ${v.feedback?.wrong?.length?'retry':''}" data-row="${proof.key}"><legend>${esc(who.label)} · ${esc(proof.label)}</legend><div class="record-options">${shuffled('pair:'+who.key,pairedOptions(who,proof)).map(([[id,name],[value,label]])=>{
    const on=d.answers[who.key]===id&&d.answers[proof.key]===value;
    return btn(animal(id)+'<span><b>'+esc(name)+'</b> · '+esc(label)+'</span>','record-pair','choice commission-choice '+(on?'selected':''),`data-key="${who.key}" data-value="${id}" aria-pressed="${on}" ${campaignDone(s,stage,c.part)?'disabled':''}`);
-  }).join('')}</div></fieldset>${cardResult(c,d,challenge)}</div>`;
+  }).join('')}</div></fieldset>${cardResult(c,d,challenge,tryStamp(s,stage,c))}</div>`;
  }
- return `<div class="card-body"><div class="card-questions">${stage===3&&challenge?specialBroadcastEvidence():''}${c.rows.map((r,i)=>Object.hasOwn(reused,r.key)||campaignDone(s,stage,c.part)?'<p class="pace-evidence"><b>'+esc(r.label)+'</b> · '+esc(r.options.find(o=>o[0]===d.answers[r.key])?.[1]||'')+'</p>':rowView(r,d,i,v,c.animal?short(r.label):r.label)).join('')}</div>${cardResult(c,d,challenge)}</div>`;
+ return `<div class="card-body"><div class="card-questions">${stage===3&&challenge?specialBroadcastEvidence():''}${c.rows.map((r,i)=>Object.hasOwn(reused,r.key)||campaignDone(s,stage,c.part)?'<p class="pace-evidence"><b>'+esc(r.label)+'</b> · '+esc(r.options.find(o=>o[0]===d.answers[r.key])?.[1]||'')+'</p>':rowView(r,d,i,v,c.animal?short(r.label):r.label)).join('')}</div>${cardResult(c,d,challenge,tryStamp(s,stage,c))}</div>`;
 }
 function deckNav(s,stage,cards,k,v,progress,ready){
  const chip=(x,n)=>{const dx=requestDraft(s,stage,x.part),got=x.kind==='retest'?'':` <small>${x.rows.filter(r=>dx.answers[r.key]).length}/${x.rows.length}</small>`,ok=cardReady(s,stage,x),miss=v.feedback?.wrong?.some(w=>x.rows.some(r=>'row:'+r.key===w));

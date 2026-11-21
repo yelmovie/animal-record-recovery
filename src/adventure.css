@@ -109,3 +109,7 @@ dialog{width:min(790px,94vw);max-height:89dvh;border:1px solid #d3ddc4;border-ra
 
 @media(max-width:620px){.restore-card{width:240px}}
 @media(prefers-reduced-motion:reduce){.map-fog span.clearing{display:none}}
+
+/* First-try labels (A8 wording, 2026-11-21): a small tag after a recorded answer, not a score. */
+.first-try{display:inline-block;margin-left:4px;font-size:.85em;font-weight:800;color:#6b5a1e;white-space:nowrap}
+.first-try.helped{color:#4f5841}

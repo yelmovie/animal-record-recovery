@@ -10,7 +10,7 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked,LAB_CONCEPT} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,workshopDesignNext,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,anatomy} from './inquiry-views.js';
-import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption,noteTry} from './expedition.js';
+import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption,noteTry,forestFirstTries,rowFirstTries} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -27,7 +27,7 @@ import {COMMISSIONS,ensureCampaign,campaignDraft,requestDraft,pairedOptions,camp
 
 export function openFromLanding(action){
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
-const pageHistory=globalThis.history;let browserDepth=pageHistory?.state?.appDepth||0,fromBrowser=false;// browser entries this app added (see popstate below)
+const pageHistory=globalThis.history;let browserDepth=pageHistory?.state?.appDepth||0,fromBrowser=false;const compareMisses={};// browser entries this app added (see popstate below)
 const recordStore=createRecordStorage({getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
 const loadedRecord=recordStore.read();
 let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(loadedRecord.status);
@@ -475,7 +475,7 @@ function pairReward(r){
   const [a,b]=OBSERVE_PAIRS[r];
   if(typeof document.createElement!=='function')return;
   const notice=document.createElement('p');notice.className='forest-notice';notice.setAttribute('role','status');
-  notice.textContent=`${ANIMALS[a].name}·${ANIMALS[b].name} 비교 완료! ${forestAnswerCount(s)}/16`;
+  notice.textContent=`${ANIMALS[a].name}·${ANIMALS[b].name} 비교 완료! ${forestAnswerCount(s)}/16${forestFirstTries(s).known?` · ★ ${forestFirstTries(s).first}`:''}`;
   document.querySelector('#main')?.append(notice);
   globalThis.setTimeout?.(()=>notice.remove(),1800);
 }
@@ -583,7 +583,7 @@ function progressRequest(){
   if(!cardReady(s,stage,card)){
     const draft=requestDraft(s,stage,card.part);
     const wrong=card.rows.find(row=>draft.answers[row.key]&&draft.answers[row.key]!==row.answer);
-    if(wrong)say(wrong.hint,false,['row:'+wrong.key]);
+    if(wrong)say('한 번 더! '+wrong.hint,false,['row:'+wrong.key]);
     else if(card.rows.every(row=>draft.answers[row.key]))say(campaignHint(s,stage,card.part));
     return;
   }
@@ -709,7 +709,8 @@ function requestCommission(id,index=0){
 // Every card is right: the reply waits for the learner's own tap on the glowing finish button.
 function awaitFinish(){
   const label=commissionIndex===2?'도전 완료하기':'부탁 완료하기';
-  feedback={good:true,text:`카드를 모두 채웠어! ‘${label}’를 눌러 마무리해.`};render();
+  const tally=requestCards(s,stage,requestParts(stage,commissionIndex)).map(c=>rowFirstTries(s,stage,c)).reduce((a,b)=>({first:a.first+b.first,total:a.total+b.total}),{first:0,total:0});
+  feedback={good:true,text:`카드를 모두 채웠어! 한 번에 고른 칸 ${tally.first}/${tally.total}개. ‘${label}’를 눌러 마무리해.`};render();
   document.querySelector('#announcer').textContent=feedback.text;
   app.querySelector?.('.commission-footer .commission-finish')?.focus?.({preventScroll:true});
 }
@@ -818,8 +819,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'animal-tab':if(OBSERVE_PAIRS[round()].includes(id)){focusForestObservation(id);zoom=false;feedback=null;render();}break;
     // A wrong description sends the learner to the evidence: the specimen zooms to that part. A first-try match is called out.
     case 'observe':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o||s.observed.includes(id))return;const owner=Object.keys(OBSERVATIONS).find(k=>OBSERVATIONS[k].includes(o));
-      if(value&&value!=='right'){relook=id;const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+withParticle(o.look||o.label)+' 다시 봐!',false,['observe:'+value]);}
-      const fresh=!s.observed.includes(id),tries=s.observeTries??={},first=fresh&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 맞혔어! 특징을 기록했어.':'특징을 기록했어.';if(fresh&&screen==='mission'&&stage===1&&step%2===0&&OBSERVE_PAIRS[round()].includes(owner)&&OBSERVE_REQUIRED[owner]===id)scheduleActivityProgress(continueForest);break;}
+      if(value&&value!=='right'){relook=id;const tries=s.observeTries??={};if(!s.observed.includes(id))tries[id]='helped';if(owner){s.activeAnimal=owner;focusIndex=OBSERVATIONS[owner].indexOf(o);}const chosen=o.wrong[Number(String(value).split('-')[1])]?.replace(/\.$/,'');return say((chosen?withParticle('‘'+chosen+'’','은/는')+' 그림과 달라. ':'')+'그림에서 '+withParticle(o.look||o.label)+' 크게 확대해 봐. 무엇이 보여?',false,['observe:'+value]);}
+      const fresh=!s.observed.includes(id),tries=s.observeTries??={},first=fresh&&!tries[id];if(!s.observed.includes(id)){s.observed.push(id);tries[id]??='first';}relook=null;feedback=null;render();document.querySelector('#announcer').textContent=first?'한 번에 찾았어! 특징을 기록했어.':tries[id]==='helped'?'다시 보고 찾았어! 특징을 기록했어.':'특징을 기록했어.';if(fresh&&screen==='mission'&&stage===1&&step%2===0&&OBSERVE_PAIRS[round()].includes(owner)&&OBSERVE_REQUIRED[owner]===id)scheduleActivityProgress(continueForest);break;}
     case 'aha-pick':{const o=Object.values(OBSERVATIONS).flat().find(o=>o.id===id);if(!o?.ahaQ||!s.observed.includes(id)||![0,1].includes(Number(value)))break;(s.ahaPicks??={})[id]=Number(value);render();break;}
     case 'zoom':zoom=!zoom;render();break;
     case 'scan-use-image':if(screen==='mission'&&(stage===1&&step%2===0||stage===3&&step<2))fail3d();break;
@@ -833,7 +834,8 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       if(!option)return;
       noteTry(s,`compare:${round()}:${key}`,value===`${key}-${question.answer}`);
       answers[key]=value;
-      if(value!==`${key}-${question.answer}`)return say(option[2]||'두 동물의 모습을 다시 살펴봐.',false,['compare:'+key]);
+      // First wrong pick on a question points back to the records; the reason sentence (which can give the fact away) comes from the second (A8 wording).
+      if(value!==`${key}-${question.answer}`){const n=(compareMisses[`${round()}:${key}`]=(compareMisses[`${round()}:${key}`]||0)+1);return say(n===1?(key==='common'?'한 번 더 생각해 보자. 이 설명이 두 동물 모두에게 정말 있었는지 관찰 기록에서 확인해 봐.':'한 번 더 생각해 보자. 한 동물에게만 있던 것이 무엇인지 관찰 기록에서 확인해 봐.'):(option[2]||'두 동물의 모습을 다시 살펴봐.'),false,['compare:'+key]);}
       playSound(s.soundEnabled,'correct');feedback={good:true,text:option[1],answeredCompare:key};render();
       scheduleActivityProgress(continueForest);break;
     }

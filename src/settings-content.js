@@ -25,7 +25,7 @@ export const SETTINGS_TEXT={
     '그림과 영상은 학습용으로 만든 장면이에요. 실제 동물 사진이나 영상과 함께 비교해 보면 더 정확해요.',
   ],
   // The teacher guide opens straight on the standards and tools (intro paragraphs removed at the teacher's request, 2026-10-26).
-  teacher:[],
+  teacher:['★ 표시는 학생이 처음 고른 답이 맞은 문항이에요. 다시 골라 맞힌 문항도 완료로 인정되고, 보기 순서는 섞여서 나와요.'],
   standards:[
     ['4과02-01','여러 가지 동물을 관찰하여 특징에 따라 동물을 분류할 수 있다.'],
     ['4과02-02','다양한 환경에 서식하는 동물을 조사하여 동물의 생김새와 생활 방식이 환경과 관련되어 있음을 설명할 수 있다.'],

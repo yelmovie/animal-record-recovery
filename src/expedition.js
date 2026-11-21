@@ -117,6 +117,10 @@ export const observeTry=(s,id)=>s.observeTries?.[id]||'unknown';
 export function noteTry(s,key,right){(s.firstTries??={})[key]??=right?'first':'helped';}
 // Questions answered right on the first pick, across the stage 1 observations and the other checked questions.
 export function firstTrySummary(s){const all=[...s.observed.map(id=>observeTry(s,id)),...Object.values(s.firstTries||{})].filter(v=>v!=='unknown');return {first:all.filter(v=>v==='first').length,total:all.length};}
+// Stage 1 first picks across the observations and the comparisons, for the progress line and the reward note.
+export function forestFirstTries(s){const all=[...s.observed.map(id=>observeTry(s,id)),...Object.entries(s.firstTries||{}).filter(([k])=>k.startsWith('compare:')).map(([,v])=>v)];return {first:all.filter(v=>v==='first').length,known:all.filter(v=>v!=='unknown').length};}
+// First picks on one request card's rows (keys written by the request check).
+export function rowFirstTries(s,stage,c){const v=c.rows.map(r=>s.firstTries?.[`row:${stage}:${c.part}:${r.key}`]).filter(Boolean);return {first:v.filter(x=>x==='first').length,total:c.rows.length,known:v.length};}
 export function observeSummary(s){const n={first:0,helped:0,unknown:0};for(const id of s.observed)n[observeTry(s,id)]++;return n;}
 export const LINKS={
   frog:{animal:'frog',environment:[['pond','연못과 물가'],['sea','짠 바닷물 속'],['desert','건조한 모래 사막']],body:[['web','뒷발의 물갈퀴'],['fin','지느러미와 꼬리'],['claw','단단한 집게다리']],life:[['swim','물을 밀며 헤엄쳐'],['wiggle','몸과 꼬리를 흔들며 헤엄쳐'],['side','옆으로 걸어 다녀']],answer:['pond','web','swim'],sentence:'개구리는 물가에서 살며 물갈퀴로 물을 밀어 헤엄쳐.'},
@@ -349,7 +353,7 @@ export function taskMistake(s,stage,step){
     // A true statement in the other slot is about the slot; a false one gets the fact that disproves it.
     out.push({key:'compare:'+q.key,text:!card?`‘${slot(q.key)}’ 설명을 하나 골라 줘.`:card.why?`‘${card.label}’ 설명을 다시 봐. ${card.why}`:`${withParticle(`‘${card.label}’`,'은/는')} ${slot(q.key)}이 아니라 ${slot(card.key)}이야.`});}return out.length?{text:out[0].text,wrong:out.map(x=>x.key)}:null;}
   if(stage===2&&round&&!OWN_CRITERIA.includes(s.criteria[1]))return {text:s.criteria[1]?`‘${CRITERIA[s.criteria[1]]}’는 사람마다 답이 달라. 몸을 보면 누구나 같은 답이 나오는 기준을 골라 봐.`:'먼저 나눌 기준을 하나 골라 줘.',wrong:[]};
-  if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));const aha=key==='wings'?bad.map(id=>ANIMALS[id].aha).find(Boolean):'';return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.${aha?' '+aha:''}`,wrong:bad.map(id=>'sort:'+id)}:null;}
+  if(stage===2&&step%2===0){const key=round?s.criteria[1]:'wings',blank=SORT_ANIMALS.filter(id=>!s.sorts[round][id]);if(blank.length)return {text:`아직 고르지 않은 동물: ${names(blank)}`,wrong:[]};const bad=SORT_ANIMALS.filter(id=>s.sorts[round][id]!==(ANIMALS[id][key]?'yes':'no'));return bad.length?{text:`${names(bad)} 카드를 다시 봐. ‘${CRITERIA[key]}’를 사진에서 직접 확인해 봐.`,wrong:bad.map(id=>'sort:'+id)}:null;}
   if(stage===2){const v=s.inquiry.verify[round];
     if(round){if(v.checked!==s.criteria[1])return {text:'‘내 기준 검증’을 눌러 세 연구원의 결과를 확인해 봐.',wrong:[]};if(!s.inquiry.reclass[1].revealed)return {text:'예상을 고른 뒤 ‘분류 바꾸기’를 눌러 결과를 확인해 봐.',wrong:[]};return null;}
     if(!v.ran)return {text:'먼저 ‘검증 실행’을 눌러 세 연구원의 결과를 확인해 봐.',wrong:[]};
