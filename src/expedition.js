@@ -113,6 +113,10 @@ export const discoveryCaption=(s,d)=>motionOpen(s,d.animal)?d.text:neutralCaptio
 export const domeCaption=(s,z)=>motionOpen(s,z.animal)?z.text:neutralCaption(z.name,z.animalName);
 // 'first' | 'helped' | 'unknown' (observed in a save made before tries were kept).
 export const observeTry=(s,id)=>s.observeTries?.[id]||'unknown';
+// Only the first pick of a question counts; retrying stays allowed and does not change it.
+export function noteTry(s,key,right){(s.firstTries??={})[key]??=right?'first':'helped';}
+// Questions answered right on the first pick, across the stage 1 observations and the other checked questions.
+export function firstTrySummary(s){const all=[...s.observed.map(id=>observeTry(s,id)),...Object.values(s.firstTries||{})].filter(v=>v!=='unknown');return {first:all.filter(v=>v==='first').length,total:all.length};}
 export function observeSummary(s){const n={first:0,helped:0,unknown:0};for(const id of s.observed)n[observeTry(s,id)]++;return n;}
 export const LINKS={
   frog:{animal:'frog',environment:[['pond','연못과 물가'],['sea','짠 바닷물 속'],['desert','건조한 모래 사막']],body:[['web','뒷발의 물갈퀴'],['fin','지느러미와 꼬리'],['claw','단단한 집게다리']],life:[['swim','물을 밀며 헤엄쳐'],['wiggle','몸과 꼬리를 흔들며 헤엄쳐'],['side','옆으로 걸어 다녀']],answer:['pond','web','swim'],sentence:'개구리는 물가에서 살며 물갈퀴로 물을 밀어 헤엄쳐.'},
@@ -169,7 +173,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',excluded:{},habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,voiceOn:true,musicOn:true,musicVolume:.4,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
+export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,voiceOn:true,musicOn:true,musicVolume:.4,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],firstTries:{},observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -226,6 +230,8 @@ export function restoreExpedition(raw,{strict=false}={}){
     out.observed=uniqueStrings(input.observed,Object.values(OBSERVATIONS).flat().map(o=>o.id));
     // first = right on the first choice, helped = right after a wrong choice. Saves from before this field stay unknown.
     out.observeTries=Object.fromEntries(Object.entries(record(input.observeTries)).filter(([id,v])=>Object.values(OBSERVATIONS).flat().some(o=>o.id===id)&&['first','helped'].includes(v)));
+    // First pick on the other instant-check questions (A8, 2026-11-21), same values as observeTries. Saves from before have none.
+    out.firstTries=Object.fromEntries(Object.entries(record(input.firstTries)).filter(([k,v])=>/^[a-z]+(:[A-Za-z0-9_-]{1,24}){1,3}$/.test(k)&&['first','helped'].includes(v)).slice(0,400));
     // A prediction made before an 'aha' fact was shown; only known questions and their two options.
     out.ahaPicks=Object.fromEntries(Object.entries(record(input.ahaPicks)).filter(([id,v])=>Object.values(OBSERVATIONS).flat().some(o=>o.id===id&&o.ahaQ)&&[0,1].includes(v)));
     out.activeAnimal=safeChoice(input.activeAnimal,Object.keys(OBSERVATIONS),'frog');

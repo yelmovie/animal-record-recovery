@@ -8,7 +8,7 @@ import {BUILD_INFO} from './build-info.js';
 const app=document.querySelector('#app');
 const store=createRecordStorage({getItem:key=>localStorage.getItem(key)});
 const loaded=store.read(),s=loaded.state||freshExpedition();
-let player,request=0,introOpen=false,failedAction;
+let player,request=0,introOpen=false,failedAction,owner=true;
 const restart=history.state?.frontdoorAction;
 if(restart)history.replaceState({...history.state,frontdoorAction:null},'');
 const resize=()=>document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||innerHeight)+'px');
@@ -47,12 +47,12 @@ async function openRuntime(action){
   if(ticket!==request)return;
   window.removeEventListener('resize',resize);window.visualViewport?.removeEventListener('resize',resize);
   app.removeEventListener('click',onClick);
-  openFromLanding(action);
+  owner=false;openFromLanding(action);
  }catch{if(ticket===request)failed(action);}
 }
 async function openIntro(){
  const ticket=++request;
- introOpen=true;silence();playMusic(s.voiceOn===false&&s.musicOn!==false?'village':null);pending();
+ introOpen=true;history.pushState({...history.state,appDepth:(history.state?.appDepth||0)+1},'');silence();playMusic(s.voiceOn===false&&s.musicOn!==false?'village':null);pending();
  if(!document.fullscreenElement)app.requestFullscreen?.()?.catch(()=>{});
  try{
   const {storyView,createStoryPlayer}=await load(()=>import('./story-player.js'));
@@ -83,6 +83,9 @@ function onClick(event){
  }
 }
 setSoundVolume(s.soundVolume??.8);setMusicVolume(s.musicVolume);
+// Browser back on the front door (2026-11-21): the intro film returns to the landing; on the landing, entries left
+// from an earlier visit (after a reload) are skipped so the next back leaves the page as usual.
+addEventListener('popstate',event=>{if(!owner)return;if(introOpen){leaveStory();landing();return;}const d=event.state?.appDepth||0;if(d>0)history.go(-d);});
 app.addEventListener('click',onClick);
 // The intro film carries its own sound: a hidden tab pauses it (the play button resumes it), like the runtime's story player.
 document.addEventListener('visibilitychange',()=>{if(document.hidden)player?.pause();});

@@ -1,3 +1,4 @@
+import {shuffled} from './choice-order.js';
 import {flashlightCaseView} from './flashlight.js';
 import {anatomy,sourceView,motionView} from './inquiry-views.js';
 import {motionVideoURL} from './motion-video.js';
@@ -29,7 +30,7 @@ export function activityView(s,v){if(v.stage===5&&v.step>=2)return studioView(s.
 // Extra facts stay folded so they never interrupt the required observation route.
 const ahaNote=o=>o.aha?`<details class="forest-extra"><summary>더 알아보기</summary><p>${o.aha}</p></details>`:'';
 const relookNote=o=>`<p class="relook-note">${icon('search')} ‘${o.label}’ 모습을 떠올리며 다른 설명을 골라 봐.</p>`;
-function observeOptions(o){const list=[['right',o.text],...o.wrong.map((w,i)=>['wrong-'+i,w])],k=[...o.id].reduce((n,c)=>n+c.charCodeAt(0),0)%3;return [...list.slice(k),...list.slice(0,k)];}
+function observeOptions(o){return shuffled('observe:'+o.id,[['right',o.text],...o.wrong.map((w,i)=>['wrong-'+i,w])]);}
 function observeView(s,v){
  const pair=OBSERVE_PAIRS[v.round];
  if(v.step%2===1){
@@ -40,8 +41,7 @@ function observeView(s,v){
    let content=`<h2>같은 점과 다른 점을 찾았어!</h2><ul class="forest-comparison-record">${questions.map(q=>`<li><b>${q.key==='common'?'같은 점':'다른 점'}</b> ${q.options.find(([value])=>value===q.answer)[1]}</li>`).join('')}</ul>`;
    if(question){
      const correct=answers[question.key]===`${question.key}-${question.answer}`;
-     const offset=(v.round+questions.indexOf(question)+1)%3;
-     const options=[...question.options.slice(offset),...question.options.slice(0,offset)];
+     const options=shuffled(`compare:${v.round}:${question.key}`,question.options);
      content=`<h2>${question.title}</h2><div class="forest-compare-options">${options.map(([value,label])=>choice(label,'compare-answer',`${question.key}-${value}`,answers[question.key]===`${question.key}-${value}`,`data-key="${question.key}" ${correct?'disabled':''}`,answers[question.key]===`${question.key}-${value}`?miss(v,'compare:'+question.key):'')).join('')}</div>${correct?`<p class="observe-done" role="status">${icon('check')} 찾았어! 다음으로 이어 갈게.</p>`:''}`;
    }
    return `<div class="forest-compare"><div class="forest-compare-animals">${photos}</div><section class="forest-compare-question">${content}<p class="pair-status">${done}/2 비교 완료</p></section></div>`;
@@ -70,8 +70,8 @@ const KEYWORDS=[['legs','다리'],['web','물갈퀴'],['fin','지느러미'],['s
 function verifyTable(key){const bad=disagreements(key);return '<table class="verify-table"><caption>'+CRITERIA[key]+'</caption><thead><tr><th>동물</th><th>연구원 A</th><th>연구원 B</th><th>연구원 C</th></tr></thead><tbody>'+SORT_ANIMALS.map(id=>'<tr class="'+(bad.includes(id)?'differ':'')+'"><th>'+animal(id)+ANIMALS[id].name+'</th>'+researcherAnswers(key,id).map(a=>'<td class="'+a+'">'+(a==='yes'?'O':'X')+'</td>').join('')+'</tr>').join('')+'</tbody></table><p class="verify-summary '+(bad.length?'bad':'good')+'">'+(bad.length?icon('close')+' '+SORT_ANIMALS.length+'마리 중 '+bad.length+'마리에서 결과가 달라.'+(key==='fast'?' 얼마나 빨라야 ‘빠르다’인지 정한 눈금이 없어.':''):icon('check')+' 세 연구원의 결과가 모두 같아!')+'</p>';}
 function verifyLab(s,v){const x=s.inquiry.verify[0],shown=x.checked||(x.ran?'fast':'');
   return '<div class="verify-lab"><section class="verify-results">'+(shown?verifyTable(shown):'<div class="verify-empty">'+icon('layers')+'<p>모리가 가져온 기준 <b>‘'+CRITERIA.fast+'’</b>로<br>연구원 세 명이 동물을 나눴어.</p></div>')+(activityUnlocked(s,'sort-criteria')?conceptButton('sort-criteria','정리 영상 보기'):'')+'</section><section class="verify-steps"><div class="verify-step '+(x.ran?'done':'')+'"><h3><span>1</span>기준 검증하기</h3>'+btn(x.ran?'검증 완료 ✓':'검증 실행','verify-run',x.ran?'quiet':'primary')+'</div>'
-   +(x.ran?'<div class="verify-step '+(x.cause==='opinion'?'done ':'')+miss(v,'verify:cause')+'"><h3><span>2</span>왜 결과가 달라졌을까?</h3><div class="choices">'+CAUSES.map(([value,label])=>choice(label,'verify-cause',value,x.cause===value)).join('')+'</div></div>':'')
-   +(x.cause==='opinion'?'<div class="verify-step '+miss(v,'verify:fix')+'"><h3><span>3</span>기준 고치기</h3><div class="criteria-chips">'+[...OBSERVABLE.slice(0,3),'cute','scary',...OBSERVABLE.slice(3)].map(k=>choice(CRITERIA[k],'verify-fix',k,x.fix===k)).join('')+'</div>'+'</div>':'')+'</section></div>';}
+   +(x.ran?'<div class="verify-step '+(x.cause==='opinion'?'done ':'')+miss(v,'verify:cause')+'"><h3><span>2</span>왜 결과가 달라졌을까?</h3><div class="choices">'+shuffled('verify-cause',CAUSES).map(([value,label])=>choice(label,'verify-cause',value,x.cause===value)).join('')+'</div></div>':'')
+   +(x.cause==='opinion'?'<div class="verify-step '+miss(v,'verify:fix')+'"><h3><span>3</span>기준 고치기</h3><div class="criteria-chips">'+shuffled('verify-fix',[...OBSERVABLE.slice(0,3),'cute','scary',...OBSERVABLE.slice(3)]).map(k=>choice(CRITERIA[k],'verify-fix',k,x.fix===k)).join('')+'</div>'+'</div>':'')+'</section></div>';}
 function sortView(s,v){const r=v.round,own=s.criteria[1];
   if(v.step===0)return `<div class="sorting-workspace">${sortGrid(s,v,0,'wings')}</div>`;
   if(v.step===1)return verifyLab(s,v);

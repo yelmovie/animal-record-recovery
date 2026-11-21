@@ -10,7 +10,7 @@ import {conceptView,createConceptPlayer} from './concept-video.js';
 import {replayItem,replayUnlocked,LAB_CONCEPT} from './concepts.js';
 import {normalizeExperiment,normalizeMotionPhoto,workshopDesignNext,frameAt,MOTIONS,MOTION_KEY_FRAME} from './inquiry.js';
 import {motionPhotoResult,motionGuide,motionDiagram,motionCaption,anatomy} from './inquiry-views.js';
-import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption} from './expedition.js';
+import {LINKS,linkAnimal,STAGES,ANIMALS,DOME_ZONES,SORT_ANIMALS,CRITERIA,OWN_CRITERIA,OBSERVABLE,OBSERVATIONS,OBSERVE_PAIRS,OBSERVE_REQUIRED,nextObservation,forestAnswerCount,COMPARES,SCAN_3D,HABITATS,DISCOVERIES,CASES,CLUE_ENERGY,FEATURES,STRUCTURES,PROBLEMS,PRODUCTS,STORAGE_KEY,freshExpedition,restoreExpedition,isStageOpen,expeditionResume,countStage,claimTask,taskReady,taskHint,taskMistake,testDesign,reportDesigns,selectDesignProblem,motionOpen,discoveryCaption,domeCaption,noteTry} from './expedition.js';
 import {art,mori,icon,btn,esc,withParticle,toolArt,workshopArrow} from './presentation.js';
 import {header,page,questPanel,mapTip,settingsContent,notebookContent,toolContent,commissionLetter,investigationNext,hasSound} from './shell-views.js';
 import {mountNpcVoice,npcDialogue} from './npc-dialogue.js';
@@ -27,6 +27,7 @@ import {COMMISSIONS,ensureCampaign,campaignDraft,requestDraft,pairedOptions,camp
 
 export function openFromLanding(action){
 const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),navigation=createNavigation();
+const pageHistory=globalThis.history;let browserDepth=pageHistory?.state?.appDepth||0,fromBrowser=false;// browser entries this app added (see popstate below)
 const recordStore=createRecordStorage({getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
 const loadedRecord=recordStore.read();
 let s=loadedRecord.state||freshExpedition(),storageOK=['ok','empty'].includes(loadedRecord.status);
@@ -185,7 +186,7 @@ function render(){
   storyPlayer?.destroy();storyPlayer=null;
   stopMotionFrame();
   motionPlayer?.destroy();motionPlayer=null;
-  navigation.visit({screen,stage:['mission','reward','commission'].includes(screen)?stage:null,step:screen==='mission'?step:null,commissionIndex:screen==='commission'?commissionIndex:null});
+  visitRoute(routeNow());
   const active=document.activeElement,data=active?.dataset?.action?{...active.dataset}:null;
   mapRender++;map?.destroy();map=null;mapFailed=false;mapModuleFailed=false;
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
@@ -356,7 +357,8 @@ let retried=false;
 function dropCard(action,dataset){picked=null;retried=false;act(action,{dataset});if(!retried)playSound(s.soundEnabled,'drop');}
 function say(text,good=false,wrong=[]){if(!good){retried=true;playSound(s.soundEnabled,'retry');}feedback={text,good,wrong};render();document.querySelector('#announcer').textContent=text;}
 function resetNpcDialogue(){if(!clearNpcVoice)return;clearNpcVoice();clearNpcVoice=null;dialog.classList.remove('npc-scene-dialog');}
-function modal(title,content,{showClose=true}={}){if(screen==='map'){map?.stop?.();cancelMapWalk();}unmountBroadcast?.stop?.();cancelCompletion();clearActivityProgress();resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
+function modal(title,content,{showClose=true}={}){if(screen==='map'){map?.stop?.();cancelMapWalk();}unmountBroadcast?.stop?.();cancelCompletion();clearActivityProgress();resetNpcDialogue();conceptPlayer?.destroy();conceptPlayer=null;stopMotion();map?.pause?.();if(!dialog.open&&screen==='home'&&browserDepth===0&&pageHistory){browserDepth=1;pageHistory.pushState({...pageHistory.state,appDepth:1},'');}// on home a window gets its own entry, so back closes it before leaving
+  dialog.innerHTML=`<header class="dialog-heading"><h2 id="dialog-title">${title}</h2>${showClose?btn(icon('close'),'close-dialog','icon-btn quiet','aria-label="닫기"'):''}</header>${content}`;if(!dialog.open)dialog.showModal();dialog.querySelector?.('[autofocus]')?.focus();}
 function start(){
   const where=expeditionResume(s);
   if(where==='mission'){enter(s.stage);return;}
@@ -577,6 +579,7 @@ function progressRequest(){
   if(screen!=='commission')return;
   const cards=requestCards(s,stage,requestParts(stage,commissionIndex)),card=cards[requestCard];
   if(!card)return;
+  {const draft=requestDraft(s,stage,card.part);for(const row of card.rows)if(draft.answers[row.key])noteTry(s,`row:${stage}:${card.part}:${row.key}`,draft.answers[row.key]===row.answer);save();}
   if(!cardReady(s,stage,card)){
     const draft=requestDraft(s,stage,card.part);
     const wrong=card.rows.find(row=>draft.answers[row.key]&&draft.answers[row.key]!==row.answer);
@@ -595,9 +598,9 @@ function progressRequest(){
   });
 }
 function previous(){repairingWorkshop=false;labSummary=false;stopMotion();if(step===0){go('map');return;}step-=stage===5&&step===2?2:1;focusForestObservation();report=null;zoom=false;sketching=false;feedback=null;render();window.scrollTo({top:0,behavior:'instant'});}
-function back(){labSummary=false;stopMotion();
-  let route=navigation.back();while(route&&((route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
-  if(!route)return;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});
+function back({skipStory=false}={}){labSummary=false;stopMotion();
+  let route=navigation.back();while(route&&((skipStory&&['intro','outro'].includes(route.screen))||(route.screen==='mission'&&!isStageOpen(s,route.stage))||(route.screen==='reward'&&!restoredPlaces(s).includes(route.stage))||(route.screen==='commission'&&!campaignOpen(s,route.stage,route.commissionIndex))||(route.screen==='ending'&&restoredPlaces(s).length!==5)))route=navigation.back();
+  if(!route)return false;screen=route.screen;if(route.stage)stage=route.stage;if(screen==='mission'){step=route.step;focusForestObservation();}if(screen==='commission'){commissionIndex=route.commissionIndex;requestCard=null;}feedback=null;report=null;render();window.scrollTo({top:0,behavior:'instant'});return true;
 }
 function settings(){modal('설정',settingsContent(s),{showClose:false});}
 // Silent clip with DOM captions; the village music stops while it is open and returns when the dialog closes.
@@ -807,7 +810,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'broadcast-next':if(screen==='commission'){const card=requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard];if(card?.kind==='broadcast'&&cardReady(s,stage,card)){heardBroadcasts.add(broadcastKey(card));feedback=null;progressRequest();}}break;
     case 'advance':advance();break;
     case 'previous':previous();break;
-    case 'nav-back':back();break;
+    case 'nav-back':if(browserDepth>0&&pageHistory)pageHistory.back();else back();break;
     case 'inspect':{
       if(id){if(!OBSERVE_PAIRS[round()]?.includes(id))return;s.activeAnimal=id;zoom=false;}
       focusIndex=Math.max(0,Math.min(2,Number(value)||0));if(relook&&OBSERVATIONS[s.activeAnimal]?.[focusIndex]?.id===relook)relook=null;feedback=null;render();break;
@@ -828,6 +831,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
       if(!question||answers[key]===`${key}-${question.answer}`)return;
       const option=question.options.find(([candidate])=>value===`${key}-${candidate}`);
       if(!option)return;
+      noteTry(s,`compare:${round()}:${key}`,value===`${key}-${question.answer}`);
       answers[key]=value;
       if(value!==`${key}-${question.answer}`)return say(option[2]||'두 동물의 모습을 다시 살펴봐.',false,['compare:'+key]);
       playSound(s.soundEnabled,'correct');feedback={good:true,text:option[1],answeredCompare:key};render();
@@ -862,7 +866,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'case-reset':Object.assign(s.cases[round()],{opened:[],grounds:[],candidate:'',excluded:{}});clueIndex=0;feedback=null;render();break;
     // Spent energy stays spent even when the answer changes (screen 08); 'case-reset' starts a fresh investigation.
     case 'clue-spend':{const c=CASES[round()],a=s.cases[round()],k=c.clues[Number(value)];if(!k||a.opened.includes(k.id))break;if(a.opened.length>=CLUE_ENERGY)return say('조사 에너지를 다 썼어. 연 단서로 판단하거나 ‘다시 조사’를 눌러 봐.');a.opened.push(k.id);feedback=null;save();render();break;}
-    case 'case-habitat':{const a=s.cases[round()],c=CASES[round()];if(!Object.hasOwn(HABITATS,value))break;a.habitat=value;save();if(value!==c.habitat){say('사진 속 풍경과 비교해서 사는 곳을 다시 골라 봐.',false,['case:habitat']);break;}feedback=null;render();progressAnswer(!!a.reason);break;}
+    case 'case-habitat':{const a=s.cases[round()],c=CASES[round()];if(!Object.hasOwn(HABITATS,value))break;noteTry(s,`habitat:${round()}`,value===c.habitat);a.habitat=value;save();if(value!==c.habitat){say('사진 속 풍경과 비교해서 사는 곳을 다시 골라 봐.',false,['case:habitat']);break;}feedback=null;render();progressAnswer(!!a.reason);break;}
     case 'case-reason':{const a=s.cases[round()],c=CASES[round()];if(a.habitat!==c.habitat||!c.reasons.some(([id])=>id===value))break;a.reason=value;save();feedback=null;render();progressAnswer(true);break;}
     case 'design-problem':{const prior=s.designs[round()].problem;if(!selectDesignProblem(s,round(),value))break;report=null;feedback={good:true,text:`${PROBLEMS[prior]?.product||'이전 초안'} 기록은 그대로 보관했어. ${PROBLEMS[value].product} 초안을 이어서 만들어 봐.`};render();break;}
     case 'source-seen':s.designs[round()].experiment.sourceSeen=true;feedback={good:true,text:'이 특징을 물건의 어느 부분에 쓸까?'};render();break;
@@ -875,7 +879,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'verify-run':s.inquiry.verify[0].ran=true;panelPages.set(panelKey('.verify-steps'),1);feedback=null;render();break;
     case 'verify-cause':s.inquiry.verify[0].cause=value;if(value==='opinion')panelPages.set(panelKey('.verify-steps'),2);feedback=null;render();if(value!=='opinion')progressAnswer(true);break;
     case 'verify-fix':s.inquiry.verify[0].fix=value;act('verify-recheck',{dataset:{}});break;
-    case 'verify-recheck':{const x=s.inquiry.verify[0];if(!x.fix)break;x.checked=x.fix;feedback=null;render();if(!OBSERVABLE.includes(x.fix))say(`‘${CRITERIA[x.fix]}’로도 결과가 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`);else progressAnswer(true);break;}
+    case 'verify-recheck':{const x=s.inquiry.verify[0];if(!x.fix)break;noteTry(s,'verify:fix',OBSERVABLE.includes(x.fix));x.checked=x.fix;feedback=null;render();if(!OBSERVABLE.includes(x.fix))say(`‘${CRITERIA[x.fix]}’로도 결과가 달라. 몸에서 확인할 수 있는 기준을 골라 봐.`);else progressAnswer(true);break;}
     case 'verify-own':if(OWN_CRITERIA.includes(s.criteria[1]))s.inquiry.verify[1].checked=s.criteria[1];feedback=null;render();break;
     case 'sort-predict':s.inquiry.reclass[round()].prediction=value;s.inquiry.reclass[round()].revealed=false;render();break;
     case 'sort-reveal':{const before=groupRects();if(s.inquiry.reclass[round()].prediction)s.inquiry.reclass[round()].revealed=true;render();flipGroups(before);break;}
@@ -994,12 +998,28 @@ if(typeof window.addEventListener==='function'){const resize=()=>document.docume
   // The on-screen keyboard shrinks the visual viewport: bring the field being typed in back to the middle once it has opened.
   const keepField=()=>{const el=document.activeElement;if(el?.matches?.('textarea,input[type=text],input:not([type])'))setTimeout(()=>el.scrollIntoView?.({block:'center',behavior:'smooth'}),250);};
   document.addEventListener('focusin',keepField);window.visualViewport?.addEventListener('resize',keepField);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearActivityProgress();stopMotion(false);storyPlayer?.pause();silence();}else resumeActivityProgress();});}
+// Browser back (2026-11-21): every page move adds a browser entry, and the back button walks the in-app history
+// (activity → map → home) instead of leaving the app; an open window closes first. From home it leaves as usual.
+// Records are untouched: this only changes which page is shown.
+function routeNow(){return {screen,stage:['mission','reward','commission'].includes(screen)?stage:null,step:screen==='mission'?step:null,commissionIndex:screen==='commission'?commissionIndex:null};}
+function visitRoute(route){if(navigation.visit(route)&&!fromBrowser&&pageHistory){browserDepth++;pageHistory.pushState({...pageHistory.state,appDepth:browserDepth},'');}}
+if(pageHistory&&typeof window.addEventListener==='function')window.addEventListener('popstate',event=>{
+  const to=event.state?.appDepth||0;
+  if(to>browserDepth){browserDepth=to;return;}// forward: keep the page as it is
+  browserDepth=to;fromBrowser=true;
+  try{
+    if(dialog.open){dialog.close();if(screen!=='home'){browserDepth++;pageHistory.pushState({...pageHistory.state,appDepth:browserDepth},'');}return;}
+    if(!back({skipStory:true})&&screen!=='home'){go(screen==='map'?'home':'map');navigation.reset(routeNow());}
+    // Back on home: drop any entries left over (after a reload or a reset) so the next back leaves the page.
+    if(screen==='home'&&browserDepth>0){navigation.reset(routeNow());const d=browserDepth;browserDepth=0;pageHistory.go(-d);}
+  }finally{fromBrowser=false;}
+});
 enableDrag(app,(card,zone)=>{if(card.commissionIndex!==zone.commissionIndex)return;const {action,dataset}=dropData(card,zone);if(zone.commissionIndex!==undefined)dataset.commissionIndex=zone.commissionIndex;dropCard(action,dataset);});
 if(action==='intro-finished'||action==='map'){
- navigation.visit({screen:'home',stage:null,step:null,commissionIndex:null});
- if(action==='intro-finished'){s.introSeen=true;navigation.visit({screen:'intro',stage:null,step:null,commissionIndex:null});}
+ visitRoute({screen:'home',stage:null,step:null,commissionIndex:null});
+ if(action==='intro-finished'){s.introSeen=true;visitRoute({screen:'intro',stage:null,step:null,commissionIndex:null});}
  go('map');
 }
-else if(action==='resume'){navigation.visit({screen:'home',stage:null,step:null,commissionIndex:null});start();}
+else if(action==='resume'){visitRoute({screen:'home',stage:null,step:null,commissionIndex:null});start();}
 else{render();if(action==='settings')settings();}
 }
