@@ -16,7 +16,7 @@ test('a persisted teacher unlock is discarded on reload while learning records s
 
 test('settings follow the shared order: sound, why-replay, info, student, teacher, notices, footer',()=>{
   const h=html(),at=t=>{const i=h.indexOf(t);assert.ok(i>=0,t);return i;};
-  const order=['배경 음악','효과음','배경 음악 크기',SETTINGS_TEXT.replayIntro,'앱 정보 · 배움과 보상','학생용 가이드','교사용 가이드','이미지·소리·저작권 고지','settings-footer'].map(at);
+  const order=['배경 음악','배경 음악 크기','효과음',SETTINGS_TEXT.replayIntro,'앱 정보 · 배움과 보상','학생용 가이드','교사용 가이드','이미지·소리·저작권 고지','settings-footer'].map(at);
   assert.deepEqual(order,[...order].sort((a,b)=>a-b));
   assert.doesNotMatch(h,/data-action="concept-open"|concept-replays|<video/);
   assert.match(h,/data-action="reset-confirm"[\s\S]*data-action="close-dialog"/);
@@ -52,9 +52,9 @@ test('effect volume restores zero, defaults older saves, rejects invalid values,
  assert.doesNotMatch(html(),/기록 저장 · 공용 기기 안내|기록 백업/);
 });
 
-test('settings list five sound rows: music and effects switches, their volumes, then the voice switch',()=>{
+test('settings list five sound rows in the shared order: music, its volume, effects, its volume, voice (2026-11-22)',()=>{
  const s=freshExpedition(),h=html(s);
- const order=['music-toggle','"sound"','id="music-volume"','id="sound-volume"','voice-toggle'].map(k=>h.indexOf(k));
+ const order=['music-toggle','id="music-volume"','"sound"','id="sound-volume"','voice-toggle'].map(k=>h.indexOf(k));
  assert.ok(order.every((v,i)=>v>=0&&(i===0||v>order[i-1])),String(order));
  assert.match(h,/data-action="voice-toggle"[^>]*role="switch" aria-label="목소리" aria-checked="true"/);
  s.voiceOn=false;assert.match(html(s),/data-action="voice-toggle"[^>]*aria-checked="false"/);
