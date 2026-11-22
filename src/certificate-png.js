@@ -16,13 +16,19 @@ function drawText(ctx, node, box, s) {
   if (cs.visibility === 'hidden' || cs.display === 'none') return;
   ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${parseFloat(cs.fontSize) * s}px ${cs.fontFamily}`;
   ctx.fillStyle = cs.color; ctx.textBaseline = 'middle';
+  const outline = parseFloat(cs.getPropertyValue('-webkit-text-stroke-width')) || 0;
+  if (outline) { ctx.lineWidth = outline * s; ctx.strokeStyle = cs.getPropertyValue('-webkit-text-stroke-color') || cs.color; }
   if ('letterSpacing' in ctx) ctx.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : `${parseFloat(cs.letterSpacing) * s}px`;
   const text = node.textContent, range = document.createRange();
   // 낱말마다 화면의 줄 상자를 읽어 같은 자리에 쓴다(줄바꿈·가운데 정렬이 화면과 같아진다).
   for (const m of text.matchAll(/\S+/g)) {
     range.setStart(node, m.index); range.setEnd(node, m.index + m[0].length);
     const r = [...range.getClientRects()].find(x => x.width > 0);
-    if (r) ctx.fillText(m[0], (r.left - box.left) * s, (r.top - box.top + r.height / 2) * s);
+    if (r) {
+      const x = (r.left - box.left) * s, y = (r.top - box.top + r.height / 2) * s;
+      if (outline) ctx.strokeText(m[0], x, y);
+      ctx.fillText(m[0], x, y);
+    }
   }
 }
 
