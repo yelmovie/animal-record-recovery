@@ -5,14 +5,13 @@ html body #app#app #main#main.ending .cert-paper{position:relative;display:block
 #app #main.ending .cert-paper .cert-content{position:absolute;inset:0;color:#1f4b36;text-align:center;font-family:inherit}
 #app #main.ending .cert-paper .cert-content p,#app #main.ending .cert-paper .cert-content h1,#app #main.ending .cert-paper .cert-content small{margin:0;line-height:1.45}
 #app #main.ending .cert-paper .cert-world{position:absolute;top:11%;left:15%;width:70%;font-size:1.45cqw!important;font-weight:800;letter-spacing:.22em;color:#456d51}
-#app #main.ending .cert-paper .cert-title{position:absolute;top:17%;left:12%;width:76%;font-size:4.8cqw!important;font-weight:900;letter-spacing:-.035em;color:#174c37}
+#app #main.ending .cert-paper .cert-title{position:absolute;top:17%;left:12%;width:76%;font-size:4.8cqw!important;font-weight:900;-webkit-text-stroke:.02em currentColor;paint-order:stroke fill;letter-spacing:-.035em;color:#174c37}
 #app #main.ending .cert-paper .cert-recipient{position:absolute;inset:29% 15% auto;font-size:1.8cqw;font-weight:700}
 #app #main.ending .cert-paper .cert-recipient-top,#app #main.ending .cert-paper .cert-recipient-name{display:flex;align-items:flex-end;justify-content:center;gap:.65cqw;white-space:nowrap}
 #app #main.ending .cert-paper .cert-blank{display:inline-block;box-sizing:border-box;height:3.8cqw;border-bottom:1px solid #42634c;flex-shrink:0}
 #app #main.ending .cert-paper .cert-school{width:20cqw}#app #main.ending .cert-paper .cert-short{width:5.3cqw}#app #main.ending .cert-paper .cert-name{width:22cqw}
 #app #main.ending .cert-paper .cert-recipient-name{margin-top:.9cqw;font-size:2.2cqw}
 #app #main.ending .cert-paper .cert-award{position:absolute;top:49%;left:13%;width:74%;font-size:1.85cqw!important;line-height:1.55!important;word-break:keep-all}
-#app #main.ending .cert-paper .cert-summary{position:absolute;top:65%;left:12%;width:76%;font-size:1.55cqw!important;font-weight:700;color:#366146}
 #app #main.ending .cert-paper .first-try-note{font-size:inherit!important}
 #app #main.ending .cert-paper .cert-bottom{position:absolute;top:70%;left:20%;right:20%;height:13%;display:flex;align-items:center;justify-content:space-between;gap:2cqw}
 #app #main.ending .cert-paper .cert-date,#app #main.ending .cert-paper .cert-issuer{font-size:1.25cqw!important;flex:1;line-height:1.8!important;color:#44624c}

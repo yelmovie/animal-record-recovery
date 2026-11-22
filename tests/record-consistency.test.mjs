@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {campaignFixture} from './fixtures/campaign-state.mjs';
 import {restoreExpedition,collectedAnimals} from '../src/expedition.js';
-import {campaignDraft,missionRows,chooseCommission,claimCommission,RETEST,runCommissionTrial} from '../src/campaign.js';
+import {campaignDraft,missionRows,chooseCommission,claimCommission,requestCount,RETEST,runCommissionTrial} from '../src/campaign.js';
 import {questPanel,toolContent,page} from '../src/shell-views.js';
 import {createStudio} from '../src/studio.js';
 
@@ -43,9 +43,10 @@ test('met animals count what completed records confirmed, not wrong options or u
  assert.deepEqual(collectedAnimals(restoreExpedition(JSON.stringify(s))),met);
 });
 
-test('ending counts resident letters, not internal mission keys',()=>{
+test('certificate omits progress totals while resident letter counts stay accurate',()=>{
  const s=finishAll(campaignFixture());const shown=text(page(s,{screen:'ending'}));
- assert.match(shown,/주민 부탁 5통/);assert.doesNotMatch(shown,/전시물 10개/);
+ assert.equal(requestCount(s),5);assert.match(shown,/동물의 특징과 사는 환경을 관찰·분류/);
+ assert.doesNotMatch(shown,/주민 부탁 \d+통|전시물 \d+개|\d+\s*\/\s*\d+/);
 });
 
 test('workshop names the single missing step in order: feature and part placement',async()=>{
