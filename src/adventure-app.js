@@ -169,6 +169,8 @@ const VOICE_VOLUME=.8,voiceOn=()=>s.voiceOn!==false,voiceVolume=()=>VOICE_VOLUME
 function stopVoices(){stopLine();unmountBroadcast?.stop?.();for(const el of document.querySelectorAll('audio'))el.pause?.();}
 function render(){
   clearActivityProgress();
+  // The certificate date is kept once, the first time all five places are back (not in the teacher preview).
+  if(!s.finishedOn&&!studentSnapshot&&restoredPlaces(s).length===5){const now=new Date();s.finishedOn=new Date(now-now.getTimezoneOffset()*6e4).toISOString().slice(0,10);save();}
   unmountBroadcast?.();unmountBroadcast=null;
   unmountFlashlight?.();unmountFlashlight=null;
   unmountStudio?.();unmountStudio=null;
@@ -934,6 +936,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,voiceOn:s.voiceOn,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
+    case 'print-certificate':if(typeof window.print==='function')window.print();break;
     case 'dome-look':if(DOME_ZONES[el.dataset.id]){stopMotion();looked.add(el.dataset.id);activeHabitat=el.dataset.id;feedback=null;render();}break;
     case 'map-retry':
       if(screen!=='map'||!mapFailed)break;

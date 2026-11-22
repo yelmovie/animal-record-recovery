@@ -40,3 +40,9 @@ test('navigation reports when a page went onto the history, and reset can keep t
   assert.equal(nav.visit(home),false);assert.equal(nav.visit(map),true);assert.equal(nav.visit(map),false);
   nav.reset(map);assert.equal(nav.canGoBack,false);assert.equal(nav.visit(map),false);assert.equal(nav.visit(home),true);
 });
+
+test('the certificate day survives a reload and anything that is not a date is dropped (2026-11-22)',()=>{
+  const s=freshExpedition();assert.equal(s.finishedOn,'');
+  assert.equal(restoreExpedition(JSON.stringify({...s,finishedOn:'2026-11-22'})).finishedOn,'2026-11-22');
+  assert.equal(restoreExpedition(JSON.stringify({...s,finishedOn:'어제'})).finishedOn,'');
+});

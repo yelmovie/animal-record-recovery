@@ -666,7 +666,7 @@
 #app #main .studio-shape-tools p { font-size: 18px !important; line-height: 1.45; }
 #app :is(button, [role="button"], summary), dialog :is(button,summary) { min-height: 44px; min-width: 44px; }
 #app input[type="range"], dialog input[type="range"] { min-height: 44px; }
-@media (min-width: 1400px) { #app #main.ending .ending-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* 2026-11-22: one equal column per button (the print button made six), as in the base rule. */
 @media (orientation: portrait) and (max-width: 900px) {
   #app #main.ending { height: auto !important; min-height: var(--app-height,100dvh); grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto auto !important; overflow: visible; }
   #app #main.ending :is(.ending-banner,.final-record,.ending-actions) { grid-area: auto; height: auto; overflow: visible; }

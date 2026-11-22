@@ -177,7 +177,7 @@ export const designTrials=d=>(d?.trials||[]).filter(t=>t.problem===d.problem);
 export const revisions=d=>designTrials(d).filter(t=>!t.passed).length;
 const blankCase=()=>({opened:[],grounds:[],candidate:'',excluded:{},habitat:'',reason:''});
 const blankDesign=()=>({problem:'',feature:'',structure:'',spot:'',name:'',strokes:[],trials:[],explanation:'',experiment:normalizeExperiment()});
-export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,voiceOn:true,musicOn:true,musicVolume:.4,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],firstTries:{},observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
+export function freshExpedition(){return {version:VERSION,mapVillains:normalizeMapVillains(null),mapEncounters:{},inquiry:normalizeInquiry(),soundEnabled:true,soundVolume:.8,voiceOn:true,musicOn:true,musicVolume:.4,adminUnlocked:false,showAutoRun:false,introSeen:false,stage:1,step:{},activities:[],completed:[],observed:[],firstTries:{},finishedOn:'',observeTries:{},ahaPicks:{},activeAnimal:'frog',compares:[{},{},{},{}],sorts:[{},{}],criteria:['',''],discovered:[],links:{frog:{},crab:{}},cases:[blankCase(),blankCase(),blankCase()],designs:[blankDesign(),blankDesign()],studio:null,studioRecord:null,designDrafts:[{},{}],designArchive:[{},{}],records:{cases:[null,null,null],designs:[null,null]},toolUses:[],mapPosition:'entrance',legacy:null,relay:freshRelay()};}
 const uniqueStrings=(v,allowed)=>Array.isArray(v)?[...new Set(v.filter(x=>typeof x==='string'&&allowed.includes(x)))]:[];
 const record=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const safeChoice=(v,allowed,fallback='')=>typeof v==='string'&&allowed.includes(v)?v:fallback;
@@ -233,6 +233,8 @@ export function restoreExpedition(raw,{strict=false}={}){
     out.step=Object.fromEntries(Object.entries({...record(input.step),...stageThree}).filter(([k,v])=>/^[1-5]$/.test(k)&&Number.isInteger(v)&&v>=0&&v<STAGES[Number(k)-1].tasks.length));
     out.observed=uniqueStrings(input.observed,Object.values(OBSERVATIONS).flat().map(o=>o.id));
     // first = right on the first choice, helped = right after a wrong choice. Saves from before this field stay unknown.
+    // Day all five places were first restored (2026-11-22), shown on the certificate; older saves have none.
+    out.finishedOn=/^\d{4}-\d{2}-\d{2}$/.test(input.finishedOn)?input.finishedOn:'';
     out.observeTries=Object.fromEntries(Object.entries(record(input.observeTries)).filter(([id,v])=>Object.values(OBSERVATIONS).flat().some(o=>o.id===id)&&['first','helped'].includes(v)));
     // First pick on the other instant-check questions (A8, 2026-11-21), same values as observeTries. Saves from before have none.
     out.firstTries=Object.fromEntries(Object.entries(record(input.firstTries)).filter(([k,v])=>/^[a-z]+(:[A-Za-z0-9_-]{1,24}){1,3}$/.test(k)&&['first','helped'].includes(v)).slice(0,400));
