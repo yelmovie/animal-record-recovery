@@ -88,7 +88,7 @@ test('the village overview unlocks only after all five places are restored, incl
  assert.equal(a.run('s.completed.length'),5);assert.equal(a.run('restoredPlaces(s).length'),1);assert.equal(a.run('mapOverview'),false);
  a.run('s.campaign=freshCampaign([1,2,3,4]);go("map")');assert.equal(a.run('mapOverview'),false);
  a.run('s.campaign=freshCampaign([1,2,3,4,5]);stage=5;go("reward")');
- assert.match(a.app.innerHTML,/data-action="story-outro"[^>]*>전시관 문 열기 영상 보기/,'the last restoration leads straight to the finale video');assert.match(a.app.innerHTML,/data-action="map"[^>]*>복구된 마을 먼저 보기/);
+ assert.match(a.app.innerHTML,/data-action="story-outro"[^>]*>전시관 문 열기 영상 보기/,'revisiting the last reward still offers the finale video');assert.match(a.app.innerHTML,/data-action="map"[^>]*>복구된 마을 먼저 보기/);
  a.run('act("map",{dataset:{}})');assert.equal(a.run('screen'),'map');assert.equal(a.run('mapOverview'),true);assert.match(a.app.innerHTML,/중앙 코어 점등/);
  assert.doesNotMatch(a.app.innerHTML,/class="map-direction"/);
  a.run('act("story-outro",{dataset:{}});finishStory()');assert.equal(a.run('screen'),'gallery');
@@ -364,7 +364,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
   assert.equal(a.run('screen'),'commission',`request ${stage} leads into its last challenge`);assert.equal(a.run('commissionIndex'),2);
   a.run(`for(const r of missionRows(s,${stage},2,campaignDraft(s,${stage},2)))act('commission-choice',{dataset:{key:r.key,value:String(r.answer),commissionIndex:'2'}});`);
   tapTwice('submitCommission()');
-  assert.equal(a.run('screen'),'reward',`request ${stage}`);assert.ok(a.run(`restoredPlaces(s).includes(${stage})`));};
+  assert.equal(a.run('screen'),stage===5?'outro':'reward',`request ${stage}`);assert.ok(a.run(`restoredPlaces(s).includes(${stage})`));};
  a.run('s.introSeen=true;enter(1)');
  for(const r of [0,1,2,3]){
   for(const id of model.OBSERVE_PAIRS[r]){act('observe',{id:model.OBSERVE_REQUIRED[id],value:'right'});a.run('continueForest()');}
@@ -405,6 +405,7 @@ test('a fresh learner reaches the certificate with the actions the buttons send;
  a.run('s.studio={...s.studio,title:"날개 우산",strokes:[{color:"#294b3e",width:10,points:[{x:10,y:20},{x:400,y:300}]}]};advance()');
  a.run('s.studio.audience="비 오는 날 걷는 친구";s.studio.purpose="날개처럼 넓게 덮어 줘";s.studio.inspiration="오리 날개";advance()');
  assert.equal(activityCount(),25);assert.match(a.dialog.innerHTML,/부탁 완료!/);act('close-dialog');assert.equal(a.dialog.open,false);finishRequest(5);
+ assert.equal(a.dialog.open,false,'the last place goes straight into the finale film');a.run('finishStory()');assert.equal(a.run('screen'),'gallery');
  const saved=model.restoreExpedition(a.saved);assert.equal(saved.activities.length,25);assert.equal(Object.keys(saved.campaign.records).length,14,'the repeated garden challenge is optional');
  assert.deepEqual(campaign.restoredPlaces(saved),[1,2,3,4,5]);assert.equal(saved.studioRecord.title,'날개 우산');
  act('ending');assert.equal(a.run('screen'),'ending');assert.match(a.app.innerHTML,/동물 탐험대 연구원 인증서/);assert.doesNotMatch(a.app.innerHTML,/탐험 별/);
@@ -590,6 +591,9 @@ test('completion opens the compact NPC dialogue, stays on the reward screen, the
   const after=a.run('screen');a.flushTimers();assert.equal(a.run('screen'),after);
  }
  const a=appHarness({clock:true});a.run('s='+JSON.stringify(campaignFixture())+';stage=1;completeStage();go("home")');a.flushTimers();assert.equal(a.run('screen'),'home');
+ const last=appHarness({clock:true});last.run('s='+JSON.stringify(campaignFixture())+';s.campaign=freshCampaign([1,2,3,4,5]);stage=5;completeStage(false,true)');
+ assert.equal(last.run('screen'),'outro','the first completion of the last place plays the finale film with no reward screen or button');assert.equal(last.dialog.open,false);
+ last.flushTimers();assert.equal(last.run('screen'),'outro');last.run('finishStory()');assert.equal(last.run('screen'),'gallery');
 });
 
 test('teacher demo button is hidden by default and its setting survives reload',()=>{

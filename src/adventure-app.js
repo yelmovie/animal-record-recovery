@@ -560,7 +560,9 @@ function finishCompletion(){
   cancelCompletion();dialog.close();resetNpcDialogue();
   const next=app.querySelector?.('.reward-actions>.primary');next?.classList?.add('action-cue');next?.focus?.({preventScroll:true});
 }
-function completeStage(fresh=false){
+// The first time the fifth place is completed, the finale film plays straight away (no reward screen or button in between); it then leads to the gallery as before.
+function completeStage(fresh=false,finale=false){
+  if(finale&&stage===5&&restoredPlaces(s).length===5){pendingRestoration=null;openStory('outro');return;}
   if(fresh)pendingRestoration=stage;
   go('reward');
   const c=COMMISSIONS[stage-1],npc={id:c.portrait,name:c.npc,near:String(stage),after:c.thanks};
@@ -733,14 +735,14 @@ function submitCommission(){
     const result=claimRequest(s,stage);
     if(!result.ok)return showGap();
     if(result.fresh&&result.restored)pendingRestoration=stage;save();
-    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return requestFinished();completeStage();return;
+    playSound(s.soundEnabled,result.fresh?'stamp':'correct');if(challengeLeft())return requestFinished();completeStage(false,result.fresh);return;
   }
   const result=claimCommission(s,stage,commissionIndex);
   if(!result.ok)return showGap();
   save();
   playSound(s.soundEnabled,result.fresh?'stamp':'correct');
   if(commissionIndex===1&&challengeLeft())return requestFinished();
-  if(commissionIndex>=1){completeStage();return;}
+  if(commissionIndex>=1){completeStage(false,result.fresh);return;}
   say(commissionIndex===2?'도전 도장을 받았어! 네 전시관에도 남겨 뒀어.':'첫 기록을 받았어! 이제 다른 상황에도 적용해 보자.',true);
 }
 // Flips the observation notebook in place so the page-turn animation is not lost to a re-render.
