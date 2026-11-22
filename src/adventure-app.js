@@ -1,3 +1,4 @@
+import {saveCertificatePng} from './certificate-png.js';
 import {mountBroadcastAudio} from './broadcast-audio.js';
 import {researchDiaryView} from './research-report.js';
 import {createRecordStorage,storageMessage} from './record-storage.js';
@@ -938,6 +939,7 @@ function act(action,el){const id=el.dataset.id,value=el.dataset.value,key=el.dat
     case 'reset':{const next=Object.assign(freshExpedition(),{soundEnabled:s.soundEnabled,soundVolume:s.soundVolume,voiceOn:s.voiceOn,musicOn:s.musicOn,musicVolume:s.musicVolume});ensureCampaign(next);if(!studentSnapshot&&!recordStore.write(next,{replace:true})){storageHelp();break;}stopMotion();focusIndex=0;clueIndex=0;s=next;if(studentSnapshot)s.adminUnlocked=true;commissionIndex=0;evidenceOpen=false;navigation.reset();stage=1;step=0;selectedStage=1;activeHabitat='forest';zoom=false;sketching=false;stroke=null;dialog.close();go('home');break;}
     case 'ending':if(s.adminUnlocked||restoredPlaces(s).length===5)go('ending');break;
     case 'download':download();break;
+    case 'certificate-png':{const paper=app.querySelector('.cert-paper');if(paper)saveCertificatePng(paper).catch(()=>{document.querySelector('#announcer').textContent='인증서를 저장하지 못했어. 다시 눌러 줘.';});break;}
     case 'print-certificate':if(typeof window.print==='function')window.print();break;
     case 'dome-look':if(DOME_ZONES[el.dataset.id]){stopMotion();looked.add(el.dataset.id);activeHabitat=el.dataset.id;feedback=null;render();}break;
     case 'map-retry':

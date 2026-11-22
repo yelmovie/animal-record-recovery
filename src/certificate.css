@@ -1,0 +1,37 @@
+/* A4 landscape award: handwriting spaces stay blank on screen, print and PNG. */
+html body #app#app #main#main.ending.certificate-view{display:flex!important;flex-direction:column!important;align-items:center;justify-content:center;gap:7px;box-sizing:border-box;width:100%;height:var(--app-height,100svh)!important;min-height:0!important;max-height:var(--app-height,100svh);padding:64px 16px 9px!important;overflow:hidden!important;background:linear-gradient(140deg,#153e36bb,#355d45aa),url('../assets/adventure/field-desk-web.webp') center/cover}
+html body #app#app #main#main.ending .cert-paper{position:relative;display:block;flex:0 0 auto;container-type:inline-size;align-self:center!important;box-sizing:border-box;width:min(calc(100vw - 40px),calc((100svh - 218px)*1.4142857));max-width:none;aspect-ratio:297/210;height:auto!important;min-height:0;max-height:none;overflow:hidden;padding:0!important;margin:0!important;border:0!important;border-radius:3px;background:#fff5dc;box-shadow:0 12px 35px #122a3755;animation:certificate-rise .8s ease-out both}
+#app #main.ending .cert-paper .cert-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+#app #main.ending .cert-paper .cert-content{position:absolute;inset:0;color:#1f4b36;text-align:center;font-family:inherit}
+#app #main.ending .cert-paper .cert-content p,#app #main.ending .cert-paper .cert-content h1,#app #main.ending .cert-paper .cert-content small{margin:0;line-height:1.45}
+#app #main.ending .cert-paper .cert-world{position:absolute;top:11%;left:15%;width:70%;font-size:1.45cqw!important;font-weight:800;letter-spacing:.22em;color:#456d51}
+#app #main.ending .cert-paper .cert-title{position:absolute;top:17%;left:12%;width:76%;font-size:4.8cqw!important;font-weight:900;letter-spacing:-.035em;color:#174c37}
+#app #main.ending .cert-paper .cert-recipient{position:absolute;inset:29% 15% auto;font-size:1.8cqw;font-weight:700}
+#app #main.ending .cert-paper .cert-recipient-top,#app #main.ending .cert-paper .cert-recipient-name{display:flex;align-items:flex-end;justify-content:center;gap:.65cqw;white-space:nowrap}
+#app #main.ending .cert-paper .cert-blank{display:inline-block;box-sizing:border-box;height:3.8cqw;border-bottom:1px solid #42634c;flex-shrink:0}
+#app #main.ending .cert-paper .cert-school{width:20cqw}#app #main.ending .cert-paper .cert-short{width:5.3cqw}#app #main.ending .cert-paper .cert-name{width:22cqw}
+#app #main.ending .cert-paper .cert-recipient-name{margin-top:.9cqw;font-size:2.2cqw}
+#app #main.ending .cert-paper .cert-award{position:absolute;top:49%;left:13%;width:74%;font-size:1.85cqw!important;line-height:1.55!important;word-break:keep-all}
+#app #main.ending .cert-paper .cert-summary{position:absolute;top:65%;left:12%;width:76%;font-size:1.55cqw!important;font-weight:700;color:#366146}
+#app #main.ending .cert-paper .first-try-note{font-size:inherit!important}
+#app #main.ending .cert-paper .cert-bottom{position:absolute;top:70%;left:20%;right:20%;height:13%;display:flex;align-items:center;justify-content:space-between;gap:2cqw}
+#app #main.ending .cert-paper .cert-date,#app #main.ending .cert-paper .cert-issuer{font-size:1.25cqw!important;flex:1;line-height:1.8!important;color:#44624c}
+#app #main.ending .cert-paper .cert-date b,#app #main.ending .cert-paper .cert-issuer b{font-size:1.45cqw!important;color:#214c36}
+#app #main.ending .cert-paper .cert-stamp{flex:0 0 8.7cqw;width:8.7cqw;height:8.7cqw;box-sizing:border-box;border:2px solid #8b6a33;border-radius:50%;background:#f3e6b9;color:#80602e;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:none;animation:certificate-stamp .8s ease-out both}
+#app #main.ending .cert-paper .cert-stamp .icon{width:2.5cqw;height:2.5cqw;margin:0 0 .3cqw}#app #main.ending .cert-paper .cert-stamp strong{font-size:1.15cqw;line-height:1.15}
+#app #main.ending .cert-paper .cert-credit{position:absolute;top:86.5%;left:15%;width:70%;display:block;font-size:1.05cqw!important;color:#4e6049}
+html body #app#app #main#main.ending .cert-note{font-size:14px;line-height:1.4;color:#fffbed;margin:0;text-shadow:0 1px 2px #153e36}
+html body #app#app #main#main.ending .ending-actions{display:flex;flex-wrap:wrap!important;justify-content:center;gap:6px;width:min(1320px,100%);margin:0;padding:0;flex:0 0 auto}
+html body #app#app #main#main.ending .ending-actions .btn{min-height:42px!important;max-height:44px;padding:7px 13px!important;font-size:16px!important;white-space:nowrap;flex:0 0 auto}
+html body #app#app #main#main.ending .ending-actions .icon{width:18px;height:18px}
+@keyframes certificate-rise{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+@keyframes certificate-stamp{0%,45%{opacity:0;scale:1.2}75%{opacity:1;scale:.96}100%{opacity:1;scale:1}}
+@media(prefers-reduced-motion:reduce){.cert-paper,#app #main.ending .cert-paper .cert-stamp{animation:none!important}}
+@media print{
+ @page{size:A4 landscape;margin:0}
+ html:has(.cert-paper),html:has(.cert-paper) body,html:has(.cert-paper) body #app#app{height:210mm!important;width:297mm!important;min-height:0!important;max-height:210mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+ html body #app#app #main#main.ending.certificate-view{display:block!important;position:static!important;width:297mm!important;height:210mm!important;max-height:210mm!important;padding:0!important;margin:0!important;background:none!important;overflow:hidden!important}
+ html body #app#app #main#main.ending.certificate-view>.cert-paper{position:relative!important;display:block!important;width:297mm!important;height:210mm!important;max-height:210mm!important;aspect-ratio:297/210!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;animation:none!important;transform:none!important;translate:none!important;background:#fff5dc!important;print-color-adjust:exact;-webkit-print-color-adjust:exact;break-inside:avoid}
+ html body #app#app #main#main.ending.certificate-view>:not(.cert-paper){display:none!important}
+ #app #main.ending .cert-paper .cert-stamp{animation:none!important}
+}
