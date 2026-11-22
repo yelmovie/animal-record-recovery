@@ -41,7 +41,7 @@ export const SETTINGS_TEXT={
     '발명 시험은 특징을 설명하는 단순한 모형이며, 물리 성능이나 실제 안전성을 측정하지 않습니다.',
     '배경 음악 2곡은 프로젝트 자체 AI 생성 음원입니다.',
     '하루·모리 대사와 생태 탐방 방송에는 AI 생성 음성을 사용했습니다.',
-    '효과음은 Pixabay Content License에 따라 사용·가공했습니다.',
+    '효과음은 Pixabay Content License와 CC0(freesound·Kenney 공개 자료)에 따라 사용·가공했습니다.',
     '아래 자료 출처에서 제작 도구와 외부 자료의 이용 조건을 확인할 수 있습니다.',
   ],
   sourcesNote:'미션 화면에는 출처를 표시하지 않고 이곳에 모아 두었습니다.',
@@ -61,6 +61,7 @@ export const SETTINGS_TEXT={
       '하루·모리 대사 · Higgsfield의 ElevenLabs v4 · 프로젝트 자체 생성',
       '생태 탐방 방송 · ElevenLabs v4 · 프로젝트 자체 생성',
       '주민 대화·편지·부탁 안내·복구 안내·개념 설명 · ElevenLabs v4 · 프로젝트 자체 생성',
+      '지도 악당 대사 · ElevenLabs · 프로젝트 자체 생성',
     ]],
     ['효과음 (Pixabay)',[
       '버튼 · Universfield · Pixabay Content License',
@@ -73,6 +74,10 @@ export const SETTINGS_TEXT={
       '발걸음 · joentnt · Pixabay Content License',
       '문 열기 · soundreality · Pixabay Content License',
       '책장 넘김 · creatorshome · Pixabay Content License',
+    ]],
+    ['효과음 (CC0)',[
+      '지도 전투 효과음 8종 · freesound · CC0',
+      '성취 카드·잠금 해제 효과음 8종 · freesound·Kenney · CC0',
     ]],
     ['글꼴·프로그램',[
       '나눔스퀘어 네오 · NAVER · SIL Open Font License 1.1',
