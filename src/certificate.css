@@ -34,3 +34,7 @@ html body #app#app #main#main.ending .ending-actions .icon{width:18px;height:18p
  html body #app#app #main#main.ending.certificate-view>:not(.cert-paper){display:none!important}
  #app #main.ending .cert-paper .cert-stamp{animation:none!important}
 }
+
+/* Keep the larger wax seal clear of the issuer, note and frame. */
+#app #main.ending .cert-paper .cert-bottom{top:71.5%;height:14.3%;left:19%;right:19%}
+#app #main.ending .cert-paper .cert-credit{top:86.5%}

@@ -1,4 +1,5 @@
 import {saveCertificatePng} from './certificate-png.js';
+import {mountCertificateWax} from './certificate-wax.js';
 import {mountBroadcastAudio} from './broadcast-audio.js';
 import {researchDiaryView} from './research-report.js';
 import {createRecordStorage,storageMessage} from './record-storage.js';
@@ -194,6 +195,7 @@ function render(){
   mapRender++;map?.destroy();map=null;mapFailed=false;mapModuleFailed=false;
   if(screen==='map')arrived=!isStageOpen(s,selectedStage)||s.mapPosition===String(selectedStage);
   const flashed=restoredFlash;app.innerHTML=header(s,{...view(),rewardSlots:screen==='map'?rewardSlotsHtml(s.mapEncounters):''})+page(s,view());restoredFlash=null;
+  if(screen==='ending'){const paper=document.querySelector('.cert-paper');if(paper)mountCertificateWax(paper,{label:'자연 기록\n연구원 인증',onImpact:()=>playSound(s.soundEnabled,'encounter-heavy')});}
   setupPanels();syncWorkshopCue();
   unmountBroadcast=mountBroadcastAudio(app,{dialog,enabled:voiceOn,volume:voiceVolume,duck:()=>duckMusic('broadcast'),onStart:()=>{clearActivityProgress();resetNpcDialogue();stopMotion();map?.pause?.();},onFinish:()=>{
     const card=screen==='commission'?requestCards(s,stage,requestParts(stage,commissionIndex))[requestCard]:null;if(card?.kind==='broadcast')heardBroadcasts.add(broadcastKey(card));
