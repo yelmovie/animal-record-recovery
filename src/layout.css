@@ -646,12 +646,13 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 
 /* ── Reward (장소 복구 완료) ────────────────────────────────────────────
    Lighter veil so the trail-map art reads, the block sits in the middle of the screen,
-   lines that sit on the art get a cream chip, and the two action buttons stay centred together. */
+   lines that sit on the art get a cream chip, and the actions sit below the result. */
 #app .reward-screen::before{background:#f4f1e6b8}
 #app main.reward-screen{display:flex;flex-direction:column;justify-content:safe center;padding:calc(var(--hud-top) * .5) 24px 16px}
 #app .reward-screen .reward-content{margin:0 auto;padding:0}
 #app .reward-screen .reward-content>h1{width:fit-content;max-width:calc(100% - 2 * var(--hud-right));margin:0 auto 6px;padding:4px 24px 6px;border-radius:16px;background:#fff9e9f2;box-shadow:0 3px 12px #2a3a2626;font-size:clamp(28px,4.2vh,48px)}
 #app .reward-screen .reward-content>p{width:fit-content;margin:0 auto;padding:2px 16px;border-radius:12px;background:#fff9e9e6;color:var(--ui-brown);font-size:var(--c-body)}
+#app .reward-screen .reward-content>.forest-reward-note{max-width:min(640px,100%);padding:8px 20px;line-height:1.4}
 #app .reward-screen .reward-display{grid-template-columns:auto auto;justify-content:center;gap:clamp(20px,3vw,56px)}
 #app .reward-screen .restore-card{width:fit-content;max-width:100%;height:clamp(170px,34dvh,420px);justify-self:center}
 #app .reward-screen img.restore-photo{width:auto;max-width:100%;height:100%}
@@ -662,10 +663,59 @@ dialog:has(.resident-letter)>.dialog-heading .btn .icon{width:22px;height:22px}
 #app .reward-screen .commission-thanks p{font-size:var(--c-body)!important}
 #app .reward-screen .commission-thanks>div>:is(small,b){font-size:var(--c-small)}
 #app .reward-screen .commission-reward-links .btn{min-height:clamp(50px,6vh,64px);font-size:var(--c-body);background:var(--ui-paper);border:2px solid var(--ui-frame);box-shadow:0 3px 0 #4a3a2299}
-#app .reward-screen .reward-actions{flex-direction:row;justify-content:center;align-items:center;gap:18px}
-#app .reward-screen .reward-actions>*{margin:0}
-#app .reward-screen .reward-actions>.btn{min-height:clamp(54px,6.6vh,72px);padding-inline:28px;font-size:clamp(20px,2.6vh,28px)}
-#app .reward-screen .reward-actions>.text-button{padding:6px 14px;border-radius:12px;background:#fff9e9e6;font-size:var(--c-small)}
+#app .reward-screen .reward-actions{
+  display:flex;
+  flex-flow:row wrap;
+  justify-content:center;
+  align-items:stretch;
+  gap:12px clamp(16px,1.7vw,24px);
+  margin-block-start:clamp(20px,3dvh,32px);
+}
+#app .reward-screen .reward-actions>button{
+  display:inline-flex;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:center;
+  min-height:clamp(52px,7dvh,68px);
+  max-width:100%;
+  margin:0;
+  padding:10px clamp(16px,1.6vw,24px);
+  border-radius:14px;
+  font-size:var(--btn-fs);
+  line-height:1.25;
+}
+#app .reward-screen .reward-actions>.text-button{
+  border:1px solid var(--ui-line);
+  background:#fff9e9e6;
+  text-underline-offset:.18em;
+}
+@media(max-width:600px){
+  #app main.reward-screen{padding-top:var(--hud-top)}
+  #app .reward-screen .reward-content>h1{
+    max-width:100%;
+    padding-inline:16px;
+    font-size:clamp(24px,7vw,32px);
+  }
+  #app .reward-screen .reward-display{
+    grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+    gap:12px;
+    margin-block:12px;
+  }
+  #app .reward-screen .restore-card{height:clamp(144px,44vw,235px);padding:8px 8px 24px}
+  #app .reward-screen .reward-tool .reward-badge{
+    width:clamp(104px,32vw,168px);
+    height:clamp(104px,32vw,168px);
+    max-width:100%;
+    margin-inline:auto;
+  }
+  #app .reward-screen .reward-tool>h2{font-size:clamp(20px,5.5vw,26px)}
+  #app .reward-screen .reward-actions{
+    flex-direction:column;
+    width:min(100%,26rem);
+    margin-inline:auto;
+  }
+  #app .reward-screen .reward-actions>button{width:100%}
+}
 
 /* ── Ending certificate ────────────────────────────────────────────────
    Text grows with the screen, the certificate fits one screen down to 1024×600. */
@@ -1026,9 +1076,8 @@ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn.quiet{backgro
 dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{font-size:max(var(--btn-fs),min(5cqw,24px))}
 dialog .settings-body .setting-row{font-size:max(var(--btn-fs),1em)!important}
 #app .landing .landing-replay>span{font-size:max(var(--btn-fs),2.1vh)}
-/* Step tabs, motion-frame picks and the reward tool link were 16–17px; same floor as every button. */
+/* Step tabs and motion-frame picks use the same floor as every button. */
 #app #main .panel-tabs>.btn,#app #main .habitat-notes .motion-frames>.btn{font-size:var(--btn-fs)}
-#app .reward-screen .reward-actions>.text-button{font-size:var(--btn-fs)}
 dialog .settings-body .btn :is(span,b){font-size:inherit!important}
 @media(min-width:1280px){
  #app .mission-page .design-options .panel-tabs>.btn{font-size:max(20px,2.2vh)}
@@ -1110,7 +1159,7 @@ dialog:has(.resident-letter) .resident-letter .dialog-actions .btn{white-space:n
 #app .commission-page .request-lab .inline-options>.btn,#app .commission-page .request-lab .retest-results .record-options>.choice{min-height:44px}
 #app .commission-page .request-card>.commission-evidence>summary{min-height:44px}
 #app .mission-page .studio-drawing .studio-toolbar .studio-swatch{width:clamp(44px,5vh,54px);height:clamp(44px,5vh,54px)}
-#app .reward-screen .reward-actions>.text-button,#app .reward-screen .text-button{min-height:44px}
+#app .reward-screen .text-button{min-height:44px}
 #app .mission-page .design-options .source-study .btn,#app main.ending .final-inventions>.panel-tabs>.btn{min-height:44px}
 
 /* 1. 4-1/4-3 life guide and 2. 5-0 design bench use the floating-card layout on every landscape tablet
@@ -1403,7 +1452,6 @@ img[src$="/ant.webp"]{--animal-colour:grayscale(.96) brightness(.63);filter:var(
 #app .forest-extra summary { min-height: 44px; padding: 10px 4px; cursor: pointer; }
 #app #main .forest-extra p { font-size: 18px!important; line-height: 1.5; }
 #app #main .forest-fact { font-size: clamp(20px, 2.7vh, 28px)!important; line-height: 1.45; }
-#app .forest-reward-note { max-width: 640px; margin: 12px auto; }
 @media (max-height: 650px) {
   #app .mission-page .forest-compare { padding-top: calc(var(--hud-top) + 2px); gap: 16px; }
   #app .forest-compare-question { padding: 14px 18px; }
